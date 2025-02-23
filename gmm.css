@@ -1127,8 +1127,8 @@
   display: flex;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__name {
-  width: calc(100% - 4.5rem);
-  display: block;
+  max-width: calc(83% - 4.5rem);
+  float: left;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__name i {
   margin-right: 3px;
@@ -1209,16 +1209,16 @@
   white-space: nowrap;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__title .item__title__body {
-  width: calc(100% - 4.5rem);
   cursor: pointer;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__title .item__title__body:hover .item__name i {
   color: var(--color-secondary-base);
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__title .item__title__body > * {
-  display: inline;
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__title button {
   display: inline;
@@ -1257,7 +1257,8 @@
   margin-left: 3px;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__recharge {
-  display: inline;
+  float: right;
+  margin-right: 4.5rem;
   font-weight: bold;
   color: var(--color-primary-tint-3);
   font-size: smaller;
@@ -1280,10 +1281,11 @@
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__uses {
   font-weight: bold;
   position: relative;
-  display: inline-block;
   color: var(--color-primary-tint-3);
   font-size: smaller;
   margin-left: 3px;
+  float: right;
+  margin-right: 4.5rem;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__uses:hover {
   color: var(--color-secondary-base);
@@ -1410,6 +1412,7 @@
 .gmm-artifact.artifact--monster.artifact--monster--vanity .item-list .item .item__body {
   position: relative;
   width: 100%;
+  max-width: 87%;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .legendary__resources {
   display: grid;

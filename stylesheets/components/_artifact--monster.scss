@@ -706,8 +706,8 @@
 				}
 
 				.item__name {
-					width: calc(100% - 4.5rem);
-					display: block;
+					max-width: calc(83% - 4.5rem);
+					float: left;
 
 					i {
 						margin-right: 3px;
@@ -797,17 +797,17 @@
 					white-space: nowrap;
 
 					.item__title__body {
-						width: calc(100% - 4.5rem);
 						cursor: pointer;
 						overflow: hidden;
-						text-overflow: ellipsis;
 
 						&:hover .item__name i {
 							color: var(--color-secondary-base);
 						}
 
 						> * {
-							display: inline;
+							display: inline-block;
+							text-overflow: ellipsis;
+							overflow: hidden;
 						}
 					}
 
@@ -856,7 +856,8 @@
 				}
 
 				.item__recharge {
-					display: inline;
+					float: right;
+					margin-right: 4.5rem;
 					font-weight: bold;
 					color: var(--color-primary-tint-3);
 					font-size: smaller;
@@ -883,10 +884,11 @@
 				.item__uses {
 					font-weight: bold;
 					position: relative;
-					display: inline-block;
 					color: var(--color-primary-tint-3);
 					font-size: smaller;
 					margin-left: 3px;
+					float: right;
+					margin-right: 4.5rem;
 
 					&:hover {
 						color: var(--color-secondary-base);
@@ -1048,6 +1050,7 @@
 				.item__body {
 					position: relative;
 					width: 100%;
+					max-width: 87%;
 				}
 			}
 		}
