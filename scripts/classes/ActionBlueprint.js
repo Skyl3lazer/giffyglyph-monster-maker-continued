@@ -116,6 +116,12 @@ const ActionBlueprint = (function () {
                 CompatibilityHelpers.setProperty(itemData, x.to, CompatibilityHelpers.getProperty(blueprint.data, x.from));
             }
         });
+
+        //Blank descriptions
+        if (!CompatibilityHelpers.hasProperty(blueprint.data, "description.text")) {
+            CompatibilityHelpers.setProperty(itemData, "system.description.value", "");
+        }
+
         //Properties
         if (CompatibilityHelpers.hasProperty(blueprint.data, "properties")) {
             if (!itemData.system.properties)
