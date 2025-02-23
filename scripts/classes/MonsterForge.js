@@ -537,7 +537,7 @@ const MonsterForge = (function () {
 
     function _parseLairActions(derivedAttributes, lairActions, ignoreItemRequirements) {
         return {
-            visible: lairActions.always_show || lairActions.initiative > 0 || lairActions.items.length > 0,
+            visible: lairActions.always_show || lairActions.items.length > 0,
             initiative: lairActions.initiative,
             items: _filterItems(derivedAttributes, lairActions.items, ignoreItemRequirements)
         };
