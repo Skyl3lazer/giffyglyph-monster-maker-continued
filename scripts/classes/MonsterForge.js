@@ -67,7 +67,7 @@ const MonsterForge = (function () {
                 rank: monsterRank,
                 reactions: _parseReactions(derivedAttributes, blueprint.data.reactions, ignoreItemRequirements),
                 role: monsterRole,
-                saving_throws: _parseSavingThrows(blueprint.data.trained_saves, monsterProficiency, monsterAbilityModifiers, derivedAttributes.trainedSavingThrowCount),
+                saving_throws: _parseSavingThrows(blueprint.data.trained_saves, monsterProficiency, monsterAbilityModifiers, blueprint.data.ability_modifiers.ranking, derivedAttributes.trainedSavingThrowCount),
                 senses: _parseSenses(blueprint.data.senses),
                 skills: monsterSkills,
                 speeds: _parseSpeeds(blueprint.data.speeds, derivedAttributes.role),
@@ -256,10 +256,8 @@ const MonsterForge = (function () {
         return ams;
     }
 
-    function _parseSavingThrows(savingThrows, pb, abilityModifiers, tst) {
+    function _parseSavingThrows(savingThrows, pb, abilityModifiers, abilityRankings, tst) {
         const sts = {};
-        let abilityRankings = Object.entries(abilityModifiers).sort((x, y) => y[1].value - x[1].value).map((x) => x[0]);
-        abilityRankings = abilityRankings.filter(a => a !== "max");
         GMM_5E_ABILITIES.forEach(function (attrName) {
             if (savingThrows[attrName]) {
                 sts[attrName] = new DerivedAttribute();
