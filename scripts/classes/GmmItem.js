@@ -421,11 +421,17 @@ const GmmItem = (function () {
                 case "rwak":
                 case "rsak":
                     if (gmmMonster.attack_bonus.value) {
-                        parts.push("@attackBonus");
+                        parts.push("@monsterBonus");
                         if (rollData) {
-                            rollData["attackBonus"] = gmmMonster.attack_bonus.value;
+                            rollData["monsterBonus"] = gmmMonster.attack_bonus.value;
                         }
                     }
+                   /* if (gmmActionBlueprint.attack.bonus) {
+                        parts.push("@attackBonus");
+                        if (rollData) {
+                            rollData["attackBonus"] = gmmActionBlueprint.attack.bonus;
+                        }
+                    }*/
                     if (item.flags?.gmm?.blueprint?.data?.attack?.related_stat) {
                         parts.push(`@abilityMod`);
                         rollData[`abilityMod`] = gmmMonster.ability_modifiers[item.flags.gmm.blueprint.data.attack.related_stat].value;
@@ -437,8 +443,8 @@ const GmmItem = (function () {
         }
 
         // Add the item's attack bonus
-        if (itemData.attackBonus && itemData.attackBonus != 0) {
-            parts.push(gmmMonster ? Shortcoder.replaceShortcodes(itemData.attackBonus, gmmMonster) : itemData.attackBonus);
+        if (itemData.attack.bonus && itemData.attack.bonus != 0) {
+            parts.push(gmmMonster ? Shortcoder.replaceShortcodes(itemData.attack.bonus, gmmMonster) : itemData.attack.bonus);
         }
 
         // One-time bonus provided by consumed ammunition

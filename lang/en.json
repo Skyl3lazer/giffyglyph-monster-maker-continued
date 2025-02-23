@@ -159,7 +159,7 @@
   "gmm.action.blueprint.attack.title": "Attack",
   "gmm.action.blueprint.attack.type": "Attack Type",
   "gmm.action.blueprint.attack.stat": "Related Ability",
-  "gmm.action.blueprint.attack.bonus": "Proficiency Bonus",
+  "gmm.action.blueprint.attack.bonus": "Attack Modifier",
   "gmm.action.blueprint.description.title": "Description",
   "gmm.action.blueprint.deferral.title": "Deferral",
   "gmm.action.blueprint.deferral.type": "Deferral Type",
