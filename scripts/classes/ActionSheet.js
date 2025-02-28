@@ -87,7 +87,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         const isEnchantment = li.dataset.effectType.startsWith("enchantment");
         return this.document.createEmbeddedDocuments("ActiveEffect", [{
             name: game.i18n.localize("DND5E.EffectNew"),
-            icon: this.document.img,
+            img: this.document.img,
             origin: isEnchantment ? undefined : this.document.uuid,
             "duration.rounds": li.dataset.effectType === "temporary" ? 1 : undefined,
             disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),

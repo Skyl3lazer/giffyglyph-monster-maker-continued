@@ -253,7 +253,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eN
         const isEnchantment = li.dataset.effectType.startsWith("enchantment");
         return this.document.createEmbeddedDocuments("ActiveEffect", [{
             name: game.i18n.localize("DND5E.EffectNew"),
-            icon: "icons/svg/aura.svg",
+            img: "icons/svg/aura.svg",
             origin: isEnchantment ? undefined : this.document.uuid,
             "duration.rounds": li.dataset.effectType === "temporary" ? 1 : undefined,
             disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),
