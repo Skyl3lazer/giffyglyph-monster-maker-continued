@@ -270,7 +270,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eN
             const itemData = {
                 name: game.i18n.format("DND5E.ItemNew", { type: game.i18n.localize(CONFIG.Item.typeLabels[type]) }),
                 type,
-                system: CompatibilityHelpers.expandObject({ ...dataset })
+                system: CompatibilityHelpers.gmmExpandObject({ ...dataset })
             };
             delete itemData.system.type;
             return this.actor.createEmbeddedDocuments("Item", [itemData]);
@@ -279,7 +279,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eN
                 name: game.i18n.format(`gmm.monster.artifact.add.${header.dataset["activation.type"] ? header.dataset["activation.type"] : "trait"}`),
                 type: type,
                 img: "icons/svg/clockwork.svg",
-                system: CompatibilityHelpers.duplicate(header.dataset),
+                system: CompatibilityHelpers.gmmDuplicate(header.dataset),
                 flags: {
                     "core.sheetClass": `${GMM_MODULE_TITLE}.ActionSheet`
                 }
@@ -352,7 +352,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eN
             this._gui.updateFrom(event.currentTarget.closest(".gmm-window"));
         }
 
-        let formData = CompatibilityHelpers.expandObject(form);
+        let formData = CompatibilityHelpers.gmmExpandObject(form);
         if (CompatibilityHelpers.hasProperty(formData, "gmm.blueprint")) {
             CompatibilityHelpers.setProperty(formData, "flags.gmm.blueprint", {
                 vid: 1,

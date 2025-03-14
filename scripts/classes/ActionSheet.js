@@ -76,7 +76,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         event.preventDefault();
         const a = event.currentTarget;
         const li = a.closest(".form-group--damage");
-        const damage = CompatibilityHelpers.duplicate(this.item.system.damage);
+        const damage = CompatibilityHelpers.gmmDuplicate(this.item.system.damage);
         damage.parts.splice(Number(li.dataset.index), 1);
         return this.item.update({ "system.damage.parts": damage.parts });
     }
@@ -199,7 +199,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         if (event && event.currentTarget) {
             this._gui.updateFrom(event.currentTarget.closest(".gmm-window"));
         }
-        let formData = CompatibilityHelpers.expandObject(form);
+        let formData = CompatibilityHelpers.gmmExpandObject(form);
 
         //Messy but new validation makes this weird with dropdowns
         if (formData.gmm.blueprint.duration.value === null)
