@@ -231,7 +231,13 @@ const MonsterBlueprint = (function () {
 								blueprintData.inventory.items.push(_getItemDetails(item, blueprintData.display));
 								break;
 							default:
-								blueprintData.actions.items.push(_getItemDetails(item));
+								if (item.system.activation.type === "reactiondamage"
+									|| item.system.activation.type === "reactionmanual"
+									|| item.system.activation.type === "reactionpreattack") {
+									blueprintData.reactions.items.push(_getItemDetails(item));
+								} else {
+									blueprintData.actions.items.push(_getItemDetails(item));
+								}
 								break;
 						}
 					});
