@@ -22,80 +22,89 @@ import ModalSavingThrow from "../modals/ModalSavingThrow.js";
 import MonsterBlueprint from "./MonsterBlueprint.js";
 import Templates from "./Templates.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
+import Activities from "./Activities.js";
 
-export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eNPC {
+/**
+ * GMM monster sheet, rebuilt on the dnd5e v5.x ApplicationV2 NPC sheet base.
+ *
+ * The custom "Forge" UI lives entirely inside a single template part (`forge`) which
+ * replaces the dnd5e NPC sheet's stock PARTS (header / sidebar / tabs / etc.). Form
+ * submission is intercepted in {@link _processFormData} so that edits to the
+ * `gmm.blueprint.*` fields are translated into both a `flags.gmm.blueprint` write
+ * and a sync of the underlying `system.*` fields via {@link MonsterBlueprint.getActorDataFromBlueprint}.
+ */
+export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet {
 
-    constructor(...args) {
-        super(...args);
+    constructor(options = {}) {
+        super(options);
         this._gui = new Gui();
     }
 
-    static get defaultOptions() {
-        let mergedOptions = CompatibilityHelpers.mergeObject(
-            super.defaultOptions,
-            {
-                classes: ["gmm-window window--monster"],
-                scrollY: null,
-                height: 900,
-                width: 540,
-                template: Templates.getRelativePath('monster/forge.html'),
-                resizable: true
-            }
-        );
-        return mergedOptions;
-    }
-    get template() {
-        return Templates.getRelativePath('monster/forge.html')
-    }
-
-    activateListeners($el) {
-        try {
-            super.activateListeners($el);
-        } catch (e) {
-            console.log(e);
+    /** @inheritDoc */
+    static DEFAULT_OPTIONS = {
+        classes: ["gmm-window", "window--monster"],
+        position: { width: 540, height: 900 },
+        window: { resizable: true },
+        actions: {
+            "add-item": MonsterSheet.#actionAddItem,
+            "edit-item": MonsterSheet.#actionEditItem,
+            "delete-item": MonsterSheet.#actionDeleteItem,
+            "roll-item": MonsterSheet.#actionRollItem,
+            "display-item": MonsterSheet.#actionDisplayItem,
+            "recharge-item": MonsterSheet.#actionRechargeItem,
+            "create-effect": MonsterSheet.#actionCreateEffect,
+            "roll-hp": MonsterSheet.#actionRollHp
         }
-        try {
-            this._gui.activateListeners($el);
-            this._gui.applyTo($el);
-            $el.find('.ability-ranking .move-up, .ability-ranking .move-down').click(this._updateAbilityRanking.bind(this));
-            $el.find('.save-ranking .move-up, .save-ranking .move-down').click(this._updateSaveRanking.bind(this));
-            $el.find('.monster__panels .accordion-section__title').click((e) => e.stopPropagation());
-            $el.find('.item .item__recharge button').click((e) => e.stopPropagation());
-            $el.find('.item .item__title input').click((e) => e.stopPropagation());
-            $el.find('.item .item__title').click(this._toggleItemDetails.bind(this));
-            $el.find('[data-action="edit-item"]').click(this._editItem.bind(this));
-            $el.find('[data-action="create-effect"]').click(this._createEffect.bind(this));
-            $el.find('[data-action="delete-item"]').click(this._deleteItem.bind(this));
-            $el.find('[data-action="add-item"]').click(this._addItem.bind(this));
-            $el.find('[data-action="roll-item"]').click(this._rollItem.bind(this));
-            $el.find('[data-action="display-item"]').click(this._displayItem.bind(this));
-            $el.find('[data-action="recharge-item"]').click(this._rechargeItem.bind(this));
-            $el.find('[data-action="update-item"]').change((e) => this._updateItem(e));
-            $el.find('[data-action="roll-hp"]').click((e) => this._rollHitPoints(e));
+    };
 
-            [ModalAbilityCheck, ModalBasicAttackAc, ModalBasicAttackSave, ModalBasicDamage, ModalSavingThrow].forEach((x) => {
-                x.activateListeners($el, this.actor, this.id)
-            });
-        } catch (e) {
-            console.log(e);
+    /**
+     * Replace the inherited NPC PARTS (header, sidebar, features, inventory, spells,
+     * effects, biography, specialTraits, warnings, tabs) with our single `forge` part.
+     * Static class fields are not merged across the inheritance chain, so this fully
+     * supplants the parent definition.
+     * @inheritDoc
+     */
+    static PARTS = {
+        forge: {
+            template: "modules/giffyglyph-monster-maker-continued/templates/monster/forge.html",
+            scrollable: [".forge__blueprint", ".forge__artifact"]
         }
-    }
+    };
 
-    async getData() {
-        const data = await super.getData();
-        const actorData = data.actor.flags;
-        data.gmm = {
+    /**
+     * The dnd5e NPC sheet inherits `static TABS` for its tab strip; clear it so the
+     * framework doesn't try to render a `tabs` part we never declare.
+     * @inheritDoc
+     */
+    static TABS = [];
+
+    /* -------------------------------------------- */
+    /*  Rendering                                   */
+    /* -------------------------------------------- */
+
+    /** @inheritDoc */
+    async _prepareContext(options) {
+        const context = await super._prepareContext(options);
+        const actorData = this.actor.flags;
+
+        // Templates rendered via the V1 sheet expected `cssClass` to be supplied by the
+        // framework. ApplicationV2 doesn't populate it automatically, so provide an
+        // equivalent so the existing `forge--monster ... {{cssClass}}` markup still works.
+        context.cssClass = this.isEditable ? "editable" : "locked";
+        context.editable = this.isEditable;
+
+        context.gmm = {
             blueprint: actorData.gmm?.blueprint ? actorData.gmm.blueprint.data : null,
             monster: actorData.gmm?.monster ? actorData.gmm.monster.data : null,
             forge: {
-                layout: actorData.gmm?.blueprint.data.display.layout ? actorData.gmm.blueprint.data.display.layout : game.settings.get(GMM_MODULE_TITLE, "monsterLayout"),
+                layout: actorData.gmm?.blueprint?.data?.display?.layout ? actorData.gmm.blueprint.data.display.layout : game.settings.get(GMM_MODULE_TITLE, "monsterLayout"),
                 colors: {
-                    primary: actorData.gmm?.blueprint.data.display.color.primary ? actorData.gmm.blueprint.data.display.color.primary : game.settings.get(GMM_MODULE_TITLE, "monsterPrimaryColor"),
-                    secondary: actorData.gmm?.blueprint.data.display.color.secondary ? actorData.gmm.blueprint.data.display.color.secondary : game.settings.get(GMM_MODULE_TITLE, "monsterSecondaryColor")
+                    primary: actorData.gmm?.blueprint?.data?.display?.color?.primary ? actorData.gmm.blueprint.data.display.color.primary : game.settings.get(GMM_MODULE_TITLE, "monsterPrimaryColor"),
+                    secondary: actorData.gmm?.blueprint?.data?.display?.color?.secondary ? actorData.gmm.blueprint.data.display.color.secondary : game.settings.get(GMM_MODULE_TITLE, "monsterSecondaryColor")
                 },
                 skins: {
-                    artifact: actorData.gmm?.blueprint.data.display.skin.artifact ? actorData.gmm.blueprint.data.display.skin.artifact : game.settings.get(GMM_MODULE_TITLE, "monsterArtifactSkin"),
-                    blueprint: actorData.gmm?.blueprint.data.display.skin.blueprint ? actorData.gmm.blueprint.data.display.skin.blueprint : game.settings.get(GMM_MODULE_TITLE, "monsterBlueprintSkin"),
+                    artifact: actorData.gmm?.blueprint?.data?.display?.skin?.artifact ? actorData.gmm.blueprint.data.display.skin.artifact : game.settings.get(GMM_MODULE_TITLE, "monsterArtifactSkin"),
+                    blueprint: actorData.gmm?.blueprint?.data?.display?.skin?.blueprint ? actorData.gmm.blueprint.data.display.skin.blueprint : game.settings.get(GMM_MODULE_TITLE, "monsterBlueprintSkin")
                 }
             },
             gui: this._gui,
@@ -117,23 +126,22 @@ export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eN
             }
         };
 
-        if (data.gmm.blueprint) {
-
+        if (context.gmm.blueprint) {
             // Set total number of spells.
-            if (data.gmm.blueprint.spellbook.spells) {
-                data.gmm.blueprint.spellbook.total = Object.entries(data.gmm.blueprint.spellbook.spells).reduce((a, b) => a + b[1].length, 0);
+            if (context.gmm.blueprint.spellbook?.spells) {
+                context.gmm.blueprint.spellbook.total = Object.entries(context.gmm.blueprint.spellbook.spells).reduce((a, b) => a + b[1].length, 0);
             }
         }
 
-        if (data.gmm.monster) {
+        if (context.gmm.monster) {
             // Beautify monster item data.
             const actionTypes = ["bonus_actions.items", "actions.items", "reactions.items", "lair_actions.items", "legendary_actions.items", "traits.items", "inventory.items", "spellbook.spells.0", "spellbook.spells.1", "spellbook.spells.2", "spellbook.spells.3", "spellbook.spells.4", "spellbook.spells.5", "spellbook.spells.6", "spellbook.spells.7", "spellbook.spells.8", "spellbook.spells.9", "spellbook.spells.other"];
 
             for (const type of actionTypes) {
-                let promises = this._getItemMapping(type, data.gmm.monster);
+                let promises = this._getItemMapping(type, context.gmm.monster);
                 if (promises) {
                     await Promise.all(promises).then(function (results) {
-                        CompatibilityHelpers.setProperty(data.gmm.monster, type, results);
+                        CompatibilityHelpers.setProperty(context.gmm.monster, type, results);
                     });
                 }
             }
@@ -141,22 +149,22 @@ export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eN
             // Set maximum active spell level
             let maximum_spell_level = 0;
             for (let i = 1; i < 10; i++) {
-                if (data.gmm.monster.spellbook.spells[i].length > 0 || data.gmm.monster.spellbook.slots[i].maximum > 0) {
+                if (context.gmm.monster.spellbook.spells[i].length > 0 || context.gmm.monster.spellbook.slots[i].maximum > 0) {
                     maximum_spell_level = i;
                 }
             }
-            if (data.gmm.monster.spellbook.slots.pact.maximum > 0) {
-                maximum_spell_level = Math.max(maximum_spell_level, data.gmm.monster.spellbook.slots.pact.level);
+            if (context.gmm.monster.spellbook.slots.pact.maximum > 0) {
+                maximum_spell_level = Math.max(maximum_spell_level, context.gmm.monster.spellbook.slots.pact.level);
             }
-            data.gmm.monster.spellbook.maximum_visible_spell_level = maximum_spell_level;
+            context.gmm.monster.spellbook.maximum_visible_spell_level = maximum_spell_level;
 
             // Show/hide features panel
             ["bonus_actions", "actions", "reactions", "traits", "paragon_actions", "legendary_actions", "lair_actions", "legendary_resistances"].forEach((x) => {
-                if (data.gmm.monster[x].visible) {
-                    if (data.gmm.monster.features) {
-                        data.gmm.monster.features.visible = true;
+                if (context.gmm.monster[x].visible) {
+                    if (context.gmm.monster.features) {
+                        context.gmm.monster.features.visible = true;
                     } else {
-                        data.gmm.monster.features = {
+                        context.gmm.monster.features = {
                             visible: true
                         };
                     }
@@ -164,8 +172,11 @@ export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eN
             });
         }
 
-        return data;
+        return context;
     }
+
+    /* -------------------------------------------- */
+
     _getItemMapping(type, monster) {
         let items = CompatibilityHelpers.getProperty(monster, type);
         let mappedItems;
@@ -175,80 +186,302 @@ export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eN
                 item.gmmLabels = await item.getGmmLabels();
                 return item;
             });
-
         }
         return mappedItems;
     }
-    async _onDropItemCreate(itemData) {
-        if (itemData.system) {
-            ["attunement", "equipped", "proficient", "prepared"].forEach((x) => delete itemData.system[x]);
+
+    /* -------------------------------------------- */
+    /*  Event Listeners                             */
+    /* -------------------------------------------- */
+
+    /** @inheritDoc */
+    async _onRender(context, options) {
+        await super._onRender(context, options);
+
+        // Bridge the GMM Gui controller and modal helpers (which still use jQuery) to the
+        // V2 root element. `this.element` is the form created by DocumentSheetV2 (`tag: "form"`)
+        // and carries our custom `gmm-window` class so jQuery selectors like
+        // `event.currentTarget.closest(".gmm-window")` continue to resolve correctly.
+        const $el = $(this.element);
+        try {
+            this._gui.activateListeners($el);
+            this._gui.applyTo($el);
+        } catch (e) {
+            console.warn("GMM | MonsterSheet: Gui.activateListeners failed", e);
         }
-        return super._onDropItemCreate(itemData);
+
+        try {
+            $el.find('.ability-ranking .move-up, .ability-ranking .move-down').click(this._updateAbilityRanking.bind(this));
+            $el.find('.save-ranking .move-up, .save-ranking .move-down').click(this._updateSaveRanking.bind(this));
+            $el.find('.monster__panels .accordion-section__title').click((e) => e.stopPropagation());
+            $el.find('.item .item__recharge button').click((e) => e.stopPropagation());
+            $el.find('.item .item__title input').click((e) => e.stopPropagation());
+            $el.find('.item .item__title').click(this._toggleItemDetails.bind(this));
+            // `update-item` inputs intentionally have no `name` attribute, so the V2 form
+            // auto-submit ignores them. Their value changes update the embedded item directly.
+            $el.find('[data-action="update-item"]').change((e) => this._updateItem(e));
+
+            [ModalAbilityCheck, ModalBasicAttackAc, ModalBasicAttackSave, ModalBasicDamage, ModalSavingThrow].forEach((x) => {
+                x.activateListeners($el, this.actor, this.id);
+            });
+        } catch (e) {
+            console.warn("GMM | MonsterSheet: listener attachment failed", e);
+        }
     }
 
-    _toggleItemDetails(event) {
-        const item = event.currentTarget.closest(".item");
-        item.classList.toggle("expanded");
+    /* -------------------------------------------- */
+    /*  Form Submission                             */
+    /* -------------------------------------------- */
+
+    /**
+     * @inheritDoc
+     * Skip the auto-submit when an input inside a `.gmm-modal` changes; modal forms
+     * commit their own state via their roll buttons and should never trigger a sheet
+     * update by themselves.
+     */
+    _onChangeForm(formConfig, event) {
+        if (event?.target?.closest?.(".gmm-modal")) return;
+        return super._onChangeForm(formConfig, event);
     }
 
-    async _rollHitPoints(event) {
-        const button = event.currentTarget.closest("button");
-        const roll = new Roll(button.dataset.formula);
-        await roll.roll();
-        AudioHelper.play({ src: CONFIG.sounds.dice });
-        this.actor.update({
-            [`system.attributes.hp.value`]: Math.max(1, roll.total),
-            [`system.attributes.hp.max`]: Math.max(1, roll.total),
-            [`system.attributes.hp.effectiveMax`]: Math.max(1, roll.total),
-            [`flags.gmm.blueprint.data.hit_points.rolled_max`]: Math.max(1, roll.total),
+    /**
+     * @inheritDoc
+     * Replaces the V1 `_updateObject`. The form fields use dotted names like
+     * `gmm.blueprint.combat.rank.type`; here we expand them, repackage the
+     * `gmm.blueprint` subtree under `flags.gmm.blueprint`, apply the rank/role
+     * special cases, and merge in the actor-side mirror produced by
+     * {@link MonsterBlueprint.getActorDataFromBlueprint} before letting the V2
+     * pipeline call `document.update` with the result.
+     */
+    _processFormData(event, form, formData) {
+        const expanded = foundry.utils.expandObject(formData.object);
+        const target = event?.target;
+
+        if (target) {
+            const window = target.closest(".gmm-window") ?? this.element;
+            try {
+                this._gui.updateFrom(window);
+            } catch (e) {
+                console.warn("GMM | MonsterSheet: Gui.updateFrom failed", e);
+            }
+        }
+
+        if (CompatibilityHelpers.hasProperty(expanded, "gmm.blueprint")) {
+            CompatibilityHelpers.setProperty(expanded, "flags.gmm.blueprint", {
+                vid: 1,
+                type: "monster",
+                data: CompatibilityHelpers.getProperty(expanded, "gmm.blueprint")
+            });
+            delete expanded.gmm;
+
+            if (target?.name === "gmm.blueprint.combat.rank.type") {
+                expanded.flags.gmm.blueprint.data.combat.rank.custom_name = null;
+                expanded.flags.gmm.blueprint.data.combat.rank.modifiers = GMM_MONSTER_RANKS[target.value];
+            } else if (target?.name === "gmm.blueprint.combat.role.type") {
+                expanded.flags.gmm.blueprint.data.combat.role.custom_name = null;
+                expanded.flags.gmm.blueprint.data.combat.role.modifiers = GMM_MONSTER_ROLES[target.value];
+            }
+
+            $.extend(true, expanded, MonsterBlueprint.getActorDataFromBlueprint(expanded.flags.gmm.blueprint));
+        }
+
+        return expanded;
+    }
+
+    /* -------------------------------------------- */
+    /*  Drag & Drop                                 */
+    /* -------------------------------------------- */
+
+    /**
+     * @inheritDoc
+     * Extend the dnd5e default reset (which already strips `attuned`, `equipped`,
+     * `prepared`, `crew.value`) with the GMM-specific fields the V1 sheet stripped.
+     */
+    _onDropResetData(event, itemData) {
+        super._onDropResetData(event, itemData);
+        if (!itemData.system) return;
+        ["proficient", "attunement"].forEach(k => foundry.utils.deleteProperty(itemData.system, k));
+    }
+
+    /**
+     * @inheritDoc
+     * GMM groups items by `getSortingCategory()` rather than by inventory section, so
+     * a sort within e.g. "actions" should never reorder a "trait" relative to it. The
+     * V2 signature gives us a resolved Item document (instead of itemData) up front.
+     */
+    _onSortItem(event, item) {
+        if (this.actor.isToken) return;
+        const source = item;
+        const siblings = this.actor.items.contents.filter((i) => {
+            return (i.getSortingCategory() === source.getSortingCategory()) && (i.id !== source.id);
         });
+        const dropTarget = event.target.closest(".item");
+        const targetId = dropTarget ? dropTarget.dataset?.itemId : null;
+        const target = siblings.find(s => s.id === targetId);
+        if (target && (target.getSortingCategory() !== source.getSortingCategory())) return;
+
+        const sortUpdates = foundry.utils.SortingHelpers.performIntegerSort(source, { target: target, siblings });
+        const updateData = sortUpdates.map(u => {
+            const update = u.update;
+            update._id = u.target.id;
+            return update;
+        });
+
+        return this.actor.updateEmbeddedDocuments("Item", updateData);
     }
 
-    _getItemTags(item) {
-        return item.getChatData({ secrets: this.actor?.isOwner });
+    /* -------------------------------------------- */
+    /*  Action Handlers                             */
+    /* -------------------------------------------- */
+
+    /**
+     * Handle adding a new item (loot, spell, or scaling action) to the monster.
+     *
+     * Three paths:
+     *   - **loot** → vanilla dnd5e loot item.
+     *   - **spell** → vanilla dnd5e spell item using the standard dnd5e spell sheet
+     *     (no GMM ActionSheet flag, no GMM activity). Spells represent the monster
+     *     having access to non-scaling spells from dnd5e and aren't authored through
+     *     the GMM Forge UI. Honours the template's `data-level` and
+     *     `data-preparation.mode` dataset attributes.
+     *   - **anything else** (always `feat` from the bundled templates) → a GMM
+     *     scaling action backed by the GMM-managed Activity. Seeded directly from a
+     *     stub blueprint so the new feat already participates in the dnd5e v5.x
+     *     activity-based roll pipeline.
+     *
+     * @this {MonsterSheet}
+     * @param {PointerEvent} event   The triggering click event.
+     * @param {HTMLElement}  target  The element with the `data-action="add-item"` attribute.
+     */
+    static async #actionAddItem(event, target) {
+        const type = target.dataset.type;
+
+        if (type === "loot") {
+            // Loot items are not GMM scaling actions; create a vanilla loot item.
+            const itemData = {
+                name: game.i18n.format("DND5E.ItemNew", { type: game.i18n.localize(CONFIG.Item.typeLabels[type]) }),
+                type
+            };
+            return this.actor.createEmbeddedDocuments("Item", [itemData]);
+        }
+
+        if (type === "spell") {
+            // Spells use the standard dnd5e spell sheet; they represent the monster
+            // having access to non-scaling spells from dnd5e and aren't part of the GMM
+            // scaling-action model. Seed `system.method` and `system.prepared` to match
+            // the legacy `data-preparation.mode="prepared"` semantics under the new
+            // dnd5e v5.x schema (see SpellData#_migratePreparation in dnd5e).
+            const level = Number(target.dataset.level ?? 0) || 0;
+            const preparationMode = target.dataset["preparation.mode"] || "prepared";
+            let method = "spell";
+            let prepared = 1;
+            if (preparationMode === "always") {
+                method = "spell";
+                prepared = 2;
+            } else if (preparationMode && preparationMode !== "prepared") {
+                method = preparationMode;
+                prepared = 0;
+            }
+
+            const itemData = {
+                name: game.i18n.format("DND5E.ItemNew", { type: game.i18n.localize(CONFIG.Item.typeLabels.spell) }),
+                type: "spell",
+                system: { level, method, prepared }
+            };
+            return this.actor.createEmbeddedDocuments("Item", [itemData]);
+        }
+
+        const activationType = target.dataset["activation.type"] || "trait";
+
+        // Build a minimal blueprint for the new item; the rest of the blueprint defaults
+        // come from GMM_ACTION_BLUEPRINT during ActionBlueprint.createFromItem on prepare.
+        const blueprint = {
+            vid: 1,
+            type: "action",
+            data: {
+                activation: {
+                    cost: null,
+                    // "trait" actions have no activation type; everything else uses the dataset value.
+                    type: activationType === "trait" ? null : activationType,
+                    condition: null
+                },
+                attack: {
+                    type: null,
+                    defense: "str",
+                    bonus: null,
+                    related_stat: "str"
+                }
+            }
+        };
+
+        const activityData = Activities.buildActivityData(blueprint);
+        const itemData = {
+            name: game.i18n.format(`gmm.monster.artifact.add.${activationType}`),
+            type,
+            img: "icons/svg/clockwork.svg",
+            system: {
+                activities: { [Activities.GMM_ACTIVITY_ID]: activityData }
+            },
+            flags: {
+                "core.sheetClass": `${GMM_MODULE_TITLE}.ActionSheet`,
+                gmm: { blueprint }
+            }
+        };
+
+        return this.actor.createEmbeddedDocuments("Item", [itemData]);
     }
 
-    _updateItem(event) {
-        const input = event.currentTarget.closest("input");
-        const field = input.dataset.field;
-        const target = input.dataset.target;
-        const value = event.currentTarget.value;
-        return this.actor.updateEmbeddedDocuments("Item", [{ _id: target, [field]: value }]);
-    }
-
-    _rechargeItem(event) {
-        const li = event.currentTarget.closest(".item");
+    /** @this {MonsterSheet} */
+    static #actionEditItem(event, target) {
+        const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
-        return item.rollRecharge();
+        item.sheet.render(true);
     }
 
-    _rollItem(event) {
-        const li = event.currentTarget.closest(".item");
+    /** @this {MonsterSheet} */
+    static #actionDeleteItem(event, target) {
+        const li = target.closest(".item");
+        return this.actor.deleteEmbeddedDocuments("Item", [li.dataset.itemId]);
+    }
+
+    /** @this {MonsterSheet} */
+    static #actionRollItem(event, target) {
+        const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
         return item.use();
     }
-    async _displayItem(event) {
-        const li = event.currentTarget.closest(".item");
+
+    /** @this {MonsterSheet} */
+    static async #actionDisplayItem(event, target) {
+        const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
         const msg = await item.displayCard({ createMessage: false });
         const DIV = document.createElement("DIV");
         DIV.innerHTML = msg.content;
         DIV.querySelector("div.card-buttons")?.remove();
-        return await ChatMessage.create({ content: DIV.innerHTML });
+        return ChatMessage.create({ content: DIV.innerHTML });
     }
 
-    _editItem(event) {
-        const li = event.currentTarget.closest(".item");
+    /**
+     * Recharge an item.
+     * @this {MonsterSheet}
+     */
+    static #actionRechargeItem(event, target) {
+        const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
-        item.sheet.render(true);
+        if (!item) return;
+        // GMM scaling-action items put their recharge on the GMM-managed activity, not
+        // at the item level, so try the activity's uses.rollRecharge first. Fall back to
+        // item-level uses (for items that scope recharge at the item level), and finally
+        // to the legacy `Item5e#rollRecharge` for backwards compatibility.
+        const activity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
+        if (activity?.uses?.rollRecharge) return activity.uses.rollRecharge();
+        if (item.system?.uses?.rollRecharge) return item.system.uses.rollRecharge();
+        return item.rollRecharge?.();
     }
 
-    _deleteItem(event) {
-        const li = event.currentTarget.closest(".item");
-        this.actor.deleteEmbeddedDocuments("Item", [li.dataset.itemId]);
-    }
-    _createEffect(clickEvent) {
-        const target = clickEvent.currentTarget;
+    /** @this {MonsterSheet} */
+    static #actionCreateEffect(event, target) {
         const li = target.closest(".effect-section");
         const isEnchantment = li.dataset.effectType.startsWith("enchantment");
         return this.document.createEmbeddedDocuments("ActiveEffect", [{
@@ -261,121 +494,60 @@ export default class MonsterSheet extends dnd5e.applications.actor.ActorSheet5eN
         }]);
     }
 
-    async _addItem(event) {
-        const header = event.currentTarget;
-        const type = header.dataset.type;
-        const dataset = { action: "create", tooltip: "DND5E.FeatureAdd" };
-
-        if (type === "loot") {
-            const itemData = {
-                name: game.i18n.format("DND5E.ItemNew", { type: game.i18n.localize(CONFIG.Item.typeLabels[type]) }),
-                type,
-                system: CompatibilityHelpers.gmmExpandObject({ ...dataset })
-            };
-            delete itemData.system.type;
-            return this.actor.createEmbeddedDocuments("Item", [itemData]);
-        } else {
-            const itemData = {
-                name: game.i18n.format(`gmm.monster.artifact.add.${header.dataset["activation.type"] ? header.dataset["activation.type"] : "trait"}`),
-                type: type,
-                img: "icons/svg/clockwork.svg",
-                system: CompatibilityHelpers.gmmDuplicate(header.dataset),
-                flags: {
-                    "core.sheetClass": `${GMM_MODULE_TITLE}.ActionSheet`
-                }
-            };
-            delete itemData.system["type"];
-            delete itemData.system["action"];
-            let item = await this.actor.createEmbeddedDocuments("Item", [itemData]);
-            itemData._id = item[0]._id;
-            this.actor.updateEmbeddedDocuments("Item", [itemData]);
-            return item;
-        }
+    /** @this {MonsterSheet} */
+    static async #actionRollHp(event, target) {
+        const button = target.closest("button");
+        const roll = new Roll(button.dataset.formula);
+        await roll.roll();
+        foundry.audio.AudioHelper.play({ src: CONFIG.sounds.dice });
+        return this.actor.update({
+            [`system.attributes.hp.value`]: Math.max(1, roll.total),
+            [`system.attributes.hp.max`]: Math.max(1, roll.total),
+            [`system.attributes.hp.effectiveMax`]: Math.max(1, roll.total),
+            [`flags.gmm.blueprint.data.hit_points.rolled_max`]: Math.max(1, roll.total),
+        });
     }
 
+    /* -------------------------------------------- */
+    /*  Helpers (instance methods bound from _onRender) */
+    /* -------------------------------------------- */
+
+    _toggleItemDetails(event) {
+        const item = event.currentTarget.closest(".item");
+        item.classList.toggle("expanded");
+    }
+
+    _updateItem(event) {
+        const input = event.currentTarget.closest("input");
+        const field = input.dataset.field;
+        const target = input.dataset.target;
+        const value = event.currentTarget.value;
+        return this.actor.updateEmbeddedDocuments("Item", [{ _id: target, [field]: value }]);
+    }
+
+    /**
+     * Sync the ability ranking inputs back to the blueprint flag after the user reorders
+     * them via the `.move-up` / `.move-down` buttons. Bypasses {@link _processFormData}
+     * because Gui's reorder doesn't dispatch a `change` event and the rankings only
+     * affect blueprint data, not the actor schema.
+     */
     _updateAbilityRanking(event) {
         const rankings = [];
-        event.currentTarget.closest(".accordion-section__body").querySelectorAll("[name='gmm.blueprint.ability_modifiers.ranking']").forEach(x => rankings.push(x.value));
-        this._updateObject(event, {
-            [`gmm.blueprint.ability_modifiers.ranking`]: rankings
+        event.currentTarget.closest(".accordion-section__body")
+            .querySelectorAll("[name='gmm.blueprint.ability_modifiers.ranking']")
+            .forEach(x => rankings.push(x.value));
+        return this.document.update({
+            "flags.gmm.blueprint.data.ability_modifiers.ranking": rankings
         });
     }
 
     _updateSaveRanking(event) {
         const rankings = [];
-        event.currentTarget.closest(".accordion-section__body").querySelectorAll("[name='gmm.blueprint.saving_throws.ranking']").forEach(x => rankings.push(x.value));
-        this._updateObject(event, {
-            [`gmm.blueprint.saving_throws.ranking`]: rankings
+        event.currentTarget.closest(".accordion-section__body")
+            .querySelectorAll("[name='gmm.blueprint.saving_throws.ranking']")
+            .forEach(x => rankings.push(x.value));
+        return this.document.update({
+            "flags.gmm.blueprint.data.saving_throws.ranking": rankings
         });
-    }
-    async _onDropActiveEffect(event, data) {
-        const effect = await ActiveEffect.implementation.fromDropData(data);
-        if (effect?.target === this.actor) return false;
-        return super._onDropActiveEffect(event, data);
-    }
-    _onSortItem(event, itemData) {
-        // TODO - for now, don't allow sorting for Token Actor overrides
-        if (this.actor.isToken) {
-            return;
-        }
-        // Get the drag source and its siblings
-        const source = this.actor.items.get(itemData._id);
-        const siblings = this.actor.items.contents.filter((i) => {
-            return (i.getSortingCategory() === source.getSortingCategory()) && (i.id !== source.id);
-        });
-        // Get the drop target
-        const dropTarget = event.target.closest(".item");
-        const targetId = dropTarget ? dropTarget.dataset?.itemId : null;
-        const target = siblings.find(s => s.id === targetId);
-        // Ensure we are only sorting like-types
-        if (target && (target.getSortingCategory() !== source.getSortingCategory())) {
-            return;
-        }
-        // Perform the sort
-        const sortUpdates = SortingHelpers.performIntegerSort(source, { target: target, siblings });
-        const updateData = sortUpdates.map(u => {
-            const update = u.update;
-            update._id = u.target.id;
-            return update;
-        });
-
-        // Perform the update
-        return this.actor.updateEmbeddedDocuments("Item", updateData);
-    }
-
-    async _updateObject(event, form) {
-        if (event && event.currentTarget && event.currentTarget.closest(".gmm-modal") != null) {
-            return null;
-        }
-
-        if (event && event.currentTarget) {
-            this._gui.updateFrom(event.currentTarget.closest(".gmm-window"));
-        }
-
-        let formData = CompatibilityHelpers.gmmExpandObject(form);
-        if (CompatibilityHelpers.hasProperty(formData, "gmm.blueprint")) {
-            CompatibilityHelpers.setProperty(formData, "flags.gmm.blueprint", {
-                vid: 1,
-                type: "monster",
-                data: CompatibilityHelpers.getProperty(formData, "gmm.blueprint")
-            });
-            delete formData.gmm;
-
-            if (event && event.currentTarget) {
-                switch (event.currentTarget.name) {
-                    case "gmm.blueprint.combat.rank.type":
-                        formData.flags.gmm.blueprint.data.combat.rank.custom_name = null;
-                        formData.flags.gmm.blueprint.data.combat.rank.modifiers = GMM_MONSTER_RANKS[event.currentTarget.value];
-                        break;
-                    case "gmm.blueprint.combat.role.type":
-                        formData.flags.gmm.blueprint.data.combat.role.custom_name = null;
-                        formData.flags.gmm.blueprint.data.combat.role.modifiers = GMM_MONSTER_ROLES[event.currentTarget.value];
-                        break;
-                }
-            }
-
-            $.extend(true, formData, MonsterBlueprint.getActorDataFromBlueprint(formData.flags.gmm.blueprint));
-        }
-        await this.document.update(formData);
     }
 }

@@ -3,6 +3,7 @@ import GmmItem from './scripts/classes/GmmItem.js';
 import MonsterSheet from './scripts/classes/MonsterSheet.js';
 import ActionSheet from './scripts/classes/ActionSheet.js';
 import Templates from './scripts/classes/Templates.js';
+import Activities from './scripts/classes/Activities.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
@@ -15,11 +16,11 @@ import { GMM_MODULE_TITLE } from "./scripts/consts/GmmModuleTitle.js";
 Hooks.once("init", function() {
 	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialising`);
 
-	Actors.registerSheet(GMM_MODULE_TITLE, MonsterSheet, {
+	foundry.documents.collections.Actors.registerSheet(GMM_MODULE_TITLE, MonsterSheet, {
 		types: ["npc"],
 		label: "gmm.sheet.monster.label"
 	});
-	Items.registerSheet(GMM_MODULE_TITLE, ActionSheet, {
+	foundry.documents.collections.Items.registerSheet(GMM_MODULE_TITLE, ActionSheet, {
 		label: "gmm.sheet.action.label"
 	});
 
@@ -56,9 +57,21 @@ Hooks.once("init", function() {
 });
 
 
-Hooks.once('ready', () => {
-	if (!game.modules.get('lib-wrapper')?.active && game.user.isGM)
+Hooks.once('ready', async () => {
+	if (!game.modules.get('lib-wrapper')?.active && game.user.isGM) {
 		ui.notifications.error("Module Giffyglyph's Monster Maker Continued requires the 'libWrapper' module. Please install and activate it.");
+	}
+
+	// One-shot migration of legacy GMM scaling-action items onto the dnd5e v5.x
+	// activity model. Items that already carry a GMM-managed activity (for example
+	// items created via the new MonsterSheet#actionAddItem flow) are skipped.
+	if (game.user.isGM) {
+		try {
+			await Activities.migrateWorld();
+		} catch (e) {
+			console.error("GMM | Activity migration encountered an error", e);
+		}
+	}
 });
 
 async function _hookActorDirectory(html) {

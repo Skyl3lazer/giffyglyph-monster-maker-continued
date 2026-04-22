@@ -20,97 +20,83 @@ import ActionBlueprint from "./ActionBlueprint.js";
 import ActionForge from "./ActionForge.js";
 import Templates from "./Templates.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
+import Activities from "./Activities.js";
 
+/**
+ * GMM scaling-action item sheet, rebuilt on the dnd5e v5.x ApplicationV2 ItemSheet5e base.
+ *
+ * The custom "Forge" UI lives entirely inside a single template part (`forge`) which
+ * replaces the dnd5e item sheet's stock PARTS (header / tabs / activities / etc.). Form
+ * submission is intercepted in {@link _processFormData} so that edits to the
+ * `gmm.blueprint.*` fields are translated into both a `flags.gmm.blueprint` write
+ * and a sync of the underlying `system.*` fields via {@link ActionBlueprint.getItemDataFromBlueprint}.
+ */
 export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
 
-    constructor(...args) {
-        super(...args);
+    constructor(options = {}) {
+        super(options);
         this._gui = new Gui();
     }
 
-    static get defaultOptions() {
-        let mergedOptions = CompatibilityHelpers.mergeObject(
-            super.defaultOptions,
-            {
-                classes: ["gmm-window window--action"],
-                scrollY: null,
-                height: 600,
-                width: 500,
-                template: Templates.getRelativePath('action/forge.html'),
-                resizable: true,
-                dragDrop: [{ "dragSelector": "[data-effect-id]", "dropSelector": null }]
-            }
-        );
-        return mergedOptions;
-    }
-    get template() {
-        return Templates.getRelativePath('action/forge.html');
-    }
-    _onDrop(event) {
-        return super._onDrop(event);
-    }
-    activateListeners($el) {
-        try {
-            super.activateListeners($el);
-        } catch (e) {
-            console.log(e);
+    /** @inheritDoc */
+    static DEFAULT_OPTIONS = {
+        classes: ["gmm-window", "window--action"],
+        position: { width: 500, height: 600 },
+        window: { resizable: true },
+        actions: {
+            "add-damage": ActionSheet.#actionAddDamage,
+            "remove-damage": ActionSheet.#actionRemoveDamage,
+            "create-effect": ActionSheet.#actionCreateEffect
         }
-        try {
-            this._gui.activateListeners($el);
-            this._gui.applyTo($el);
-            $el.find('[data-action="add-damage"]').click((e) => this._addDamage(e));
-            $el.find('[data-action="remove-damage"]').click((e) => this._removeDamage(e));
-            $el.find('[data-action="create-effect"]').click((e) => this._createEffect(e));
-        } catch (error) {
-            console.error(error);
+    };
+
+    /**
+     * Replace the inherited ItemSheet5e PARTS (header, tabs, activities, advancement,
+     * description, details, effects) with our single `forge` part. Static class fields
+     * are not merged across the inheritance chain, so this fully supplants the parent.
+     * @inheritDoc
+     */
+    static PARTS = {
+        forge: {
+            template: "modules/giffyglyph-monster-maker-continued/templates/action/forge.html",
+            scrollable: [".forge__blueprint", ".forge__artifact"]
         }
-    }
+    };
 
-    _addDamage(event) {
-        event.preventDefault();
-        const damage = this.item.system.damage;
-        return this.item.update({ "system.damage.parts": damage.parts.concat([["", ""]]) });
-    }
+    /**
+     * The dnd5e ItemSheet5e inherits `static TABS` for its tab strip; clear it so the
+     * framework doesn't try to render a tab navigation for parts we never declare.
+     * @inheritDoc
+     */
+    static TABS = [];
 
-    _removeDamage(event) {
-        event.preventDefault();
-        const a = event.currentTarget;
-        const li = a.closest(".form-group--damage");
-        const damage = CompatibilityHelpers.gmmDuplicate(this.item.system.damage);
-        damage.parts.splice(Number(li.dataset.index), 1);
-        return this.item.update({ "system.damage.parts": damage.parts });
-    }
+    /* -------------------------------------------- */
+    /*  Rendering                                   */
+    /* -------------------------------------------- */
 
-    _createEffect(clickEvent) {
-        const target = clickEvent.currentTarget;
-        const li = target.closest(".effect-section");
-        const isEnchantment = li.dataset.effectType.startsWith("enchantment");
-        return this.document.createEmbeddedDocuments("ActiveEffect", [{
-            name: game.i18n.localize("DND5E.EffectNew"),
-            img: this.document.img,
-            origin: isEnchantment ? undefined : this.document.uuid,
-            "duration.rounds": li.dataset.effectType === "temporary" ? 1 : undefined,
-            disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),
-            "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
-        }]);
-    }
+    /** @inheritDoc */
+    async _prepareContext(options) {
+        const context = await super._prepareContext(options);
+        const itemData = this.item.flags;
 
-    async getData() {
-        const data = await super.getData();
-        const itemData = data.item.flags;
+        // Templates rendered via the V1 sheet expected `cssClass` to be supplied by the
+        // framework. ApplicationV2 doesn't populate it automatically, so provide an
+        // equivalent so the existing `forge--action ... {{cssClass}}` markup still works.
+        context.cssClass = this.isEditable ? "editable" : "locked";
+        context.editable = this.isEditable;
 
-        data.gmm = {
+        context.gmm = {
             blueprint: itemData.gmm?.blueprint ? itemData.gmm.blueprint.data : null,
             action: itemData.gmm?.blueprint ? ActionForge.createArtifact(itemData.gmm.blueprint).data : null,
             forge: {
-                layout: itemData.gmm?.blueprint.data.display.layout ? itemData.gmm.blueprint.data.display.layout : game.settings.get(GMM_MODULE_TITLE, "actionLayout"),
+                layout: itemData.gmm?.blueprint?.data?.display?.layout ? itemData.gmm.blueprint.data.display.layout : game.settings.get(GMM_MODULE_TITLE, "actionLayout"),
                 colors: {
-                    primary: itemData.gmm?.blueprint.data.display.color.primary ? itemData.gmm.blueprint.data.display.color.primary : game.settings.get(GMM_MODULE_TITLE, "actionPrimaryColor"),
-                    secondary: itemData.gmm?.blueprint.data.display.color.secondary ? itemData.gmm.blueprint.data.display.color.secondary : game.settings.get(GMM_MODULE_TITLE, "actionSecondaryColor")
+                    primary: itemData.gmm?.blueprint?.data?.display?.color?.primary ? itemData.gmm.blueprint.data.display.color.primary : game.settings.get(GMM_MODULE_TITLE, "actionPrimaryColor"),
+                    secondary: itemData.gmm?.blueprint?.data?.display?.color?.secondary ? itemData.gmm.blueprint.data.display.color.secondary : game.settings.get(GMM_MODULE_TITLE, "actionSecondaryColor")
                 },
                 skins: {
-                    artifact: itemData.gmm?.blueprint.data.display.skin.artifact ? itemData.gmm.blueprint.data.display.skin.artifact : game.settings.get(GMM_MODULE_TITLE, "actionArtifactSkin"),
-                    blueprint: itemData.gmm?.blueprint.data.display.skin.blueprint ? itemData.gmm.blueprint.data.display.skin.blueprint : game.settings.get(GMM_MODULE_TITLE, "actionBlueprintSkin"),
+                    artifact: itemData.gmm?.blueprint?.data?.display?.skin?.artifact ? itemData.gmm.blueprint.data.display.skin.artifact : game.settings.get(GMM_MODULE_TITLE, "actionArtifactSkin"),
+                    blueprint: itemData.gmm?.blueprint?.data?.display?.skin?.blueprint ? itemData.gmm.blueprint.data.display.skin.blueprint : game.settings.get(GMM_MODULE_TITLE, "actionBlueprintSkin")
                 }
             },
             gui: this._gui,
@@ -124,107 +110,299 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
                 range_types: GMM_ACTION_RANGE_TYPES,
                 rarities: GMM_ACTION_RARITIES,
                 target_types: GMM_ACTION_TARGET_TYPES,
-                consumption_targets: this._getActionConsumptionTargets(data.item),
+                consumption_targets: this._getActionConsumptionTargets(this.item),
                 ranks: Object.keys(GMM_MONSTER_RANKS).filter((x) => x != "custom"),
                 roles: Object.keys(GMM_MONSTER_ROLES).filter((x) => x != "custom"),
                 layouts: GMM_GUI_LAYOUTS,
                 attack_types: GMM_ACTION_ATTACK_TYPES,
                 attack_damage_types: GMM_ACTION_ATTACK_DAMAGE_TYPES,
                 deferral_types: GMM_DEFERRAL_TYPES,
-                abilities: GMM_5E_ABILITIES,
+                abilities: GMM_5E_ABILITIES
             }
         };
 
-        if (data.gmm.action) {
-            data.gmm.action.gmmLabels = await this.item.getGmmLabels();
+        if (context.gmm.action) {
+            try {
+                context.gmm.action.gmmLabels = await this.item.getGmmLabels();
+            } catch (e) {
+                console.warn("GMM | ActionSheet: getGmmLabels failed", e);
+            }
         }
 
-        return data;
+        return context;
     }
 
+    /* -------------------------------------------- */
+
+    /**
+     * Build the dropdown options for the consumption-target picker.
+     *
+     * The picker is driven by the GMM blueprint, which carries four consumption types
+     * (`ammo`, `attribute`, `material`, `charges`). dnd5e v5.x dropped the legacy
+     * `item.system.consume.{type,target,amount}` schema in favour of per-activity
+     * `consumption.targets[]`, so we read the chosen type from
+     * `item.flags.gmm.blueprint.data.resource_consumption.type` and project the actor
+     * inventory / attribute paths through the equivalent dnd5e v5 lookups
+     * (`material` for items, `itemUses` for charges, `attribute` via
+     * `TokenDocument.implementation.getConsumedAttributes`).
+     *
+     * @param {Item5e} item
+     * @returns {Object<string, string>}  `{ key: label }` map consumed by the
+     *                                    `{{#each ... as | name key |}}` block in the
+     *                                    action blueprint template.
+     */
     _getActionConsumptionTargets(item) {
-        const consume = item.system.consume || {};
-        if (!consume.type) {
-            return [];
-        }
-        const actor = this.item.actor;
-        if (!actor) {
+        try {
+            const blueprintType = item?.flags?.gmm?.blueprint?.data?.resource_consumption?.type;
+            if (!blueprintType) return {};
+            const actor = item?.actor;
+            if (!actor) return {};
+
+            switch (blueprintType) {
+                case "ammo":      return this._gmmAmmoTargets(actor, item);
+                case "attribute": return this._gmmAttributeTargets(actor);
+                case "material":  return this._gmmMaterialTargets(actor, item);
+                case "charges":   return this._gmmChargesTargets(actor, item);
+                default:          return {};
+            }
+        } catch (e) {
+            console.warn("GMM | ActionSheet: _getActionConsumptionTargets failed", e);
             return {};
         }
-
-        // Ammunition
-        if (consume.type === "ammo") {
-            return actor.itemTypes.consumable.reduce((ammo, i) => {
-                ammo[i.id] = `${i.name} (${i.system.quantity})`;
-                return ammo;
-            }, { [item.id]: `${item.name} (${item.system.quantity})` });
-        } else if (consume.type === "attribute") {
-            const attributes = TokenDocument.getTrackedAttributes(actor.system);
-            attributes.bar.forEach(a => a.push("value"));
-            return attributes.bar.concat(attributes.value).reduce((obj, a) => {
-                let k = a.join(".");
-                obj[k] = k;
-                return obj;
-            }, {});
-        } else if (consume.type === "material") {
-            return actor.items.contents.reduce((obj, i) => {
-                if (["consumable", "loot"].includes(i.data.type) && !i.system.activation) {
-                    obj[i.id] = `${i.name} (${i.system.quantity})`;
-                }
-                return obj;
-            }, {});
-        } else if (consume.type === "charges") {
-            return actor.items.contents.reduce((obj, i) => {
-                const uses = i.system.uses || {};
-                if (uses.per && uses.max) {
-                    const label = uses.per === "charges" ?
-                        ` (${game.i18n.format("DND5E.AbilityUseChargesLabel", { value: uses.value })})` :
-                        ` (${game.i18n.format("DND5E.AbilityUseConsumableLabel", { max: uses.max, per: uses.per })})`;
-                    obj[i.id] = i.name + label;
-                }
-                const recharge = i.system.recharge || {};
-                if (recharge.value) {
-                    obj[i.id] = `${i.name} (${game.i18n.format("DND5E.Recharge")})`;
-                }
-                return obj;
-            }, {})
-        } else return {};
     }
 
-    _updateObject(event, form) {
-        if (event && event.currentTarget && event.currentTarget.closest(".gmm-modal") != null) {
-            return null;
+    /* -------------------------------------------- */
+
+    /**
+     * Ammo consumption: list every consumable item on the actor whose
+     * `system.type.value === "ammo"`, plus the item itself when the action lives on
+     * an ammo consumable.
+     */
+    _gmmAmmoTargets(actor, currentItem) {
+        const targets = {};
+        const isAmmo = (i) => (i.type === "consumable") && (i.system?.type?.value === "ammo");
+        if (isAmmo(currentItem)) {
+            targets[currentItem.id] = `${currentItem.name} (${currentItem.system.quantity ?? 0})`;
+        }
+        for (const i of actor.itemTypes?.consumable ?? []) {
+            if (i === currentItem) continue;
+            if (isAmmo(i)) targets[i.id] = `${i.name} (${i.system.quantity ?? 0})`;
+        }
+        return targets;
+    }
+
+    /**
+     * Attribute consumption: surface the actor-data attribute paths dnd5e considers
+     * consumable. Falls back to the raw `CONFIG.DND5E.consumableResources` list if
+     * the v5 helper is unavailable for any reason.
+     */
+    _gmmAttributeTargets(actor) {
+        const targets = {};
+        let attrs;
+        try {
+            attrs = TokenDocument.implementation?.getConsumedAttributes?.(actor.type) ?? null;
+        } catch (e) { /* fall through */ }
+        attrs ??= CONFIG?.DND5E?.consumableResources ?? [];
+        for (const attr of attrs) targets[attr] = attr;
+        return targets;
+    }
+
+    /**
+     * Material consumption: list `consumable` and `loot` items on the actor; mirrors
+     * the dnd5e v5 `validMaterialTargets` filter. Excludes the item itself so an
+     * action can't accidentally consume its own material counter.
+     */
+    _gmmMaterialTargets(actor, currentItem) {
+        const targets = {};
+        for (const i of actor.items ?? []) {
+            if (i === currentItem) continue;
+            if (!["consumable", "loot"].includes(i.type)) continue;
+            targets[i.id] = `${i.name} (${i.system?.quantity ?? 0})`;
+        }
+        return targets;
+    }
+
+    /**
+     * Charges consumption: any actor-side item with a `uses.max`. Includes the
+     * current item itself (under the empty-string key, matching dnd5e's
+     * `validItemUsesTargets` convention for "this item"). Labels are formatted the
+     * same way dnd5e formats them in its own item-uses picker.
+     */
+    _gmmChargesTargets(actor, currentItem) {
+        const targets = {};
+        const fmt = (name, uses) => {
+            if (!uses?.max) return name;
+            const recovery = uses.recovery?.[0];
+            // Periodic recoverAll (lr/sr/day/etc., excluding recharge) → "max per period".
+            if (recovery && (recovery.type === "recoverAll") && (recovery.period !== "recharge")
+                && (uses.recovery.length === 1)) {
+                const per = CONFIG.DND5E.limitedUsePeriods?.[recovery.period]?.abbreviation ?? recovery.period;
+                return `${name} (${game.i18n.format("DND5E.AbilityUseConsumableLabel", { max: uses.max, per })})`;
+            }
+            // Recharge → "(Recharge)".
+            if (recovery?.period === "recharge") {
+                return `${name} (${game.i18n.localize("DND5E.Recharge")})`;
+            }
+            // Plain charges → "(value charges)".
+            return `${name} (${game.i18n.format("DND5E.AbilityUseChargesLabel", { value: uses.value ?? uses.max })})`;
+        };
+
+        if (currentItem.system?.uses?.max) {
+            targets[""] = fmt(game.i18n.localize("DND5E.CONSUMPTION.Target.ThisItem") || currentItem.name, currentItem.system.uses);
+        }
+        for (const i of actor.items ?? []) {
+            if (i === currentItem) continue;
+            if (!i.system?.uses?.max) continue;
+            targets[i.id] = fmt(i.name, i.system.uses);
+        }
+        return targets;
+    }
+
+    /* -------------------------------------------- */
+    /*  Event Listeners                             */
+    /* -------------------------------------------- */
+
+    /** @inheritDoc */
+    async _onRender(context, options) {
+        await super._onRender(context, options);
+
+        // Bridge the GMM Gui controller (still jQuery-based) to the V2 root element.
+        // `this.element` is the form created by DocumentSheetV2 (`tag: "form"`).
+        const $el = $(this.element);
+        try {
+            this._gui.activateListeners($el);
+            this._gui.applyTo($el);
+        } catch (e) {
+            console.warn("GMM | ActionSheet: Gui.activateListeners failed", e);
+        }
+    }
+
+    /* -------------------------------------------- */
+    /*  Form Submission                             */
+    /* -------------------------------------------- */
+
+    /**
+     * @inheritDoc
+     * @see MonsterSheet#_onChangeForm
+     */
+    _onChangeForm(formConfig, event) {
+        if (event?.target?.closest?.(".gmm-modal")) return;
+        return super._onChangeForm(formConfig, event);
+    }
+
+    /**
+     * @inheritDoc
+     * Replaces the V1 `_updateObject`. Translates the `gmm.blueprint.*` form fields
+     * into a `flags.gmm.blueprint` payload and merges the item-side mirror produced
+     * by {@link ActionBlueprint.getItemDataFromBlueprint} before letting the V2
+     * pipeline call `document.update` with the result.
+     */
+    _processFormData(event, form, formData) {
+        const expanded = foundry.utils.expandObject(formData.object);
+        const target = event?.target;
+
+        if (target) {
+            const window = target.closest(".gmm-window") ?? this.element;
+            try {
+                this._gui.updateFrom(window);
+            } catch (e) {
+                console.warn("GMM | ActionSheet: Gui.updateFrom failed", e);
+            }
         }
 
-        if (event && event.currentTarget) {
-            this._gui.updateFrom(event.currentTarget.closest(".gmm-window"));
+        // Messy but new validation makes this weird with dropdowns.
+        if (expanded.gmm?.blueprint?.duration?.value === null) {
+            expanded.gmm.blueprint.duration.value = "";
+        } else if (expanded.gmm?.blueprint?.duration?.value !== undefined) {
+            expanded.gmm.blueprint.duration.value = `${expanded.gmm.blueprint.duration.value}`;
         }
-        let formData = CompatibilityHelpers.gmmExpandObject(form);
+        if (expanded.gmm?.blueprint?.uses?.max === null) {
+            expanded.gmm.blueprint.uses.max = "";
+        }
 
-        //Messy but new validation makes this weird with dropdowns
-        if (formData.gmm.blueprint.duration.value === null)
-            formData.gmm.blueprint.duration.value = "";
-        else
-            formData.gmm.blueprint.duration.value = `${formData.gmm.blueprint.duration.value}`
-        if (formData.gmm.blueprint.uses.max === null)
-            formData.gmm.blueprint.uses.max = "";
+        // Description text submitted via the new editor is nested under
+        // `flags.gmm.blueprint.data.description.text`; mirror it onto the blueprint
+        // form path so the gmm.blueprint -> flags.gmm.blueprint translation below
+        // captures it.
+        if (expanded.flags?.gmm?.blueprint?.data?.description?.text) {
+            CompatibilityHelpers.setProperty(expanded, "gmm.blueprint.description.text", expanded.flags.gmm.blueprint.data.description.text);
+        }
 
-        //This might exist in a weird place to use the new editor
-        if (formData.flags?.gmm?.blueprint?.data?.description?.text)
-            formData.gmm.blueprint.description.text = formData.flags.gmm.blueprint.data.description.text;
-
-        if (CompatibilityHelpers.hasProperty(formData, "gmm.blueprint")) {
-            CompatibilityHelpers.setProperty(formData, "flags.gmm.blueprint", {
+        if (CompatibilityHelpers.hasProperty(expanded, "gmm.blueprint")) {
+            CompatibilityHelpers.setProperty(expanded, "flags.gmm.blueprint", {
                 vid: 1,
                 type: "action",
-                data: CompatibilityHelpers.getProperty(formData, "gmm.blueprint")
+                data: CompatibilityHelpers.getProperty(expanded, "gmm.blueprint")
             });
-            delete formData.gmm;
+            delete expanded.gmm;
 
-            $.extend(true, formData, ActionBlueprint.getItemDataFromBlueprint(formData.flags.gmm.blueprint));
+            // Pass `this.item` so ActionBlueprint can emit a paired `-=<id>` activity
+            // deletion when the user changes attack.type (and the activity type swaps).
+            $.extend(true, expanded, ActionBlueprint.getItemDataFromBlueprint(expanded.flags.gmm.blueprint, this.item));
         }
 
+        return expanded;
+    }
 
-        return this.document.update(formData);
+    /* -------------------------------------------- */
+    /*  Action Handlers                             */
+    /* -------------------------------------------- */
+
+    /**
+     * @this {ActionSheet}
+     * Append an empty damage part to the GMM-managed activity. If the item somehow
+     * doesn't have the activity yet (legacy data, manual deletion via the dnd5e UI),
+     * we bootstrap one from the current blueprint so the user can keep editing.
+     */
+    static async #actionAddDamage(event, target) {
+        event.preventDefault();
+        const newPart = Activities.damagePartFromBlueprint({ formula: "", type: "" });
+        const activity = this.item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
+
+        if (!activity) {
+            const blueprint = this.item.flags?.gmm?.blueprint
+                ?? { vid: 1, type: "action", data: { attack: { type: null } } };
+            const activityData = Activities.buildActivityData(blueprint);
+            activityData.damage ??= { parts: [] };
+            activityData.damage.parts = (activityData.damage.parts ?? []).concat([newPart]);
+            return this.item.update({
+                [`system.activities.${Activities.GMM_ACTIVITY_ID}`]: activityData
+            });
+        }
+
+        const parts = (activity.damage?.parts ?? []).map(p => (p.toObject?.(false) ?? p));
+        parts.push(newPart);
+        return this.item.update({
+            [`system.activities.${Activities.GMM_ACTIVITY_ID}.damage.parts`]: parts
+        });
+    }
+
+    /** @this {ActionSheet} */
+    static async #actionRemoveDamage(event, target) {
+        event.preventDefault();
+        const li = target.closest(".form-group--damage");
+        const index = Number(li.dataset.index);
+        const activity = this.item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
+        if (!activity?.damage?.parts) return;
+
+        const parts = activity.damage.parts.map(p => (p.toObject?.(false) ?? p));
+        parts.splice(index, 1);
+        return this.item.update({
+            [`system.activities.${Activities.GMM_ACTIVITY_ID}.damage.parts`]: parts
+        });
+    }
+
+    /** @this {ActionSheet} */
+    static #actionCreateEffect(event, target) {
+        const li = target.closest(".effect-section");
+        const isEnchantment = li.dataset.effectType.startsWith("enchantment");
+        return this.document.createEmbeddedDocuments("ActiveEffect", [{
+            name: game.i18n.localize("DND5E.EffectNew"),
+            img: this.document.img,
+            origin: isEnchantment ? undefined : this.document.uuid,
+            "duration.rounds": li.dataset.effectType === "temporary" ? 1 : undefined,
+            disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),
+            "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
+        }]);
     }
 }

@@ -13,10 +13,25 @@ const GmmActor = (function () {
 		return new dnd5e.documents.Proficiency(...args);
 	}
 	/**
+	 * Wrap libWrapper.register so a registration failure (e.g. against a method that
+	 * dnd5e has since removed) emits a console warning instead of throwing and aborting
+	 * the rest of module initialisation.
+	 */
+	function _safeWrap(target, fn, type) {
+		try {
+			libWrapper.register('giffyglyph-monster-maker-continued', target, fn, type);
+			return true;
+		} catch (error) {
+			console.warn(`GMM | Skipped libWrapper hook for "${target}" (likely removed in dnd5e v5.x): ${error.message}`);
+			return false;
+		}
+	}
+
+	/**
 	 * Patch the Foundry Actor5e entity to control how data is prepared based on the active sheet.
 	 */
 	function patchActor5e() {
-		libWrapper.register('giffyglyph-monster-maker-continued', 'game.dnd5e.documents.Actor5e.prototype.prepareBaseData', function (wrapped, ...args) {
+		_safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareBaseData', function (wrapped, ...args) {
 			if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
 				wrapped(...args);
 				_prepareMonsterBaseData(this);
@@ -24,7 +39,7 @@ const GmmActor = (function () {
 				wrapped(...args);
 			}
 		}, 'WRAPPER');
-		libWrapper.register('giffyglyph-monster-maker-continued', 'game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
+		_safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
 			if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
 				wrapped(...args);
 				_prepareMonsterDerivedData(this);
@@ -34,11 +49,11 @@ const GmmActor = (function () {
 			}
 		}, 'WRAPPER');
 
-		game.dnd5e.documents.Actor5e.prototype.prepare5eBaseData = game.dnd5e.documents.Actor5e.prototype.prepareBaseData;
-		//game.dnd5e.documents.Actor5e.prototype.prepareBaseData = _prepareBaseData;
-		game.dnd5e.documents.Actor5e.prototype.prepare5eDerivedData = game.dnd5e.documents.Actor5e.prototype.prepareDerivedData;
-		//game.dnd5e.documents.Actor5e.prototype.prepareDerivedData = _prepareDerivedData;
-		game.dnd5e.documents.Actor5e.prototype.getSheetId = _getActorSheetId;
+		// Cache references to the original prototype methods only when they actually exist.
+		const Actor5eProto = game.dnd5e.documents.Actor5e.prototype;
+		if (typeof Actor5eProto.prepareBaseData === "function") Actor5eProto.prepare5eBaseData = Actor5eProto.prepareBaseData;
+		if (typeof Actor5eProto.prepareDerivedData === "function") Actor5eProto.prepare5eDerivedData = Actor5eProto.prepareDerivedData;
+		Actor5eProto.getSheetId = _getActorSheetId;
 	}
 
 	/**
@@ -168,12 +183,13 @@ const GmmActor = (function () {
 
 			actorData.attributes.hp.effectiveMax = monsterData.hit_points.maximum.value;
 
-			actorData.attributes.init = {
-				prof: new Proficiency(0, 1),
-				ability: monsterData.initiative.ability,
-				mod: monsterData.initiative.value,
-				bonus: actorData.attributes.init.bonus
-			};
+			// Mutate fields on the existing init RollConfigField object instead of
+			// replacing it wholesale; replacing it would clobber `init.roll` (which now
+			// carries advantage/disadvantage state) and any other dnd5e v5+ schema
+			// fields (`total`, `score`, `check`, etc.).
+			actorData.attributes.init.prof = new Proficiency(0, 1);
+			actorData.attributes.init.ability = monsterData.initiative.ability;
+			actorData.attributes.init.mod = monsterData.initiative.value;
 			actorData.attributes.hp.formula = monsterData.hit_points.formula ? monsterData.hit_points.formula : '';
 			
 			actorData.attributes.encumbrance = {
@@ -192,14 +208,23 @@ const GmmActor = (function () {
 				}
 			};
 			actorData.attributes.spellcasting = monsterData.spellbook.spellcasting.ability;
-			actorData.details.spellLevel = monsterData.spellbook.spellcasting.level;
-			actorData.attributes.spelldc = monsterData.spellbook.spellcasting.dc.value;
+			// `system.details.spellLevel` was migrated to `system.attributes.spell.level`
+			// and `system.attributes.spelldc` to `system.attributes.spell.dc` in dnd5e v5.x.
+			actorData.attributes.spell ??= {};
+			actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
+			actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
 
-			// Compute owned item attributes which depend on prepared Actor data
+			// Compute owned item attributes which depend on prepared Actor data. The V1
+			// `getSaveDC` / `getAttackToHit` calls were replaced by Activity-driven roll
+			// hooks (see GmmItem.patchItem5e); `prepareShortcodes` now also substitutes
+			// monster shortcodes into the activity's runtime attack/save/damage formulas
+			// via Activities.resolveActivityFormulas.
 			actor.items.contents.forEach((item) => {
-				item.getSaveDC();
-				item.getAttackToHit();
-				item.prepareShortcodes();
+				try {
+					item.prepareShortcodes?.();
+				} catch (e) {
+					console.warn(`GMM | prepareShortcodes failed for item ${item.id}`, e);
+				}
 			});
 		} catch (error) {
 			console.error(error);

@@ -13,6 +13,11 @@ import CompatibilityHelpers from "./CompatibilityHelpers.js";
 
 const MonsterBlueprint = (function () {
 
+	// Plain path-to-path bindings used to copy values between the GMM blueprint and the
+	// underlying dnd5e Actor schema in both directions. Anything that needs a value transform
+	// (e.g. legendary actions are now stored as `spent` rather than `value`, initiative
+	// advantage is now a numeric `roll.mode` rather than a boolean flag) is handled in the
+	// post-mapping section of `_syncActorDataToBlueprint` / `getActorDataFromBlueprint`.
 	const mappings = [
 		{ from: "biography.text", to: "system.details.biography.value" },
 		{ from: "condition_immunities.other", to: "system.traits.ci.custom" },
@@ -26,7 +31,6 @@ const MonsterBlueprint = (function () {
 		{ from: "description.type.tags", to: "system.details.type.subtype" },
 		{ from: "hit_points.current", to: "system.attributes.hp.value" },
 		{ from: "hit_points.temporary", to: "system.attributes.hp.temp" },
-		{ from: "initiative.advantage", to: "flags.dnd5e.initiativeAdv" },
 		{ from: "inventory.encumbrance.powerful_build", to: "flags.dnd5e.powerfulBuild" },
 		{ from: "inventory.currency.cp", to: "system.currency.cp" },
 		{ from: "inventory.currency.ep", to: "system.currency.ep" },
@@ -36,43 +40,41 @@ const MonsterBlueprint = (function () {
 		{ from: "lair_actions.always_show", to: "system.resources.lair.value" },
 		{ from: "lair_actions.initiative", to: "system.resources.lair.initiative" },
 		{ from: "languages.other", to: "system.traits.languages.custom" },
-		{ from: "legendary_actions.current", to: "system.resources.legact.value" },
 		{ from: "legendary_actions.maximum", to: "system.resources.legact.max" },
-		{ from: "legendary_resistances.current", to: "system.resources.legres.value" },
 		{ from: "legendary_resistances.maximum", to: "system.resources.legres.max" },
-		{ from: "senses.blindsight", to: "system.attributes.senses.blindsight" },
-		{ from: "senses.darkvision", to: "system.attributes.senses.darkvision" },
+		{ from: "senses.blindsight", to: "system.attributes.senses.ranges.blindsight" },
+		{ from: "senses.darkvision", to: "system.attributes.senses.ranges.darkvision" },
 		{ from: "senses.other", to: "system.attributes.senses.special" },
-		{ from: "senses.tremorsense", to: "system.attributes.senses.tremorsense" },
-		{ from: "senses.truesight", to: "system.attributes.senses.truesight" },
+		{ from: "senses.tremorsense", to: "system.attributes.senses.ranges.tremorsense" },
+		{ from: "senses.truesight", to: "system.attributes.senses.ranges.truesight" },
 		{ from: "speeds.burrow", to: "system.attributes.movement.burrow" },
 		{ from: "speeds.can_hover", to: "system.attributes.movement.hover" },
 		{ from: "speeds.climb", to: "system.attributes.movement.climb" },
 		{ from: "speeds.fly", to: "system.attributes.movement.fly" },
 		{ from: "speeds.swim", to: "system.attributes.movement.swim" },			
 		{ from: "speeds.walk", to: "system.attributes.movement.walk" },
-		{ from: "spellbook.slots.1.current", to: "spells.spell1.value" },
-		{ from: "spellbook.slots.1.maximum", to: "spells.spell1.override" },
-		{ from: "spellbook.slots.2.current", to: "spells.spell2.value" },
-		{ from: "spellbook.slots.2.maximum", to: "spells.spell2.override" },
-		{ from: "spellbook.slots.3.current", to: "spells.spell3.value" },
-		{ from: "spellbook.slots.3.maximum", to: "spells.spell3.override" },
-		{ from: "spellbook.slots.4.current", to: "spells.spell4.value" },
-		{ from: "spellbook.slots.4.maximum", to: "spells.spell4.override" },
-		{ from: "spellbook.slots.5.current", to: "spells.spell5.value" },
-		{ from: "spellbook.slots.5.maximum", to: "spells.spell5.override" },
-		{ from: "spellbook.slots.6.current", to: "spells.spell6.value" },
-		{ from: "spellbook.slots.6.maximum", to: "spells.spell6.override" },
-		{ from: "spellbook.slots.7.current", to: "spells.spell7.value" },
-		{ from: "spellbook.slots.7.maximum", to: "spells.spell7.override" },
-		{ from: "spellbook.slots.8.current", to: "spells.spell8.value" },
-		{ from: "spellbook.slots.8.maximum", to: "spells.spell8.override" },
-		{ from: "spellbook.slots.9.current", to: "spells.spell9.value" },
-		{ from: "spellbook.slots.9.maximum", to: "spells.spell9.override" },
-		{ from: "spellbook.slots.pact.current", to: "spells.pact.value" },
-		{ from: "spellbook.slots.pact.maximum", to: "spells.pact.override" },
+		{ from: "spellbook.slots.1.current", to: "system.spells.spell1.value" },
+		{ from: "spellbook.slots.1.maximum", to: "system.spells.spell1.override" },
+		{ from: "spellbook.slots.2.current", to: "system.spells.spell2.value" },
+		{ from: "spellbook.slots.2.maximum", to: "system.spells.spell2.override" },
+		{ from: "spellbook.slots.3.current", to: "system.spells.spell3.value" },
+		{ from: "spellbook.slots.3.maximum", to: "system.spells.spell3.override" },
+		{ from: "spellbook.slots.4.current", to: "system.spells.spell4.value" },
+		{ from: "spellbook.slots.4.maximum", to: "system.spells.spell4.override" },
+		{ from: "spellbook.slots.5.current", to: "system.spells.spell5.value" },
+		{ from: "spellbook.slots.5.maximum", to: "system.spells.spell5.override" },
+		{ from: "spellbook.slots.6.current", to: "system.spells.spell6.value" },
+		{ from: "spellbook.slots.6.maximum", to: "system.spells.spell6.override" },
+		{ from: "spellbook.slots.7.current", to: "system.spells.spell7.value" },
+		{ from: "spellbook.slots.7.maximum", to: "system.spells.spell7.override" },
+		{ from: "spellbook.slots.8.current", to: "system.spells.spell8.value" },
+		{ from: "spellbook.slots.8.maximum", to: "system.spells.spell8.override" },
+		{ from: "spellbook.slots.9.current", to: "system.spells.spell9.value" },
+		{ from: "spellbook.slots.9.maximum", to: "system.spells.spell9.override" },
+		{ from: "spellbook.slots.pact.current", to: "system.spells.pact.value" },
+		{ from: "spellbook.slots.pact.maximum", to: "system.spells.pact.override" },
 		{ from: "spellbook.spellcasting.ability", to: "system.attributes.spellcasting" },
-		{ from: "spellbook.spellcasting.level", to: "system.details.spellLevel" }
+		{ from: "spellbook.spellcasting.level", to: "system.attributes.spell.level" }
 	];
 
 	function createFromActor(actor) {
@@ -157,7 +159,17 @@ const MonsterBlueprint = (function () {
 			blueprintData.description.alignment = _getActorAlignment(actor.system.details.alignment);
 			blueprintData.description.size = GMM_5E_SIZES.find((x) => x.foundry == actor.system.traits.size)?.name;
 			blueprintData.description.type.swarm = GMM_5E_SIZES.find((x) => x.foundry == actor.system.details.type.swarm)?.name;
-			blueprintData.initiative.advantage = actor.flags.dnd5e && actor.flags.dnd5e.initiativeAdv;
+			// Initiative advantage moved from `flags.dnd5e.initiativeAdv` (boolean) to
+			// `system.attributes.init.roll.mode` (number, 1 = advantage, -1 = disadvantage).
+			blueprintData.initiative.advantage = actor.system?.attributes?.init?.roll?.mode === 1;
+			// `system.resources.legact.value` / `legres.value` are no longer stored fields;
+			// dnd5e derives them from `max - spent` during prepareDerivedData. Recompute the
+			// "current remaining" value here so the blueprint shows correct numbers even
+			// when this runs during prepareBaseData (before dnd5e's derived prep).
+			const legact = actor.system?.resources?.legact ?? {};
+			blueprintData.legendary_actions.current = (legact.max ?? 0) - (legact.spent ?? 0);
+			const legres = actor.system?.resources?.legres ?? {};
+			blueprintData.legendary_resistances.current = (legres.max ?? 0) - (legres.spent ?? 0);
 			blueprintData.inventory.encumbrance.powerful_build = actor.flags.dnd5e && actor.flags.dnd5e.powerfulBuild;
 			blueprintData.inventory.items = [];
 			blueprintData.lair_actions.items = [];
@@ -358,6 +370,33 @@ const MonsterBlueprint = (function () {
 		_convertTraits(blueprint, actorData, GMM_5E_DAMAGE_TYPES, "damage_immunities", "di");
 		_convertTraits(blueprint, actorData, GMM_5E_CONDITIONS, "condition_immunities", "ci");
 		_convertTraits(blueprint, actorData, GMM_5E_LANGUAGES, "languages", "languages");
+
+		// Legendary actions/resistances are now stored as `spent` (used count) rather than
+		// `value` (remaining count). Translate the blueprint's "current remaining" into the
+		// dnd5e "spent" representation when writing back to the actor.
+		if (CompatibilityHelpers.hasProperty(blueprint.data, "legendary_actions.current")
+			&& CompatibilityHelpers.hasProperty(blueprint.data, "legendary_actions.maximum")) {
+			const max = Number(blueprint.data.legendary_actions.maximum) || 0;
+			const current = Number(blueprint.data.legendary_actions.current) || 0;
+			CompatibilityHelpers.setProperty(actorData, "system.resources.legact.spent", Math.max(0, max - current));
+		}
+		if (CompatibilityHelpers.hasProperty(blueprint.data, "legendary_resistances.current")
+			&& CompatibilityHelpers.hasProperty(blueprint.data, "legendary_resistances.maximum")) {
+			const max = Number(blueprint.data.legendary_resistances.maximum) || 0;
+			const current = Number(blueprint.data.legendary_resistances.current) || 0;
+			CompatibilityHelpers.setProperty(actorData, "system.resources.legres.spent", Math.max(0, max - current));
+		}
+
+		// Initiative advantage moved from `flags.dnd5e.initiativeAdv` (boolean) to
+		// `system.attributes.init.roll.mode` (number). Mirror the boolean blueprint flag onto
+		// the new numeric mode (1 = advantage, 0 = none) when persisting the blueprint.
+		if (CompatibilityHelpers.hasProperty(blueprint.data, "initiative.advantage")) {
+			CompatibilityHelpers.setProperty(
+				actorData,
+				"system.attributes.init.roll.mode",
+				blueprint.data.initiative.advantage ? 1 : 0
+			);
+		}
 
 		return actorData;
 	}

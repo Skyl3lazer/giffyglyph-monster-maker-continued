@@ -8,7 +8,7 @@ const Templates = (function() {
 
 	async function preloadTemplates() {
 
-		return loadTemplates([
+		return foundry.applications.handlebars.loadTemplates([
 			getRelativePath("monster/skins/vanity/partials/blueprint_item.html"),
 			getRelativePath("monster/skins/vanity/partials/blueprint_effect.html"),
 			getRelativePath("monster/skins/vanity/partials/artifact_loot.html"),
