@@ -787,6 +787,29 @@ const Activities = (function () {
     }
 
     /**
+     * Like {@link buildMigrationUpdate}, but operates on the raw creation `data` payload
+     * passed to the `preCreateItem` hook (which fires before the Item document has been
+     * fully constructed and added to its collection). Used to seed the GMM activity onto
+     * legacy compendium imports — items dragged from the GMM `gmm-monster-attacks`,
+     * `gmm-monster-powers`, `gmm-monster-traits`, `gmm-conditions` packs were authored
+     * before the dnd5e v5.x activity model existed and ship without an activity.
+     *
+     * @param {object} data  Raw creation data (the `data` arg to `preCreateItem`).
+     * @returns {object|null} Flat-path update suitable for `Item5e#updateSource(expand(...))`,
+     *                        or null if the item isn't a GMM scaling action / already has
+     *                        the activity.
+     */
+    function buildPreCreateUpdate(data) {
+        const sheetClass = data?.flags?.core?.sheetClass;
+        if (typeof sheetClass !== "string" || !sheetClass.endsWith(".ActionSheet")) return null;
+        const blueprint = data?.flags?.gmm?.blueprint;
+        if (!blueprint) return null;
+        // Raw data doesn't have the ActivityCollection wrapper yet, so check the plain object.
+        if (data?.system?.activities?.[GMM_ACTIVITY_ID]) return null;
+        return buildActivityUpdate(null, blueprint);
+    }
+
+    /**
      * Migrate every GMM scaling-action item on a single actor that lacks the
      * GMM-managed activity. Returns the count of items migrated.
      *
@@ -868,6 +891,7 @@ const Activities = (function () {
         resolveDamageRollFormulas,
         isLegacyGmmActionItem,
         buildMigrationUpdate,
+        buildPreCreateUpdate,
         migrateActor,
         migrateWorld
     };

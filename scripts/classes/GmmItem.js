@@ -312,23 +312,23 @@ const GmmItem = (function () {
             ? "fas fa-arrow-alt-circle-right"
             : "far fa-arrow-alt-circle-right";
 
-        // --- Attack / Save line ---
+        // Roll data is shared across the to-hit, save DC, and damage formula lookups.
+        const rollData = this.getRollData();
+
+        // --- Damage parts (resolved up-front so we can detect healing & build the line) ---
+        const damageParts = activity?.damage?.parts ?? [];
         const blueprintAttackType = blueprint?.attack?.type ?? "";
+        const isHealingAction = (blueprintAttackType === "heal") || _hasHealingPart(damageParts);
+
+        // --- Attack / Save line ---
         if (activity?.type === "attack") {
             labels.attack = game.i18n.format(`gmm.action.labels.attack.${blueprintAttackType || "mwak"}`);
-            const toHit = _computeAttackToHit(activity, blueprint, gmmMonster);
+            const toHit = _computeAttackToHit(activity, blueprint, gmmMonster, rollData);
             if (toHit !== null) {
                 labels.to_hit = game.i18n.format(`gmm.action.labels.attack.to_hit`, { bonus: _formatSignedBonus(toHit) });
             }
         } else if (activity?.type === "save") {
-            const ability = activity.save?.ability instanceof Set
-                ? activity.save.ability.first()
-                : (Array.isArray(activity.save?.ability) ? activity.save.ability[0] : activity.save?.ability);
-            if (ability) {
-                labels.attack = game.i18n.format(`gmm.action.labels.attack.${ability}`);
-            } else if (blueprintAttackType) {
-                labels.attack = game.i18n.format(`gmm.common.attack_type.${blueprintAttackType}`);
-            }
+            labels.attack = _formatSaveLabel(activity);
             const dc = activity.save?.dc?.value;
             if (dc) {
                 labels.to_hit = game.i18n.format(`gmm.action.labels.attack.dc`, { bonus: dc });
@@ -337,16 +337,14 @@ const GmmItem = (function () {
             labels.attack = game.i18n.format(`gmm.common.attack_type.${blueprintAttackType}`);
         }
 
-        // --- Damage line ---
-        const damageParts = activity?.damage?.parts ?? [];
+        // --- Damage line. Each part is independently formatted as either
+        // "<formula> <type> damage" (damage type) or "<formula> <type>" (healing type),
+        // so a mixed-type action like "1d8 fire damage plus 1d4 healing" reads correctly.
         if (damageParts.length) {
-            const rollData = this.getRollData();
-            const damages = damageParts.map((part) => {
-                const formula = _resolvePartFormula(part, gmmMonster, rollData);
-                const type = part.types instanceof Set ? part.types.first() : (Array.isArray(part.types) ? part.types[0] : "");
-                return `${formula}${type ? ` ${game.i18n.format(`gmm.common.damage.${type}`).toLowerCase()}` : ``} damage`;
-            });
-            labels.damage_hit = damages.join(" plus ");
+            labels.damage_hit = damageParts
+                .map((part) => _formatDamagePart(part, gmmMonster, rollData))
+                .filter(_ => _)
+                .join(" plus ");
         }
 
         // --- Activation condition ---
@@ -355,7 +353,7 @@ const GmmItem = (function () {
 
         // --- Duration / concentration / healing ---
         labels.duration = activity?.labels?.duration ?? this.labels?.duration ?? "";
-        labels.isHealing = !!this.isHealing;
+        labels.isHealing = isHealingAction || !!this.isHealing;
         labels.isConcentration = !!activity?.duration?.concentration;
 
         // Versatile / miss damage (GMM-only blueprint fields preserved across the migration)
@@ -457,7 +455,7 @@ const GmmItem = (function () {
      *
      * @returns {number|null}
      */
-    function _computeAttackToHit(activity, blueprint, monsterData) {
+    function _computeAttackToHit(activity, blueprint, monsterData, rollData = {}) {
         if (!monsterData) return null;
         let total = monsterData.attack_bonus?.value ?? 0;
 
@@ -468,31 +466,127 @@ const GmmItem = (function () {
 
         const bonusFormula = activity?.attack?.bonus;
         if (bonusFormula) {
+            // Use dnd5e.utils.simplifyBonus when available — it builds a Roll with the
+            // full rollData so `@gmm.foo` and similar variables resolve, returning 0 for
+            // non-deterministic or invalid formulas. Falls back to bare numeric coercion.
+            const simplifyBonus = dnd5e?.utils?.simplifyBonus;
             try {
-                const simplified = Number(simplifyRollFormula(String(bonusFormula)));
-                if (Number.isFinite(simplified)) total += simplified;
+                const resolved = (typeof simplifyBonus === "function")
+                    ? simplifyBonus(bonusFormula, rollData)
+                    : Number(simplifyRollFormula(String(bonusFormula)));
+                if (Number.isFinite(resolved)) total += resolved;
             } catch (e) { /* ignore simplification failures */ }
         }
 
         return total;
     }
 
-    function _resolvePartFormula(part, monsterData, rollData) {
-        let formula;
-        if (part.custom?.enabled) formula = part.custom.formula ?? "";
-        else if (part.number && part.denomination) {
-            formula = `${part.number}d${part.denomination}`;
-            if (part.bonus) formula += String(part.bonus).trim().startsWith("-")
-                ? ` - ${String(part.bonus).slice(1)}`
-                : ` + ${part.bonus}`;
-        } else {
-            formula = String(part.bonus ?? "");
+    /**
+     * Build the "<Ability> Saving Throw" label for a SaveActivity, handling the
+     * single-ability, multi-ability, and no-ability cases. Multi-ability uses the
+     * locale's disjunction list formatter (e.g., "Strength or Dexterity Saving Throw").
+     *
+     * @param {Activity} activity
+     * @returns {string}
+     */
+    function _formatSaveLabel(activity) {
+        const raw = activity.save?.ability;
+        const abilities = raw instanceof Set ? Array.from(raw)
+            : Array.isArray(raw) ? Array.from(raw)
+                : (raw ? [raw] : []);
+        if (abilities.length === 1) {
+            return game.i18n.format(`gmm.action.labels.attack.${abilities[0]}`);
         }
+        if (abilities.length > 1) {
+            const formatter = game.i18n.getListFormatter({ style: "short", type: "disjunction" });
+            const names = abilities.map(a => CONFIG.DND5E?.abilities?.[a]?.label ?? a);
+            return `${formatter.format(names)} ${game.i18n.localize("DND5E.SavingThrow")}`;
+        }
+        return game.i18n.localize("DND5E.SavingThrow");
+    }
+
+    /**
+     * Format a single damage part as a label string. Healing parts read "1d6 healing";
+     * damage parts read "1d6 + 2 fire damage". Type labels are sourced from
+     * `CONFIG.DND5E.damageTypes` / `healingTypes` first (so they match dnd5e's official
+     * terminology) and fall back to the GMM `gmm.common.damage.<type>` keys for any
+     * legacy GMM-only types like "physical".
+     *
+     * @returns {string}
+     */
+    function _formatDamagePart(part, monsterData, rollData) {
+        const formula = _resolvePartFormula(part, monsterData, rollData);
+        if (!formula) return "";
+        const types = part.types instanceof Set ? Array.from(part.types)
+            : Array.isArray(part.types) ? part.types : [];
+        const type = types[0];
+        if (!type) return `${formula} damage`;
+        const typeLabel = _localizeDamageType(type);
+        return _isHealingType(type)
+            ? `${formula} ${typeLabel.toLowerCase()}`
+            : `${formula} ${typeLabel.toLowerCase()} damage`;
+    }
+
+    function _localizeDamageType(type) {
+        const dnd = CONFIG.DND5E?.damageTypes?.[type]?.label
+            ?? CONFIG.DND5E?.healingTypes?.[type]?.label;
+        if (dnd) return game.i18n.localize(dnd);
+        // Legacy GMM-only types (e.g., "physical") and any custom types.
+        return game.i18n.localize(`gmm.common.damage.${type}`);
+    }
+
+    function _isHealingType(type) {
+        return !!(type && CONFIG.DND5E?.healingTypes?.[type]);
+    }
+
+    function _hasHealingPart(damageParts) {
+        if (!damageParts?.length) return false;
+        return damageParts.some(part => {
+            const types = part.types instanceof Set ? Array.from(part.types)
+                : Array.isArray(part.types) ? part.types : [];
+            return types.some(_isHealingType);
+        });
+    }
+
+    /**
+     * Resolve a single damage part to a display formula. Prefers the live
+     * {@link DamageData#formula} getter (which knows about `custom.enabled` vs the
+     * structured `number/denomination/bonus` fields) when called against an Activity
+     * instance; falls back to manual reconstruction when called against a plain
+     * `_source`-shaped object.
+     *
+     * Shortcodes should already have been substituted by
+     * {@link Activities.resolveActivityFormulas} during the owning monster's
+     * `prepareDerivedData`; we keep a defensive substitution for callers that race
+     * the prepare cycle.
+     *
+     * @returns {string}
+     */
+    function _resolvePartFormula(part, monsterData, rollData) {
+        let formula = "";
+        try {
+            if (typeof part?.formula === "string" && part.formula) {
+                formula = part.formula;
+            } else if (part?.custom?.enabled) {
+                formula = part.custom.formula ?? "";
+            } else if (part?.number && part?.denomination) {
+                formula = `${part.number}d${part.denomination}`;
+                if (part.bonus) {
+                    const bonus = String(part.bonus).trim();
+                    formula += bonus.startsWith("-") ? ` - ${bonus.slice(1)}` : ` + ${bonus}`;
+                }
+            } else if (part?.bonus) {
+                formula = String(part.bonus);
+            }
+        } catch (e) { /* fall through to empty */ }
+        if (!formula) return "";
+
         if (formula.includes("[") && monsterData) {
             formula = Shortcoder.replaceShortcodes(formula, monsterData, true);
         }
         try {
-            return simplifyRollFormula(CompatibilityHelpers.replaceFormulaData(formula, rollData)).trim();
+            const replaced = CompatibilityHelpers.replaceFormulaData(formula, rollData);
+            return simplifyRollFormula(replaced).trim() || formula;
         } catch (e) {
             return formula;
         }
@@ -500,6 +594,9 @@ const GmmItem = (function () {
 
     function _formatSignedBonus(n) {
         const r = Math.round(n);
+        // Prefer dnd5e's localized formatter so signs render correctly under all locales.
+        const fmt = dnd5e?.utils?.formatModifier;
+        if (typeof fmt === "function") return fmt(r);
         return (r >= 0) ? `+${r}` : `${r}`;
     }
 
