@@ -46,7 +46,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         actions: {
             "add-damage": ActionSheet.#actionAddDamage,
             "remove-damage": ActionSheet.#actionRemoveDamage,
-            "create-effect": ActionSheet.#actionCreateEffect
+            "create-effect": ActionSheet.#actionCreateEffect,
+            "edit-image": ActionSheet.#actionEditImage
         }
     };
 
@@ -430,5 +431,26 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),
             "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
         }]);
+    }
+
+    /**
+     * Open a Foundry FilePicker to choose an image for the field named in
+     * `target.dataset.editImage`, then write the picked path back to that field on
+     * the document. The V1 sheet wired the inline `<img data-edit="…">` pattern
+     * through Foundry's ImageHelper popup, but ApplicationV2 no longer auto-handles
+     * `data-edit`; this is the V2 replacement, anchored on a `data-action` instead.
+     * @this {ActionSheet}
+     */
+    static #actionEditImage(event, target) {
+        const field = target.dataset.editImage;
+        if (!field) return;
+        const current = foundry.utils.getProperty(this.document, field) ?? "";
+        return new foundry.applications.apps.FilePicker.implementation({
+            type: "image",
+            current,
+            callback: path => this.document.update({ [field]: path }),
+            top: this.position?.top ? this.position.top + 40 : null,
+            left: this.position?.left ? this.position.left + 10 : null
+        }).render({ force: true });
     }
 }

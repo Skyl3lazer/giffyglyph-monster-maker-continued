@@ -44,12 +44,15 @@ const Templates = (function() {
 			});
 		}
 
+		// Foundry v14 ships these helpers with semantics matching GMM's previous
+		// re-implementations: `concat`, `eq`/`ne`/`lt`/`gt`/`lte`/`gte`, `and`, `or`.
+		// See `client/applications/handlebars.mjs`. Re-registering them here would be
+		// redundant and would silently diverge if Foundry ever tweaks behavior, so we
+		// rely on the framework's versions instead.
+
 		//This is basically just to be able to output test data
 		Handlebars.registerHelper('json', function (context) {
 			return JSON.stringify(context);
-		});
-		Handlebars.registerHelper('concat', function(...args) {
-			return args.slice(0, -1).join('');
 		});
 
 		Handlebars.registerHelper('strlen', function(str) {
@@ -130,21 +133,6 @@ const Templates = (function() {
 			var checkedChecks = document.querySelectorAll(".tstCheckbox:checked");
 			return checkedChecks.length > maxTst;
 		});
-
-		Handlebars.registerHelper({
-			eq: (v1, v2) => v1 === v2,
-			ne: (v1, v2) => v1 !== v2,
-			lt: (v1, v2) => v1 < v2,
-			gt: (v1, v2) => v1 > v2,
-			lte: (v1, v2) => v1 <= v2,
-			gte: (v1, v2) => v1 >= v2,
-			and() {
-				return Array.prototype.every.call(arguments, Boolean);
-			},
-			or() {
-				return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
-			}
-	});
 	}
 
 	return {

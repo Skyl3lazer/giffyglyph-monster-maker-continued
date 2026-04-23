@@ -53,7 +53,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             "display-item": MonsterSheet.#actionDisplayItem,
             "recharge-item": MonsterSheet.#actionRechargeItem,
             "create-effect": MonsterSheet.#actionCreateEffect,
-            "roll-hp": MonsterSheet.#actionRollHp
+            "roll-hp": MonsterSheet.#actionRollHp,
+            "edit-image": MonsterSheet.#actionEditImage
         }
     };
 
@@ -449,8 +450,13 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             system: {
                 activities: { [Activities.GMM_ACTIVITY_ID]: activityData }
             },
+            // Nest the bound sheet under `flags.core.sheetClass`: a literal
+            // `"core.sheetClass"` key would never resolve because Foundry reads the
+            // bound sheet at `document.flags.core?.sheetClass`. Without this, every
+            // newly-created GMM scaling action would open in the dnd5e item sheet
+            // instead of the GMM ActionSheet.
             flags: {
-                "core.sheetClass": `${GMM_MODULE_TITLE}.ActionSheet`,
+                core: { sheetClass: `${GMM_MODULE_TITLE}.ActionSheet` },
                 gmm: { blueprint }
             }
         };
@@ -519,6 +525,27 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),
             "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
         }]);
+    }
+
+    /**
+     * Open a Foundry FilePicker to choose an image for the field named in
+     * `target.dataset.editImage`, then write the picked path back to that field on
+     * the document. The V1 sheet wired the inline `<img data-edit="…">` pattern
+     * through Foundry's ImageHelper popup, but ApplicationV2 no longer auto-handles
+     * `data-edit`; this is the V2 replacement, anchored on a `data-action` instead.
+     * @this {MonsterSheet}
+     */
+    static #actionEditImage(event, target) {
+        const field = target.dataset.editImage;
+        if (!field) return;
+        const current = foundry.utils.getProperty(this.document, field) ?? "";
+        return new foundry.applications.apps.FilePicker.implementation({
+            type: "image",
+            current,
+            callback: path => this.document.update({ [field]: path }),
+            top: this.position?.top ? this.position.top + 40 : null,
+            left: this.position?.left ? this.position.left + 10 : null
+        }).render({ force: true });
     }
 
     /** @this {MonsterSheet} */

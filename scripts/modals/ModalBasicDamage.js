@@ -42,18 +42,19 @@ const ModalBasicDamage = (function() {
 		let rollString = rollParts.join(" + ");
 
 		if (form.get("modifiers")) {
-			rollString = `${rollParts.length > 1 || form.get("bonus") != "static" ? `(${rollString})` : rollString} + ${Shortcoder.replaceShortcodes(form.get("modifiers"), this.actor?.data?.data?.gmm?.monster?.data, true).trim()}`;
+			rollString = `${rollParts.length > 1 || form.get("bonus") != "static" ? `(${rollString})` : rollString} + ${Shortcoder.replaceShortcodes(form.get("modifiers"), this.actor?.flags?.gmm?.monster?.data, true).trim()}`;
 		}
 
 		try {
-			const asyncRoll = new Roll(RollFormula.getRollFormula(rollString)).roll();
+			const asyncRoll = new foundry.dice.Roll(RollFormula.getRollFormula(rollString)).roll();
 			asyncRoll.then(completedRoll => {
 				completedRoll.toMessage({
 					speaker: ChatMessage.getSpeaker({actor: this.actor}),
 					flavor: messageParts.join(" "),
-					messageData: {"flags.dnd5e.roll": {type: "other", itemId: this.id }},
+					flags: { dnd5e: { roll: { type: "other", itemId: this.id } } }
+				}, {
 					rollMode: form.get("mode")
-				})
+				});
 			});
 			modal.querySelector("[data-action='close-modal']").click();
 		} catch(err) {
