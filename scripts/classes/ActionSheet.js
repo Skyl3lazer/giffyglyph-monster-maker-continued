@@ -22,15 +22,8 @@ import Templates from "./Templates.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Activities from "./Activities.js";
 
-/**
- * GMM scaling-action item sheet, rebuilt on the dnd5e v5.x ApplicationV2 ItemSheet5e base.
- *
- * The custom "Forge" UI lives entirely inside a single template part (`forge`) which
- * replaces the dnd5e item sheet's stock PARTS (header / tabs / activities / etc.). Form
- * submission is intercepted in {@link _processFormData} so that edits to the
- * `gmm.blueprint.*` fields are translated into both a `flags.gmm.blueprint` write
- * and a sync of the underlying `system.*` fields via {@link ActionBlueprint.getItemDataFromBlueprint}.
- */
+/* GMM scaling-action item sheet, rebuilt on the dnd5e v5.x ApplicationV2 ItemSheet5e base The custom "Forge" UI li...
+ * Form submission is intercepted in {@link _processFormData} so that edits to the `gmm.blueprint.*` fields are tra */
 export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
 
     constructor(options = {}) {
@@ -51,12 +44,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }
     };
 
-    /**
-     * Replace the inherited ItemSheet5e PARTS (header, tabs, activities, advancement,
-     * description, details, effects) with our single `forge` part. Static class fields
-     * are not merged across the inheritance chain, so this fully supplants the parent.
-     * @inheritDoc
-     */
+    /* Replace the inherited ItemSheet5e PARTS (header, tabs, activities, advancement, description, details, effects) w...
+ * Static class fields are not merged across the inheritance chain, so this fully supplants the parent @inheritDoc */
     static PARTS = {
         forge: {
             template: "modules/giffyglyph-monster-maker-continued/templates/action/forge.html",
@@ -64,25 +53,12 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }
     };
 
-    /**
-     * The dnd5e ItemSheet5e inherits `static TABS` for its tab strip; clear it so the
-     * framework doesn't try to render a tab navigation for parts we never declare.
-     * @inheritDoc
-     */
+    /* The dnd5e ItemSheet5e inherits `static TABS` for its tab strip
+ * clear it so the framework doesn't try to render a tab navigation for parts we never declare @inheritDoc */
     static TABS = [];
 
-    /**
-     * Class names inherited from the dnd5e v5.x ApplicationV2 item-sheet chain that
-     * apply heavy visual styling (gold border, decorative item-header underlay, fixed
-     * `--dnd5e-sheet-header-height`, `padding: 0 12px 8px` on `.window-content`,
-     * generic input/button chrome, etc.). The GMM forge entirely replaces the dnd5e
-     * item PARTS markup, so none of these styles are wanted; stripping them at the
-     * option level avoids fighting them in CSS.
-     *
-     * Framework-essential classes (`application`, `sheet`, `themed`, `theme-*`) are
-     * preserved so Foundry core's window manager and theme switching still work.
-     * @type {ReadonlySet<string>}
-     */
+    /* Class names inherited from the dnd5e v5.x ApplicationV2 item-sheet chain that apply heavy visual styling (gold b...
+ * 0 12px 8px` on `.window-content`, generic input/button chrome, etc.) */
     static #STRIPPED_CLASSES = new Set([
         "dnd5e2",
         "item",
@@ -106,9 +82,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         const context = await super._prepareContext(options);
         const itemData = this.item.flags;
 
-        // Templates rendered via the V1 sheet expected `cssClass` to be supplied by the
-        // framework. ApplicationV2 doesn't populate it automatically, so provide an
-        // equivalent so the existing `forge--action ... {{cssClass}}` markup still works.
+        // Templates rendered via the V1 sheet expected `cssClass` to be supplied by the framework
+        // ApplicationV2 doesn't populate it automatically, so provide an equivalent so the existing `forge--action
         context.cssClass = this.isEditable ? "editable" : "locked";
         context.editable = this.isEditable;
 
@@ -161,23 +136,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
 
     /* -------------------------------------------- */
 
-    /**
-     * Build the dropdown options for the consumption-target picker.
-     *
-     * The picker is driven by the GMM blueprint, which carries four consumption types
-     * (`ammo`, `attribute`, `material`, `charges`). dnd5e v5.x dropped the legacy
-     * `item.system.consume.{type,target,amount}` schema in favour of per-activity
-     * `consumption.targets[]`, so we read the chosen type from
-     * `item.flags.gmm.blueprint.data.resource_consumption.type` and project the actor
-     * inventory / attribute paths through the equivalent dnd5e v5 lookups
-     * (`material` for items, `itemUses` for charges, `attribute` via
-     * `TokenDocument.implementation.getConsumedAttributes`).
-     *
-     * @param {Item5e} item
-     * @returns {Object<string, string>}  `{ key: label }` map consumed by the
-     *                                    `{{#each ... as | name key |}}` block in the
-     *                                    action blueprint template.
-     */
+    /* Build the dropdown options for the consumption-target picker The picker is driven by the GMM blueprint, which ca...
+ * dnd5e v5.x dropped the legacy `item.system.consume.{type,target,amount}` schema in favour of per-activity `consu */
     _getActionConsumptionTargets(item) {
         try {
             const blueprintType = item?.flags?.gmm?.blueprint?.data?.resource_consumption?.type;
@@ -200,11 +160,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
 
     /* -------------------------------------------- */
 
-    /**
-     * Ammo consumption: list every consumable item on the actor whose
-     * `system.type.value === "ammo"`, plus the item itself when the action lives on
-     * an ammo consumable.
-     */
+    /* Ammo consumption:
+ * list every consumable item on the actor whose `system.type.value === "ammo"`, plus the item itself when the acti */
     _gmmAmmoTargets(actor, currentItem) {
         const targets = {};
         const isAmmo = (i) => (i.type === "consumable") && (i.system?.type?.value === "ammo");
@@ -218,11 +175,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return targets;
     }
 
-    /**
-     * Attribute consumption: surface the actor-data attribute paths dnd5e considers
-     * consumable. Falls back to the raw `CONFIG.DND5E.consumableResources` list if
-     * the v5 helper is unavailable for any reason.
-     */
+    /* Attribute consumption:
+ * surface the actor-data attribute paths dnd5e considers consumable */
     _gmmAttributeTargets(actor) {
         const targets = {};
         let attrs;
@@ -234,11 +188,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return targets;
     }
 
-    /**
-     * Material consumption: list `consumable` and `loot` items on the actor; mirrors
-     * the dnd5e v5 `validMaterialTargets` filter. Excludes the item itself so an
-     * action can't accidentally consume its own material counter.
-     */
+    /* Material consumption:
+ * list `consumable` and `loot` items on the actor */
     _gmmMaterialTargets(actor, currentItem) {
         const targets = {};
         for (const i of actor.items ?? []) {
@@ -249,12 +200,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return targets;
     }
 
-    /**
-     * Charges consumption: any actor-side item with a `uses.max`. Includes the
-     * current item itself (under the empty-string key, matching dnd5e's
-     * `validItemUsesTargets` convention for "this item"). Labels are formatted the
-     * same way dnd5e formats them in its own item-uses picker.
-     */
+    /* Charges consumption:
+ * any actor-side item with a `uses.max` */
     _gmmChargesTargets(actor, currentItem) {
         const targets = {};
         const fmt = (name, uses) => {
@@ -289,50 +236,26 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     /*  Inherited dnd5e helpers we deliberately disable                                */
     /* -------------------------------------------- */
 
-    /**
-     * Suppress the dnd5e "mode slider" (`<slide-toggle class="mode-slider">`) that
-     * `PrimarySheet5e#_renderModeToggle` injects into the V14 window header. GMM's
-     * Forge UI is always editable and exposes its own controls; the upstream toggle
-     * has no meaning for the scaling-action sheet.
-     */
+    /* Suppress the dnd5e "mode slider" (`<slide-toggle class="mode-slider">`) that `PrimarySheet5e#_renderModeToggle`...
+ * GMM's Forge UI is always editable and exposes its own controls */
     _renderModeToggle() {
         const toggle = this.element?.querySelector(".window-header .mode-slider");
         if (toggle) toggle.remove();
     }
 
-    /**
-     * Suppress the dnd5e "create child" footer button (gold "+" appended to
-     * `.window-content` by `PrimarySheet5e#_onFirstRender`). The Forge UI provides
-     * its own controls, and dnd5e's button has no meaning here.
-     */
+    /* Suppress the dnd5e "create child" footer button (gold "+" appended to `.window-content` by `PrimarySheet5e#_onFi...
+ * The Forge UI provides its own controls, and dnd5e's button has no meaning here */
     async _onFirstRender(context, options) {
         await super._onFirstRender(context, options);
         this.element?.querySelector(".window-content > .create-child")?.remove();
     }
 
-    /**
-     * Stub for the V1 `_activateEditor` API that dnd5e's `ItemSheet5e#_onRender`
-     * still invokes for every `.editor-content[data-edit]` element it finds. Our
-     * forge template renders ProseMirror content via the V14 `<prose-mirror>` web
-     * component (the `{{editor}}` Handlebars helper emits compatible markup), and
-     * that element wires up its own listeners on connection. Without this stub the
-     * parent's `forEach(div => this._activateEditor(div))` blows up with
-     * "this._activateEditor is not a function" and the action forge fails to open.
-     */
+    /* Stub for the V1 `_activateEditor` API that dnd5e's `ItemSheet5e#_onRender` still invokes for every `.editor-cont...
+ * Our forge template renders ProseMirror content via the V14 `<prose-mirror>` web component (the `{{editor}}` Hand */
     _activateEditor() {}
 
-    /**
-     * Force the dnd5e PLAY/EDIT mode to EDIT on every render. The Forge UI does not
-     * use the dnd5e read-only / editing dichotomy (it has no inline labels to swap,
-     * no tray rows to expand, etc.), but `ItemSheet5e#_onRender` unconditionally
-     * calls `this._disableFields()` whenever `_mode === MODES.PLAY` (the default
-     * coming out of `PrimarySheet5e#_configureRenderOptions`). That selector
-     * disables every INPUT / SELECT / TEXTAREA / BUTTON inside `.window-content`,
-     * which is the entire forge — leaving every blueprint field read-only and
-     * breaking action buttons like "Add Damage". Pinning the mode to EDIT skips the
-     * disable pass without otherwise changing rendering behaviour.
-     * @inheritDoc
-     */
+    /* Force the dnd5e PLAY/EDIT mode to EDIT on every render
+ * The Forge UI does not use the dnd5e read-only / editing dichotomy (it has no inline labels to swap, no tray rows */
     _configureRenderOptions(options) {
         super._configureRenderOptions(options);
         this._mode = this.constructor.MODES.EDIT;
@@ -361,29 +284,17 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     /*  Form Submission                             */
     /* -------------------------------------------- */
 
-    /**
-     * @inheritDoc
-     * @see MonsterSheet#_onChangeForm
-     */
+    /* @inheritDoc @see MonsterSheet#_onChangeForm */
     _onChangeForm(formConfig, event) {
         if (event?.target?.closest?.(".gmm-modal")) return;
         return super._onChangeForm(formConfig, event);
     }
 
-    /**
-     * @inheritDoc
-     * Replaces the V1 `_updateObject`. Translates the `gmm.blueprint.*` form fields
-     * into a `flags.gmm.blueprint` payload and merges the item-side mirror produced
-     * by {@link ActionBlueprint.getItemDataFromBlueprint} before letting the V2
-     * pipeline call `document.update` with the result.
-     */
+    /* @inheritDoc Replaces the V1 `_updateObject`
+ * Translates the `gmm.blueprint.*` form fields into a `flags.gmm.blueprint` payload and merges the item-side mirro */
     _processFormData(event, form, formData) {
-        // V14 ApplicationV2 puts the application root in a `<form>` element. The
-        // forge template embeds GMM modals as siblings of the blueprint inputs;
-        // their named radios/selects would otherwise be picked up by
-        // FormDataExtended on every blueprint change, leaking modal state into
-        // item.update() and tripping schema validation. Filter out any control
-        // whose nearest container is a `.gmm-modal`.
+        // V14 ApplicationV2 puts the application root in a `<form>` element
+        // The forge template embeds GMM modals as siblings of the blueprint inputs their named radios/selects would otherw
         const filtered = {};
         for (const [name, value] of Object.entries(formData.object)) {
             const input = form.querySelector(`[name="${CSS.escape(name)}"]`);
@@ -412,10 +323,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             expanded.gmm.blueprint.uses.max = "";
         }
 
-        // Description text submitted via the new editor is nested under
-        // `flags.gmm.blueprint.data.description.text`; mirror it onto the blueprint
-        // form path so the gmm.blueprint -> flags.gmm.blueprint translation below
-        // captures it.
+        // Description text submitted via the new editor is nested under `flags.gmm.blueprint.data.description.text`
+        // mirror it onto the blueprint form path so the gmm.blueprint -> flags.gmm.blueprint translation below captures it
         if (expanded.flags?.gmm?.blueprint?.data?.description?.text) {
             CompatibilityHelpers.setProperty(expanded, "gmm.blueprint.description.text", expanded.flags.gmm.blueprint.data.description.text);
         }
@@ -440,12 +349,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     /*  Action Handlers                             */
     /* -------------------------------------------- */
 
-    /**
-     * @this {ActionSheet}
-     * Append an empty damage part to the action's blueprint and rebuild the activity
-     * from the updated blueprint. See {@link #mutateBlueprintDamage} for the rationale
-     * behind driving off the flag rather than the activity.
-     */
+    /* @this {ActionSheet} Append an empty damage part to the action's blueprint and rebuild the activity from the upda...
+ * See {@link #mutateBlueprintDamage} for the rationale behind driving off the flag rather than the activity */
     static async #actionAddDamage(event, target) {
         event.preventDefault();
         return ActionSheet.#mutateBlueprintDamage.call(this, entries => {
@@ -465,35 +370,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         });
     }
 
-    /**
-     * Apply a mutation to the action's `blueprint.attack.hit.damage` list and persist
-     * both the updated flag and the rebuilt GMM activity in a single `item.update`.
-     *
-     * Why read from the blueprint flag rather than `activity.damage.parts`:
-     *   - The blueprint flag is the UI source of truth; the blueprint form fields bind
-     *     directly to `gmm.blueprint.attack.hit.damage.N.formula|type`, so whatever the
-     *     user currently sees in the form is exactly what's stored in the flag.
-     *   - The activity is derived state rebuilt from the blueprint on save. Trusting
-     *     `activity.damage.parts` was fine only as long as the activity was always in
-     *     sync, but legacy items carry blueprints whose prior form-submits lost their
-     *     damage during `_collectDamageParts` (the dotted `…damage.0.formula` input
-     *     names expand into `{ "0": {...} }` objects instead of arrays — fixed there —
-     *     so the pre-fix activity ended up empty even when the flag showed populated
-     *     rows). Driving Add/Remove off the activity therefore erased every still-
-     *     visible row on the first click.
-     *   - Serialising activity damage parts via `toObject(false)` also returned the
-     *     *prepared* data, which can be shortcoder-resolved (`resolveActivityFormulas`
-     *     mutates `part.custom.formula` in-place during prepareDerivedData for
-     *     GMM-owned items). Round-tripping prepared data as new `_source` permanently
-     *     baked the resolved numeric formula in and lost the `[shortcode]` markers.
-     *
-     * Re-running the whole blueprint through `ActionBlueprint.getItemDataFromBlueprint`
-     * keeps the activity in lockstep with the flag using the same pipeline the form
-     * save path uses, preserving shortcodes and any other blueprint fields.
-     *
-     * @this {ActionSheet}
-     * @param {(entries: {formula: string, type: string}[]) => void} mutate
-     */
+    /* Apply a mutation to the action's `blueprint.attack.hit.damage` list and persist both the updated flag and the re...
+ * The blueprint flag is the UI source of truth */
     static async #mutateBlueprintDamage(mutate) {
         const stored = this.item.flags?.gmm?.blueprint;
         const blueprint = foundry.utils.deepClone(stored ?? { vid: 1, type: "action", data: {} });
@@ -501,10 +379,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         blueprint.type = "action";
         blueprint.data ??= {};
 
-        // Normalise the existing damage list into a plain array of `{formula, type}`
-        // entries regardless of whether the flag currently holds an array (produced by
-        // `_syncItemDataToBlueprint`) or the dotted-object form that comes out of
-        // `foundry.utils.expandObject` on form submits (`{ "0": {...}, "1": {...} }`).
+        // Normalise the existing damage list into a plain array of `{formula, type}` entries regardless of whether the fla...
+        // {...}, "1":
         const raw = foundry.utils.getProperty(blueprint.data, "attack.hit.damage");
         let entries;
         if (Array.isArray(raw)) {
@@ -521,9 +397,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         mutate(entries);
         foundry.utils.setProperty(blueprint.data, "attack.hit.damage", entries);
 
-        // Mirror onto the activity via the same pipeline as the form-submit path, so the
-        // flag and `system.activities.<id>` stay in lockstep. We also overwrite the flag
-        // wholesale to flatten any legacy dotted-object shape into the clean array form.
+        // Mirror onto the activity via the same pipeline as the form-submit path, so the flag and `system.activities.<id>`...
+        // We also overwrite the flag wholesale to flatten any legacy dotted-object shape into the clean array form
         const update = ActionBlueprint.getItemDataFromBlueprint(blueprint, this.item);
         update["flags.gmm.blueprint"] = blueprint;
         return this.item.update(update);
@@ -543,14 +418,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }]);
     }
 
-    /**
-     * Open a Foundry FilePicker to choose an image for the field named in
-     * `target.dataset.editImage`, then write the picked path back to that field on
-     * the document. The V1 sheet wired the inline `<img data-edit="…">` pattern
-     * through Foundry's ImageHelper popup, but ApplicationV2 no longer auto-handles
-     * `data-edit`; this is the V2 replacement, anchored on a `data-action` instead.
-     * @this {ActionSheet}
-     */
+    /* Open a Foundry FilePicker to choose an image for the field named in `target.dataset.editImage`, then write the p...
+ * The V1 sheet wired the inline `<img data-edit="…">` pattern through Foundry's ImageHelper popup, but Application */
     static #actionEditImage(event, target) {
         const field = target.dataset.editImage;
         if (!field) return;
@@ -560,12 +429,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             current,
             callback: path => {
                 const update = { [field]: path };
-                // If we're writing into the GMM blueprint flag, also stamp the
-                // envelope's `vid` / `type` so a fresh item that has never been
-                // submitted through `_processFormData` ends up with a well-formed
-                // `flags.gmm.blueprint`. Without this, `_verifyBlueprint` sees a
-                // missing `vid` on the next render. (`_verifyBlueprint` also
-                // tolerates missing vid as a safety net for already-broken data.)
+                // If we're writing into the GMM blueprint flag, also stamp the envelope's `vid` / `type` so a fresh item that has...
+                // Without this, `_verifyBlueprint` sees a missing `vid` on the next render
                 if (field.startsWith("flags.gmm.blueprint.")) {
                     update["flags.gmm.blueprint.vid"] = 1;
                     update["flags.gmm.blueprint.type"] = "action";

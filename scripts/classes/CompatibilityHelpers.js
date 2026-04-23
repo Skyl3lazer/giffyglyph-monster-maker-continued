@@ -75,22 +75,8 @@ const CompatibilityHelpers = (function () {
 		return expandObject(...args);
 	}
 
-	/**
-	 * Build a FormData-like object from the named form controls inside a container.
-	 *
-	 * Foundry V14's ApplicationV2 sets the application root element itself to a
-	 * `<form>` (`tag: "form"`). HTML forbids nested `<form>` elements, but the parent
-	 * sheet templates need to scope GMM modals (which collect their own ad-hoc roll
-	 * inputs) so they can't share the application form. We render those modals with a
-	 * `<div class="modal__form">` instead. Since `new FormData(div)` requires an
-	 * `HTMLFormElement`, this helper walks the container, picks up every named control
-	 * (radios/checkboxes only when checked), and returns a plain `FormData` wrapping
-	 * those name/value pairs so existing modal code that calls `.get(name)` keeps
-	 * working without modification.
-	 *
-	 * @param {HTMLElement} container - Element wrapping the inputs to collect.
-	 * @returns {FormData} A FormData instance populated with the container's controls.
-	 */
+	/* Build a FormData-like object from the named form controls inside a container Foundry V14's ApplicationV2 sets th...
+ * "form"`) */
 	function readInputs(container) {
 		const fd = new FormData();
 		if (!container) return fd;

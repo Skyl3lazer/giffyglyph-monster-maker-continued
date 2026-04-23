@@ -96,9 +96,8 @@
 		&::before {
 			content: "\f078";
 			-webkit-font-smoothing: antialiased;
-			// Foundry V14 ships Font Awesome 7 Pro and exposes the family name via
-			// the `--font-awesome` CSS variable. Hard-coding "Font Awesome 5 Free"
-			// (the V11/V12 default) renders missing-glyph boxes in V14.
+			// Foundry V14 ships Font Awesome 7 Pro and exposes the family name via the `--font-awesome` CSS variable
+			// Hard-coding "Font Awesome 5 Free" (the V11/V12 default) renders missing-glyph boxes in V14
 			font-family: var(--font-awesome, "Font Awesome 7 Pro");
 			font-weight: 900;
 			display: inline-block;

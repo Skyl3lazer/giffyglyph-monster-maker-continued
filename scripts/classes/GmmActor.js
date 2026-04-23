@@ -4,19 +4,14 @@ import { GMM_5E_ABILITIES } from "../consts/Gmm5eAbilities.js";
 import { GMM_5E_SKILLS } from '../consts/Gmm5eSkills.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
-/**
- * A patcher which controls actor data based on the selected sheet.
- */
+/* A patcher which controls actor data based on the selected sheet */
 const GmmActor = (function () {
 	//import Proficiency from '../../../../systems/dnd5e/module/actor/proficiency.js';
 	function Proficiency(...args) {
 		return new dnd5e.documents.Proficiency(...args);
 	}
-	/**
-	 * Wrap libWrapper.register so a registration failure (e.g. against a method that
-	 * dnd5e has since removed) emits a console warning instead of throwing and aborting
-	 * the rest of module initialisation.
-	 */
+	/* Wrap libWrapper.register so a registration failure (e.g
+ * against a method that dnd5e has since removed) emits a console warning instead of throwing and aborting the rest */
 	function _safeWrap(target, fn, type) {
 		try {
 			libWrapper.register('giffyglyph-monster-maker-continued', target, fn, type);
@@ -27,9 +22,8 @@ const GmmActor = (function () {
 		}
 	}
 
-	/**
-	 * Patch the Foundry Actor5e entity to control how data is prepared based on the active sheet.
-	 */
+	/* Patch the Foundry Actor5e entity to control how data is prepared based on the active sheet
+ * Foundry Actor5e entity to control how data is prepared based on the active sheet */
 	function patchActor5e() {
 		_safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareBaseData', function (wrapped, ...args) {
 			if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
@@ -56,39 +50,17 @@ const GmmActor = (function () {
 		Actor5eProto.getSheetId = _getActorSheetId;
 	}
 
-	/**
-	 * Prepare any data which is actor-specific and does not depend on Items or Active Effects.
-	 * @private
-	 */
-	/*
-	function _prepareBaseData() {
-		if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
-			game.dnd5e.documents.Actor5e.prototype.prepare5eBaseData.call(this);
-			_prepareMonsterBaseData(this);
-		} else {
-			game.dnd5e.documents.Actor5e.prototype.prepare5eBaseData.call(this);
-		}
-	}*/
+	/* Prepare any data which is actor-specific and does not depend on Items or Active Effects @private
+ * data which is actor-specific and does not depend on Items or Active Effects @private */
+	/* function _prepareBaseData() { if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`)...
+ * "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) { game.dnd5e.documents.Actor5e.prototype.prepare5eBaseData.call(this) _prepareMonsterBaseData(this) } else { game.dnd5e.documents.Actor5e.prototype.prepare5eBaseData.call(this) } } */
 
-	/**
-	 * Apply final transformations to the current actor after all effects have been applied.
-	 * @private
-	 */
-	/*
-	function _prepareDerivedData() {
-		if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
-			game.dnd5e.documents.Actor5e.prototype.prepare5eDerivedData.call(this);
-			_prepareMonsterDerivedData(this);
-		} else {
-			game.dnd5e.documents.Actor5e.prototype.prepare5eDerivedData.call(this);
-		}
-	}*/
+	/* Apply final transformations to the current actor after all effects have been applied @private */
+	/* function _prepareDerivedData() { if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterShee...
+ * "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) { game.dnd5e.documents.Actor5e.prototype.prepare5eDerivedData.call(this) _prepareMonsterDerivedData(this) } else { game.dnd5e.documents.Actor5e.prototype.prepare5eDerivedData.call(this) } } */
 
-	/**
-	 * Prepare any data which is actor-specific and does not depend on Items or Active Effects.
-	 * @param {Object} actor - An Actor5e entity.
-	 * @private
-	 */
+	/* Prepare any data which is actor-specific and does not depend on Items or Active Effects param actor - An Actor5e...
+ * not depend on Items or Active Effects param actor - An Actor5e entity @private */
 	function _prepareMonsterBaseData(actor) {
 		const actorData = actor.system;
 		const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
@@ -122,11 +94,8 @@ const GmmActor = (function () {
 		});
 		monsterData.initiative.applyModifier(actorData.attributes.init.bonus, false);
 	}
-	/**
-	 * Prepare any derived data which is actor-specific and does not depend on Items or Active Effects.
-	 * @param {Object} actor - An Actor5e entity.
-	 * @private
-	 */
+	/* Prepare any derived data which is actor-specific and does not depend on Items or Active Effects param actor - An...
+ * not depend on Items or Active Effects param actor - An Actor5e entity @private */
 	function _prepareMonsterDerivedData(actor) {
 		try {
 			const actorData = actor.system;
@@ -145,9 +114,7 @@ const GmmActor = (function () {
                 //actorData.abilities[x].prof = 0;
 				actorData.abilities[x].saveProf = new Proficiency(monsterBlueprint.data.trained_saves[x].trained ? 2 : 0, 1);
 				actorData.abilities[x].checkProf = new Proficiency(0, 1);
-				//actorData.abilities[x].bonuses.save = (monsterData.saving_throws[x].value - monsterData.ability_modifiers[x].value);
-                //actorData.abilities[x].saveBonus = 0;
-                //actorData.abilities[x].checkBonus = 0;
+				// actorData.abilities[x].bonuses.save = (monsterData.saving_throws[x].value - monsterData.ability_modifiers[x].val...
 				actorData.abilities[x].save = monsterData.saving_throws[x].value;
 				if (monsterBlueprint.data.trained_saves[x].trained) {
 					actorData.abilities[x].saveBonus = monsterData.proficiency_bonus.value;
@@ -173,20 +140,15 @@ const GmmActor = (function () {
 			actorData.details.cr = monsterData.challenge_rating.value;
 			actorData.details.xp.value = monsterData.xp.value;
 			actorData.attributes.prof = monsterData.proficiency_bonus.value;
-			//actorData.attributes.ac.calc = "natural";
-			//actorData.attributes.ac.flat = monsterData.armor_class.value;
-			//actorData.attributes.ac.base = monsterData.armor_class.value;
-			//actorData.attributes.ac.value = monsterData.armor_class.value + actorData.attributes.ac.bonus;
+			// actorData.attributes.ac.calc = "natural" actorData.attributes.ac.flat = monsterData.armor_class.value actorData....
 			monsterData.armor_class.display = actorData.attributes.ac.value;
 
 			
 
 			actorData.attributes.hp.effectiveMax = monsterData.hit_points.maximum.value;
 
-			// Mutate fields on the existing init RollConfigField object instead of
-			// replacing it wholesale; replacing it would clobber `init.roll` (which now
-			// carries advantage/disadvantage state) and any other dnd5e v5+ schema
-			// fields (`total`, `score`, `check`, etc.).
+			// Mutate fields on the existing init RollConfigField object instead of replacing it wholesale
+			// replacing it would clobber `init.roll` (which now carries advantage/disadvantage state) and any other dnd5e v5+
 			actorData.attributes.init.prof = new Proficiency(0, 1);
 			actorData.attributes.init.ability = monsterData.initiative.ability;
 			actorData.attributes.init.mod = monsterData.initiative.value;
@@ -214,11 +176,8 @@ const GmmActor = (function () {
 			actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
 			actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
 
-			// Compute owned item attributes which depend on prepared Actor data. The V1
-			// `getSaveDC` / `getAttackToHit` calls were replaced by Activity-driven roll
-			// hooks (see GmmItem.patchItem5e); `prepareShortcodes` now also substitutes
-			// monster shortcodes into the activity's runtime attack/save/damage formulas
-			// via Activities.resolveActivityFormulas.
+			// Compute owned item attributes which depend on prepared Actor data
+			// The V1 `getSaveDC` / `getAttackToHit` calls were replaced by Activity-driven roll hooks (see GmmItem.patchItem5e)
 			actor.items.contents.forEach((item) => {
 				try {
 					item.prepareShortcodes?.();
@@ -231,12 +190,8 @@ const GmmActor = (function () {
 		}
 	}
 
-	/**
-	 * Get the active sheet id for a specified actor.
-	 * @param {Object} actor - An Actor5e entity.
-	 * @returns {String} - A sheet id.
-	 * @private
-	 */
+	/* Get the active sheet id for a specified actor param actor - An Actor5e entity returns {String} - A sheet id @pri...
+ * actor param actor - An Actor5e entity returns {String} - A sheet id @private */
 	function _getActorSheetId() {
 		try {
 			return this.getFlag("core", "sheetClass") || game.settings.get("core", "sheetClasses").Actor.npc;

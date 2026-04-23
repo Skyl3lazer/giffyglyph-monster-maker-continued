@@ -30,15 +30,8 @@ Hooks.once("init", function() {
 	GmmActor.patchActor5e();
 	GmmItem.patchItem5e();
 
-	// Install a safety net around dnd5e's ActivityField so any `[shortcode]`
-	// formulas left in `_source.system.activities.<id>` from earlier versions of
-	// this module (before write-time sanitisation existed) get scrubbed in place
-	// before dnd5e's DataModel clean/validate pipeline rejects them. Without this,
-	// an unrelated dirty item on an actor would crash `Actor5e._initialize` and
-	// abort every subsequent `Actor.reset()` — surfacing as e.g. "validation
-	// errors: save.dc.formula: Expected formula but '[' found" the moment the
-	// user creates *any* new item on the affected actor. The persistence-side
-	// fixup is handled by `migrateWorld` in the `ready` hook below.
+	// Patch ActivityField to sanitize legacy shortcode formulas before validation.
+	// Persistent cleanup still runs in migrateWorld() on ready.
 	if (!Activities.patchActivityField()) {
 		console.warn("GMM | dnd5e ActivityField not found at init; activity-source sanitisation patch was not installed.");
 	}
@@ -52,11 +45,8 @@ Hooks.once("init", function() {
 		}
 	});
 
-	// In Foundry v13+ the sidebar directories are ApplicationV2-based, so the
-	// `render*` hook signature is `(app, element, context, options)` where `element`
-	// is the raw root HTMLElement (not a jQuery wrapper). Older GMM code dereferenced
-	// `html[0]` which is `undefined` on a HTMLElement and crashed before the GMM
-	// "Create Scaling Monster"/"Create Scaling Action" buttons could be inserted.
+	// In Foundry v13+ the sidebar directories are ApplicationV2-based, so the `render*` hook signature is `(app, eleme...
+	// Older GMM code dereferenced `html[0]` which is `undefined` on a HTMLElement and crashed before the GMM "Create S
 	Hooks.on("renderActorDirectory", (app, element) => {
 		if (game.user.isGM) {
 			_hookActorDirectory(element);
@@ -71,21 +61,8 @@ Hooks.once("init", function() {
 
 	_registerSettings();
 
-	// Seed the GMM-managed activity onto legacy GMM scaling-action items at creation
-	// time, *and* strip any stray non-GMM activity that dnd5e's `migrateData` pipeline
-	// seeded from the item's pre-v5 `actionType` / `activation` fields. Compendium
-	// imports (and any other path that reaches `Item.create` /
-	// `Actor#createEmbeddedDocuments("Item", ...)` with a pre-authored
-	// `flags.gmm.blueprint`) come from documents that were authored before the dnd5e
-	// v5.x activity model existed; `Item5e.migrateData` auto-creates an AttackActivity
-	// (or similar) for those items via `ActivitiesTemplate.initializeActivities`, and
-	// without this hook the item would be persisted with *both* the dnd5e-seeded
-	// activity and the GMM-managed one. Runs for every user so a player dropping a
-	// GMM compendium item onto their own character also gets the fix; the gating in
-	// `buildPreCreateUpdate` makes it a no-op for any item that isn't a legacy GMM
-	// scaling action. We pass `item` (not just `data`) because the auto-seeded
-	// activity only surfaces on the post-migrate `item._source`, not on the raw hook
-	// `data` argument.
+	// Seed/repair GMM activities on preCreateItem for legacy scaling actions.
+	// Also removes dnd5e auto-seeded non-GMM activities from migrated sources.
 	Hooks.on("preCreateItem", (item, data, _options, _userId) => {
 		try {
 			const update = Activities.buildPreCreateUpdate(data, item);
@@ -104,9 +81,8 @@ Hooks.once('ready', async () => {
 		ui.notifications.error("Module Giffyglyph's Monster Maker Continued requires the 'libWrapper' module. Please install and activate it.");
 	}
 
-	// One-shot migration of legacy GMM scaling-action items onto the dnd5e v5.x
-	// activity model. Items that already carry a GMM-managed activity (for example
-	// items created via the new MonsterSheet#actionAddItem flow) are skipped.
+	// One-shot migration of legacy GMM scaling-action items onto the dnd5e v5.x activity model
+	// Items that already carry a GMM-managed activity (for example items created via the new MonsterSheet#actionAddIte
 	if (game.user.isGM) {
 		try {
 			await Activities.migrateWorld();
@@ -116,16 +92,8 @@ Hooks.once('ready', async () => {
 	}
 });
 
-/**
- * Locate the insertion point inside a sidebar directory's header for the GMM "create"
- * button row. The dnd5e v5.x / Foundry v14 directory header (templates/sidebar/directory/header.hbs)
- * lays its children out vertically as `[.header-actions, <search>]`; we slot the GMM
- * row in just before `<search>` so the create button visually lines up under the
- * stock "Create Actor" / "Create Folder" buttons. Falls back to the directory header
- * itself if the layout ever changes shape so the buttons still appear somewhere.
- * @param {HTMLElement} root  The directory's root element (passed by the render hook).
- * @returns {{header: HTMLElement, before: HTMLElement|null}|null}
- */
+/* Locate the insertion point inside a sidebar directory's header for the GMM "create" button row
+ * The dnd5e v5.x / Foundry v14 directory header (templates/sidebar/directory/header.hbs) lays its children out ver */
 function _findDirectoryInsertionPoint(root) {
 	if (!root?.querySelector) return null;
 	const header = root.querySelector(".directory-header");
@@ -149,9 +117,8 @@ async function _hookActorDirectory(html) {
 	);
 	section.querySelector("[data-action='create-scaling-monster']").addEventListener("click", async (ev) => {
 		ev.preventDefault();
-		// Use a nested flags object: Foundry reads the bound sheet at
-		// `document.flags.core?.sheetClass`, so a literal `"core.sheetClass"` key
-		// would never resolve and the new actor would open with the default sheet.
+		// Use a nested flags object:
+		// Foundry reads the bound sheet at `document.flags.core?.sheetClass`, so a literal `"core.sheetClass"` key would n
 		Actor.create({
 			name: "New Scaling Monster",
 			type: "npc",

@@ -10,14 +10,8 @@
 	grid-template-rows: 1fr auto;
 	grid-column-gap: 0;
 	pointer-events: none;
-	// Foundry V14's `.application .window-content` is `display: flex; flex-flow:
-	// column nowrap`, so without an explicit grow the forge collapses to its
-	// natural grid-row height and the window appears far shorter than its
-	// configured `position.height`. Force the forge to fill the available
-	// content area so the artifact / blueprint can take advantage of the full
-	// window. `min-height: 0` prevents the implicit `min-content` floor that
-	// flex items inherit, which would otherwise push the forge taller than the
-	// `.window-content` whenever the artifact body overflowed.
+	// Foundry V14's `.application .window-content` is `display:
+	// flex
 	flex: 1 1 auto;
 	min-height: 0;
 	height: 100%;
