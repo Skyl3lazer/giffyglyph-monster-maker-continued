@@ -78,6 +78,33 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
      */
     static TABS = [];
 
+    /**
+     * Class names inherited from the dnd5e v5.x ApplicationV2 NPC sheet chain that
+     * apply heavy visual styling (parchment background, gold border, NPC underlay
+     * image, vertical-tabs decoration, fixed min sizes, generic input/button chrome,
+     * `.window-content` margin offsets, etc.). The GMM forge entirely replaces the
+     * dnd5e NPC PARTS markup, so none of these styles are wanted; stripping them at
+     * the option level avoids fighting them in CSS.
+     *
+     * Framework-essential classes (`application`, `sheet`, `themed`, `theme-*`) are
+     * preserved so Foundry core's window manager and theme switching still work.
+     * @type {ReadonlySet<string>}
+     */
+    static #STRIPPED_CLASSES = new Set([
+        "dnd5e2",
+        "actor",
+        "npc",
+        "vertical-tabs",
+        "standard-form"
+    ]);
+
+    /** @inheritDoc */
+    _initializeApplicationOptions(options) {
+        const opts = super._initializeApplicationOptions(options);
+        opts.classes = (opts.classes ?? []).filter(c => !MonsterSheet.#STRIPPED_CLASSES.has(c));
+        return opts;
+    }
+
     /* -------------------------------------------- */
     /*  Rendering                                   */
     /* -------------------------------------------- */
