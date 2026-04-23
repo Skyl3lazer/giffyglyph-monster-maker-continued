@@ -286,6 +286,42 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     }
 
     /* -------------------------------------------- */
+    /*  Inherited dnd5e helpers we deliberately disable                                */
+    /* -------------------------------------------- */
+
+    /**
+     * Suppress the dnd5e "mode slider" (`<slide-toggle class="mode-slider">`) that
+     * `PrimarySheet5e#_renderModeToggle` injects into the V14 window header. GMM's
+     * Forge UI is always editable and exposes its own controls; the upstream toggle
+     * has no meaning for the scaling-action sheet.
+     */
+    _renderModeToggle() {
+        const toggle = this.element?.querySelector(".window-header .mode-slider");
+        if (toggle) toggle.remove();
+    }
+
+    /**
+     * Suppress the dnd5e "create child" footer button (gold "+" appended to
+     * `.window-content` by `PrimarySheet5e#_onFirstRender`). The Forge UI provides
+     * its own controls, and dnd5e's button has no meaning here.
+     */
+    async _onFirstRender(context, options) {
+        await super._onFirstRender(context, options);
+        this.element?.querySelector(".window-content > .create-child")?.remove();
+    }
+
+    /**
+     * Stub for the V1 `_activateEditor` API that dnd5e's `ItemSheet5e#_onRender`
+     * still invokes for every `.editor-content[data-edit]` element it finds. Our
+     * forge template renders ProseMirror content via the V14 `<prose-mirror>` web
+     * component (the `{{editor}}` Handlebars helper emits compatible markup), and
+     * that element wires up its own listeners on connection. Without this stub the
+     * parent's `forEach(div => this._activateEditor(div))` blows up with
+     * "this._activateEditor is not a function" and the action forge fails to open.
+     */
+    _activateEditor() {}
+
+    /* -------------------------------------------- */
     /*  Event Listeners                             */
     /* -------------------------------------------- */
 

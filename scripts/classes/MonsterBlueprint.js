@@ -252,15 +252,23 @@ const MonsterBlueprint = (function () {
 							case "loot":
 								blueprintData.inventory.items.push(_getItemDetails(item, blueprintData.display));
 								break;
-							default:
-								if (item.system.activation.type === "reactiondamage"
-									|| item.system.activation.type === "reactionmanual"
-									|| item.system.activation.type === "reactionpreattack") {
+							default: {
+								// dnd5e v5+ moved `system.activation` off the item onto each
+								// activity. Walk the item's activities and treat any of the
+								// 5e-specialized "reaction*" activation types as a reaction so
+								// pre-v5 monsters (and future activities authored that way)
+								// still bucket correctly.
+								const activations = item.system?.activities?.contents?.map(a => a.activation?.type).filter(_ => _) ?? [];
+								const isSpecialReaction = activations.some(t =>
+									t === "reactiondamage" || t === "reactionmanual" || t === "reactionpreattack"
+								);
+								if (isSpecialReaction) {
 									blueprintData.reactions.items.push(_getItemDetails(item));
 								} else {
 									blueprintData.actions.items.push(_getItemDetails(item));
 								}
 								break;
+							}
 						}
 					});
 

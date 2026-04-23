@@ -240,6 +240,29 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     _renderAttunement() {}
     _renderSpellbook() {}
 
+    /**
+     * Suppress the dnd5e "mode slider" (`<slide-toggle class="mode-slider">`) that
+     * `PrimarySheet5e#_renderModeToggle` injects into the V14 window header. GMM's
+     * Forge UI is always editable and exposes its own controls; the upstream toggle
+     * has no meaning for the scaling-monster sheet.
+     */
+    _renderModeToggle() {
+        const toggle = this.element?.querySelector(".window-header .mode-slider");
+        if (toggle) toggle.remove();
+    }
+
+    /**
+     * Suppress the dnd5e "create child" footer button (gold "+" appended to
+     * `.window-content` by `PrimarySheet5e#_onFirstRender`). The Forge UI provides
+     * its own per-section "Add" buttons, and dnd5e's button has no meaning here:
+     * its `data-action="addDocument"` handler relies on the active primary tab,
+     * which GMM doesn't render.
+     */
+    async _onFirstRender(context, options) {
+        await super._onFirstRender(context, options);
+        this.element?.querySelector(".window-content > .create-child")?.remove();
+    }
+
     /* -------------------------------------------- */
     /*  Event Listeners                             */
     /* -------------------------------------------- */
