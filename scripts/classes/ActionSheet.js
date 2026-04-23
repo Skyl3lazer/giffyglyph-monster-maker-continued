@@ -325,7 +325,19 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
      * pipeline call `document.update` with the result.
      */
     _processFormData(event, form, formData) {
-        const expanded = foundry.utils.expandObject(formData.object);
+        // V14 ApplicationV2 puts the application root in a `<form>` element. The
+        // forge template embeds GMM modals as siblings of the blueprint inputs;
+        // their named radios/selects would otherwise be picked up by
+        // FormDataExtended on every blueprint change, leaking modal state into
+        // item.update() and tripping schema validation. Filter out any control
+        // whose nearest container is a `.gmm-modal`.
+        const filtered = {};
+        for (const [name, value] of Object.entries(formData.object)) {
+            const input = form.querySelector(`[name="${CSS.escape(name)}"]`);
+            if (input?.closest(".gmm-modal")) continue;
+            filtered[name] = value;
+        }
+        const expanded = foundry.utils.expandObject(filtered);
         const target = event?.target;
 
         if (target) {
@@ -448,7 +460,20 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return new foundry.applications.apps.FilePicker.implementation({
             type: "image",
             current,
-            callback: path => this.document.update({ [field]: path }),
+            callback: path => {
+                const update = { [field]: path };
+                // If we're writing into the GMM blueprint flag, also stamp the
+                // envelope's `vid` / `type` so a fresh item that has never been
+                // submitted through `_processFormData` ends up with a well-formed
+                // `flags.gmm.blueprint`. Without this, `_verifyBlueprint` sees a
+                // missing `vid` on the next render. (`_verifyBlueprint` also
+                // tolerates missing vid as a safety net for already-broken data.)
+                if (field.startsWith("flags.gmm.blueprint.")) {
+                    update["flags.gmm.blueprint.vid"] = 1;
+                    update["flags.gmm.blueprint.type"] = "action";
+                }
+                return this.document.update(update);
+            },
             top: this.position?.top ? this.position.top + 40 : null,
             left: this.position?.left ? this.position.left + 10 : null
         }).render({ force: true });

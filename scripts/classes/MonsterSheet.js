@@ -219,6 +219,28 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     }
 
     /* -------------------------------------------- */
+    /*  Inherited dnd5e helpers we deliberately disable                                */
+    /* -------------------------------------------- */
+
+    /**
+     * The dnd5e NPC sheet's `_onRender` invokes three helpers that decorate the stock
+     * `inventory`, `attunement`, and `spells` PARTS in-place (`base-actor-sheet.mjs`
+     * around line 1013/982/1034). Our {@link MonsterSheet.PARTS} replaces all of those
+     * with the single custom `forge` part, so the helpers' `this.element.querySelector(
+     * '[data-application-part="inventory|spells"] ...')` calls return `null` and the
+     * subsequent `.classList.add(...)` / `.append(...)` blow up. The thrown error also
+     * leaves the V2 render promise rejected, which is why the window-drag handler never
+     * gets installed and the sheet appears unmovable.
+     *
+     * Override each helper as a no-op. The parent's `_onRender` keeps running
+     * normally (the trailing `.header-elements .cr-xp` lookup already short-circuits
+     * via `if ( !elements || ... ) return;`) and our own `_onRender` body executes.
+     */
+    _renderCreateInventory() {}
+    _renderAttunement() {}
+    _renderSpellbook() {}
+
+    /* -------------------------------------------- */
     /*  Event Listeners                             */
     /* -------------------------------------------- */
 
@@ -282,7 +304,20 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
      * pipeline call `document.update` with the result.
      */
     _processFormData(event, form, formData) {
-        const expanded = foundry.utils.expandObject(formData.object);
+        // V14 ApplicationV2 puts the application root in a `<form>` element, and the
+        // forge template embeds GMM modals (ability check, saving throw, etc.) as
+        // siblings of the blueprint inputs. Their named radios/selects (`ability`,
+        // `mode`, `bonus`, …) would otherwise be picked up by FormDataExtended on
+        // every blueprint change, leaking modal state into actor.update() and
+        // tripping schema validation on top-level keys the actor doesn't recognize.
+        // Filter out any control whose nearest container is a `.gmm-modal`.
+        const filtered = {};
+        for (const [name, value] of Object.entries(formData.object)) {
+            const input = form.querySelector(`[name="${CSS.escape(name)}"]`);
+            if (input?.closest(".gmm-modal")) continue;
+            filtered[name] = value;
+        }
+        const expanded = foundry.utils.expandObject(filtered);
         const target = event?.target;
 
         if (target) {
@@ -542,7 +577,20 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return new foundry.applications.apps.FilePicker.implementation({
             type: "image",
             current,
-            callback: path => this.document.update({ [field]: path }),
+            callback: path => {
+                const update = { [field]: path };
+                // If we're writing into the GMM blueprint flag, also stamp the
+                // envelope's `vid` / `type` so a fresh actor that has never been
+                // submitted through `_processFormData` ends up with a well-formed
+                // `flags.gmm.blueprint`. Without this, `_verifyBlueprint` sees a
+                // missing `vid` on the next render. (`_verifyBlueprint` also
+                // tolerates missing vid as a safety net for already-broken data.)
+                if (field.startsWith("flags.gmm.blueprint.")) {
+                    update["flags.gmm.blueprint.vid"] = 1;
+                    update["flags.gmm.blueprint.type"] = "monster";
+                }
+                return this.document.update(update);
+            },
             top: this.position?.top ? this.position.top + 40 : null,
             left: this.position?.left ? this.position.left + 10 : null
         }).render({ force: true });

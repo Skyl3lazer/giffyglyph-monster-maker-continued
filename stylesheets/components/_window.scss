@@ -3,6 +3,32 @@
 	box-shadow: none;
 	filter: drop-shadow(0px 0px 20px black);
 
+	// Foundry V14's stock `.application` rule (applications.less) paints a
+	// border, background, and box-shadow on the application root and clips its
+	// contents with `overflow: hidden`. The GMM forge expects a transparent
+	// shell so its own `.gmm-forge::before` can supply the rounded black
+	// background, and its slide-out blueprint relies on negative margin /
+	// positive padding to extend visibly *outside* the original window box.
+	// Strip the V14 frame chrome and allow overflow so the foldout is visible.
+	background: none;
+	border: none;
+	overflow: visible;
+
+	// Foundry V14's themed CSS variables resolve to light tones (e.g.
+	// `--color-light-3`) for body text, inputs, and buttons so they remain
+	// legible against the dark default Foundry chrome. GMM's sheets paint
+	// most of their working area on white/light tinted surfaces (artifact
+	// blocks, blueprint forms, etc.) where those light defaults render as a
+	// near-invisible beige. Pin the inherited text/input/button colours to
+	// dark tones; explicit `color: white` rules on dark headers/buttons
+	// continue to override these defaults via specificity.
+	--color-text-primary: var(--color-dark-2);
+	--color-text-secondary: var(--color-dark-3);
+	--input-text-color: var(--color-dark-2);
+	--button-text-color: var(--color-dark-2);
+	--button-hover-text-color: var(--color-dark-1);
+	color: var(--color-dark-2);
+
 	.window-header {
 		border-bottom: none;
 		white-space: nowrap;
@@ -10,34 +36,35 @@
 		flex-wrap: wrap;
 		justify-content: flex-end;
 		overflow: visible;
+	}
 
-		&.resizable {
-			
-			~ .window-resizable-handle {
-				background: white;
-				color: black;
-				border: none;
-				box-shadow: none;
-				height: 2rem;
-				width: 2rem;
-				padding: 0;
-				border-radius: 1rem;
-				margin: 0;
-				cursor: pointer;
-				bottom: 0.25rem;
-				right: 0.25rem;
-				display: flex;
-				z-index: 2;
+	// V14 renames the resize handle to `.window-resize-handle` and places it as
+	// a direct child of the application root (no longer a sibling of the
+	// header), so target it directly on `.gmm-window`.
+	> .window-resize-handle {
+		background: white;
+		color: black;
+		border: none;
+		box-shadow: none;
+		height: 2rem;
+		width: 2rem;
+		padding: 0;
+		border-radius: 1rem;
+		margin: 0;
+		cursor: pointer;
+		bottom: 0.25rem;
+		right: 0.25rem;
+		display: flex;
+		z-index: 2;
+		filter: none;
 
-				i {
-					margin: auto;
-				}
-			}
-
-			~ .window-content > .gmm-forge .forge__controls {
-				padding-right: 2.25rem;
-			}
+		i {
+			margin: auto;
 		}
+	}
+
+	> .window-content > .gmm-forge .forge__controls {
+		padding-right: 2.25rem;
 	}
 
 	&.minimized {
@@ -46,10 +73,10 @@
 
 		.window-header {
 			border: none;
+		}
 
-			&.resizable ~ .window-resizable-handle {
-				display: none;
-			}
+		> .window-resize-handle {
+			display: none;
 		}
 	}
 
@@ -57,7 +84,15 @@
 		background: none;
 		padding: 0;
 		border-radius: 1rem;
+		// V14's `.window-app .window-content` defaults to `overflow: hidden auto`
+		// which would clip the slide-out blueprint just like the application
+		// root does — keep it visible to preserve the original GMM behaviour.
 		overflow: visible;
 		height: 0;
+		// V14's apps.less sets a backdrop-filter on `.window-content`. The GMM
+		// forge owns its own background/blur via `.gmm-forge::before`; strip
+		// the inherited filter to avoid a doubled blur halo around the sheet.
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
 	}
 }

@@ -32,6 +32,10 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 
 ![Scaling Adult Dragon](./img/scaling-monster-level.gif)
 
+## AI Disclaimer
+
+* The v14 refactor was written largely via Opus 4.7. While I (skyl3lazer) am reviewing and testing this code over time to ensure its function and stability, I have not yet completed a full code-side review. Even when that is done, there will be code that was written by AI, even if I don't particularly plan on continuing to use it after the refactoring stage.
+
 ## Installation
 
 ### Dependencies

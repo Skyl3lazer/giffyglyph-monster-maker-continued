@@ -1,5 +1,6 @@
 import Shortcoder from '../classes/Shortcoder.js';
 import RollFormula from '../classes/RollFormula.js';
+import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 
 const ModalSavingThrow = (function() {
 
@@ -19,7 +20,7 @@ const ModalSavingThrow = (function() {
     function _submitForm(event) {
 		const action = event.currentTarget.closest("button").dataset.action;
 		const modal = event.currentTarget.closest(".gmm-modal");
-		const form = new FormData(modal.querySelector("form"));
+		const form = CompatibilityHelpers.readInputs(modal.querySelector(".modal__form"));
 		const save = form.get("save");
 		const saveBonus = save ? Number(form.get(`save_${save}`)) : 0;
 

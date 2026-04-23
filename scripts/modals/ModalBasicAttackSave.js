@@ -1,5 +1,6 @@
 import Shortcoder from '../classes/Shortcoder.js';
 import RollFormula from '../classes/RollFormula.js';
+import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 
 const ModalBasicAttackAc = (function() {
 
@@ -17,7 +18,7 @@ const ModalBasicAttackAc = (function() {
 
     function _submitForm(event) {
 		const modal = event.currentTarget.closest(".gmm-modal");
-		const form = new FormData(modal.querySelector("form"));
+		const form = CompatibilityHelpers.readInputs(modal.querySelector(".modal__form"));
 		const bonus = form.get(form.get("attack"));
 
 		const rollParts = [];

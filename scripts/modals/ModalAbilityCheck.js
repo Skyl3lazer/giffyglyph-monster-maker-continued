@@ -1,5 +1,6 @@
 import Shortcoder from '../classes/Shortcoder.js';
 import RollFormula from '../classes/RollFormula.js';
+import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 
 const ModalAbilityCheck = (function() {
 
@@ -21,7 +22,7 @@ const ModalAbilityCheck = (function() {
     function _submitForm(event) {
 		const action = event.currentTarget.closest("button").dataset.action;
 		const modal = event.currentTarget.closest(".gmm-modal");
-		const form = new FormData(modal.querySelector("form"));
+		const form = CompatibilityHelpers.readInputs(modal.querySelector(".modal__form"));
 		const ability = form.get("ability");
 		const skill = form.get("skill");
 		const abilityBonus = ability ? Number(form.get(`ability_${ability}`)) : 0;

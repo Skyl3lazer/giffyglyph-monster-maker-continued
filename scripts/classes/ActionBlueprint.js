@@ -33,11 +33,22 @@ const ActionBlueprint = (function () {
     }
 
     function _verifyBlueprint(blueprint) {
-        switch (blueprint.vid) {
+        // Direct-leaf writes via `document.update({ "flags.gmm.blueprint.data.<x>": v })`
+        // (e.g. the file picker callback in ActionSheet#actionEditImage) only persist
+        // the leaf, leaving the parent envelope's `vid` / `type` undefined. `vid: 1`
+        // is the only recognised schema, so a missing `vid` on a blueprint that still
+        // carries `data` is treated as legacy v1 rather than triggering a console
+        // error every render. The repaired envelope is returned so the rest of the
+        // pipeline (which assumes `vid`/`type` exist) keeps working.
+        if (blueprint && blueprint.vid === undefined && blueprint.data) {
+            blueprint.vid = 1;
+            if (!blueprint.type) blueprint.type = "action";
+        }
+        switch (blueprint?.vid) {
             case 1:
                 return blueprint;
             default:
-                console.error(`This action blueprint has an invalid version id [${blueprint.vid}] and can't be verified.`, blueprint);
+                console.error(`This action blueprint has an invalid version id [${blueprint?.vid}] and can't be verified.`, blueprint);
                 return null;
         }
     }

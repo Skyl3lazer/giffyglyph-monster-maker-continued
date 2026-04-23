@@ -410,7 +410,7 @@
 				&::after {
 					content: "\f07c";
 					-webkit-font-smoothing: antialiased;
-					font-family: "Font Awesome 5 Free";
+					font-family: var(--font-awesome, "Font Awesome 7 Pro");
 					font-weight: bold;
 					display: inline-block;
 					font-style: normal;

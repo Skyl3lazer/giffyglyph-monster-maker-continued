@@ -8,7 +8,9 @@
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
 ## v2.0.0.0 (dev)
-#### Foundry v14 DND5e 5.3.2
+
+#### Foundry v14 & DND5e 5.3.2
+
 "Yee Haw"
 
 THIS UPDATE IS LARGELY WRITTEN VIA AI. THIS SHOULD NOT BE USED IN ANY LIVE GAME, NOR BE EXPECTED TO SAFELY HANDLE ANY IMPORTANT DATA.

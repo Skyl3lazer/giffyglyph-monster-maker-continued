@@ -156,7 +156,7 @@
 .gmm-accordion .accordion-section__header::before {
   content: "\f078";
   -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   font-weight: 900;
   display: inline-block;
   font-style: normal;
@@ -193,7 +193,7 @@
 .gmm-accordion .accordion-section__info .modifier::before {
   content: "\f071";
   -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   font-weight: 900;
   display: inline-block;
   font-style: normal;
@@ -1176,7 +1176,7 @@
   position: absolute;
   left: 2px;
   top: 2px;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   -webkit-font-smoothing: antialiased;
   font-style: normal;
   font-size: 2.1rem;
@@ -1933,7 +1933,7 @@
 .gmm-blueprint .blueprint__form .form-fieldset .form-fieldset__header::after {
   content: "\f07c";
   -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   font-weight: bold;
   display: inline-block;
   font-style: normal;
@@ -2717,7 +2717,7 @@
 .gmm-panel.panel--collapsible .panel__header::after {
   content: "\f077";
   -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   font-weight: 900;
   display: inline-block;
   font-style: normal;
@@ -4284,6 +4284,15 @@
   border-radius: 0 0 1.5rem 1.5rem;
   box-shadow: none;
   filter: drop-shadow(0px 0px 20px black);
+  background: none;
+  border: none;
+  overflow: visible;
+  --color-text-primary: var(--color-dark-2);
+  --color-text-secondary: var(--color-dark-3);
+  --input-text-color: var(--color-dark-2);
+  --button-text-color: var(--color-dark-2);
+  --button-hover-text-color: var(--color-dark-1);
+  color: var(--color-dark-2);
 }
 .gmm-window .window-header {
   border-bottom: none;
@@ -4293,7 +4302,7 @@
   justify-content: flex-end;
   overflow: visible;
 }
-.gmm-window .window-header.resizable ~ .window-resizable-handle {
+.gmm-window > .window-resize-handle {
   background: white;
   color: black;
   border: none;
@@ -4308,11 +4317,12 @@
   right: 0.25rem;
   display: flex;
   z-index: 2;
+  filter: none;
 }
-.gmm-window .window-header.resizable ~ .window-resizable-handle i {
+.gmm-window > .window-resize-handle i {
   margin: auto;
 }
-.gmm-window .window-header.resizable ~ .window-content > .gmm-forge .forge__controls {
+.gmm-window > .window-content > .gmm-forge .forge__controls {
   padding-right: 2.25rem;
 }
 .gmm-window.minimized {
@@ -4322,7 +4332,7 @@
 .gmm-window.minimized .window-header {
   border: none;
 }
-.gmm-window.minimized .window-header.resizable ~ .window-resizable-handle {
+.gmm-window.minimized > .window-resize-handle {
   display: none;
 }
 .gmm-window .window-content {
@@ -4331,6 +4341,8 @@
   border-radius: 1rem;
   overflow: visible;
   height: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .gmm-window.window--action {
