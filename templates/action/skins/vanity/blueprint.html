@@ -151,9 +151,10 @@
                         <div class="accordion-section__body">
                             <div class="form-group">
                                 <div class="form-group__body">
-                                    <input style="display:none;" name="gmm.blueprint.description.text" value="" type="text" />
-                                    <div class="html-field gmm_prose-editor" name="gmm.blueprint.description.text">
-                                        {{editor gmm.blueprint.description.text target='flags.gmm.blueprint.data.description.text' button=false engine="prosemirror" collaborate=false}}
+                                    <div class="html-field gmm_prose-editor">
+                                        <prose-mirror name="flags.gmm.blueprint.data.description.text"
+                                                      value="{{gmm.blueprint.description.text}}"
+                                                      document-uuid="{{item.uuid}}"></prose-mirror>
                                     </div>
                                 </div>
                             </div>

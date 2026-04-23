@@ -224,6 +224,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     async _onRender(context, options) {
         await super._onRender(context, options);
 
+        // Rich text editors are `<prose-mirror>` web components in the templates; they self-initialize.
+
         // Bridge the GMM Gui controller and modal helpers (which still use jQuery) to the V2 root element
         // `this.element` is the form created by DocumentSheetV2 (`tag:
         const $el = $(this.element);
@@ -288,6 +290,13 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
 
         if (CompatibilityHelpers.hasProperty(expanded, "gmm.blueprint")) {
+            // `{{editor}}` writes to the target path under `flags.*`; mirror biography
+            // text back onto `gmm.blueprint` so the blueprint envelope captures it.
+            const bioText = expanded.flags?.gmm?.blueprint?.data?.biography?.text;
+            if (bioText !== undefined) {
+                CompatibilityHelpers.setProperty(expanded, "gmm.blueprint.biography.text", bioText);
+            }
+
             CompatibilityHelpers.setProperty(expanded, "flags.gmm.blueprint", {
                 vid: 1,
                 type: "monster",

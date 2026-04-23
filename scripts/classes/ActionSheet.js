@@ -250,9 +250,9 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         this.element?.querySelector(".window-content > .create-child")?.remove();
     }
 
-    /* Stub for the V1 `_activateEditor` API that dnd5e's `ItemSheet5e#_onRender` still invokes for every `.editor-cont...
- * Our forge template renders ProseMirror content via the V14 `<prose-mirror>` web component (the `{{editor}}` Hand */
-    _activateEditor() {}
+    /* No-op: rich text editors are now `<prose-mirror>` web components in the templates,
+ * which self-initialize. Override the V1 activator dnd5e still calls so it doesn't crash. */
+    _activateEditor(_div) {}
 
     /* Force the dnd5e PLAY/EDIT mode to EDIT on every render
  * The Forge UI does not use the dnd5e read-only / editing dichotomy (it has no inline labels to swap, no tray rows */

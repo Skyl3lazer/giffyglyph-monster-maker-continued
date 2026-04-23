@@ -188,7 +188,25 @@
 			}
 
 			.html-field {
+				display: flex;
+				flex-direction: column;
+				flex: 1 1 auto;
+				min-height: 18rem;
 
+				prose-mirror {
+					--min-height: 18rem;
+					flex: 1 1 auto;
+					background: white;
+					border-radius: 0.25rem;
+					padding: 0.5rem;
+				}
+
+				prose-mirror .ProseMirror {
+					min-height: inherit;
+					outline: none;
+				}
+
+				.editor,
 				.editor-content {
 					padding: 0.5rem;
 					min-height: 4rem;
