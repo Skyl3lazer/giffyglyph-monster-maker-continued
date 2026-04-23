@@ -3,7 +3,7 @@
         {{#if item.img}}
             <img src="{{item.img}}"/>
         {{/if}}
-        <button data-action="roll-item"><i class="fas fa-dice-d20"></i></button>
+        <button type="button" data-action="roll-item"><i class="fas fa-dice-d20"></i></button>
     </div>
     <div class="item__body">
         <div class="item__title">
@@ -23,9 +23,9 @@
             {{/if}}
         </div>
         <div class="item__actions">
-            <button data-action="roll-item"><i class="fas fa-fw fa-comments"></i></button>
-            <button data-action="edit-item"><i class="fas fa-fw fa-edit"></i></button>
-            <button data-action="delete-item"><i class="fas fa-fw fa-trash"></i></button>
+            <button type="button" data-action="roll-item"><i class="fas fa-fw fa-comments"></i></button>
+            <button type="button" data-action="edit-item"><i class="fas fa-fw fa-edit"></i></button>
+            <button type="button" data-action="delete-item"><i class="fas fa-fw fa-trash"></i></button>
         </div>
     </div>
 </div>
