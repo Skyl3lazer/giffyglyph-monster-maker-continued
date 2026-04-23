@@ -237,6 +237,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /** @inheritDoc */
     async _onRender(context, options) {
         await super._onRender(context, options);
+        this.element?.querySelector(".header-elements .cr-xp")?.remove();
 
         // Rich text editors are `<prose-mirror>` web components in the templates; they self-initialize.
 

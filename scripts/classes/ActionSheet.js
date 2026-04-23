@@ -282,6 +282,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     /** @inheritDoc */
     async _onRender(context, options) {
         await super._onRender(context, options);
+        this.element?.querySelector(".header-elements .source-book")?.remove();
 
         // Bridge the GMM Gui controller (still jQuery-based) to the V2 root element.
         // `this.element` is the form created by DocumentSheetV2 (`tag: "form"`).

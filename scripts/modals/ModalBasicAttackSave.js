@@ -23,6 +23,7 @@ const ModalBasicAttackAc = (function() {
 
 		const rollParts = [];
 		const messageParts = [];
+		rollParts.push("1d20");
 		rollParts.push(bonus);
 		messageParts.push(game.i18n.format('gmm.modal.basic_attack_save.message', {
 			defence: game.i18n.format(`gmm.common.ability.${form.get("defence")}.name`)
