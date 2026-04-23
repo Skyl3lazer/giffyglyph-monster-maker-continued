@@ -535,7 +535,15 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
                 }
 
                 if (field === "flags.gmm.blueprint.data.description.image") {
+                    const currentActorImg = this.document.img ?? "";
+                    const currentTokenImg = this.document.prototypeToken?.texture?.src
+                        ?? this.document._source?.prototypeToken?.texture?.src
+                        ?? "";
+                    const tokenImageIsSynced = currentTokenImg === currentActorImg;
                     update.img = path;
+                    if (tokenImageIsSynced) {
+                        update["prototypeToken.texture.src"] = path;
+                    }
                 }
                 return this.document.update(update);
             },
