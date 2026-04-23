@@ -53,7 +53,8 @@ These modules are optional, but may improve the experience of using GMMC.
 
 You can install this Foundry module by copying a manifest URL into your Foundry setup:
 
-* **v3 2.0.0.x (Dev Release):** https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/master/module.json	
+
+* **v3 2.0.0.x (Dev Release):** https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/v14dev/module.json	
   * This is probably what you want
 
 
