@@ -82,7 +82,18 @@ const Activities = (function () {
             denomination: null,
             bonus: "",
             types: type ? [type] : [],
-            custom: { enabled: true, formula },
+            // `custom.formula` flows into dnd5e's `FormulaField._validateType`, which
+            // instantiates a `Roll` from the value and throws if the Roll parser can't
+            // consume the first token. GMM shortcodes are `[…]`-wrapped expressions (e.g.
+            // `[strMod + 2, d6]`) and Roll explicitly rejects `[` as an opening token, so
+            // storing the raw authored string in the activity would blow up every
+            // `Item#update` the blueprint triggers. Replace each bracketed run with `0`
+            // here to produce a validation-safe placeholder; the real shortcoded text
+            // lives on the blueprint flag (`flags.gmm.blueprint.data.attack.hit.damage[i]`)
+            // which is preserved by `readActivityIntoBlueprintData` and re-hydrated into
+            // the activity by `resolveActivityFormulas` during prepareDerivedData, and is
+            // also the display source for `_getGmmLabels`.
+            custom: { enabled: true, formula: _sanitizeFormulaForActivity(formula) },
             scaling: { mode: "", number: 1, formula: "" }
         };
 
@@ -99,6 +110,19 @@ const Activities = (function () {
         }
 
         return part;
+    }
+
+    /**
+     * Produce a variant of a blueprint damage formula that passes dnd5e's
+     * `FormulaField` validation. See the callsite in {@link damagePartFromBlueprint}
+     * for context. Operates purely on the string — callers are expected to keep the
+     * authoritative shortcoded formula on the blueprint flag.
+     * @param {string} formula
+     * @returns {string}
+     */
+    function _sanitizeFormulaForActivity(formula) {
+        if (typeof formula !== "string" || !formula.includes("[")) return formula ?? "";
+        return formula.replace(/\[[^\]]*\]/g, "0");
     }
 
     /**
@@ -167,7 +191,14 @@ const Activities = (function () {
         if (type === "attack") {
             data.attack = {
                 ability: blueprintAttack.related_stat || "",
-                bonus: blueprintAttack.bonus || "",
+                // `attack.bonus` is a dnd5e `FormulaField`, which validates on every save
+                // by throwing the string through `new Roll(...)`. If the user wrote a
+                // shortcoded bonus like `[strMod] + 2`, that would blow up validation, so
+                // sanitise the stored value the same way damage custom formulas are
+                // sanitised. The authoritative authored text lives on
+                // `flags.gmm.blueprint.data.attack.bonus` and is re-substituted into the
+                // prepared activity by `resolveActivityFormulas`.
+                bonus: _sanitizeFormulaForActivity(blueprintAttack.bonus || ""),
                 critical: { threshold: null },
                 // Suppress dnd5e's automatic mod/prof/actorBonus injection; the GMM monster
                 // bonus (already monster-level-derived) is added by the preRollAttackV2 hook.
@@ -180,11 +211,18 @@ const Activities = (function () {
                 parts: damageParts
             };
         } else if (type === "save") {
+            // `_buildSaveDcFormula` always yields a shortcoded string (it begins with
+            // `"[dcPrimaryBonus]"` and may append `+ [xxxMod]`), which dnd5e's
+            // `FormulaField` (with `deterministic: true`) rejects at storage time. Store
+            // a sanitised placeholder here and rebuild the real formula in
+            // `resolveActivityFormulas` from the blueprint — the blueprint is the
+            // authoritative source for the bonus/stat inputs so nothing needs to be
+            // persisted on the activity itself.
             data.save = {
                 ability: [blueprintAttack.defense || "str"],
                 dc: {
                     calculation: "",
-                    formula: _buildSaveDcFormula(blueprintData)
+                    formula: _sanitizeFormulaForActivity(_buildSaveDcFormula(blueprintData))
                 }
             };
             data.damage = {
@@ -467,7 +505,17 @@ const Activities = (function () {
         if (type === "attack" && obj.attack) {
             const attackTypeKey = _findAttackTypeKey(obj.attack.type);
             if (attackTypeKey) blueprintData.attack.type = attackTypeKey;
-            blueprintData.attack.bonus = obj.attack.bonus ?? null;
+            // Preserve any shortcoded `attack.bonus` already on the blueprint flag —
+            // `buildActivityData` stores a bracket-sanitised placeholder in the activity
+            // source (see the FormulaField comment there), so `obj.attack.bonus` at this
+            // point is the stripped string and would otherwise overwrite the user's
+            // real shortcoded authoring on every sheet re-render.
+            const existingBonus = blueprintData.attack.bonus;
+            if (typeof existingBonus === "string" && existingBonus.includes("[")) {
+                // keep as-is
+            } else {
+                blueprintData.attack.bonus = obj.attack.bonus ?? null;
+            }
             blueprintData.attack.related_stat = obj.attack.ability ?? "str";
         } else if (type === "save" && obj.save) {
             blueprintData.attack.type = "save";
@@ -479,15 +527,52 @@ const Activities = (function () {
             blueprintData.attack.type = "other";
         }
 
-        // Damage parts
+        // Damage parts. `damagePartFromBlueprint` sanitises shortcoded formulas down to
+        // `0`-placeholder strings before they hit the activity's FormulaField (see the
+        // comment there). That means `damagePartToBlueprint(part)` comes back with the
+        // sanitised string, not the original `[shortcode]` text, so we'd overwrite the
+        // real blueprint formula on every re-render unless we preferred the flag value
+        // whenever it still carries the shortcode markers. Read the previous (pre-sync)
+        // damage list off `blueprintData` — this value was sourced from the stored flag
+        // by `_syncItemDataToBlueprint` — and keep that formula when it contains `[`.
         if (obj.damage?.parts?.length) {
             blueprintData.attack.hit ??= {};
-            blueprintData.attack.hit.damage = obj.damage.parts.map(damagePartToBlueprint);
+            const existing = _normalizeBlueprintDamage(blueprintData.attack.hit.damage);
+            blueprintData.attack.hit.damage = obj.damage.parts.map((part, idx) => {
+                const bp = damagePartToBlueprint(part);
+                const rawFormula = existing[idx]?.formula;
+                if (typeof rawFormula === "string" && rawFormula.includes("[")) {
+                    bp.formula = rawFormula;
+                }
+                return bp;
+            });
             const first = blueprintData.attack.hit.damage[0];
             if (first) {
                 blueprintData.attack.damage = { formula: first.formula, type: first.type };
             }
         }
+    }
+
+    /**
+     * Normalise a stored blueprint damage list into a plain ordered array of
+     * `{formula, type}` entries. The flag can surface as either an array (written by
+     * this file on the read path) or a dotted-object form like `{ "0": {...} }`
+     * (produced by `foundry.utils.expandObject` on form submits — the form inputs are
+     * named `gmm.blueprint.attack.hit.damage.{i}.formula`).
+     * @param {*} raw
+     * @returns {{formula: string, type: string}[]}
+     */
+    function _normalizeBlueprintDamage(raw) {
+        if (Array.isArray(raw)) {
+            return raw.map(e => ({ formula: e?.formula ?? "", type: e?.type ?? "" }));
+        }
+        if (raw && typeof raw === "object") {
+            return Object.keys(raw)
+                .filter(k => /^\d+$/.test(k))
+                .sort((a, b) => Number(a) - Number(b))
+                .map(k => ({ formula: raw[k]?.formula ?? "", type: raw[k]?.type ?? "" }));
+        }
+        return [];
     }
 
     function _findAttackTypeKey({ value, classification } = {}) {
@@ -553,23 +638,47 @@ const Activities = (function () {
         const activity = item?.system?.activities?.get?.(GMM_ACTIVITY_ID);
         if (!activity) return;
 
-        // Attack bonus
-        if (activity.attack && typeof activity.attack.bonus === "string" && activity.attack.bonus.includes("[")) {
-            activity.attack.bonus = Shortcoder.replaceShortcodes(activity.attack.bonus, monsterData);
+        const blueprintData = item?.flags?.gmm?.blueprint?.data;
+
+        // Attack bonus. The activity's stored `attack.bonus` is the sanitised (bracket-
+        // free) placeholder written by `buildActivityData`, so round-tripping through
+        // `replaceShortcodes` against that string would be a no-op. Pull the original
+        // bonus off the blueprint flag instead, substitute shortcodes, and assign the
+        // resolved value so dnd5e's attack pipeline (and GMM's `injectAttackBonusParts`)
+        // sees the right numeric bonus.
+        if (activity.attack) {
+            const rawBonus = blueprintData?.attack?.bonus;
+            if (typeof rawBonus === "string" && rawBonus.includes("[")) {
+                activity.attack.bonus = Shortcoder.replaceShortcodes(rawBonus, monsterData);
+            } else if (typeof activity.attack.bonus === "string" && activity.attack.bonus.includes("[")) {
+                // Defensive fallback for any legacy activity source still carrying raw
+                // shortcoded text (e.g. items saved before the sanitisation path landed).
+                activity.attack.bonus = Shortcoder.replaceShortcodes(activity.attack.bonus, monsterData);
+            }
         }
 
-        // Save DC formula + value
+        // Save DC formula + value. `save.dc.formula` on the activity source is the
+        // sanitised placeholder (see the comment in `buildActivityData`); rebuild the
+        // real shortcoded formula from the blueprint flag via `_buildSaveDcFormula` so
+        // the substitution has the `[dcPrimaryBonus]` / `[xxxMod]` tokens to work with.
         if (activity.save?.dc) {
-            if (typeof activity.save.dc.formula === "string" && activity.save.dc.formula.includes("[")) {
-                activity.save.dc.formula = Shortcoder.replaceShortcodes(activity.save.dc.formula, monsterData);
+            let formula = activity.save.dc.formula ?? "";
+            if (blueprintData) {
+                const rebuilt = _buildSaveDcFormula(blueprintData);
+                if (typeof rebuilt === "string" && rebuilt.includes("[")) {
+                    formula = Shortcoder.replaceShortcodes(rebuilt, monsterData);
+                }
+            } else if (typeof formula === "string" && formula.includes("[")) {
+                // Defensive fallback for legacy sources still carrying shortcoded text.
+                formula = Shortcoder.replaceShortcodes(formula, monsterData);
             }
+            activity.save.dc.formula = formula;
             // Re-derive save.dc.value now that the formula is numeric. Using a fresh
             // Roll keeps us consistent with how dnd5e itself simplifies the formula
             // during prepareFinalData (`simplifyBonus`), but lets us run after the
             // monster artifact is available rather than before it.
             try {
-                const formula = activity.save.dc.formula || "0";
-                const dcRoll = new Roll(String(formula));
+                const dcRoll = new Roll(String(formula || "0"));
                 if (dcRoll.isDeterministic) {
                     const total = dcRoll.evaluateSync().total;
                     if (Number.isFinite(total)) activity.save.dc.value = total;
@@ -577,11 +686,23 @@ const Activities = (function () {
             } catch (e) { /* swallow: keep whatever value the framework already computed */ }
         }
 
-        // Damage parts
+        // Damage parts. `custom.formula` on the activity's source is the
+        // bracket-sanitised placeholder (see `damagePartFromBlueprint`), so blindly
+        // re-running `replaceShortcodes` against it would find nothing to substitute
+        // and leave the part reading "0" at roll time. Source the real shortcoded text
+        // from the blueprint flag, substitute against `monsterData`, and overwrite the
+        // prepared `custom.formula` with the resolved numeric value so dnd5e's native
+        // DamageActivity.rollDamage / `part.formula` getter chain sees the right dice.
         if (activity.damage?.parts?.length) {
-            for (const part of activity.damage.parts) {
-                if (part.custom?.enabled && typeof part.custom.formula === "string" && part.custom.formula.includes("[")) {
-                    part.custom.formula = Shortcoder.replaceShortcodes(part.custom.formula, monsterData, true);
+            const blueprintDamage = _normalizeBlueprintDamage(
+                foundry.utils.getProperty(item.flags ?? {}, "gmm.blueprint.data.attack.hit.damage")
+            );
+            for (let i = 0; i < activity.damage.parts.length; i++) {
+                const part = activity.damage.parts[i];
+                if (!part.custom?.enabled) continue;
+                const rawFormula = blueprintDamage[i]?.formula;
+                if (typeof rawFormula === "string" && rawFormula.includes("[")) {
+                    part.custom.formula = Shortcoder.replaceShortcodes(rawFormula, monsterData, true);
                 }
             }
         }
@@ -791,40 +912,97 @@ const Activities = (function () {
     }
 
     /**
+     * Collect flat `system.activities.-=<id>` deletion keys for every activity on a GMM
+     * scaling-action item that *isn't* the GMM-managed one.
+     *
+     * This exists because dnd5e's `ActivitiesTemplate.initializeActivities` (invoked
+     * from `Item5e.migrateData`) auto-seeds an initial activity onto any legacy item
+     * whose source still carries a pre-v5.x `system.actionType` (e.g. `"mwak"`) or
+     * `system.activation.type`. Every GMM compendium-pack item was authored before the
+     * dnd5e v5.x activity model existed, so the moment one is dragged onto an actor /
+     * imported into the world, dnd5e migrates a stray AttackActivity into its source
+     * alongside whatever the GMM hooks add, and the user ends up with *two* activities.
+     * Emitting `-=<id>` deletes here lets the same `updateSource` / `update` call that
+     * seeds the GMM activity also wipe the foreign one atomically.
+     *
+     * Accepts either an Item5e (we'll read `_source.system.activities`, which is the
+     * post-migrateData / pre-updateSource mapping), a raw activities record like
+     * `{ <id>: {...}, gmmprimary000000: {...} }`, or an ActivityCollection.
+     *
+     * @param {Item5e|object|Map|null} source
+     * @returns {Record<string, null>}  Flat deletion keys to merge into an update payload.
+     */
+    function buildForeignActivityPurge(source) {
+        const raw = source?._source?.system?.activities
+            ?? source?.system?.activities
+            ?? source?.activities
+            ?? source;
+        const deletes = {};
+        if (!raw) return deletes;
+        // ActivityCollection / Map: iterate its keys. Plain objects: use own keys.
+        const keys = (typeof raw.keys === "function") ? Array.from(raw.keys()) : Object.keys(raw);
+        for (const id of keys) {
+            if (id === GMM_ACTIVITY_ID) continue;
+            if (typeof id !== "string" || id.startsWith("-=")) continue;
+            deletes[`system.activities.-=${id}`] = null;
+        }
+        return deletes;
+    }
+
+    /**
      * Build the migration update payload for a single GMM scaling-action item, returning
-     * `null` if no migration is needed (the activity already exists).
+     * `null` if no migration is needed (the GMM activity already exists *and* no foreign
+     * activities are present).
      *
      * @param {Item5e} item
      * @returns {object|null}  An update payload suitable for `Item5e#update`, or null.
      */
     function buildMigrationUpdate(item) {
         if (!isLegacyGmmActionItem(item)) return null;
-        if (item.system?.activities?.has?.(GMM_ACTIVITY_ID)) return null;
-        const blueprint = item.flags.gmm.blueprint;
-        return buildActivityUpdate(null, blueprint);
+        const purge = buildForeignActivityPurge(item);
+        const hasGmm = item.system?.activities?.has?.(GMM_ACTIVITY_ID) ?? false;
+        // Nothing to fix: GMM activity already present and no foreign activities to purge.
+        if (hasGmm && foundry.utils.isEmpty(purge)) return null;
+        const update = { ...purge };
+        if (!hasGmm) {
+            const blueprint = item.flags.gmm.blueprint;
+            Object.assign(update, buildActivityUpdate(null, blueprint));
+        }
+        return update;
     }
 
     /**
-     * Like {@link buildMigrationUpdate}, but operates on the raw creation `data` payload
-     * passed to the `preCreateItem` hook (which fires before the Item document has been
-     * fully constructed and added to its collection). Used to seed the GMM activity onto
-     * legacy compendium imports — items dragged from the GMM `gmm-monster-attacks`,
+     * Like {@link buildMigrationUpdate}, but operates against the pre-commit source of
+     * the document passed to the `preCreateItem` hook. Used to seed the GMM activity
+     * onto legacy compendium imports — items dragged from the GMM `gmm-monster-attacks`,
      * `gmm-monster-powers`, `gmm-monster-traits`, `gmm-conditions` packs were authored
      * before the dnd5e v5.x activity model existed and ship without an activity.
      *
-     * @param {object} data  Raw creation data (the `data` arg to `preCreateItem`).
+     * We read foreign-activity state off `item._source` rather than the hook's raw
+     * `data` argument because dnd5e's `Item5e.migrateData` has already run by the time
+     * `preCreateItem` fires, and the auto-seeded AttackActivity only lives on the
+     * migrated `_source` — it isn't present on the original `data` object.
+     *
+     * @param {object} data   Raw creation data (the `data` arg to `preCreateItem`).
+     * @param {Item5e} [item] Partially-constructed Item passed to `preCreateItem`. Used
+     *                        to discover post-migrateData activities that need purging.
      * @returns {object|null} Flat-path update suitable for `Item5e#updateSource(expand(...))`,
-     *                        or null if the item isn't a GMM scaling action / already has
-     *                        the activity.
+     *                        or null if the item isn't a GMM scaling action.
      */
-    function buildPreCreateUpdate(data) {
+    function buildPreCreateUpdate(data, item) {
         const sheetClass = data?.flags?.core?.sheetClass;
         if (typeof sheetClass !== "string" || !sheetClass.endsWith(".ActionSheet")) return null;
         const blueprint = data?.flags?.gmm?.blueprint;
         if (!blueprint) return null;
-        // Raw data doesn't have the ActivityCollection wrapper yet, so check the plain object.
-        if (data?.system?.activities?.[GMM_ACTIVITY_ID]) return null;
-        return buildActivityUpdate(null, blueprint);
+        const purge = buildForeignActivityPurge(item ?? data);
+        const hasGmm = !!(
+            item?._source?.system?.activities?.[GMM_ACTIVITY_ID]
+            ?? data?.system?.activities?.[GMM_ACTIVITY_ID]
+        );
+        if (hasGmm && foundry.utils.isEmpty(purge)) return null;
+        const update = { ...purge };
+        if (!hasGmm) Object.assign(update, buildActivityUpdate(null, blueprint));
+        return update;
     }
 
     /**
@@ -908,6 +1086,7 @@ const Activities = (function () {
         injectAmmoMagicPart,
         resolveDamageRollFormulas,
         isLegacyGmmActionItem,
+        buildForeignActivityPurge,
         buildMigrationUpdate,
         buildPreCreateUpdate,
         migrateActor,

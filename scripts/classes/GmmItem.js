@@ -340,9 +340,25 @@ const GmmItem = (function () {
         // --- Damage line. Each part is independently formatted as either
         // "<formula> <type> damage" (damage type) or "<formula> <type>" (healing type),
         // so a mixed-type action like "1d8 fire damage plus 1d4 healing" reads correctly.
+        //
+        // The activity's `custom.formula` is the bracket-sanitised placeholder written by
+        // `Activities.damagePartFromBlueprint` (dnd5e's `FormulaField` would otherwise
+        // reject authored shortcoded formulas), so for shortcoded rows we have to fall
+        // back to the raw formula stored on the blueprint flag. Normalise that list up
+        // front — it can be either an array (as written by `_syncItemDataToBlueprint`) or
+        // a dotted-object shape (as produced by `expandObject` on form submits).
         if (damageParts.length) {
+            const blueprintDamageRaw = blueprint?.attack?.hit?.damage;
+            const blueprintDamage = Array.isArray(blueprintDamageRaw)
+                ? blueprintDamageRaw
+                : (blueprintDamageRaw && typeof blueprintDamageRaw === "object")
+                    ? Object.keys(blueprintDamageRaw)
+                        .filter(k => /^\d+$/.test(k))
+                        .sort((a, b) => Number(a) - Number(b))
+                        .map(k => blueprintDamageRaw[k])
+                    : [];
             labels.damage_hit = damageParts
-                .map((part) => _formatDamagePart(part, gmmMonster, rollData))
+                .map((part, idx) => _formatDamagePart(part, gmmMonster, rollData, blueprintDamage[idx]?.formula))
                 .filter(_ => _)
                 .join(" plus ");
         }
@@ -514,8 +530,8 @@ const GmmItem = (function () {
      *
      * @returns {string}
      */
-    function _formatDamagePart(part, monsterData, rollData) {
-        const formula = _resolvePartFormula(part, monsterData, rollData);
+    function _formatDamagePart(part, monsterData, rollData, rawBlueprintFormula) {
+        const formula = _resolvePartFormula(part, monsterData, rollData, rawBlueprintFormula);
         if (!formula) return "";
         const types = part.types instanceof Set ? Array.from(part.types)
             : Array.isArray(part.types) ? part.types : [];
@@ -562,10 +578,19 @@ const GmmItem = (function () {
      *
      * @returns {string}
      */
-    function _resolvePartFormula(part, monsterData, rollData) {
+    function _resolvePartFormula(part, monsterData, rollData, rawBlueprintFormula) {
         let formula = "";
         try {
-            if (typeof part?.formula === "string" && part.formula) {
+            // Prefer the authored shortcoded formula from the blueprint flag when it
+            // still carries `[shortcode]` markers — the activity's `custom.formula` at
+            // that index is the sanitised `0`-placeholder form produced by
+            // `Activities.damagePartFromBlueprint` for dnd5e's FormulaField validator,
+            // so trusting `part.formula` would either display the literal placeholder
+            // (in the standalone action-sheet preview, where `resolveActivityFormulas`
+            // hasn't run) or strip the scaling semantics before substitution.
+            if (typeof rawBlueprintFormula === "string" && rawBlueprintFormula.includes("[")) {
+                formula = rawBlueprintFormula;
+            } else if (typeof part?.formula === "string" && part.formula) {
                 formula = part.formula;
             } else if (part?.custom?.enabled) {
                 formula = part.custom.formula ?? "";

@@ -59,17 +59,23 @@ Hooks.once("init", function() {
 	_registerSettings();
 
 	// Seed the GMM-managed activity onto legacy GMM scaling-action items at creation
-	// time. Compendium imports (and any other path that reaches `Item.create` /
+	// time, *and* strip any stray non-GMM activity that dnd5e's `migrateData` pipeline
+	// seeded from the item's pre-v5 `actionType` / `activation` fields. Compendium
+	// imports (and any other path that reaches `Item.create` /
 	// `Actor#createEmbeddedDocuments("Item", ...)` with a pre-authored
 	// `flags.gmm.blueprint`) come from documents that were authored before the dnd5e
-	// v5.x activity model existed; without this hook those items would be created
-	// without a GMM activity and dnd5e's roll pipeline would have nothing to fire.
-	// Runs for every user so a player dropping a GMM compendium item onto their own
-	// character also gets the migration; the gating in `buildPreCreateUpdate` makes
-	// it a no-op for any item that isn't a legacy GMM scaling action.
+	// v5.x activity model existed; `Item5e.migrateData` auto-creates an AttackActivity
+	// (or similar) for those items via `ActivitiesTemplate.initializeActivities`, and
+	// without this hook the item would be persisted with *both* the dnd5e-seeded
+	// activity and the GMM-managed one. Runs for every user so a player dropping a
+	// GMM compendium item onto their own character also gets the fix; the gating in
+	// `buildPreCreateUpdate` makes it a no-op for any item that isn't a legacy GMM
+	// scaling action. We pass `item` (not just `data`) because the auto-seeded
+	// activity only surfaces on the post-migrate `item._source`, not on the raw hook
+	// `data` argument.
 	Hooks.on("preCreateItem", (item, data, _options, _userId) => {
 		try {
-			const update = Activities.buildPreCreateUpdate(data);
+			const update = Activities.buildPreCreateUpdate(data, item);
 			if (update) item.updateSource(foundry.utils.expandObject(update));
 		} catch (e) {
 			console.warn("GMM | preCreateItem activity-seed failed", e);
