@@ -40,12 +40,21 @@ const Activities = (function () {
 
     /**
      * Resolve which dnd5e activity type best represents a blueprint `attack.type` value.
+     *
+     * `heal` is a first-class dnd5e v5 activity type (`HealActivity`) with its own
+     * single-entry `healing` damage field. Falling through to `utility` used to swallow
+     * the user's damage parts silently (no place to put them on a UtilityActivity) and
+     * also leaked the prior activity's type-specific fields (e.g. a stale
+     * `save.dc.formula` left over from when the action was a saving throw) when the
+     * replace path wasn't taken, surfacing as a FormulaField validation failure on the
+     * owning actor's next `reset` — see the commit paired with this change for details.
      * @param {string|null|undefined} blueprintAttackType
-     * @returns {"attack"|"save"|"damage"|"utility"}
+     * @returns {"attack"|"save"|"heal"|"damage"|"utility"}
      */
     function activityTypeFor(blueprintAttackType) {
         if (blueprintAttackType in ATTACK_TYPES) return "attack";
         if (blueprintAttackType === "save") return "save";
+        if (blueprintAttackType === "heal") return "heal";
         if (blueprintAttackType === "other") return "damage";
         return "utility";
     }
@@ -229,6 +238,15 @@ const Activities = (function () {
                 onSave: "half",
                 parts: damageParts
             };
+        } else if (type === "heal") {
+            // `HealActivity` carries a single `healing` DamageData entry rather than an
+            // array of damage parts. Fold the blueprint's first damage row into it so
+            // the displayed heal amount and roll pipeline stay consistent with the GMM
+            // forge UI (which reuses the multi-row damage editor). Any additional rows
+            // are silently dropped at storage time because `HealActivity` has nowhere
+            // to put them — `_getGmmLabels` still reads the full list off the blueprint
+            // flag so the action card preview still shows every authored row.
+            data.healing = damageParts[0] ?? damagePartFromBlueprint({ formula: "", type: "" });
         } else if (type === "damage") {
             data.damage = {
                 parts: damageParts
@@ -523,6 +541,8 @@ const Activities = (function () {
                 : Array.isArray(obj.save.ability) ? obj.save.ability[0]
                     : obj.save.ability;
             blueprintData.attack.defense = ability ?? "str";
+        } else if (type === "heal") {
+            blueprintData.attack.type = "heal";
         } else if (type === "damage") {
             blueprintData.attack.type = "other";
         }
@@ -550,6 +570,25 @@ const Activities = (function () {
             if (first) {
                 blueprintData.attack.damage = { formula: first.formula, type: first.type };
             }
+        } else if (type === "heal" && obj.healing) {
+            // `HealActivity` stores a single `healing` DamageData rather than an array.
+            // Mirror it into the blueprint's first damage row, preserving any shortcoded
+            // source the flag still carries for the same reason as the attack-damage
+            // block above (sanitised activity values would otherwise overwrite user
+            // authoring on every re-render).
+            blueprintData.attack.hit ??= {};
+            const existing = _normalizeBlueprintDamage(blueprintData.attack.hit.damage);
+            const bp = damagePartToBlueprint(obj.healing);
+            const rawFormula = existing[0]?.formula;
+            if (typeof rawFormula === "string" && rawFormula.includes("[")) {
+                bp.formula = rawFormula;
+            }
+            // Preserve any additional rows the user had authored on the blueprint (the
+            // activity only carries the first), so switching temporarily to heal and
+            // back doesn't lose extra damage rows.
+            const rest = existing.slice(1);
+            blueprintData.attack.hit.damage = [bp, ...rest];
+            blueprintData.attack.damage = { formula: bp.formula, type: bp.type };
         }
     }
 
@@ -588,28 +627,71 @@ const Activities = (function () {
 
     /**
      * Build a flat path update payload for the GMM activity, suitable for merging directly
-     * into an `Item5e#update` call. If the existing activity on the item has a different
-     * type than the one we want to write, we additionally include a `-=<id>` deletion key
-     * so dnd5e drops the prior activity before installing the new one (the `type` field is
-     * `readOnly: true` on the activity schema, so types can't be swapped in place).
+     * into an `Item5e#update` call.
+     *
+     * The activity is always emitted as a {@link foundry.data.operators.ForcedReplacement}
+     * of `buildActivityData(blueprint)`. Why force a replacement on *every* edit, not
+     * just type swaps:
+     *
+     *   1. `buildActivityData` is fully derived from the blueprint and never relies on
+     *      the previous activity's residual fields, so a wholesale replace produces the
+     *      same result a recursive partial merge would on same-type edits — and is safer
+     *      besides, because no stale leaf can sneak through.
+     *
+     *   2. Cross-type field leakage is otherwise unavoidable. When the blueprint's
+     *      attack type reshapes (e.g. `save` → `heal`, or `save` → `mwak`), the new
+     *      payload from `buildActivityData` has no `save.dc.formula` field at all — but
+     *      a partial merge would leave the existing `save.dc.formula` in `_source`
+     *      untouched. dnd5e's `ActivityField.initialize` reads `value.type` from source
+     *      to pick the activity class, so the post-merge source can still contain
+     *      `{type: "heal", save: {dc: {formula: "[dcPrimaryBonus]…"}}}` as raw data;
+     *      the next `Actor#reset` then asks for a `HealActivity` and the leftover
+     *      `save.dc.formula` from the prior SaveActivity goes through the
+     *      `FormulaField` parser and throws `Expected … but "[" found.` even though
+     *      the GMM-managed write path sanitises every formula it actually emits.
+     *      ForcedReplacement skips the per-field merge entirely and assigns the
+     *      unwrapped utility/heal/etc. payload directly to `_source.activities.<id>`,
+     *      so no field from the previous activity type can persist.
+     *
+     *   3. The activity `type` field is `readOnly: true` on the base schema, so partial
+     *      merges that change `type` would be rejected by validation in V14+ anyway.
+     *      `ForcedReplacement` is the only V14 idiom that can re-seed `type` in place.
+     *
+     *   4. We previously paired a legacy `{"system.activities.-=<id>": null, ...: new}`
+     *      payload to delete-then-recreate, but in Foundry v14
+     *      {@link foundry.data.fields.TypedObjectField#_cleanType} processes the
+     *      `-=<id>` deletion key *before* the sibling add, and writes a `ForcedDeletion`
+     *      onto `data[<id>]` via `data[k2] = new ForcedDeletion()` — clobbering the new
+     *      activity with a deletion. The activity vanished without a replacement on the
+     *      first save (attack label, hit bonus, info pills all disappeared) and only
+     *      came back on the next unrelated edit. ForcedReplacement avoids this entire
+     *      class of bug by never emitting the deletion key.
      *
      * The returned payload uses dotted-path keys so it can be merged with form data via
      * `foundry.utils.mergeObject`/`$.extend` without colliding with nested `system.*`
      * structures from the form.
      *
      * @param {Item5e|null} item  The item being updated, or null if we're creating fresh.
+     *                             Currently unused in this function but retained as part
+     *                             of the public signature for symmetry with `buildPreCreateUpdate`
+     *                             and to leave a hook for future cross-activity logic.
      * @param {object} blueprint  The full blueprint object the activity should mirror.
-     * @returns {object}          Flat update payload like `{ "system.activities.<id>": {...} }`.
+     * @returns {object}          Flat update payload like `{ "system.activities.<id>": ForcedReplacement }`.
      */
-    function buildActivityUpdate(item, blueprint) {
+    function buildActivityUpdate(item, blueprint) { // eslint-disable-line no-unused-vars
         const newData = buildActivityData(blueprint);
-        const existing = item?.system?.activities?.get?.(GMM_ACTIVITY_ID);
+        const ForcedReplacement = foundry.data?.operators?.ForcedReplacement;
         const update = {};
-        if (existing && existing.type !== newData.type) {
-            // Drop the prior activity in the same update so the type swap is atomic.
-            update[`system.activities.-=${GMM_ACTIVITY_ID}`] = null;
+        if (ForcedReplacement) {
+            update[`system.activities.${GMM_ACTIVITY_ID}`] = new ForcedReplacement(newData);
+        } else {
+            // Pre-v14 fallback: ForcedReplacement doesn't exist, so the best we can
+            // do is the legacy partial-merge form. The cross-type leakage described in
+            // the docblock above is a concern only on V14+, where the `_cleanType`
+            // pipeline reads `value.type` to pick the activity class; older Foundry
+            // releases used a fixed schema and tolerated stale fields without error.
+            update[`system.activities.${GMM_ACTIVITY_ID}`] = newData;
         }
-        update[`system.activities.${GMM_ACTIVITY_ID}`] = newData;
         return update;
     }
 
@@ -704,6 +786,21 @@ const Activities = (function () {
                 if (typeof rawFormula === "string" && rawFormula.includes("[")) {
                     part.custom.formula = Shortcoder.replaceShortcodes(rawFormula, monsterData, true);
                 }
+            }
+        }
+
+        // Healing part. `HealActivity#healing` is a single DamageData rather than a
+        // `parts` array, but the custom-formula sanitisation / blueprint-preservation
+        // story is identical: the stored `custom.formula` is the bracket-free
+        // placeholder and the authoritative shortcoded source lives on the blueprint
+        // flag's first damage row.
+        if (activity.healing?.custom?.enabled) {
+            const blueprintDamage = _normalizeBlueprintDamage(
+                foundry.utils.getProperty(item.flags ?? {}, "gmm.blueprint.data.attack.hit.damage")
+            );
+            const rawFormula = blueprintDamage[0]?.formula;
+            if (typeof rawFormula === "string" && rawFormula.includes("[")) {
+                activity.healing.custom.formula = Shortcoder.replaceShortcodes(rawFormula, monsterData, true);
             }
         }
     }
@@ -912,8 +1009,8 @@ const Activities = (function () {
     }
 
     /**
-     * Collect flat `system.activities.-=<id>` deletion keys for every activity on a GMM
-     * scaling-action item that *isn't* the GMM-managed one.
+     * Collect flat `system.activities.<id>` deletion entries for every activity on a
+     * GMM scaling-action item that *isn't* the GMM-managed one.
      *
      * This exists because dnd5e's `ActivitiesTemplate.initializeActivities` (invoked
      * from `Item5e.migrateData`) auto-seeds an initial activity onto any legacy item
@@ -922,15 +1019,27 @@ const Activities = (function () {
      * dnd5e v5.x activity model existed, so the moment one is dragged onto an actor /
      * imported into the world, dnd5e migrates a stray AttackActivity into its source
      * alongside whatever the GMM hooks add, and the user ends up with *two* activities.
-     * Emitting `-=<id>` deletes here lets the same `updateSource` / `update` call that
-     * seeds the GMM activity also wipe the foreign one atomically.
+     * Emitting a deletion for the foreign id lets the same `updateSource` / `update`
+     * call that seeds the GMM activity also wipe the foreign one atomically.
+     *
+     * We use the v14+ {@link foundry.data.operators.ForcedDeletion} operator rather
+     * than the legacy `{"system.activities.-=<id>": null}` dotted-key syntax. Both
+     * ultimately drive `TypedObjectField#_updateDiff` through the same ForcedDeletion
+     * branch, but the legacy form triggers the v14-until-v16 compatibility warning in
+     * `TypedObjectField#_cleanType` on every import, which is noisy and scheduled for
+     * removal. The operator form sidesteps the warning entirely. A defensive fallback
+     * to the legacy syntax is kept for hosts running a pre-v14 Foundry where the
+     * operator constructor doesn't exist — no-one should hit that path on this module
+     * (min 14.360), but it costs nothing to keep the function portable.
      *
      * Accepts either an Item5e (we'll read `_source.system.activities`, which is the
      * post-migrateData / pre-updateSource mapping), a raw activities record like
      * `{ <id>: {...}, gmmprimary000000: {...} }`, or an ActivityCollection.
      *
      * @param {Item5e|object|Map|null} source
-     * @returns {Record<string, null>}  Flat deletion keys to merge into an update payload.
+     * @returns {Record<string, ForcedDeletion|null>}  Flat deletion entries suitable
+     *                                                 for direct merge into an update
+     *                                                 payload.
      */
     function buildForeignActivityPurge(source) {
         const raw = source?._source?.system?.activities
@@ -939,12 +1048,20 @@ const Activities = (function () {
             ?? source;
         const deletes = {};
         if (!raw) return deletes;
+        const ForcedDeletion = foundry.data?.operators?.ForcedDeletion;
         // ActivityCollection / Map: iterate its keys. Plain objects: use own keys.
         const keys = (typeof raw.keys === "function") ? Array.from(raw.keys()) : Object.keys(raw);
         for (const id of keys) {
             if (id === GMM_ACTIVITY_ID) continue;
             if (typeof id !== "string" || id.startsWith("-=")) continue;
-            deletes[`system.activities.-=${id}`] = null;
+            if (ForcedDeletion) {
+                deletes[`system.activities.${id}`] = new ForcedDeletion();
+            } else {
+                // Pre-v14 fallback: legacy dotted deletion syntax. TypedObjectField
+                // didn't exist yet, so the `-=<id>` key on `system.activities` is
+                // honoured at the document-merge layer instead.
+                deletes[`system.activities.-=${id}`] = null;
+            }
         }
         return deletes;
     }
