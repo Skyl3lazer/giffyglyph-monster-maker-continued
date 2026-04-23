@@ -73,6 +73,12 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return opts;
     }
 
+    /** @inheritDoc */
+    get title() {
+        const name = this.item?.name ?? this.document?.name ?? "";
+        return name ? `${name} - GMMC Scalar Ability` : "GMMC Scalar Ability";
+    }
+
     /* -------------------------------------------- */
     /*  Rendering                                   */
     /* -------------------------------------------- */
