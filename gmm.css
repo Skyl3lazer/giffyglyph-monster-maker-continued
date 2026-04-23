@@ -1684,6 +1684,9 @@
   border-radius: 0.75rem;
 }
 .gmm-blueprint .blueprint__form .form-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   margin: 0;
   position: relative;
   align-items: normal;
@@ -1703,12 +1706,13 @@
   text-align: right;
   color: var(--color-primary-shade-4);
   width: 8rem;
-  flex: unset;
+  flex: 0 0 8rem;
   /*white-space: nowrap;
   overflow: hidden;*/
   text-overflow: ellipsis;
 }
 .gmm-blueprint .blueprint__form .form-group__body {
+  flex: 1 1 auto;
   min-height: 1.5rem;
   overflow: hidden;
 }
