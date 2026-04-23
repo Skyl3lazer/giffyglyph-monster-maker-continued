@@ -2843,6 +2843,9 @@
   grid-template-rows: 1fr auto;
   grid-column-gap: 0;
   pointer-events: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
 .gmm-forge > * {
   pointer-events: all;

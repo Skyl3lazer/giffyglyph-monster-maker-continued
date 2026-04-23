@@ -321,6 +321,23 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
      */
     _activateEditor() {}
 
+    /**
+     * Force the dnd5e PLAY/EDIT mode to EDIT on every render. The Forge UI does not
+     * use the dnd5e read-only / editing dichotomy (it has no inline labels to swap,
+     * no tray rows to expand, etc.), but `ItemSheet5e#_onRender` unconditionally
+     * calls `this._disableFields()` whenever `_mode === MODES.PLAY` (the default
+     * coming out of `PrimarySheet5e#_configureRenderOptions`). That selector
+     * disables every INPUT / SELECT / TEXTAREA / BUTTON inside `.window-content`,
+     * which is the entire forge — leaving every blueprint field read-only and
+     * breaking action buttons like "Add Damage". Pinning the mode to EDIT skips the
+     * disable pass without otherwise changing rendering behaviour.
+     * @inheritDoc
+     */
+    _configureRenderOptions(options) {
+        super._configureRenderOptions(options);
+        this._mode = this.constructor.MODES.EDIT;
+    }
+
     /* -------------------------------------------- */
     /*  Event Listeners                             */
     /* -------------------------------------------- */
