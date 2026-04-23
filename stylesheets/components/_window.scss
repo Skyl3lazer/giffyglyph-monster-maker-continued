@@ -64,13 +64,20 @@
 		color: var(--color-dark-4);
 	}
 
-	// (2) Direct overrides on buttons — beats `body.theme-dark button`
-	// We only override the *default* button surface
-	a.button,
-	button,
-	kbd {
+	// (2) Direct overrides on forge-content buttons only.
+	// Leave Foundry window-header controls unstyled so they keep core contrast/colors.
+	.window-content a.button,
+	.window-content button,
+	.window-content kbd {
 		--button-text-color: var(--color-dark-2);
 		--button-hover-text-color: var(--color-dark-1);
+	}
+
+	.window-header .header-control,
+	.window-header button.header-control {
+		--button-text-color: var(--color-light-1);
+		--button-hover-text-color: var(--color-light-1);
+		color: var(--color-light-1);
 	}
 
 	.window-header {
@@ -100,6 +107,19 @@
 		display: flex;
 		z-index: 2;
 		filter: none;
+		cursor: nwse-resize;
+
+		&::before {
+			content: "\e0a4";
+			-webkit-font-smoothing: antialiased;
+			font-family: var(--font-awesome, "Font Awesome 7 Pro");
+			font-weight: 900;
+			font-style: normal;
+			font-variant: normal;
+			text-rendering: auto;
+			line-height: 1;
+			margin: auto;
+		}
 
 		i {
 			margin: auto;

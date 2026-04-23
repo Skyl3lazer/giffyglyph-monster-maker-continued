@@ -4379,11 +4379,17 @@
   --input-text-color: var(--color-dark-4);
   color: var(--color-dark-4);
 }
-.gmm-window a.button,
-.gmm-window button,
-.gmm-window kbd {
+.gmm-window .window-content a.button,
+.gmm-window .window-content button,
+.gmm-window .window-content kbd {
   --button-text-color: var(--color-dark-2);
   --button-hover-text-color: var(--color-dark-1);
+}
+.gmm-window .window-header .header-control,
+.gmm-window .window-header button.header-control {
+  --button-text-color: var(--color-light-1);
+  --button-hover-text-color: var(--color-light-1);
+  color: var(--color-light-1);
 }
 .gmm-window .window-header {
   border-bottom: none;
@@ -4409,6 +4415,18 @@
   display: flex;
   z-index: 2;
   filter: none;
+  cursor: nwse-resize;
+}
+.gmm-window > .window-resize-handle::before {
+  content: "\e0a4";
+  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
+  font-weight: 900;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+  margin: auto;
 }
 .gmm-window > .window-resize-handle i {
   margin: auto;
