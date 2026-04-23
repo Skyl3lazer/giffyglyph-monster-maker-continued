@@ -248,10 +248,12 @@ const GmmItem = (function () {
         // Roll data is shared across the to-hit, save DC, and damage formula lookups.
         const rollData = this.getRollData();
 
-        // --- Damage parts (resolved up-front so we can detect healing & build the line) ---
+        // --- Damage / healing parts (resolved up-front so we can detect healing & build the line) ---
+        // HealActivity stores a single `healing` DamageData instead of `damage.parts`.
         const damageParts = activity?.damage?.parts ?? [];
+        const healingPart = activity?.healing ?? null;
         const blueprintAttackType = blueprint?.attack?.type ?? "";
-        const isHealingAction = (blueprintAttackType === "heal") || _hasHealingPart(damageParts);
+        const isHealingAction = (blueprintAttackType === "heal") || !!healingPart || _hasHealingPart(damageParts);
 
         // --- Attack / Save line ---
         if (activity?.type === "attack") {
@@ -270,18 +272,22 @@ const GmmItem = (function () {
             labels.attack = game.i18n.format(`gmm.common.attack_type.${blueprintAttackType}`);
         }
 
-        // Damage line
-        // Each part is independently formatted as either "<formula> <type> damage" (damage type) or "<formula> <type>" (he
-        if (damageParts.length) {
-            const blueprintDamageRaw = blueprint?.attack?.hit?.damage;
-            const blueprintDamage = Array.isArray(blueprintDamageRaw)
-                ? blueprintDamageRaw
-                : (blueprintDamageRaw && typeof blueprintDamageRaw === "object")
-                    ? Object.keys(blueprintDamageRaw)
-                        .filter(k => /^\d+$/.test(k))
-                        .sort((a, b) => Number(a) - Number(b))
-                        .map(k => blueprintDamageRaw[k])
-                    : [];
+        // Damage / healing line
+        // HealActivity uses `activity.healing` (single DamageData), others use `activity.damage.parts[]`.
+        const blueprintDamageRaw = blueprint?.attack?.hit?.damage;
+        const blueprintDamage = Array.isArray(blueprintDamageRaw)
+            ? blueprintDamageRaw
+            : (blueprintDamageRaw && typeof blueprintDamageRaw === "object")
+                ? Object.keys(blueprintDamageRaw)
+                    .filter(k => /^\d+$/.test(k))
+                    .sort((a, b) => Number(a) - Number(b))
+                    .map(k => blueprintDamageRaw[k])
+                : [];
+
+        if (healingPart) {
+            const label = _formatDamagePart(healingPart, gmmMonster, rollData, blueprintDamage[0]?.formula);
+            if (label) labels.damage_hit = label;
+        } else if (damageParts.length) {
             labels.damage_hit = damageParts
                 .map((part, idx) => _formatDamagePart(part, gmmMonster, rollData, blueprintDamage[idx]?.formula))
                 .filter(_ => _)
