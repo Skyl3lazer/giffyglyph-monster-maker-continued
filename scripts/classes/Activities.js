@@ -888,16 +888,32 @@ const Activities = (function () {
         config.data.gmm = { ...(config.data.gmm ?? {}), ammoBonus: bonus };
     }
 
-    /* Defensive shortcoder pass for damage rolls
- * The activity formulas have already been resolved during prepareDerivedData, but a roll triggered before the owni */
+    /* Resolve shortcodes in damage/heal roll parts at roll time.
+     * Handles both raw `[…]` markers and sanitized `"0"` placeholders from blueprint shortcodes. */
     function resolveDamageRollFormulas(rollConfig, monsterData) {
         if (!rollConfig?.rolls?.length || !monsterData) return;
-        for (const roll of rollConfig.rolls) {
+        const activity = rollConfig.subject;
+        const item = activity?.item;
+        const blueprintDamage = item
+            ? _normalizeBlueprintDamage(
+                foundry.utils.getProperty(item.flags ?? {}, "gmm.blueprint.data.attack.hit.damage"))
+            : [];
+
+        for (let ri = 0; ri < rollConfig.rolls.length; ri++) {
+            const roll = rollConfig.rolls[ri];
             if (!Array.isArray(roll.parts)) continue;
             for (let i = 0; i < roll.parts.length; i++) {
                 const p = roll.parts[i];
-                if (typeof p === "string" && p.includes("[")) {
+                if (typeof p !== "string") continue;
+                if (p.includes("[")) {
                     roll.parts[i] = Shortcoder.replaceShortcodes(p, monsterData, true);
+                    continue;
+                }
+                // The sanitized placeholder "0" replaces shortcoded formulas at storage
+                // time; at roll time we need to re-derive the real value from the blueprint.
+                const bpFormula = blueprintDamage[ri]?.formula;
+                if (bpFormula && bpFormula.includes("[") && /^0+$/.test(p)) {
+                    roll.parts[i] = Shortcoder.replaceShortcodes(bpFormula, monsterData, true);
                 }
             }
         }
