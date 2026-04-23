@@ -30,6 +30,19 @@ Hooks.once("init", function() {
 	GmmActor.patchActor5e();
 	GmmItem.patchItem5e();
 
+	// Install a safety net around dnd5e's ActivityField so any `[shortcode]`
+	// formulas left in `_source.system.activities.<id>` from earlier versions of
+	// this module (before write-time sanitisation existed) get scrubbed in place
+	// before dnd5e's DataModel clean/validate pipeline rejects them. Without this,
+	// an unrelated dirty item on an actor would crash `Actor5e._initialize` and
+	// abort every subsequent `Actor.reset()` — surfacing as e.g. "validation
+	// errors: save.dc.formula: Expected formula but '[' found" the moment the
+	// user creates *any* new item on the affected actor. The persistence-side
+	// fixup is handled by `migrateWorld` in the `ready` hook below.
+	if (!Activities.patchActivityField()) {
+		console.warn("GMM | dnd5e ActivityField not found at init; activity-source sanitisation patch was not installed.");
+	}
+
 	// Reprepare actor/item data when the default sheet is changed
 	Hooks.on("updateSetting", (setting, data, options, userId) => {
 		if ( setting.key === "core.sheetClasses" ) {

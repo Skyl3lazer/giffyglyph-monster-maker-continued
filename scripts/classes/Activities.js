@@ -135,6 +135,280 @@ const Activities = (function () {
     }
 
     /**
+     * Walk a single activity-source object and replace any `[…]` shortcode runs in
+     * known dnd5e `FormulaField`-typed paths with `"0"`, so the value passes
+     * `FormulaField._validateType` (which instantiates `new Roll(value)` and rejects
+     * `[` as an opening token).
+     *
+     * Mutates `value` in place and returns it. Safe to call on any activity source
+     * regardless of `type` — paths that don't exist on the given activity type are
+     * simply skipped. Used both as a runtime safety net (via {@link patchActivityField})
+     * and as the per-activity transform driven by the persistence migration in
+     * {@link buildSourceFormulaCleanup}.
+     *
+     * The exhaustive path list mirrors every `FormulaField` declared on the dnd5e v5.x
+     * activity templates — `Activation`, `Consumption`, `Damage`/`DamagePart`, `Range`,
+     * `Target`, `Uses`, plus the type-specific `attack.bonus`, `save.dc.formula`,
+     * `healing.custom.formula` / `healing.bonus`, and the multi-row equivalents on
+     * `damage.parts[]` / `consumption.targets[]` / `uses.recovery[]`. Paths that were
+     * declared as `NumberField` (e.g. `range.value` on some types) are still string-safe
+     * because `_replaceShortcodes` no-ops non-string inputs.
+     *
+     * @param {object|null|undefined} value  Raw activity source as it would appear under
+     *                                       `_source.system.activities.<id>`.
+     * @returns {object|null|undefined} The same `value` reference (or unchanged input
+     *                                  if not an object).
+     */
+    function sanitizeActivitySource(value) {
+        if (!value || typeof value !== "object") return value;
+        const replace = _sanitizeFormulaForActivity;
+
+        if (value.attack && typeof value.attack === "object") {
+            value.attack.bonus = replace(value.attack.bonus);
+        }
+        if (value.save?.dc && typeof value.save.dc === "object") {
+            value.save.dc.formula = replace(value.save.dc.formula);
+        }
+        if (value.healing && typeof value.healing === "object") {
+            if (value.healing.custom && typeof value.healing.custom === "object") {
+                value.healing.custom.formula = replace(value.healing.custom.formula);
+            }
+            value.healing.bonus = replace(value.healing.bonus);
+        }
+        if (value.damage && typeof value.damage === "object") {
+            if (value.damage.critical && typeof value.damage.critical === "object") {
+                value.damage.critical.bonus = replace(value.damage.critical.bonus);
+            }
+            if (Array.isArray(value.damage.parts)) {
+                for (const p of value.damage.parts) {
+                    if (!p || typeof p !== "object") continue;
+                    if (p.custom && typeof p.custom === "object") {
+                        p.custom.formula = replace(p.custom.formula);
+                    }
+                    p.bonus = replace(p.bonus);
+                }
+            }
+        }
+        if (value.consumption && typeof value.consumption === "object") {
+            if (value.consumption.scaling && typeof value.consumption.scaling === "object") {
+                value.consumption.scaling.formula = replace(value.consumption.scaling.formula);
+            }
+            if (Array.isArray(value.consumption.targets)) {
+                for (const t of value.consumption.targets) {
+                    if (!t || typeof t !== "object") continue;
+                    t.value = replace(t.value);
+                }
+            }
+        }
+        if (value.range && typeof value.range === "object") {
+            value.range.value = replace(value.range.value);
+            value.range.long = replace(value.range.long);
+            value.range.special = replace(value.range.special);
+        }
+        if (value.duration && typeof value.duration === "object") {
+            value.duration.value = replace(value.duration.value);
+        }
+        if (value.target?.template && typeof value.target.template === "object") {
+            const tpl = value.target.template;
+            tpl.size = replace(tpl.size);
+            tpl.width = replace(tpl.width);
+            tpl.height = replace(tpl.height);
+        }
+        if (value.uses && typeof value.uses === "object") {
+            value.uses.max = replace(value.uses.max);
+            if (Array.isArray(value.uses.recovery)) {
+                for (const r of value.uses.recovery) {
+                    if (!r || typeof r !== "object") continue;
+                    r.formula = replace(r.formula);
+                }
+            }
+        }
+        return value;
+    }
+
+    /* -------------------------------------------- */
+
+    /**
+     * Monkey-patch dnd5e's {@link dnd5e.dataModels.fields.ActivityField} so any
+     * `[shortcode]`-bearing formula in an activity source is sanitized *before*
+     * Foundry's `DataModel` clean/validate pipeline rejects it.
+     *
+     * Why this is necessary in addition to `buildActivityData` already sanitising on
+     * write: the user's world may already contain items that were persisted before
+     * the write-time sanitisation existed (e.g. items created during prior versions
+     * of this module, or imported from external worlds). When such an item lives on
+     * an actor, `Actor5e._initialize` reaches `ActivityField.initialize`, which calls
+     * `new SaveActivity(value, …)`. `SaveActivity` extends `BaseActivityData` whose
+     * constructor runs `validate(value)`, which traverses `save.dc.formula` and rejects
+     * the bracketed shortcode. The owning `Item5e` is then rejected by
+     * `EmbeddedCollection._handleInvalidDocument`, which throws and aborts the entire
+     * `Actor.reset()` — meaning *creating a new item* (which triggers a reset) explodes
+     * because of an unrelated pre-existing item.
+     *
+     * Patching `_cleanType` (called from `DataModel.cleanData` at the start of the
+     * constructor) and `initialize` (the entry point dnd5e uses to construct the
+     * Activity) guarantees `value` is sanitized in place before either of those
+     * constructors run, so the activity validates with `"0"` placeholders. The real
+     * shortcoded text always lives on `flags.gmm.blueprint.data` and is re-substituted
+     * into the prepared activity by {@link resolveActivityFormulas}, so display and
+     * rolls are unaffected.
+     *
+     * Idempotent — guarded by a `__gmmPatched` marker so re-invocation is a no-op.
+     * Returns `true` if the patch was applied (or had previously been applied) and
+     * `false` if dnd5e's `ActivityField` couldn't be located (e.g. running against a
+     * pre-v5.x dnd5e where the Activity model didn't exist yet — nothing to patch).
+     *
+     * @returns {boolean}
+     */
+    function patchActivityField() {
+        const ActivityField = globalThis.dnd5e?.dataModels?.fields?.ActivityField;
+        if (!ActivityField) return false;
+        if (ActivityField.prototype.__gmmPatched) return true;
+
+        const origCleanType = ActivityField.prototype._cleanType;
+        ActivityField.prototype._cleanType = function(value, options, _state) {
+            sanitizeActivitySource(value);
+            return origCleanType.call(this, value, options, _state);
+        };
+
+        const origInitialize = ActivityField.prototype.initialize;
+        ActivityField.prototype.initialize = function(value, model, options = {}) {
+            sanitizeActivitySource(value);
+            return origInitialize.call(this, value, model, options);
+        };
+
+        Object.defineProperty(ActivityField.prototype, "__gmmPatched", {
+            value: true, writable: false, configurable: false, enumerable: false
+        });
+
+        // Polyfill `getActionLabel` on the base activity prototype. dnd5e v5.3.2's
+        // `ChatMessage5e._enrichChatCard` calls `activity.getActionLabel(attackMode)`
+        // whenever a rendered chat message has `flags.dnd5e.roll.type === "attack"`
+        // — but only `BaseAttackActivityData` defines that method, so any chat message
+        // whose referenced activity has since changed type (Save/Heal/Utility/…) will
+        // throw during render and the `handleCreateDocuments` / sidebar-render path
+        // logs the failure. GMM actions always reuse the same activity id
+        // (`gmmprimary000000`) when the user changes Attack Type, so this scenario is
+        // commonplace in GMM worlds: rolling an attack, then switching the action's
+        // Attack Type to e.g. Healing leaves every earlier chat message pointing at
+        // an activity whose class no longer has `getActionLabel`. Adding a no-op
+        // fallback on the base class lets those stale messages render; the real
+        // `BaseAttackActivityData.getActionLabel` override still wins for activities
+        // that are genuinely of attack type.
+        const BaseActivityData = globalThis.dnd5e?.dataModels?.activity?.BaseActivityData;
+        if (BaseActivityData && !("getActionLabel" in BaseActivityData.prototype)) {
+            BaseActivityData.prototype.getActionLabel = function(_attackMode) { return ""; };
+        }
+
+        return true;
+    }
+
+    /**
+     * Build a flat-path update payload that rewrites any `[shortcode]`-bearing
+     * formula in an item's persisted activity source with its sanitized counterpart.
+     *
+     * Used by {@link migrateActor} / {@link migrateWorld} to permanently heal the bad
+     * data the runtime patch from {@link patchActivityField} masks at load time. We
+     * read off `_source` (which is the raw, on-disk shape — the prepared `system.activities`
+     * collection has already been wrapped in `Activity` instances by the time we'd
+     * iterate it) and produce flat keys like
+     * `system.activities.<id>.save.dc.formula` so the update merges cleanly without
+     * forcing a wholesale `ForcedReplacement` on the entire activity record.
+     *
+     * @param {Item5e|object} item
+     * @returns {object|null}  Flat update payload suitable for `Item5e#update`, or
+     *                         `null` if no formulas needed cleaning.
+     */
+    function buildSourceFormulaCleanup(item) {
+        const activities = item?._source?.system?.activities;
+        if (!activities || typeof activities !== "object") return null;
+        const update = {};
+        const replace = _sanitizeFormulaForActivity;
+
+        const set = (path, oldVal, newVal) => {
+            if (oldVal === newVal) return;
+            update[path] = newVal;
+        };
+
+        for (const [aid, raw] of Object.entries(activities)) {
+            if (!raw || typeof raw !== "object" || aid.startsWith("-=")) continue;
+            const base = `system.activities.${aid}`;
+
+            if (raw.attack && typeof raw.attack.bonus === "string") {
+                set(`${base}.attack.bonus`, raw.attack.bonus, replace(raw.attack.bonus));
+            }
+            if (raw.save?.dc && typeof raw.save.dc.formula === "string") {
+                set(`${base}.save.dc.formula`, raw.save.dc.formula, replace(raw.save.dc.formula));
+            }
+            if (raw.healing) {
+                if (raw.healing.custom && typeof raw.healing.custom.formula === "string") {
+                    set(`${base}.healing.custom.formula`, raw.healing.custom.formula, replace(raw.healing.custom.formula));
+                }
+                if (typeof raw.healing.bonus === "string") {
+                    set(`${base}.healing.bonus`, raw.healing.bonus, replace(raw.healing.bonus));
+                }
+            }
+            if (raw.damage) {
+                if (raw.damage.critical && typeof raw.damage.critical.bonus === "string") {
+                    set(`${base}.damage.critical.bonus`, raw.damage.critical.bonus, replace(raw.damage.critical.bonus));
+                }
+                if (Array.isArray(raw.damage.parts)) {
+                    for (let i = 0; i < raw.damage.parts.length; i++) {
+                        const p = raw.damage.parts[i];
+                        if (!p) continue;
+                        if (p.custom && typeof p.custom.formula === "string") {
+                            set(`${base}.damage.parts.${i}.custom.formula`, p.custom.formula, replace(p.custom.formula));
+                        }
+                        if (typeof p.bonus === "string") {
+                            set(`${base}.damage.parts.${i}.bonus`, p.bonus, replace(p.bonus));
+                        }
+                    }
+                }
+            }
+            if (raw.consumption) {
+                if (raw.consumption.scaling && typeof raw.consumption.scaling.formula === "string") {
+                    set(`${base}.consumption.scaling.formula`, raw.consumption.scaling.formula, replace(raw.consumption.scaling.formula));
+                }
+                if (Array.isArray(raw.consumption.targets)) {
+                    for (let i = 0; i < raw.consumption.targets.length; i++) {
+                        const t = raw.consumption.targets[i];
+                        if (t && typeof t.value === "string") {
+                            set(`${base}.consumption.targets.${i}.value`, t.value, replace(t.value));
+                        }
+                    }
+                }
+            }
+            if (raw.range) {
+                if (typeof raw.range.value === "string") set(`${base}.range.value`, raw.range.value, replace(raw.range.value));
+                if (typeof raw.range.long === "string") set(`${base}.range.long`, raw.range.long, replace(raw.range.long));
+                if (typeof raw.range.special === "string") set(`${base}.range.special`, raw.range.special, replace(raw.range.special));
+            }
+            if (raw.duration && typeof raw.duration.value === "string") {
+                set(`${base}.duration.value`, raw.duration.value, replace(raw.duration.value));
+            }
+            if (raw.target?.template) {
+                const tpl = raw.target.template;
+                if (typeof tpl.size === "string") set(`${base}.target.template.size`, tpl.size, replace(tpl.size));
+                if (typeof tpl.width === "string") set(`${base}.target.template.width`, tpl.width, replace(tpl.width));
+                if (typeof tpl.height === "string") set(`${base}.target.template.height`, tpl.height, replace(tpl.height));
+            }
+            if (raw.uses) {
+                if (typeof raw.uses.max === "string") set(`${base}.uses.max`, raw.uses.max, replace(raw.uses.max));
+                if (Array.isArray(raw.uses.recovery)) {
+                    for (let i = 0; i < raw.uses.recovery.length; i++) {
+                        const r = raw.uses.recovery[i];
+                        if (r && typeof r.formula === "string") {
+                            set(`${base}.uses.recovery.${i}.formula`, r.formula, replace(r.formula));
+                        }
+                    }
+                }
+            }
+        }
+
+        return foundry.utils.isEmpty(update) ? null : update;
+    }
+
+    /**
      * Translate a dnd5e DamageData (or its raw object form) back into a GMM blueprint entry.
      * @param {object} part
      * @returns {{formula: string, type: string}}
@@ -1078,9 +1352,17 @@ const Activities = (function () {
         if (!isLegacyGmmActionItem(item)) return null;
         const purge = buildForeignActivityPurge(item);
         const hasGmm = item.system?.activities?.has?.(GMM_ACTIVITY_ID) ?? false;
-        // Nothing to fix: GMM activity already present and no foreign activities to purge.
-        if (hasGmm && foundry.utils.isEmpty(purge)) return null;
+        // We also need to consider stale `[shortcode]` runs that may have been
+        // persisted into FormulaField paths (`save.dc.formula`, `attack.bonus`,
+        // `damage.parts[].custom.formula`, …) by an older revision of this module
+        // before write-time sanitisation existed. The runtime patch in
+        // `patchActivityField` masks these for load-time validation, but persisting
+        // the cleanup here means the next world load won't even need the patch to
+        // do work for this item.
+        const cleanup = buildSourceFormulaCleanup(item);
+        if (hasGmm && foundry.utils.isEmpty(purge) && !cleanup) return null;
         const update = { ...purge };
+        if (cleanup) Object.assign(update, cleanup);
         if (!hasGmm) {
             const blueprint = item.flags.gmm.blueprint;
             Object.assign(update, buildActivityUpdate(null, blueprint));
@@ -1206,6 +1488,9 @@ const Activities = (function () {
         buildForeignActivityPurge,
         buildMigrationUpdate,
         buildPreCreateUpdate,
+        buildSourceFormulaCleanup,
+        sanitizeActivitySource,
+        patchActivityField,
         migrateActor,
         migrateWorld
     };
