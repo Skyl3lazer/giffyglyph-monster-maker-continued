@@ -7,14 +7,17 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
-## v1.1.3.1 (dev)
+## v2.0.0.0 (dev)
+#### Foundry v14 DND5e 5.3.2
+"Yee Haw"
 
-* Added duplicate compatibilityhelper
-* Added version to lower bar for debugging purposes
-* Added missing compatibilityhelper call
-* #70 fixed a bug with incorrect shortcodes on dnd3.3
+THIS UPDATE IS LARGELY WRITTEN VIA AI. THIS SHOULD NOT BE USED IN ANY LIVE GAME, NOR BE EXPECTED TO SAFELY HANDLE ANY IMPORTANT DATA.
 
-## v1.1.2.3 (latest)
+Treat this as an extreme alpha, it's really just an experiment to see if an LLM can do the heavy lifting to move the codebase to V14/DND5.3 so I can continue to work on it in a reasonable manner.
+
+Again, I DO NOT TRUST THE AI, AND NEITHER SHOULD YOU. Over time I will be reviewing each change it made here to ensure that it is actually usable, and fix it where it breaks if possible.
+
+## v1.1.2.3 (v12)
 
 * #69 Fixed a deprecation (an old one!) that was sneaking by and finally broke in dnd5e 3.3.1. It was preventing damage from being added or removed from scaling abilities.
 * Fixed bug in damage rolling in certain circumstances (from dev c29c7b2)

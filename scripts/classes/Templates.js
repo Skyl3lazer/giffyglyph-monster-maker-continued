@@ -22,6 +22,28 @@ const Templates = (function() {
 	};
 
 	function registerTemplateHelpers() {
+
+		// Foundry v14 removed the legacy `{{#select VALUE}}...{{/select}}` block
+		// helper that used to mark the matching `<option value="VALUE">` selected
+		// inside its body. The GMM forge templates use this in ~30 places to bind
+		// blueprint values to native `<select>` elements. Re-register it locally so
+		// the templates keep working without rewriting every block to `selectOptions`.
+		// Implementation mirrors Foundry's pre-v14 helper: render the inner block,
+		// then string-replace the first `value="VALUE"` (or single-quoted form) and
+		// append ` selected`. Only the first match is rewritten, matching the legacy
+		// behavior. Numbers/booleans are coerced to strings so `{{#select 6}}<option
+		// value="6">d6</option>{{/select}}` works unchanged.
+		if (!Handlebars.helpers.select) {
+			Handlebars.registerHelper('select', function(selected, options) {
+				const value = (selected === null || selected === undefined) ? "" : String(selected);
+				const escaped = Handlebars.Utils.escapeExpression(value)
+					.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+				const rgx = new RegExp(` value=["']${escaped}["']`);
+				const html = options.fn(this);
+				return html.replace(rgx, "$& selected");
+			});
+		}
+
 		//This is basically just to be able to output test data
 		Handlebars.registerHelper('json', function (context) {
 			return JSON.stringify(context);

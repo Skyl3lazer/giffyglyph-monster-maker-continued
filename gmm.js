@@ -39,15 +39,20 @@ Hooks.once("init", function() {
 		}
 	});
 
-	Hooks.on("renderActorDirectory", (app, html, data) => {
+	// In Foundry v13+ the sidebar directories are ApplicationV2-based, so the
+	// `render*` hook signature is `(app, element, context, options)` where `element`
+	// is the raw root HTMLElement (not a jQuery wrapper). Older GMM code dereferenced
+	// `html[0]` which is `undefined` on a HTMLElement and crashed before the GMM
+	// "Create Scaling Monster"/"Create Scaling Action" buttons could be inserted.
+	Hooks.on("renderActorDirectory", (app, element) => {
 		if (game.user.isGM) {
-			_hookActorDirectory(html);
+			_hookActorDirectory(element);
 		}
 	});
 
-	Hooks.on("renderItemDirectory", (app, html, data) => {
+	Hooks.on("renderItemDirectory", (app, element) => {
 		if (game.user.isGM) {
-			_hookItemDirectory(html);
+			_hookItemDirectory(element);
 		}
 	});
 
@@ -92,59 +97,84 @@ Hooks.once('ready', async () => {
 	}
 });
 
+/**
+ * Locate the insertion point inside a sidebar directory's header for the GMM "create"
+ * button row. The dnd5e v5.x / Foundry v14 directory header (templates/sidebar/directory/header.hbs)
+ * lays its children out vertically as `[.header-actions, <search>]`; we slot the GMM
+ * row in just before `<search>` so the create button visually lines up under the
+ * stock "Create Actor" / "Create Folder" buttons. Falls back to the directory header
+ * itself if the layout ever changes shape so the buttons still appear somewhere.
+ * @param {HTMLElement} root  The directory's root element (passed by the render hook).
+ * @returns {{header: HTMLElement, before: HTMLElement|null}|null}
+ */
+function _findDirectoryInsertionPoint(root) {
+	if (!root?.querySelector) return null;
+	const header = root.querySelector(".directory-header");
+	if (!header) return null;
+	const before = header.querySelector("search") ?? header.querySelector(".header-search");
+	return { header, before };
+}
+
 async function _hookActorDirectory(html) {
-    let section = document.createElement("div");
-    section.classList.add("header-actions", "action-buttons", "flexrow", "giffyglyph");
+	const target = _findDirectoryInsertionPoint(html);
+	if (!target) return;
+	let section = document.createElement("div");
+	section.classList.add("header-actions", "action-buttons", "flexrow", "giffyglyph");
 	section.insertAdjacentHTML(
 		"afterbegin",
 		`
 			<div class="btn-group">
-				<button data-action="create-scaling-monster"><i class="fas fa-skull"></i> ${game.i18n.format('gmm.sidebar.create_monster')}</button>
+				<button type="button" data-action="create-scaling-monster"><i class="fas fa-skull"></i> ${game.i18n.format('gmm.sidebar.create_monster')}</button>
 			</div>
 		`
-    );
+	);
 	section.querySelector("[data-action='create-scaling-monster']").addEventListener("click", async (ev) => {
+		ev.preventDefault();
+		// Use a nested flags object: Foundry reads the bound sheet at
+		// `document.flags.core?.sheetClass`, so a literal `"core.sheetClass"` key
+		// would never resolve and the new actor would open with the default sheet.
 		Actor.create({
 			name: "New Scaling Monster",
 			type: "npc",
 			img: "icons/svg/eye.svg",
-			flags: { "core.sheetClass": `${GMM_MODULE_TITLE}.MonsterSheet` },
+			flags: { core: { sheetClass: `${GMM_MODULE_TITLE}.MonsterSheet` } },
 			system: {
 				details: {
-					"alignment": "unaligned",
-					"type": {
-						"value": "humanoid"
-					},
-					"cr": 1
+					alignment: "unaligned",
+					type: { value: "humanoid" },
+					cr: 1
 				}
-			},
+			}
 		});
 	});
-    const dirHeader = html[0].querySelector(".directory-header .header-search");
-    dirHeader.parentNode.insertBefore(section, dirHeader);
+	if (target.before) target.header.insertBefore(section, target.before);
+	else target.header.appendChild(section);
 }
 
 async function _hookItemDirectory(html) {
-    let section = document.createElement("div");
-    section.classList.add("header-actions", "action-buttons", "flexrow", "giffyglyph");
+	const target = _findDirectoryInsertionPoint(html);
+	if (!target) return;
+	let section = document.createElement("div");
+	section.classList.add("header-actions", "action-buttons", "flexrow", "giffyglyph");
 	section.insertAdjacentHTML(
 		"afterbegin",
 		`
 			<div class="btn-group">
-				<button data-action="create-scaling-action"><i class="fas fa-skull"></i> ${game.i18n.format('gmm.sidebar.create_action')}</button>
+				<button type="button" data-action="create-scaling-action"><i class="fas fa-skull"></i> ${game.i18n.format('gmm.sidebar.create_action')}</button>
 			</div>
 		`
-    );
+	);
 	section.querySelector("[data-action='create-scaling-action']").addEventListener("click", (ev) => {
+		ev.preventDefault();
 		Item.create({
 			name: "New Scaling Action",
 			type: "feat",
 			img: "icons/svg/clockwork.svg",
-			flags: { "core.sheetClass": `${GMM_MODULE_TITLE}.ActionSheet` }
+			flags: { core: { sheetClass: `${GMM_MODULE_TITLE}.ActionSheet` } }
 		});
 	});
-    const dirHeader = html[0].querySelector(".directory-header .header-search");
-    dirHeader.parentNode.insertBefore(section, dirHeader);
+	if (target.before) target.header.insertBefore(section, target.before);
+	else target.header.appendChild(section);
 }
 
 function _registerSettings() {
