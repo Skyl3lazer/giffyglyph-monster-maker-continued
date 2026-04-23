@@ -1770,13 +1770,29 @@
 }
 .gmm-blueprint .blueprint__form .form-group__body .html-field prose-mirror {
   --min-height: 18rem;
+  --menu-background: var(--color-primary-tint-3);
+  --dropdown-background: var(--color-primary-tint-5);
+  --dropdown-border: var(--color-primary-tint-4);
+  --dialog-background: var(--color-primary-tint-5);
+  --dialog-border: var(--color-primary-tint-4);
+  --color-control-hover: var(--color-primary-tint-4);
+  --color-form-label-hover: var(--color-primary-shade-1);
+  --button-text-color: var(--color-primary-shade-1);
   flex: 1 1 auto;
-  background: white;
+  color: var(--color-primary-shade-1);
+  background: var(--color-primary-tint-5);
+  border: 1px solid var(--color-primary-tint-4);
   border-radius: 0.25rem;
   padding: 0.5rem;
 }
+.gmm-blueprint .blueprint__form .form-group__body .html-field prose-mirror .editor-content {
+  color: var(--color-primary-shade-1);
+  background: transparent;
+}
 .gmm-blueprint .blueprint__form .form-group__body .html-field prose-mirror .ProseMirror {
   min-height: inherit;
+  color: inherit;
+  background: transparent;
   outline: none;
 }
 .gmm-blueprint .blueprint__form .form-group__body .html-field .editor,

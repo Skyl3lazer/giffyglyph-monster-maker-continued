@@ -340,7 +340,9 @@ const GmmItem = (function () {
         // --- Description ---
         try {
             const desc = await this.getChatData({ secrets: this.actor?.isOwner });
-            const descValue = desc?.description?.value ?? "";
+            const descValue = (typeof desc?.description === "string")
+                ? desc.description
+                : (desc?.description?.value ?? this.system?.description?.value ?? blueprint?.description?.text ?? "");
             labels.description = gmmMonster ? Shortcoder.replaceShortcodes(descValue, gmmMonster) : descValue;
         } catch (e) {
             labels.description = "";
