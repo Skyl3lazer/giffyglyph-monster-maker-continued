@@ -131,6 +131,14 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             }
         }
 
+        // Populate `effects` (categorized) so the blueprint template's <dnd5e-effects> block can render.
+        // dnd5e only does this from _preparePartContext("effects"); we have a single "forge" part.
+        try {
+            await this._prepareEffectsContext(context, options);
+        } catch (e) {
+            console.warn("GMM | ActionSheet: _prepareEffectsContext failed", e);
+        }
+
         return context;
     }
 

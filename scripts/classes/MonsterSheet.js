@@ -174,6 +174,14 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             });
         }
 
+        // Populate `effects` (categorized) so the blueprint template's <dnd5e-effects> block can render.
+        // dnd5e only does this from _preparePartContext("effects"); we have a single "forge" part.
+        try {
+            await this._prepareEffectsContext(context, options);
+        } catch (e) {
+            console.warn("GMM | MonsterSheet: _prepareEffectsContext failed", e);
+        }
+
         return context;
     }
 
