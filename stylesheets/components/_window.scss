@@ -14,20 +14,113 @@
 	border: none;
 	overflow: visible;
 
-	// Foundry V14's themed CSS variables resolve to light tones (e.g.
-	// `--color-light-3`) for body text, inputs, and buttons so they remain
-	// legible against the dark default Foundry chrome. GMM's sheets paint
-	// most of their working area on white/light tinted surfaces (artifact
-	// blocks, blueprint forms, etc.) where those light defaults render as a
-	// near-invisible beige. Pin the inherited text/input/button colours to
-	// dark tones; explicit `color: white` rules on dark headers/buttons
-	// continue to override these defaults via specificity.
+	// ----------------------------------------------------------------------
+	// Force-light theme overrides
+	// ----------------------------------------------------------------------
+	// Foundry V14 ships a dark theme by default and binds its themed text /
+	// input / button colours via two patterns that bypass simple ancestor
+	// overrides:
+	//
+	//   1. `body.theme-dark { --color-text-primary: var(--color-light-2); }`
+	//      sets the variable on the body. Inheritance reaches into our
+	//      `.gmm-window` *unless* an intermediate selector with greater
+	//      specificity wins. We can override this by setting the variable on
+	//      `.gmm-window` itself (closer ancestor) — done below.
+	//
+	//   2. `body.theme-dark input,  body.theme-dark a.button,  …` set
+	//      `--input-text-color` / `--button-text-color` directly on the
+	//      input / button element. Custom properties from an *ancestor* lose
+	//      to a property set on the element itself, so a `.gmm-window {
+	//      --input-text-color: dark }` rule has no effect on a descendant
+	//      `<input>`. The only way to win is to match the descendants
+	//      directly (same selector shape Foundry uses).
+	//
+	// The GMM forge always paints onto white / light-tinted surfaces (the
+	// blueprint form, artifact blocks, modals…) so we deliberately force a
+	// light-on-dark inversion of these variables across the whole sheet.
+	// Headers and buttons that legitimately want light text on dark
+	// backgrounds (e.g. `.forge__id`, `.gmm-forge .forge__controls`)
+	// override `color` directly with greater specificity and remain unaffected.
+	//
+	// Note: GMM's stylesheet is auto-wrapped in `@layer modules` by Foundry's
+	// loader (see `_getStaticContent` in v14/server/views/view.mjs), and
+	// Foundry's themed rules live in `@layer variables.themes`. Because
+	// `modules` sits later in the cascade-layer order, our rules win on
+	// equal-specificity matches.
+	// Force the browser into light mode for native widgets (the `<select>`
+	// option popup, scrollbar styling, autofill yellow) — by default Foundry
+	// sets `color-scheme: dark` via `--color-scheme`, which makes the
+	// dropdown's option panel render with light text on a dark slab even
+	// though the rest of the GMM UI is light.
+	--color-scheme: light;
+	color-scheme: light;
+
 	--color-text-primary: var(--color-dark-2);
 	--color-text-secondary: var(--color-dark-3);
+	--color-text-emphatic: var(--color-dark-1);
+	--color-text-subtle: var(--color-dark-4);
+	--color-form-label: var(--color-dark-3);
+	--color-form-label-hover: var(--color-dark-1);
+	--color-form-hint: var(--color-dark-4);
+	--color-form-hint-hover: var(--color-dark-2);
 	--input-text-color: var(--color-dark-2);
+	--input-placeholder-color: var(--color-dark-5);
+	--input-background-color: white;
 	--button-text-color: var(--color-dark-2);
 	--button-hover-text-color: var(--color-dark-1);
+
+	// Content links (Foundry's `<a>` content-link element) inside the
+	// artifact pane render value text such as the attack DC. Foundry's
+	// body-level rule is `--content-link-text-color: var(--color-light-2)`
+	// which inherits onto our descendants — repoint to a dark tone so it
+	// stays legible on the white `.block__contents` background.
+	--content-link-background: rgba(0, 0, 0, 0.05);
+	--content-link-border-color: var(--color-dark-5);
+	--content-link-icon-color: var(--color-dark-3);
+	--content-link-text-color: var(--color-dark-2);
+
 	color: var(--color-dark-2);
+
+	// (1) Direct overrides on form controls — beats `body.theme-dark input`
+	// because the selector matches the element itself (specificity 0,1,1
+	// vs Foundry's 0,1,2 — but layer-modules > layer-variables wins). Use a
+	// wide selector list so all form-control flavours are covered.
+	input,
+	select,
+	textarea,
+	code-mirror,
+	formula-input,
+	color-picker,
+	file-picker,
+	search,
+	prose-mirror {
+		--input-text-color: var(--color-dark-2);
+		--input-placeholder-color: var(--color-dark-5);
+		--input-background-color: white;
+		color: var(--color-dark-2);
+	}
+
+	// Read-only / disabled inputs still want a darker label so they're
+	// distinguishable but not invisible.
+	input[readonly],
+	input:disabled,
+	select:disabled,
+	textarea:disabled {
+		--input-text-color: var(--color-dark-4);
+		color: var(--color-dark-4);
+	}
+
+	// (2) Direct overrides on buttons — beats `body.theme-dark button`. We
+	// only override the *default* button surface; GMM-themed buttons paint
+	// their own `background:` + `color:` (e.g. `.forge__controls button`,
+	// `.modal__button`, `.button--primary-dc`) and continue to win via
+	// specificity / source order.
+	a.button,
+	button,
+	kbd {
+		--button-text-color: var(--color-dark-2);
+		--button-hover-text-color: var(--color-dark-1);
+	}
 
 	.window-header {
 		border-bottom: none;

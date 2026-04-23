@@ -4287,12 +4287,53 @@
   background: none;
   border: none;
   overflow: visible;
+  --color-scheme: light;
+  color-scheme: light;
   --color-text-primary: var(--color-dark-2);
   --color-text-secondary: var(--color-dark-3);
+  --color-text-emphatic: var(--color-dark-1);
+  --color-text-subtle: var(--color-dark-4);
+  --color-form-label: var(--color-dark-3);
+  --color-form-label-hover: var(--color-dark-1);
+  --color-form-hint: var(--color-dark-4);
+  --color-form-hint-hover: var(--color-dark-2);
   --input-text-color: var(--color-dark-2);
+  --input-placeholder-color: var(--color-dark-5);
+  --input-background-color: white;
   --button-text-color: var(--color-dark-2);
   --button-hover-text-color: var(--color-dark-1);
+  --content-link-background: rgba(0, 0, 0, 0.05);
+  --content-link-border-color: var(--color-dark-5);
+  --content-link-icon-color: var(--color-dark-3);
+  --content-link-text-color: var(--color-dark-2);
   color: var(--color-dark-2);
+}
+.gmm-window input,
+.gmm-window select,
+.gmm-window textarea,
+.gmm-window code-mirror,
+.gmm-window formula-input,
+.gmm-window color-picker,
+.gmm-window file-picker,
+.gmm-window search,
+.gmm-window prose-mirror {
+  --input-text-color: var(--color-dark-2);
+  --input-placeholder-color: var(--color-dark-5);
+  --input-background-color: white;
+  color: var(--color-dark-2);
+}
+.gmm-window input[readonly],
+.gmm-window input:disabled,
+.gmm-window select:disabled,
+.gmm-window textarea:disabled {
+  --input-text-color: var(--color-dark-4);
+  color: var(--color-dark-4);
+}
+.gmm-window a.button,
+.gmm-window button,
+.gmm-window kbd {
+  --button-text-color: var(--color-dark-2);
+  --button-hover-text-color: var(--color-dark-1);
 }
 .gmm-window .window-header {
   border-bottom: none;
