@@ -341,9 +341,27 @@ const Activities = (function () {
     }
 
     function _collectDamageParts(blueprintData) {
-        const arr = blueprintData.attack?.hit?.damage;
-        if (!arr || !arr.length) return [];
-        return arr.map(damagePartFromBlueprint);
+        // The authored form inputs for damage rows are `name="gmm.blueprint.attack.hit.damage.{i}.formula"`
+        // (and `.type`). When FormDataExtended runs through `foundry.utils.expandObject`
+        // every intermediate container is created with `setProperty`'s `o[k] = {}` branch,
+        // which produces a plain object rather than an array — so after a save the
+        // blueprint's damage list comes back as `{ "0": {...}, "1": {...} }` instead of
+        // the array form that `_syncItemDataToBlueprint` writes on read. `arr.length` is
+        // undefined on that object form, so the old guard short-circuited and dropped
+        // every user-authored damage entry before it could reach the activity, which in
+        // turn meant the action's displayed damage disappeared and damage rolls fired
+        // with an empty parts list. Normalise both shapes to an array of `{formula, type}`
+        // entries before mapping through `damagePartFromBlueprint`.
+        const raw = blueprintData.attack?.hit?.damage;
+        if (!raw) return [];
+        const entries = Array.isArray(raw)
+            ? raw
+            : Object.keys(raw)
+                .filter(k => /^\d+$/.test(k))
+                .sort((a, b) => Number(a) - Number(b))
+                .map(k => raw[k]);
+        if (!entries.length) return [];
+        return entries.map(damagePartFromBlueprint);
     }
 
     /* -------------------------------------------- */

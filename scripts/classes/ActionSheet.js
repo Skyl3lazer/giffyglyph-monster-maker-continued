@@ -442,30 +442,14 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
 
     /**
      * @this {ActionSheet}
-     * Append an empty damage part to the GMM-managed activity. If the item somehow
-     * doesn't have the activity yet (legacy data, manual deletion via the dnd5e UI),
-     * we bootstrap one from the current blueprint so the user can keep editing.
+     * Append an empty damage part to the action's blueprint and rebuild the activity
+     * from the updated blueprint. See {@link #mutateBlueprintDamage} for the rationale
+     * behind driving off the flag rather than the activity.
      */
     static async #actionAddDamage(event, target) {
         event.preventDefault();
-        const newPart = Activities.damagePartFromBlueprint({ formula: "", type: "" });
-        const activity = this.item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
-
-        if (!activity) {
-            const blueprint = this.item.flags?.gmm?.blueprint
-                ?? { vid: 1, type: "action", data: { attack: { type: null } } };
-            const activityData = Activities.buildActivityData(blueprint);
-            activityData.damage ??= { parts: [] };
-            activityData.damage.parts = (activityData.damage.parts ?? []).concat([newPart]);
-            return this.item.update({
-                [`system.activities.${Activities.GMM_ACTIVITY_ID}`]: activityData
-            });
-        }
-
-        const parts = (activity.damage?.parts ?? []).map(p => (p.toObject?.(false) ?? p));
-        parts.push(newPart);
-        return this.item.update({
-            [`system.activities.${Activities.GMM_ACTIVITY_ID}.damage.parts`]: parts
+        return ActionSheet.#mutateBlueprintDamage.call(this, entries => {
+            entries.push({ formula: "", type: "" });
         });
     }
 
@@ -473,15 +457,76 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     static async #actionRemoveDamage(event, target) {
         event.preventDefault();
         const li = target.closest(".form-group--damage");
-        const index = Number(li.dataset.index);
-        const activity = this.item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
-        if (!activity?.damage?.parts) return;
-
-        const parts = activity.damage.parts.map(p => (p.toObject?.(false) ?? p));
-        parts.splice(index, 1);
-        return this.item.update({
-            [`system.activities.${Activities.GMM_ACTIVITY_ID}.damage.parts`]: parts
+        const index = Number(li?.dataset?.index);
+        return ActionSheet.#mutateBlueprintDamage.call(this, entries => {
+            if (Number.isInteger(index) && index >= 0 && index < entries.length) {
+                entries.splice(index, 1);
+            }
         });
+    }
+
+    /**
+     * Apply a mutation to the action's `blueprint.attack.hit.damage` list and persist
+     * both the updated flag and the rebuilt GMM activity in a single `item.update`.
+     *
+     * Why read from the blueprint flag rather than `activity.damage.parts`:
+     *   - The blueprint flag is the UI source of truth; the blueprint form fields bind
+     *     directly to `gmm.blueprint.attack.hit.damage.N.formula|type`, so whatever the
+     *     user currently sees in the form is exactly what's stored in the flag.
+     *   - The activity is derived state rebuilt from the blueprint on save. Trusting
+     *     `activity.damage.parts` was fine only as long as the activity was always in
+     *     sync, but legacy items carry blueprints whose prior form-submits lost their
+     *     damage during `_collectDamageParts` (the dotted `…damage.0.formula` input
+     *     names expand into `{ "0": {...} }` objects instead of arrays — fixed there —
+     *     so the pre-fix activity ended up empty even when the flag showed populated
+     *     rows). Driving Add/Remove off the activity therefore erased every still-
+     *     visible row on the first click.
+     *   - Serialising activity damage parts via `toObject(false)` also returned the
+     *     *prepared* data, which can be shortcoder-resolved (`resolveActivityFormulas`
+     *     mutates `part.custom.formula` in-place during prepareDerivedData for
+     *     GMM-owned items). Round-tripping prepared data as new `_source` permanently
+     *     baked the resolved numeric formula in and lost the `[shortcode]` markers.
+     *
+     * Re-running the whole blueprint through `ActionBlueprint.getItemDataFromBlueprint`
+     * keeps the activity in lockstep with the flag using the same pipeline the form
+     * save path uses, preserving shortcodes and any other blueprint fields.
+     *
+     * @this {ActionSheet}
+     * @param {(entries: {formula: string, type: string}[]) => void} mutate
+     */
+    static async #mutateBlueprintDamage(mutate) {
+        const stored = this.item.flags?.gmm?.blueprint;
+        const blueprint = foundry.utils.deepClone(stored ?? { vid: 1, type: "action", data: {} });
+        blueprint.vid = 1;
+        blueprint.type = "action";
+        blueprint.data ??= {};
+
+        // Normalise the existing damage list into a plain array of `{formula, type}`
+        // entries regardless of whether the flag currently holds an array (produced by
+        // `_syncItemDataToBlueprint`) or the dotted-object form that comes out of
+        // `foundry.utils.expandObject` on form submits (`{ "0": {...}, "1": {...} }`).
+        const raw = foundry.utils.getProperty(blueprint.data, "attack.hit.damage");
+        let entries;
+        if (Array.isArray(raw)) {
+            entries = raw.map(e => ({ formula: e?.formula ?? "", type: e?.type ?? "" }));
+        } else if (raw && typeof raw === "object") {
+            entries = Object.keys(raw)
+                .filter(k => /^\d+$/.test(k))
+                .sort((a, b) => Number(a) - Number(b))
+                .map(k => ({ formula: raw[k]?.formula ?? "", type: raw[k]?.type ?? "" }));
+        } else {
+            entries = [];
+        }
+
+        mutate(entries);
+        foundry.utils.setProperty(blueprint.data, "attack.hit.damage", entries);
+
+        // Mirror onto the activity via the same pipeline as the form-submit path, so the
+        // flag and `system.activities.<id>` stay in lockstep. We also overwrite the flag
+        // wholesale to flatten any legacy dotted-object shape into the clean array form.
+        const update = ActionBlueprint.getItemDataFromBlueprint(blueprint, this.item);
+        update["flags.gmm.blueprint"] = blueprint;
+        return this.item.update(update);
     }
 
     /** @this {ActionSheet} */

@@ -594,9 +594,14 @@ const GmmItem = (function () {
 
     function _formatSignedBonus(n) {
         const r = Math.round(n);
-        // Prefer dnd5e's localized formatter so signs render correctly under all locales.
-        const fmt = dnd5e?.utils?.formatModifier;
-        if (typeof fmt === "function") return fmt(r);
+        // The token produced here is interpolated into `gmm.action.labels.attack.to_hit`
+        // and ultimately rendered by the artifact templates as escaped text (e.g.
+        // `{{label}}`, not `{{{label}}}`). dnd5e's `utils.formatModifier` returns a
+        // `Handlebars.SafeString` containing `<span class="sign">+</span>11`, which
+        // looks great when emitted via triple-stash but appears verbatim — markup and
+        // all — when rendered through escaped Handlebars output. Stick with a plain
+        // signed string so labels like "+11 to hit" come out clean regardless of how
+        // the consuming template emits them.
         return (r >= 0) ? `+${r}` : `${r}`;
     }
 
