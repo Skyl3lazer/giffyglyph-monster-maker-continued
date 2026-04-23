@@ -711,15 +711,23 @@
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .damage .random {
   letter-spacing: 0;
+  height: 100%;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .damage .random .block__value,
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .damage .random .button--random-damage {
+  width: 100%;
+  height: 100%;
+  flex: 1 1 auto;
+  align-self: stretch;
+  justify-content: center;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .damage .random .roll {
   white-space: normal;
-  line-height: 0.875;
-  font-style: 1rem;
-  text-align: left;
+  line-height: 1;
+  font-size: 1rem;
+  text-align: center;
   letter-spacing: 0;
-  margin-top: -5px;
-  margin-bottom: -5px;
+  margin: 0;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .hit-points__temporary:hover,
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .hit-points__current:hover {
@@ -1578,7 +1586,6 @@
 .gmm-block .block__description,
 .gmm-block .block__footer {
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 .gmm-block .block__description {
