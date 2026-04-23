@@ -1,4 +1,4 @@
-<div class="effect" data-effect-id="{{effect.id}}" draggable="true">
+<div class="effect" data-effect-id="{{effect.id}}" {{#if effect.parentId}}data-parent-id="{{effect.parentId}}"{{/if}} draggable="true">
     <div class="item__icon"><img src="{{effect.img}}" /></div>
     <div class="item__title">{{effect.name}}</div>
     <div class="item__actions item-controls effect-controls">

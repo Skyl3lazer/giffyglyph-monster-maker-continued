@@ -72,6 +72,24 @@ Hooks.once("init", function() {
 		}
 	});
 
+	// Re-render the owning GMM monster sheet when an embedded ActiveEffect changes,
+	// so the forge's effect lists stay in sync with the underlying item.
+	const _rerenderForEffect = (effect) => {
+		try {
+			const parent = effect?.parent;
+			if (!parent) return;
+			const actor = parent.documentName === "Actor" ? parent : parent.actor;
+			if (!actor) return;
+			const sheet = actor.sheet;
+			if (sheet instanceof MonsterSheet && sheet.rendered) sheet.render(false);
+		} catch (e) {
+			console.warn("GMM | active-effect re-render failed", e);
+		}
+	};
+	Hooks.on("createActiveEffect", _rerenderForEffect);
+	Hooks.on("updateActiveEffect", _rerenderForEffect);
+	Hooks.on("deleteActiveEffect", _rerenderForEffect);
+
 	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialised`);
 });
 
