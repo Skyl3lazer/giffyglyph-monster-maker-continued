@@ -525,6 +525,10 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
                     update["flags.gmm.blueprint.vid"] = 1;
                     update["flags.gmm.blueprint.type"] = "action";
                 }
+
+                if (field === "flags.gmm.blueprint.data.description.image") {
+                    update.img = path;
+                }
                 return this.document.update(update);
             },
             top: this.position?.top ? this.position.top + 40 : null,

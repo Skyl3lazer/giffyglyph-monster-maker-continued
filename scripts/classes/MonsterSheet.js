@@ -612,6 +612,10 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
                     update["flags.gmm.blueprint.vid"] = 1;
                     update["flags.gmm.blueprint.type"] = "monster";
                 }
+
+                if (field === "flags.gmm.blueprint.data.description.image") {
+                    update.img = path;
+                }
                 return this.document.update(update);
             },
             top: this.position?.top ? this.position.top + 40 : null,
