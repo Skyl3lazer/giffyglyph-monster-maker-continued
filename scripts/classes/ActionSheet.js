@@ -88,6 +88,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     async _prepareContext(options) {
         const context = await super._prepareContext(options);
         const itemData = this.item.flags;
+        const moduleVersion = game.modules.get(GMM_MODULE_TITLE)?.version ?? "";
 
         // Templates rendered via the V1 sheet expected `cssClass` to be supplied by the framework
         // ApplicationV2 doesn't populate it automatically, so provide an equivalent so the existing `forge--action
@@ -97,6 +98,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         context.gmm = {
             blueprint: itemData.gmm?.blueprint ? itemData.gmm.blueprint.data : null,
             action: itemData.gmm?.blueprint ? ActionForge.createArtifact(itemData.gmm.blueprint).data : null,
+            version: moduleVersion,
             forge: {
                 layout: itemData.gmm?.blueprint?.data?.display?.layout ? itemData.gmm.blueprint.data.display.layout : game.settings.get(GMM_MODULE_TITLE, "actionLayout"),
                 colors: {

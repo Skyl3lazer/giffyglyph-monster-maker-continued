@@ -96,6 +96,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     async _prepareContext(options) {
         const context = await super._prepareContext(options);
         const actorData = this.actor.flags;
+        const moduleVersion = game.modules.get(GMM_MODULE_TITLE)?.version ?? "";
 
         // Templates rendered via the V1 sheet expected `cssClass` to be supplied by the framework
         // ApplicationV2 doesn't populate it automatically, so provide an equivalent so the existing `forge--monster
@@ -105,6 +106,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         context.gmm = {
             blueprint: actorData.gmm?.blueprint ? actorData.gmm.blueprint.data : null,
             monster: actorData.gmm?.monster ? actorData.gmm.monster.data : null,
+            version: moduleVersion,
             forge: {
                 layout: actorData.gmm?.blueprint?.data?.display?.layout ? actorData.gmm.blueprint.data.display.layout : game.settings.get(GMM_MODULE_TITLE, "monsterLayout"),
                 colors: {
