@@ -1,18 +1,25 @@
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import { formatTargetLabel, formatRangeLabel } from "./Labels.js";
 const Shortcoder = (function () {
-    /* Each entry is `{ code, data?, type?, resolver? }`.
-     * - `data` (string)            – dotted path on `monsterData` to read a numeric / string value from.
-     * - `resolver` (fn)            – takes (monsterData, itemContext) and returns the substitution. When
-     *                                provided this takes precedence over `data`. Returning `undefined`
-     *                                signals "skip" so the literal token survives unchanged.
-     * - `type: "string"`           – if set, after substitution the surrounding `[]` brackets are stripped
-     *                                so the value renders as plain text rather than an evaluable token. */
+    /* `{ code, data?, type?, resolver? }`. `data` = dotted path on monsterData; `resolver(monsterData, itemContext)`
+     * overrides `data` (return `undefined` to leave token intact); `type: "string"` strips the brackets after sub. */
     const SHORTCODES = [
         { code: "level", data: "level.value" },
         { code: "attackBonus", data: "attack_bonus.value" },
         { code: "damage", data: "damage_per_action.value" },
         { code: "dcPrimaryBonus", data: "attack_dcs.primary.value" },
+        {
+            code: "saveDc",
+            // Alias for `[dcPrimaryBonus+maxMod]`: standard GMMC save DC formula.
+            resolver: (monsterData) => {
+                if (!monsterData) return undefined;
+                const dc = CompatibilityHelpers.getProperty(monsterData, "attack_dcs.primary.value");
+                const mod = CompatibilityHelpers.getProperty(monsterData, "ability_modifiers.max.value");
+                if (dc === undefined || mod === undefined) return undefined;
+                const sum = Number(dc) + Number(mod);
+                return Number.isFinite(sum) ? sum : undefined;
+            }
+        },
         { code: "strMod", data: "ability_modifiers.str.value" },
         { code: "dexMod", data: "ability_modifiers.dex.value" },
         { code: "conMod", data: "ability_modifiers.con.value" },
@@ -36,9 +43,7 @@ const Shortcoder = (function () {
         {
             code: "target",
             type: "string",
-            // Item-scoped: resolves to the formatted target label of the GMMC blueprint that owns
-            // this description. Returns `undefined` (token preserved) when no item context is
-            // supplied, so callers that don't pass an item don't accidentally erase the marker.
+            // Item-scoped: blueprint target label. No item context → preserve literal token.
             resolver: (_monsterData, itemContext) => {
                 if (!itemContext) return undefined;
                 const target = itemContext?.flags?.gmm?.blueprint?.data?.target;
@@ -48,10 +53,7 @@ const Shortcoder = (function () {
         {
             code: "range",
             type: "string",
-            // Item-scoped: resolves to the formatted range label (e.g. "5 feet", "30/120 feet",
-            // "Reach 10 feet") for the GMMC blueprint that owns this description. The reach
-            // wording depends on the blueprint's attack type, mirroring GmmItem's label pipeline.
-            // Returns `undefined` when no item context is supplied so the literal token survives.
+            // Item-scoped: blueprint range label, with reach wording for mwak/msak.
             resolver: (_monsterData, itemContext) => {
                 if (!itemContext) return undefined;
                 const blueprintData = itemContext?.flags?.gmm?.blueprint?.data;
@@ -77,6 +79,10 @@ const Shortcoder = (function () {
         if (!text) return "";
         if (!monsterData && !itemContext) return text;
         return text.replace(/\[.*?\]/g, (token) => {
+            // Skip tokens that look like closing tags (e.g. `[/code]`, `[/url]`).
+            if (/^\[\s*\//.test(token)) return token;
+            // Skip tokens that are doubled-bracket forms (e.g. `[[lookup foo]]`, `[[name]]`).
+            if (/^\[\[/.test(token)) return token;
             SHORTCODES.forEach((x) => {
                 const value = _resolveShortcodeValue(x, monsterData, itemContext);
                 if (value === undefined) return;

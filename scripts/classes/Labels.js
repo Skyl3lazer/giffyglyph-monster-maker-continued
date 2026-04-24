@@ -1,12 +1,7 @@
-/* Shared formatting helpers used by both runtime label generation (GmmItem) and the
- * Shortcoder text substitution pipeline. Kept dependency-free so it can be imported
- * from either side without inducing a module cycle. */
+/* Shared label formatters for GmmItem and the Shortcoder pipeline. Kept dependency-free
+ * to avoid a module cycle between those callers. */
 
-/* Format a GMM blueprint target into a localised label string. Mirrors the legacy private
- * implementation that lived in GmmItem and is now also consumed by the `[target]` shortcode
- * resolver in Shortcoder. Accepts the blueprint's `target` object shape:
- *   { type, value, width, units }
- * and returns "" for unsupported / empty configurations. */
+/* Format `{ type, value, width, units }` blueprint target as a localised label; "" if unsupported. */
 export function formatTargetLabel(target) {
 	if (!target?.type) return "";
 	switch (target.type) {
@@ -50,12 +45,7 @@ export function formatTargetLabel(target) {
 	}
 }
 
-/* Format a GMM blueprint range into a localised label string. Mirrors the legacy private
- * implementation that lived in GmmItem and is now also consumed by the `[range]` shortcode
- * resolver in Shortcoder. Accepts the blueprint's `range` object shape:
- *   { value, long, units }
- * and an optional `attackType` (e.g. "mwak", "msak", "rwak", …) which controls whether the
- * "reach" wording is used for melee attacks. Returns "" for unsupported / empty configurations. */
+/* Format `{ value, long, units }` blueprint range; `attackType` of mwak/msak triggers reach wording. */
 export function formatRangeLabel(range, attackType) {
 	if (!range?.units) return "";
 	switch (range.units) {
