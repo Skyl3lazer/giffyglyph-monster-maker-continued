@@ -1054,6 +1054,59 @@ const Activities = (function () {
     }
 
     /* -------------------------------------------- */
+    /*  Effect Application Mode (always vs onUse)   */
+    /* -------------------------------------------- */
+
+    /* Read the GMM activity's applied-effects array as raw `{_id,…}` source entries.
+     * Returns an empty array when the item has no GMM activity. */
+    function _gmmActivityEffectSource(item) {
+        const activity = item?.system?.activities?.get?.(GMM_ACTIVITY_ID);
+        if (!activity) return null;
+        const source = activity.toObject?.() ?? activity._source ?? {};
+        return Array.isArray(source.effects) ? source.effects : [];
+    }
+
+    /* Returns true when `effectId` is currently included in the GMM activity's `effects[]` list
+     * (i.e. it will be offered as an "Apply Effect" button on the activity's chat card). */
+    function isEffectAppliedByGmmActivity(item, effectId) {
+        const effects = _gmmActivityEffectSource(item);
+        if (!effects) return false;
+        return effects.some(e => e?._id === effectId);
+    }
+
+    /* Switch a single ActiveEffect between GMM "always" and "onUse" modes:
+     *   - always:  removes the effect from the GMM activity's applied-effects list, sets `effect.transfer = true`
+     *              (so the effect auto-applies to the owning actor when the item is added).
+     *   - onUse:   adds `{_id}` to the GMM activity's applied-effects list, sets `effect.transfer = false`
+     *              (so the effect is only applied via the chat card's "Apply Effect" button).
+     * No-ops when the item has no GMM activity. Returns true if any update was performed. */
+    async function setEffectMode(item, effect, alwaysMode) {
+        if (!item || !effect) return false;
+        const effects = _gmmActivityEffectSource(item);
+        if (effects === null) return false;
+
+        const has = effects.some(e => e?._id === effect.id);
+        let nextEffects = effects;
+        if (alwaysMode && has) {
+            nextEffects = effects.filter(e => e?._id !== effect.id);
+        } else if (!alwaysMode && !has) {
+            nextEffects = [...effects, { _id: effect.id }];
+        }
+
+        const promises = [];
+        if (nextEffects !== effects) {
+            promises.push(item.updateActivity(GMM_ACTIVITY_ID, { effects: nextEffects }));
+        }
+        const desiredTransfer = !!alwaysMode;
+        if (effect.transfer !== desiredTransfer) {
+            promises.push(effect.update({ transfer: desiredTransfer }));
+        }
+        if (!promises.length) return false;
+        await Promise.all(promises);
+        return true;
+    }
+
+    /* -------------------------------------------- */
 
     return {
         GMM_ACTIVITY_ID,
@@ -1079,7 +1132,9 @@ const Activities = (function () {
         sanitizeActivitySource,
         patchActivityField,
         migrateActor,
-        migrateWorld
+        migrateWorld,
+        isEffectAppliedByGmmActivity,
+        setEffectMode
     };
 })();
 

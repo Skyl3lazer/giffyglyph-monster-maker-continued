@@ -40,6 +40,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             "add-damage": ActionSheet.#actionAddDamage,
             "remove-damage": ActionSheet.#actionRemoveDamage,
             "create-effect": ActionSheet.#actionCreateEffect,
+            "toggle-effect-mode": ActionSheet.#actionToggleEffectMode,
             "edit-image": ActionSheet.#actionEditImage
         }
     };
@@ -141,11 +142,34 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         // dnd5e only does this from _preparePartContext("effects"); we have a single "forge" part.
         try {
             await this._prepareEffectsContext(context, options);
+            this._gmmEnrichEffectModes(context);
         } catch (e) {
             console.warn("GMM | ActionSheet: _prepareEffectsContext failed", e);
         }
 
         return context;
+    }
+
+    /* -------------------------------------------- */
+
+    /* Stamp the always/onUse flags consumed by `blueprint_effect.html` onto every effect entry.
+     * Effects rendered here belong to `this.item` directly, so we deliberately leave `parentId`
+     * unset — populating it would make dnd5e's `<dnd5e-effects>` element resolve the effect via
+     * `this.document.items.get(parentId)` (items have no `.items` collection) and throw on every
+     * built-in toggle/edit/delete click. Our own toggle handler reads `this.item` directly. */
+    _gmmEnrichEffectModes(context) {
+        const categories = context?.effects;
+        if (!categories) return;
+        const item = this.item;
+        if (!item?.system?.activities?.has?.(Activities.GMM_ACTIVITY_ID)) return;
+        for (const category of Object.values(categories)) {
+            if (!Array.isArray(category?.effects)) continue;
+            for (const entry of category.effects) {
+                if (!entry) continue;
+                entry.gmmCanToggleMode = true;
+                entry.gmmAlwaysMode = !Activities.isEffectAppliedByGmmActivity(item, entry.id);
+            }
+        }
     }
 
     /* -------------------------------------------- */
@@ -420,17 +444,56 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     }
 
     /** @this {ActionSheet} */
-    static #actionCreateEffect(event, target) {
+    static async #actionCreateEffect(event, target) {
         const li = target.closest(".effect-section");
-        const isEnchantment = li.dataset.effectType.startsWith("enchantment");
-        return this.document.createEmbeddedDocuments("ActiveEffect", [{
+        const effectType = li.dataset.effectType;
+        const isEnchantment = effectType.startsWith("enchantment");
+
+        // Default-by-section: temporary effects start in onUse mode (the activity's chat card
+        // will offer an "Apply Effect" button); passive/inactive effects start in always mode
+        // (transferred to the owning actor when the item is added).
+        const defaultOnUse = effectType === "temporary";
+        const created = await this.document.createEmbeddedDocuments("ActiveEffect", [{
             name: game.i18n.localize("DND5E.EffectNew"),
             img: this.document.img,
             origin: isEnchantment ? undefined : this.document.uuid,
-            "duration.rounds": li.dataset.effectType === "temporary" ? 1 : undefined,
-            disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),
+            "duration.rounds": effectType === "temporary" ? 1 : undefined,
+            disabled: ["inactive", "enchantmentInactive"].includes(effectType),
+            transfer: !isEnchantment && !defaultOnUse,
             "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
         }]);
+
+        if (!isEnchantment && defaultOnUse && this.item.system?.activities?.has?.(Activities.GMM_ACTIVITY_ID)) {
+            const effect = created?.[0];
+            if (effect) {
+                try {
+                    await Activities.setEffectMode(this.item, effect, false);
+                } catch (e) {
+                    console.warn("GMM | ActionSheet: default-onUse setEffectMode failed", e);
+                }
+            }
+        }
+        return created;
+    }
+
+    /* Toggle this item's effect between GMM "always" (transfers passively) and "onUse" (offered as
+     * an Apply Effect button on the GMM activity's chat card). Resolves the effect from
+     * `data-effect-id` on the row and delegates the storage update to {@link Activities.setEffectMode}.
+     * @this {ActionSheet} */
+    static async #actionToggleEffectMode(event, target) {
+        event?.preventDefault?.();
+        const row = target.closest(".effect[data-effect-id]");
+        const effectId = row?.dataset?.effectId;
+        if (!effectId) return;
+        const item = this.item;
+        const effect = item?.effects?.get?.(effectId);
+        if (!item || !effect) return;
+        const currentlyApplied = Activities.isEffectAppliedByGmmActivity(item, effectId);
+        try {
+            await Activities.setEffectMode(item, effect, currentlyApplied);
+        } catch (e) {
+            console.warn("GMM | ActionSheet: setEffectMode failed", e);
+        }
     }
 
     /* Open a Foundry FilePicker to choose an image for the field named in `target.dataset.editImage`, then write the p...

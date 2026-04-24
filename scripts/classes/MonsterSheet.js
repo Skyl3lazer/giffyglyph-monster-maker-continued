@@ -46,6 +46,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             "display-item": MonsterSheet.#actionDisplayItem,
             "recharge-item": MonsterSheet.#actionRechargeItem,
             "create-effect": MonsterSheet.#actionCreateEffect,
+            "toggle-effect-mode": MonsterSheet.#actionToggleEffectMode,
             "roll-hp": MonsterSheet.#actionRollHp,
             "edit-image": MonsterSheet.#actionEditImage
         }
@@ -184,11 +185,33 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         // dnd5e only does this from _preparePartContext("effects"); we have a single "forge" part.
         try {
             await this._prepareEffectsContext(context, options);
+            this._gmmEnrichEffectModes(context);
         } catch (e) {
             console.warn("GMM | MonsterSheet: _prepareEffectsContext failed", e);
         }
 
         return context;
+    }
+
+    /* -------------------------------------------- */
+
+    /* For each prepared effect entry that lives on a GMMC scaling-action item the actor carries,
+     * stamp the always/onUse flags consumed by `blueprint_effect.html`. Effects directly on the
+     * actor (no parentId) are skipped — they have no activity to attach to. */
+    _gmmEnrichEffectModes(context) {
+        const categories = context?.effects;
+        if (!categories) return;
+        for (const category of Object.values(categories)) {
+            if (!Array.isArray(category?.effects)) continue;
+            for (const entry of category.effects) {
+                if (!entry?.parentId) continue;
+                const item = this.actor.items.get(entry.parentId);
+                if (!item) continue;
+                if (!item.system?.activities?.has?.(Activities.GMM_ACTIVITY_ID)) continue;
+                entry.gmmCanToggleMode = true;
+                entry.gmmAlwaysMode = !Activities.isEffectAppliedByGmmActivity(item, entry.id);
+            }
+        }
     }
 
     /* -------------------------------------------- */
@@ -515,6 +538,27 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),
             "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
         }]);
+    }
+
+    /* Toggle an item-effect between GMM "always" (transfers passively) and "onUse" (offered as
+     * an Apply Effect button on the GMM activity's chat card). Resolves the effect's parent item
+     * via the row's `data-parent-id` and delegates the storage update to {@link Activities.setEffectMode}.
+     * @this {MonsterSheet} */
+    static async #actionToggleEffectMode(event, target) {
+        event?.preventDefault?.();
+        const row = target.closest(".effect[data-effect-id]");
+        const effectId = row?.dataset?.effectId;
+        const parentId = row?.dataset?.parentId;
+        if (!effectId || !parentId) return;
+        const item = this.actor.items.get(parentId);
+        const effect = item?.effects?.get?.(effectId);
+        if (!item || !effect) return;
+        const currentlyApplied = Activities.isEffectAppliedByGmmActivity(item, effectId);
+        try {
+            await Activities.setEffectMode(item, effect, currentlyApplied);
+        } catch (e) {
+            console.warn("GMM | MonsterSheet: setEffectMode failed", e);
+        }
     }
 
     /* Open a Foundry FilePicker to choose an image for the field named in `target.dataset.editImage`, then write the p...
