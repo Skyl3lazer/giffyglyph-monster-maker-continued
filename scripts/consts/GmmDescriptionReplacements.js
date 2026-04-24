@@ -28,6 +28,11 @@ export const GMM_DESCRIPTION_REPLACEMENTS = [
 		replacement: "target"
 	},
 	{
+		// `[[lookup @target.affects.special [activity=<id>]]]` -> literal "target" (not a shortcode)
+		pattern: /\[\[lookup\s+@target\.affects\.type(?:\s+activity=[^\s\]]+)?\]\]/gi,
+		replacement: "creature"
+	},
+	{
 		// strip `[[/attack extended]]` inline button
 		pattern: /\[\[\/attack\s+extended\]\]/gi,
 		replacement: ""
@@ -37,16 +42,6 @@ export const GMM_DESCRIPTION_REPLACEMENTS = [
 		// damage rule so its formula capture can't grab `average`/`extended` as a fake formula.
 		pattern: /\[\[\/damage(?:\s+(?:average|extended))+\s*\]\]/gi,
 		replacement: ""
-	},
-	{
-		// `[[/damage <formula> [average] [extended] [type=<type>]]]` -> `[[<formula>]] <type>`
-		// Lookahead excludes bare-modifier formulas (belt-and-braces with the strip rule above).
-		pattern: /\[\[\/damage\s+(?!(?:average|extended)\b)([^\s\]]+)((?:\s+(?:average|extended|type=[^\s\]]+))*)\]\]/gi,
-		replacement: (_match, formula, modifiers) => {
-			const typeMatch = modifiers?.match(/type=([^\s\]]+)/i);
-			const type = typeMatch?.[1] ?? "";
-			return type ? `[[${formula}]] ${type}` : `[[${formula}]]`;
-		}
 	}
 ];
 

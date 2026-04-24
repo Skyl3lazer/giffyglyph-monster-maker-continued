@@ -177,6 +177,12 @@ const MonsterBlueprint = (function () {
 			blueprintData.senses.units = GMM_5E_UNITS.find((x) => x.foundry == actor.system.attributes.senses.units)?.name;
 			blueprintData.speeds.units = GMM_5E_UNITS.find((x) => x.foundry == actor.system.attributes.movement.units)?.name;
 			blueprintData.spellbook.spellcasting.ability = (actor.system.attributes.spellcasting == "") ? "int" : actor.system.attributes.spellcasting;
+			// First-time conversion: vanilla NPCs with spell items usually have spell.level=0; mirror combat level so casters scale.
+			if (!actor.flags?.gmm
+				&& !blueprintData.spellbook.spellcasting.level
+				&& actor.items?.some?.(i => i.type === "spell")) {
+				blueprintData.spellbook.spellcasting.level = blueprintData.combat?.level ?? 1;
+			}
 			blueprintData.spellbook.spells.other = [];
 			blueprintData.spellbook.spells[0] = [];
 			blueprintData.spellbook.spells[1] = [];
