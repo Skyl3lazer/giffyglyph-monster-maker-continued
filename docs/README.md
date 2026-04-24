@@ -96,6 +96,8 @@ You can install multiple branches side-by-side, but you must activate only **one
 
 ### Converting an old Action
 
+**NOTE**: As of 2.x, converting an action into a GMMC action is *destructive*, meaning changing it back to a vanilla 5e action will not work as expected!
+
 1. Open an existing item, such as a weapon, feature, or piece of loot.
 2. Change the active sheet to **"Giffyglyph's 5e Scaling Action"**.
 3. Customise the action with some scaling features and shortcodes.
@@ -104,7 +106,7 @@ You can install multiple branches side-by-side, but you must activate only **one
 
 ## Roadmap
 
-Currently this release can handle GMMv3 functions as a standalone module, with some basic integrations working through other modules (MidiQOL, DAE). See [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/master/docs/DEV_TODO.md) for what I'm looking at next.
+Currently GMMC handles GMMv3 functions as a standalone module, with some basic integrations working through other modules (MidiQOL, DAE). See [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/master/docs/DEV_TODO.md) for what I'm looking at next.
 
 ## Thank Yous!
 
