@@ -2367,13 +2367,13 @@
   color: var(--color-primary-base);
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .ability-ranking--high {
-  background: linear-gradient(to right, #1c922c 1%, 2%, #ffffff);
+  background: linear-gradient(to left, #1c922c 1%, 2%, #ffffff);
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .ability-ranking--medium {
-  background: linear-gradient(to right, #b29403 1%, 2%, #ffffff);
+  background: linear-gradient(to left, #b29403 1%, 2%, #ffffff);
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .ability-ranking--low {
-  background: linear-gradient(to right, #941212 1%, 2%, #ffffff);
+  background: linear-gradient(to left, #941212 1%, 2%, #ffffff);
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .items .item {
   display: flex;
