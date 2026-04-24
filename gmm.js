@@ -16,19 +16,39 @@ import { GMM_MODULE_TITLE } from "./scripts/consts/GmmModuleTitle.js";
 Hooks.once("init", function() {
 	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialising`);
 
-	foundry.documents.collections.Actors.registerSheet(GMM_MODULE_TITLE, MonsterSheet, {
-		types: ["npc"],
-		label: "gmm.sheet.monster.label"
-	});
-	foundry.documents.collections.Items.registerSheet(GMM_MODULE_TITLE, ActionSheet, {
-		label: "gmm.sheet.action.label"
-	});
+	_applyTokenCompatibilityShim();
+
+	const ActorsRef = foundry?.documents?.collections?.Actors ?? globalThis.Actors;
+	const ItemsRef = foundry?.documents?.collections?.Items ?? globalThis.Items;
+	if (ActorsRef?.registerSheet) {
+		ActorsRef.registerSheet(GMM_MODULE_TITLE, MonsterSheet, {
+			types: ["npc"],
+			label: "gmm.sheet.monster.label"
+		});
+	}
+	if (ItemsRef?.registerSheet) {
+		ItemsRef.registerSheet(GMM_MODULE_TITLE, ActionSheet, {
+			types: ["feat"],
+			label: "gmm.sheet.action.label"
+		});
+	}
 
 	Templates.preloadTemplates();
 	Templates.registerTemplateHelpers();
 
 	GmmActor.patchActor5e();
 	GmmItem.patchItem5e();
+
+	// Backward-compatible API used by legacy migration scripts/macros.
+	const moduleRef = game.modules.get(GMM_MODULE_TITLE);
+	if (moduleRef) {
+		moduleRef.api ??= {};
+		moduleRef.api.convertAbilitiesToActivities = (blueprintData) => {
+			if (!blueprintData) return [];
+			const activity = Activities.buildActivityData({ data: blueprintData });
+			return activity ? [activity] : [];
+		};
+	}
 
 	// Patch ActivityField to sanitize legacy shortcode formulas before validation.
 	// Persistent cleanup still runs in migrateWorld() on ready.
@@ -95,6 +115,8 @@ Hooks.once("init", function() {
 
 
 Hooks.once('ready', async () => {
+	_applyTokenCompatibilityShim();
+
 	if (!game.modules.get('lib-wrapper')?.active && game.user.isGM) {
 		ui.notifications.error("Module Giffyglyph's Monster Maker Continued requires the 'libWrapper' module. Please install and activate it.");
 	}
@@ -109,6 +131,29 @@ Hooks.once('ready', async () => {
 		}
 	}
 });
+
+function _applyTokenCompatibilityShim() {
+	// FV13 compatibility shim:
+	// dnd5e SaveActivity references global `Token`; in V13 this global is deprecated.
+	// Provide the namespaced class directly on globalThis so `instanceof Token` doesn't hit the deprecated getter.
+	try {
+		const TokenClass = foundry?.canvas?.placeables?.Token;
+		if (!TokenClass) return;
+
+		const desc = Object.getOwnPropertyDescriptor(globalThis, "Token");
+		if (desc?.value === TokenClass) return;
+
+		try { Reflect.deleteProperty(globalThis, "Token"); } catch (_e) { /* ignore */ }
+
+		Object.defineProperty(globalThis, "Token", {
+			value: TokenClass,
+			writable: true,
+			configurable: true
+		});
+	} catch (e) {
+		console.warn("GMM | Token compatibility shim failed", e);
+	}
+}
 
 /* Locate the insertion point inside a sidebar directory's header for the GMM "create" button row
  * The dnd5e v5.x / Foundry v14 directory header (templates/sidebar/directory/header.hbs) lays its children out ver */

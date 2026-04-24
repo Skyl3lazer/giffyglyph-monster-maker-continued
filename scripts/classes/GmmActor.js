@@ -114,10 +114,9 @@ const GmmActor = (function () {
                 //actorData.abilities[x].prof = 0;
 				actorData.abilities[x].saveProf = new Proficiency(monsterBlueprint.data.trained_saves[x].trained ? 2 : 0, 1);
 				actorData.abilities[x].checkProf = new Proficiency(0, 1);
-				// actorData.abilities[x].bonuses.save = (monsterData.saving_throws[x].value - monsterData.ability_modifiers[x].val...
-				actorData.abilities[x].save = monsterData.saving_throws[x].value;
+				// DO NOT overwrite actorData.abilities[x].save - it is a dnd5e v5.x modifier object with .mode property
+				// that dnd5e's #rollD20Test needs. Let dnd5e build it from saveProf instead.
 				if (monsterBlueprint.data.trained_saves[x].trained) {
-					actorData.abilities[x].saveBonus = monsterData.proficiency_bonus.value;
 					actorData.abilities[x].proficient = true;
 				}
                 actorData.abilities[x].dc = 8 + monsterData.ability_modifiers[x].value;

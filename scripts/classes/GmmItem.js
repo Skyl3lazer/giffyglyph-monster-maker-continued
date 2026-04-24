@@ -61,6 +61,8 @@ const GmmItem = (function () {
         // wraps) and replace the old prototype hooks on `Item5e.{getAttackToHit,...}`.
         Hooks.on("dnd5e.preRollAttackV2", _onPreRollAttack);
         Hooks.on("dnd5e.preRollDamageV2", _onPreRollDamage);
+        Hooks.on("dnd5e.preRollSaveV2", _onPreRollSave);
+        Hooks.on("dnd5e.preUseActivity", _onPreUseActivity);
 
         // postBuild hooks fire after `_buildAttackConfig` / damage builders have produced the per-roll configuration objec...
         // We use them to add the GMM-namespaced ammunition magical bonus, since GMM activities run with `attack.flat = tru
@@ -132,7 +134,43 @@ const GmmItem = (function () {
         const activity = rollConfig?.subject;
         const monsterData = _gmmMonsterForActivity(activity);
         if (!monsterData) return;
+
+        // Save activities build their chat save buttons from `activity.save.dc.value`.
+        // Ensure DC is resolved before the usage/chat message is created.
+        if (activity?.type === "save") {
+            _computeAndApplySaveDc(activity, monsterData, rollConfig);
+        }
+
         Activities.resolveDamageRollFormulas(rollConfig, monsterData);
+    }
+
+    /* `dnd5e.preRollSaveV2` listener
+ * Resolve and inject GMM save DC before the save roll prompt/config are finalized. */
+    function _onPreRollSave(rollConfig, _dialogConfig, _messageConfig) {
+        const activity = rollConfig?.subject;
+        const item = activity?.item;
+        if (!_isGmmActionItem(item)) return;
+
+        const monsterData = item.getOwningGmmMonster?.();
+        if (!monsterData) return;
+
+        _computeAndApplySaveDc(activity, monsterData, rollConfig);
+    }
+
+    /* `dnd5e.preUseActivity` listener
+ * Ensure save chat cards are built with a resolved non-zero DC before button datasets are generated. */
+    function _onPreUseActivity(activity, _usageConfig, _dialogConfig, _messageConfig) {
+        try {
+            if (activity?.id !== Activities.GMM_ACTIVITY_ID) return;
+            if (activity?.type !== "save") return;
+            const item = activity.item;
+            if (!_isGmmActionItem(item)) return;
+            const monsterData = item.getOwningGmmMonster?.();
+            if (!monsterData) return;
+            _computeAndApplySaveDc(activity, monsterData, null);
+        } catch (e) {
+            console.warn("GMM | preUseActivity save DC normalize failed", e);
+        }
     }
 
     function _gmmMonsterForActivity(activity) {
@@ -142,6 +180,60 @@ const GmmItem = (function () {
         return item.getOwningGmmMonster?.() ?? null;
     }
 
+    function _computeAndApplySaveDc(activity, monsterData, rollConfig = null) {
+        if (!activity?.save?.dc || !monsterData) return null;
+
+        const item = activity.item;
+
+        // Refresh runtime values from blueprint first.
+        try {
+            Activities.resolveActivityFormulas(item, monsterData);
+        } catch (e) { /* swallow */ }
+
+        let finalDc = Number(activity.save.dc.value);
+
+        // Fallback: derive DC directly from blueprint shortcodes.
+        if (!Number.isFinite(finalDc) || finalDc <= 0) {
+            const bp = item?.flags?.gmm?.blueprint?.data;
+            const a = bp?.attack ?? {};
+            const parts = ["[dcPrimaryBonus]"];
+            if (a.bonus) parts.push(String(a.bonus));
+            if (a.related_stat) parts.push(`[${a.related_stat}Mod]`);
+            const resolved = Shortcoder.replaceShortcodes(parts.join(" + "), monsterData);
+            try {
+                const dcRoll = new Roll(String(resolved || "0"));
+                if (dcRoll.isDeterministic) {
+                    const total = dcRoll.evaluateSync().total;
+                    if (Number.isFinite(total) && total > 0) finalDc = total;
+                }
+            } catch (e) { /* swallow */ }
+        }
+
+        if (!Number.isFinite(finalDc) || finalDc <= 0) return null;
+
+        activity.save.dc.value = finalDc;
+        if (!activity.save.dc.formula || activity.save.dc.formula === "0") {
+            activity.save.dc.formula = String(finalDc);
+        }
+
+        // Keep source data aligned so any message/context built from source sees the corrected DC.
+        if (activity._source) {
+            foundry.utils.setProperty(activity._source, "save.dc.formula", String(finalDc));
+        }
+
+        // For target save roll prompts, force the live roll target/options.
+        if (rollConfig) {
+            rollConfig.target = finalDc;
+            if (Array.isArray(rollConfig.rolls)) {
+                for (const r of rollConfig.rolls) {
+                    r.options ??= {};
+                    r.options.target = finalDc;
+                }
+            }
+        }
+
+        return finalDc;
+    }
     function _isGmmAttackActivity(activity) {
         if (activity?.id !== Activities.GMM_ACTIVITY_ID) return false;
         if (activity?.type !== "attack") return false;
