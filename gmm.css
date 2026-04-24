@@ -2207,6 +2207,7 @@
   width: 26px;
   height: 26px;
   background: black;
+  flex: 0 0 26px;
 }
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .items .item__icon img {
   max-width: 100%;
@@ -2216,11 +2217,15 @@
 }
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .items .item__title {
   flex-grow: 1;
+  min-width: 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-right: 1rem;
 }
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .items .item__actions {
   display: flex;
+  flex-shrink: 0;
   margin-right: -0.25rem;
   margin-top: -0.25rem;
   margin-bottom: -0.25rem;
@@ -2373,6 +2378,7 @@
   width: 26px;
   height: 26px;
   background: black;
+  flex: 0 0 26px;
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .items .item__icon img {
   max-width: 100%;
@@ -2382,11 +2388,15 @@
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .items .item__title {
   flex-grow: 1;
+  min-width: 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-right: 1rem;
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .items .item__actions {
   display: flex;
+  flex-shrink: 0;
   margin-right: -0.25rem;
   margin-top: -0.25rem;
   margin-bottom: -0.25rem;
