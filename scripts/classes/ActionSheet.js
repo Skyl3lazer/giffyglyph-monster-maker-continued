@@ -25,7 +25,6 @@ import Activities from "./Activities.js";
 /* GMM scaling-action item sheet, rebuilt on the dnd5e v5.x ApplicationV2 ItemSheet5e base The custom "Forge" UI li...
  * Form submission is intercepted in {@link _processFormData} so that edits to the `gmm.blueprint.*` fields are tra */
 export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
-
     constructor(options = {}) {
         super(options);
         this._gui = new Gui();

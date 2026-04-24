@@ -1,4 +1,5 @@
 import { GMM_ACTION_BLUEPRINT } from "../consts/GmmActionBlueprint.js";
+import { GMM_DESCRIPTION_REPLACEMENTS, isDescriptionEffectivelyEmpty } from "../consts/GmmDescriptionReplacements.js";
 import Activities from "./Activities.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 
@@ -93,9 +94,97 @@ const ActionBlueprint = (function () {
         return itemData;
     }
 
+    /* -------------------------------------------- */
+    /*  Vanilla -> GMM derivation                   */
+    /* -------------------------------------------- */
+
+    /* Build a fresh GMM blueprint from a vanilla weapon/feat that has never been a GMM scaling
+     * action. Reads the item's primary dnd5e activity (chosen via {@link Activities.pickPrimaryActivity})
+     * and patches anything still missing from the item-level fields dnd5e v5 keeps on the document
+     * itself. Returns a `{vid:1, type:"action", data:{...}}` envelope ready for `flags.gmm.blueprint`. */
+    function deriveFromVanillaItem(item) {
+        const blueprint = $.extend(true, {}, GMM_ACTION_BLUEPRINT, { vid: 1, type: "action" });
+        const blueprintData = blueprint.data;
+
+        // Item-level fields (img/name/description.value) via the same mappings used at sheet render.
+        itemMappings.forEach((x) => {
+            if (CompatibilityHelpers.hasProperty(item, x.to)) {
+                CompatibilityHelpers.setProperty(blueprintData, x.from, CompatibilityHelpers.getProperty(item, x.to));
+            }
+        });
+
+        // One-time rewrite pass over the imported description so vanilla dnd5e conventions like
+        // `[[lookup @name lowercase]]{monster}` are translated into GMMC shortcodes (`[name]`, …).
+        // See {@link GMM_DESCRIPTION_REPLACEMENTS} for the active rule set.
+        try {
+            _applyDescriptionReplacements(blueprintData);
+        } catch (e) {
+            console.warn("GMM | deriveFromVanillaItem: description replacement pass failed", e);
+        }
+
+        // Per-activity fields (attack/save/heal/damage/range/target/uses/duration/consumption).
+        const primary = Activities.pickPrimaryActivity(item);
+        if (primary) {
+            try {
+                Activities.readActivityIntoBlueprintData(primary, blueprintData);
+            } catch (e) {
+                console.warn("GMM | deriveFromVanillaItem: readActivityIntoBlueprintData failed", e);
+            }
+        }
+
+        // Document-level leftovers (range, weapon base damage) the activity didn't already cover.
+        try {
+            Activities.applyItemLevelFallbacks(item, blueprintData);
+        } catch (e) {
+            console.warn("GMM | deriveFromVanillaItem: applyItemLevelFallbacks failed", e);
+        }
+
+        // Final pass: ensure the GMMC `attack.type` row is populated when the activity-read step
+        // left it blank (e.g. dnd5e attack activity missing `attack.type.classification`, or an
+        // unmapped value like "unarmed"). Inference reads range and item type as fallbacks.
+        // For every attack-typed conversion (mwak/msak/rwak/rsak), force `related_stat = "max"`
+        // so the converted action scales off the monster's highest ability modifier by default,
+        // matching the typical authoring intent for GMMC scaling actions.
+        try {
+            blueprintData.attack ??= {};
+            const current = blueprintData.attack.type;
+            if (current === undefined || current === null || current === "") {
+                const inferred = Activities.inferAttackType(item, primary);
+                if (inferred) blueprintData.attack.type = inferred;
+            }
+            if (["mwak", "msak", "rwak", "rsak"].includes(blueprintData.attack.type)) {
+                blueprintData.attack.related_stat = "max";
+            }
+        } catch (e) {
+            console.warn("GMM | deriveFromVanillaItem: attack-type inference failed", e);
+        }
+
+        return blueprint;
+    }
+
+    /* Apply the {@link GMM_DESCRIPTION_REPLACEMENTS} rule set in order to the blueprint's
+     * description text. After substitutions, if the remaining content is just whitespace,
+     * HTML scaffolding, or stray punctuation, clear the description entirely so the converted
+     * action doesn't render an empty `<p></p>` shell where vanilla button enrichers used to live. */
+    function _applyDescriptionReplacements(blueprintData) {
+        const text = blueprintData?.description?.text;
+        if (typeof text !== "string" || !text.length) return;
+        let next = text;
+        for (const rule of GMM_DESCRIPTION_REPLACEMENTS) {
+            if (!rule?.pattern) continue;
+            next = next.replace(rule.pattern, rule.replacement ?? "");
+        }
+        if (isDescriptionEffectivelyEmpty(next)) next = "";
+        if (next !== text) {
+            blueprintData.description ??= {};
+            blueprintData.description.text = next;
+        }
+    }
+
     return {
         createFromItem,
-        getItemDataFromBlueprint
+        getItemDataFromBlueprint,
+        deriveFromVanillaItem
     };
 })();
 

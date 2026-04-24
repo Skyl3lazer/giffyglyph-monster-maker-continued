@@ -4,6 +4,7 @@ import MonsterSheet from './scripts/classes/MonsterSheet.js';
 import ActionSheet from './scripts/classes/ActionSheet.js';
 import Templates from './scripts/classes/Templates.js';
 import Activities from './scripts/classes/Activities.js';
+import ActionBlueprint from './scripts/classes/ActionBlueprint.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
@@ -28,7 +29,7 @@ Hooks.once("init", function() {
 	}
 	if (ItemsRef?.registerSheet) {
 		ItemsRef.registerSheet(GMM_MODULE_TITLE, ActionSheet, {
-			types: ["feat"],
+			types: ["feat", "weapon"],
 			label: "gmm.sheet.action.label"
 		});
 	}
@@ -78,6 +79,11 @@ Hooks.once("init", function() {
 			_hookItemDirectory(element);
 		}
 	});
+	// DAE Autocomplete
+	const daeFlags = _generateFlags();
+	Hooks.on('dae.setFieldData', (fieldData) => {
+		fieldData.GMM = daeFlags;
+	});
 
 	_registerSettings();
 
@@ -89,6 +95,31 @@ Hooks.once("init", function() {
 			if (update) item.updateSource(foundry.utils.expandObject(update));
 		} catch (e) {
 			console.warn("GMM | preCreateItem activity-seed failed", e);
+		}
+	});
+
+	// Vanilla -> GMMC conversion. When the user changes an existing weapon/feat's sheet to the GMMC
+	// ActionSheet we abort the in-flight update, optionally prompt for confirmation (only when the
+	// item has activities that would be destroyed), and on OK re-issue a single update that flips
+	// the sheet flag, seeds `flags.gmm.blueprint` from the original activities + description, installs
+	// the GMM activity, and purges any foreign activities. Trait items with no activities still get
+	// converted so their description goes through the replacement pipeline. Cancel leaves the item
+	// exactly as it was.
+	Hooks.on("preUpdateItem", (item, change, options, _userId) => {
+		if (options?.gmmConvertingFromVanilla) return;
+		try {
+			if (!_isSheetSwitchToGmm(item, change)) return;
+			if (item.flags?.gmm?.blueprint) return;
+			const activities = item.system?.activities;
+			const activityCount = activities?.size
+				?? (Array.isArray(activities) ? activities.length : (activities ? Object.keys(activities).length : 0));
+			const isDestructive = activityCount > 0;
+			_confirmAndConvertVanillaItem(item, change, options, isDestructive).catch(e => {
+				console.warn("GMM | vanilla->GMMC conversion failed", e);
+			});
+			return false;
+		} catch (e) {
+			console.warn("GMM | preUpdateItem conversion check failed", e);
 		}
 	});
 
@@ -131,6 +162,72 @@ Hooks.once('ready', async () => {
 		}
 	}
 });
+
+/* Detect when a `preUpdateItem` change targets `flags.core.sheetClass` and the new value is the
+ * GMMC ActionSheet, while the item is currently bound to a different sheet. Used to gate the
+ * vanilla->GMMC conversion confirmation flow. */
+function _isSheetSwitchToGmm(item, change) {
+	const target = `${GMM_MODULE_TITLE}.ActionSheet`;
+	const newSheet = foundry.utils.getProperty(change ?? {}, "flags.core.sheetClass");
+	if (newSheet !== target) return false;
+	const currentSheet = item?.flags?.core?.sheetClass;
+	return currentSheet !== target;
+}
+
+/* Confirmation + conversion path for vanilla weapons/feats whose sheet was switched to the GMMC
+ * ActionSheet. Builds a fresh blueprint from the item's existing activities (and item-level
+ * fallbacks), then commits the sheet flag, the blueprint, the GMM activity, and the foreign-
+ * activity purge in one update so the user observes a single transition. */
+async function _confirmAndConvertVanillaItem(item, originalChange, originalOptions, isDestructive = true) {
+	// Only prompt when the conversion would actually destroy something (existing activities). Trait
+	// items with no activities convert silently — there's nothing to warn about, and skipping the
+	// dialog avoids a confusing "delete activities" message when no activities exist.
+	if (isDestructive) {
+		const ConfirmDialog = foundry?.applications?.api?.DialogV2;
+		let confirmed = false;
+		if (ConfirmDialog?.confirm) {
+			confirmed = await ConfirmDialog.confirm({
+				window: { title: "Convert to GMMC Scaling Action?" },
+				content: `<p>Converting <strong>${foundry.utils.escapeHTML?.(item.name) ?? item.name}</strong> to a GMMC Scaling Action will <strong>delete this item's existing activities</strong> and replace them with a single GMM-managed activity built from the original data.</p><p>This cannot be undone. Continue?</p>`,
+				rejectClose: false,
+				modal: true
+			});
+		} else {
+			confirmed = window.confirm(`Convert "${item.name}" to a GMMC Scaling Action? This will delete the item's existing activities.`);
+		}
+		if (!confirmed) return;
+	}
+
+	const blueprint = ActionBlueprint.deriveFromVanillaItem(item);
+	// `getItemDataFromBlueprint` produces the full mirror update for the blueprint:
+	// `system.description.value` (carrying the rewritten description), `name`, `img`, AND the GMM
+	// activity payload. Just calling `buildActivityUpdate` here would skip the description rewrite
+	// and the original `[[lookup …]]` markup would survive into the converted item.
+	const update = foundry.utils.mergeObject(
+		foundry.utils.deepClone(originalChange ?? {}),
+		{
+			flags: { gmm: { blueprint } },
+			...ActionBlueprint.getItemDataFromBlueprint(blueprint, item),
+			...Activities.buildForeignActivityPurge(item)
+		},
+		{ inplace: false }
+	);
+	const passOptions = foundry.utils.mergeObject(
+		foundry.utils.deepClone(originalOptions ?? {}),
+		{ gmmConvertingFromVanilla: true },
+		{ inplace: false }
+	);
+	await item.update(update, passOptions);
+	console.log(`GMM | Converted item ${item.name} (${item.id}) from vanilla to scaling action.`);
+}
+
+function _generateFlags() {
+	const moduleFlagScope = `flags.gmm`;
+	const moduleFlags = new Set([
+		//`${moduleFlagScope}.example`,
+	]);
+	return Array.from(moduleFlags).filter((key) => key.startsWith(`${moduleFlagScope}.`));
+}
 
 function _applyTokenCompatibilityShim() {
 	// FV13 compatibility shim:

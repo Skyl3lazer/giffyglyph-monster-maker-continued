@@ -3,6 +3,7 @@ import Activities from './Activities.js';
 import Shortcoder from './Shortcoder.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
+import { formatTargetLabel } from "./Labels.js";
 
 /* A patcher which controls item data based on the selected sheet, and which bridges GMM scaling actions into the d...
  * The scaling logic instead lives in: */
@@ -109,7 +110,9 @@ const GmmItem = (function () {
         const gmmMonster = this.getOwningGmmMonster();
         if (!gmmMonster) return;
         if (this.system?.description?.value) {
-            this.system.description.value = Shortcoder.replaceShortcodes(this.system.description.value, gmmMonster);
+            // Pass `this` so item-scoped shortcodes (e.g. `[target]`) can resolve from the
+            // owning blueprint's target/range/etc. — monster-only shortcodes are unaffected.
+            this.system.description.value = Shortcoder.replaceShortcodes(this.system.description.value, gmmMonster, false, this);
         }
         Activities.resolveActivityFormulas(this, gmmMonster);
     }
@@ -388,7 +391,7 @@ const GmmItem = (function () {
 
         // --- Activation condition ---
         const condition = activity?.activation?.condition ?? blueprint?.activation?.condition ?? "";
-        labels.condition = gmmMonster ? Shortcoder.replaceShortcodes(condition, gmmMonster) : condition;
+        labels.condition = gmmMonster ? Shortcoder.replaceShortcodes(condition, gmmMonster, false, this) : condition;
 
         // --- Duration / concentration / healing ---
         labels.duration = activity?.labels?.duration ?? this.labels?.duration ?? "";
@@ -398,11 +401,11 @@ const GmmItem = (function () {
         // Versatile / miss damage (GMM-only blueprint fields preserved across the migration)
         if (blueprint?.attack?.versatile?.damage) {
             const v = blueprint.attack.versatile.damage;
-            labels.damage_versatile = `${gmmMonster ? Shortcoder.replaceShortcodes(v, gmmMonster, true) : v} damage`;
+            labels.damage_versatile = `${gmmMonster ? Shortcoder.replaceShortcodes(v, gmmMonster, true, this) : v} damage`;
         }
         if (blueprint?.attack?.miss?.damage) {
             const m = blueprint.attack.miss.damage;
-            labels.damage_miss = `${gmmMonster ? Shortcoder.replaceShortcodes(m, gmmMonster, true) : m} damage`;
+            labels.damage_miss = `${gmmMonster ? Shortcoder.replaceShortcodes(m, gmmMonster, true, this) : m} damage`;
         }
 
         // --- Rarity ---
@@ -423,7 +426,7 @@ const GmmItem = (function () {
         // --- Target (read from blueprint, since the GMM target i18n catalog is richer
         // than dnd5e's; the blueprint stays in sync with activity.target via ActionBlueprint).
         const target = blueprint?.target ?? {};
-        labels.target = _formatTargetLabel(target);
+        labels.target = formatTargetLabel(target);
 
         // --- Range ---
         const range = blueprint?.range ?? activity?.range ?? {};
@@ -435,7 +438,7 @@ const GmmItem = (function () {
             const descValue = (typeof desc?.description === "string")
                 ? desc.description
                 : (desc?.description?.value ?? this.system?.description?.value ?? blueprint?.description?.text ?? "");
-            labels.description = gmmMonster ? Shortcoder.replaceShortcodes(descValue, gmmMonster) : descValue;
+            labels.description = gmmMonster ? Shortcoder.replaceShortcodes(descValue, gmmMonster, false, this) : descValue;
         } catch (e) {
             labels.description = "";
         }
@@ -610,49 +613,6 @@ const GmmItem = (function () {
         // The token produced here is interpolated into `gmm.action.labels.attack.to_hit` and ultimately rendered by the ar...
         // dnd5e's `utils.formatModifier` returns a `Handlebars.SafeString` containing `<span class="sign">+</span>11`, whi
         return (r >= 0) ? `+${r}` : `${r}`;
-    }
-
-    function _formatTargetLabel(target) {
-        if (!target?.type) return "";
-        switch (target.type) {
-            case "":
-            case "none":
-                switch (target.units) {
-                    case "self":
-                        return game.i18n.format(`gmm.action.labels.target.self`);
-                    case "touch":
-                    case "ft":
-                    case "mi":
-                        if (target.units === "any") return game.i18n.format(`gmm.action.labels.target.any.all`);
-                        return game.i18n.format(`gmm.action.labels.target.any.${target.value > 1 ? "multiple" : "single"}`,
-                            { quantity: Math.max(1, target.value) });
-                }
-                return "";
-            case "self":
-                return game.i18n.format(`gmm.action.labels.target.self`);
-            case "ally":
-            case "enemy":
-            case "creature":
-            case "object":
-                if (target.units === "any") return game.i18n.format(`gmm.action.labels.target.${target.type}.all`);
-                return game.i18n.format(`gmm.action.labels.target.${target.type}.${target.value > 1 ? "multiple" : "single"}`,
-                    { quantity: Math.max(1, target.value) });
-            case "line":
-            case "wall":
-                if (["ft", "mi"].includes(target.units)) {
-                    const area = game.i18n.format(`gmm.action.labels.target.size.${target.units}.double`,
-                        { x: Math.max(1, target.value), y: Math.max(1, target.width) });
-                    return game.i18n.format(`gmm.action.labels.target.${target.type}`, { area });
-                }
-                return "";
-            default:
-                if (target.units && ["ft", "mi"].includes(target.units)) {
-                    const size = game.i18n.format(`gmm.action.labels.target.size.${target.units}.single`,
-                        { x: Math.max(1, target.value) });
-                    return game.i18n.format(`gmm.action.labels.target.${target.type}`, { size });
-                }
-                return "";
-        }
     }
 
     function _formatRangeLabel(range, attackType) {

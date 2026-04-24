@@ -1054,6 +1054,126 @@ const Activities = (function () {
     }
 
     /* -------------------------------------------- */
+    /*  Vanilla -> GMM conversion helpers           */
+    /* -------------------------------------------- */
+
+    /* Decide which GMMC `attack.type` best represents a vanilla dnd5e activity. Returns one of
+     * "mwak" | "msak" | "rwak" | "rsak" | "save" | "heal" | "other" | "" (empty = trait).
+     *
+     * Priority for attack activities: try the activity's own `attack.type` (`value` + `classification`)
+     * first; if either is missing or unmapped, fall back to:
+     *   - melee/ranged via the activity's range units (self/touch -> melee; ft/mi/spec -> ranged)
+     *   - weapon/spell via the parent item's type (weapon -> weapon; spell -> spell; feat -> spell;
+     *     anything else -> weapon)
+     * Save / heal / damage activity types map directly to GMMC's "save" / "heal" / "other".
+     * Utility activities have no GMMC analog and intentionally return "" (the row stays a trait). */
+    function inferAttackType(item, activity) {
+        if (!activity) return "";
+        const obj = (typeof activity.toObject === "function") ? activity.toObject() : activity;
+        switch (obj?.type) {
+            case "save":   return "save";
+            case "heal":   return "heal";
+            case "damage": return "other";
+            case "attack": break;
+            default:       return "";
+        }
+
+        const a = obj.attack ?? {};
+        // 1. Direct map: dnd5e already filled both fields with values we recognise.
+        const direct = _findAttackTypeKey(a.type);
+        if (direct) return direct;
+
+        // 2. Resolve melee/ranged.
+        let value = (a.type?.value === "melee" || a.type?.value === "ranged") ? a.type.value : null;
+        if (!value) {
+            const units = obj.range?.units || item?.system?.range?.units || "";
+            if (["self", "touch", "", null, undefined].includes(units)) value = "melee";
+            else value = "ranged";
+        }
+
+        // 3. Resolve weapon/spell. Treat dnd5e's "unarmed" classification as "weapon" since GMMC
+        //    has no separate unarmed key but mechanically renders the same as a weapon attack.
+        let classification = a.type?.classification;
+        if (classification === "unarmed") classification = "weapon";
+        if (classification !== "weapon" && classification !== "spell") {
+            switch (item?.type) {
+                case "weapon": classification = "weapon"; break;
+                case "spell":  classification = "spell"; break;
+                case "feat":   classification = "spell"; break;
+                default:       classification = "weapon"; break;
+            }
+        }
+
+        return _findAttackTypeKey({ value, classification }) ?? "";
+    }
+
+    /* Choose the activity that should seed a brand-new GMM blueprint when converting a vanilla
+     * weapon/feat. Order is the user-configured priority: attack > save > heal > damage > utility,
+     * falling back to the first activity of any kind. The GMM activity itself is excluded so a stale
+     * GMM activity (e.g. a partial migration from a prior session) won't be picked over the real data. */
+    function pickPrimaryActivity(item) {
+        const activities = item?.system?.activities;
+        if (!activities) return null;
+        const list = (typeof activities.values === "function")
+            ? Array.from(activities.values())
+            : (Array.isArray(activities) ? activities : Object.values(activities));
+        const candidates = list.filter(a => a && a.id !== GMM_ACTIVITY_ID);
+        if (!candidates.length) return null;
+        const order = ["attack", "save", "heal", "damage", "utility"];
+        for (const type of order) {
+            const found = candidates.find(a => a.type === type);
+            if (found) return found;
+        }
+        return candidates[0] ?? null;
+    }
+
+    /* Patch any blueprint fields the activity-driven path didn't already populate from the
+     * remaining item-level data that dnd5e v5+ still keeps on the document itself (range,
+     * the weapon's base damage, etc.). Only touches keys that are still empty so an activity-
+     * derived value is never overwritten. */
+    function applyItemLevelFallbacks(item, blueprintData) {
+        if (!item || !blueprintData) return;
+        const sys = item.system ?? {};
+
+        // Range (weapons keep `system.range = {value, long, reach, units}`).
+        const r = sys.range;
+        if (r && (r.value || r.units || r.long)) {
+            blueprintData.range ??= {};
+            if (blueprintData.range.value == null) blueprintData.range.value = r.value ?? null;
+            if (blueprintData.range.long == null && r.long != null) blueprintData.range.long = r.long;
+            if (!blueprintData.range.units) blueprintData.range.units = r.units ?? "";
+        }
+
+        // Weapon base damage (`system.damage.base` is a DamageField).
+        const base = sys.damage?.base;
+        const hasDamageRow = Array.isArray(blueprintData.attack?.hit?.damage)
+            ? blueprintData.attack.hit.damage.some(p => p?.formula)
+            : false;
+        if (base && !hasDamageRow) {
+            const number = Number(base.number ?? 0);
+            const denomination = Number(base.denomination ?? 0);
+            const bonus = String(base.bonus ?? "").trim();
+            let formula = "";
+            if (Number.isFinite(number) && number > 0 && Number.isFinite(denomination) && denomination > 0) {
+                formula = `${number}d${denomination}`;
+                if (bonus) formula += bonus.startsWith("-") ? ` - ${bonus.slice(1)}` : ` + ${bonus}`;
+            } else if (bonus) {
+                formula = bonus;
+            } else if (base.custom?.enabled && base.custom.formula) {
+                formula = String(base.custom.formula);
+            }
+            if (formula) {
+                const types = base.types instanceof Set ? Array.from(base.types)
+                    : (Array.isArray(base.types) ? base.types : []);
+                blueprintData.attack ??= {};
+                blueprintData.attack.hit ??= {};
+                blueprintData.attack.hit.damage = [{ formula, type: types[0] ?? "" }];
+                blueprintData.attack.damage = { formula, type: types[0] ?? "" };
+            }
+        }
+    }
+
+    /* -------------------------------------------- */
     /*  Effect Application Mode (always vs onUse)   */
     /* -------------------------------------------- */
 
@@ -1134,7 +1254,10 @@ const Activities = (function () {
         migrateActor,
         migrateWorld,
         isEffectAppliedByGmmActivity,
-        setEffectMode
+        setEffectMode,
+        pickPrimaryActivity,
+        applyItemLevelFallbacks,
+        inferAttackType
     };
 })();
 
