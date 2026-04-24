@@ -137,11 +137,16 @@ function _applyTokenCompatibilityShim() {
 	// dnd5e SaveActivity references global `Token`; in V13 this global is deprecated.
 	// Provide the namespaced class directly on globalThis so `instanceof Token` doesn't hit the deprecated getter.
 	try {
+		// Not needed on Foundry v14+ and can fail because global `Token` is non-configurable there.
+		if ((game.release?.generation ?? 0) >= 14) return;
+
 		const TokenClass = foundry?.canvas?.placeables?.Token;
 		if (!TokenClass) return;
 
 		const desc = Object.getOwnPropertyDescriptor(globalThis, "Token");
 		if (desc?.value === TokenClass) return;
+		// Some runtimes expose `Token` as a locked global; treat that as already handled.
+		if (desc && !desc.configurable) return;
 
 		try { Reflect.deleteProperty(globalThis, "Token"); } catch (_e) { /* ignore */ }
 
