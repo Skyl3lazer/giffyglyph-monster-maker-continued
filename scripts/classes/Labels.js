@@ -49,3 +49,30 @@ export function formatTargetLabel(target) {
 			return "";
 	}
 }
+
+/* Format a GMM blueprint range into a localised label string. Mirrors the legacy private
+ * implementation that lived in GmmItem and is now also consumed by the `[range]` shortcode
+ * resolver in Shortcoder. Accepts the blueprint's `range` object shape:
+ *   { value, long, units }
+ * and an optional `attackType` (e.g. "mwak", "msak", "rwak", …) which controls whether the
+ * "reach" wording is used for melee attacks. Returns "" for unsupported / empty configurations. */
+export function formatRangeLabel(range, attackType) {
+	if (!range?.units) return "";
+	switch (range.units) {
+		case "any":
+		case "self":
+		case "touch":
+			return game.i18n.format(`gmm.action.labels.range.${range.units}`);
+		case "ft":
+		case "mi": {
+			if (!range.value) return "";
+			const composed = `${range.value}${range.long ? `/${range.long}` : ""}`;
+			if (["mwak", "msak"].includes(attackType)) {
+				return game.i18n.format(`gmm.action.labels.range.reach.${range.units}`, { range: composed });
+			}
+			return game.i18n.format(`gmm.action.labels.range.${range.units}`, { range: composed });
+		}
+		default:
+			return "";
+	}
+}

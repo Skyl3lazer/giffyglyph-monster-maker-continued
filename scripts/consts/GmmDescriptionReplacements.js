@@ -1,7 +1,9 @@
 /* Description text replacements applied once during the vanilla -> GMMC conversion pass
  * (see ActionBlueprint.deriveFromVanillaItem). Each entry is `{ pattern, replacement, note? }`
- * where `pattern` is a RegExp (typically with the global flag) and `replacement` is the string
- * that should replace any match. Entries are applied sequentially in declaration order.
+ * where `pattern` is a RegExp (typically with the global flag) and `replacement` is either a
+ * string (with the usual `$1`/`$2` backreferences) or a function `(match, ...captures) => string`.
+ * Entries are applied sequentially in declaration order, so earlier rules can shape the input
+ * for later ones if needed.
  *
  * The goal is to normalise vanilla dnd5e compendium conventions into GMMC shortcodes so the
  * converted blueprint renders correctly against its owning scaling monster.
@@ -32,6 +34,14 @@ export const GMM_DESCRIPTION_REPLACEMENTS = [
 		note: "dnd5e @target.template.size lookup -> GMMC [target] shortcode"
 	},
 	{
+		// `[[lookup @range.value activity=<random-id>]]` inlines the activity's numeric range
+		// (e.g. 30). Map it to the GMMC `[range]` shortcode, which renders the blueprint's full
+		// localised range label (units, long range, and reach wording for melee attacks).
+		pattern: /\[\[lookup\s+@range\.value(?:\s+activity=[^\s\]]+)?\]\]/gi,
+		replacement: "[range]",
+		note: "dnd5e @range.value lookup -> GMMC [range] shortcode"
+	},
+	{
 		// `[[lookup @target.affects.special activity=<random-id>]]` inlines free-form target text
 		// (e.g. "any creature within 30 feet"). GMMC has no equivalent dynamic substitution, so we
 		// collapse the marker to the plain word "target" — the surrounding sentence usually reads
@@ -52,6 +62,24 @@ export const GMM_DESCRIPTION_REPLACEMENTS = [
 		pattern: /\[\[\/damage\s+average\s+extended\]\]/gi,
 		replacement: "",
 		note: "strip dnd5e [[/damage average extended]] inline button"
+	},
+	{
+		// dnd5e damage enrichers carry a real formula and optional flags:
+		//   `[[/damage 1d10 average type=force]]`        -> `[1d10] force`
+		//   `[[/damage 2d6 type=fire extended]]`         -> `[2d6] fire`
+		//   `[[/damage 4d8]]`                            -> `[4d8]`
+		// Group 1 captures the formula (any non-whitespace, non-`]` token).
+		// Group 2 swallows the trailing modifier list (average / extended / type=… in any order)
+		// so we can pull the type out of it without caring about ordering. The earlier
+		// "[[/damage average extended]]" rule (no formula) runs first and strips bare buttons,
+		// so it never collides with this rule.
+		pattern: /\[\[\/damage\s+([^\s\]]+)((?:\s+(?:average|extended|type=[^\s\]]+))*)\]\]/gi,
+		replacement: (_match, formula, modifiers) => {
+			const typeMatch = modifiers?.match(/type=([^\s\]]+)/i);
+			const type = typeMatch?.[1] ?? "";
+			return type ? `[${formula}] ${type}` : `[${formula}]`;
+		},
+		note: "dnd5e [[/damage <formula> [average] [extended] [type=<type>]]] -> `[<formula>] <type>`"
 	}
 ];
 

@@ -1,5 +1,5 @@
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
-import { formatTargetLabel } from "./Labels.js";
+import { formatTargetLabel, formatRangeLabel } from "./Labels.js";
 const Shortcoder = (function () {
     /* Each entry is `{ code, data?, type?, resolver? }`.
      * - `data` (string)            – dotted path on `monsterData` to read a numeric / string value from.
@@ -43,6 +43,21 @@ const Shortcoder = (function () {
                 if (!itemContext) return undefined;
                 const target = itemContext?.flags?.gmm?.blueprint?.data?.target;
                 return formatTargetLabel(target);
+            }
+        },
+        {
+            code: "range",
+            type: "string",
+            // Item-scoped: resolves to the formatted range label (e.g. "5 feet", "30/120 feet",
+            // "Reach 10 feet") for the GMMC blueprint that owns this description. The reach
+            // wording depends on the blueprint's attack type, mirroring GmmItem's label pipeline.
+            // Returns `undefined` when no item context is supplied so the literal token survives.
+            resolver: (_monsterData, itemContext) => {
+                if (!itemContext) return undefined;
+                const blueprintData = itemContext?.flags?.gmm?.blueprint?.data;
+                const range = blueprintData?.range;
+                const attackType = blueprintData?.attack?.type;
+                return formatRangeLabel(range, attackType);
             }
         }
     ];

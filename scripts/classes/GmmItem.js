@@ -3,7 +3,7 @@ import Activities from './Activities.js';
 import Shortcoder from './Shortcoder.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
-import { formatTargetLabel } from "./Labels.js";
+import { formatTargetLabel, formatRangeLabel } from "./Labels.js";
 
 /* A patcher which controls item data based on the selected sheet, and which bridges GMM scaling actions into the d...
  * The scaling logic instead lives in: */
@@ -430,7 +430,7 @@ const GmmItem = (function () {
 
         // --- Range ---
         const range = blueprint?.range ?? activity?.range ?? {};
-        labels.range = _formatRangeLabel(range, blueprintAttackType);
+        labels.range = formatRangeLabel(range, blueprintAttackType);
 
         // --- Description ---
         try {
@@ -613,27 +613,6 @@ const GmmItem = (function () {
         // The token produced here is interpolated into `gmm.action.labels.attack.to_hit` and ultimately rendered by the ar...
         // dnd5e's `utils.formatModifier` returns a `Handlebars.SafeString` containing `<span class="sign">+</span>11`, whi
         return (r >= 0) ? `+${r}` : `${r}`;
-    }
-
-    function _formatRangeLabel(range, attackType) {
-        if (!range?.units) return "";
-        switch (range.units) {
-            case "any":
-            case "self":
-            case "touch":
-                return game.i18n.format(`gmm.action.labels.range.${range.units}`);
-            case "ft":
-            case "mi": {
-                if (!range.value) return "";
-                const composed = `${range.value}${range.long ? `/${range.long}` : ""}`;
-                if (["mwak", "msak"].includes(attackType)) {
-                    return game.i18n.format(`gmm.action.labels.range.reach.${range.units}`, { range: composed });
-                }
-                return game.i18n.format(`gmm.action.labels.range.${range.units}`, { range: composed });
-            }
-            default:
-                return "";
-        }
     }
 
     return {
