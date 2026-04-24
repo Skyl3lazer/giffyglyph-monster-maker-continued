@@ -36,6 +36,8 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 
 * The v14 refactor was written largely via Opus 4.7. While I (skyl3lazer) am reviewing and testing this code over time to ensure its function and stability, I have not yet completed a full code-side review. Even when that is done, there will be code that was written by AI, even if I don't particularly plan on continuing to use it after the refactoring stage.
 
+* I recognize that this may be disappointing to some people, which I understand. Put simply, due to the staggering amount of work required to make this refactor happen it would not have occured if I wasn't able to hand it off to the LLM tools like this. I just wasn't interested in doing the updates myself, and this allowed me to bring the module back to a working state.
+
 ## Mind the Gap!
 
 * There was a large gap between updates to this module. While the v13 branch will work with dnd3.3.2 and V13, the 2.x versions of GMMC will REQUIRE
