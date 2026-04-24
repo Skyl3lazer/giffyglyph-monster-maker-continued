@@ -8,7 +8,7 @@
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
 
-This is a continuation of the original module by Giffyglyph, updated to be compatable Foundry v14 and D&D 5.3.x
+This is a continuation of the original module by Giffyglyph, updated to be compatable Foundry v14 (and mostly v13) and D&D 5.3.x
 (Also check out my [v3 updated Webapp!](https://giffyglyphmonstermakerv3.azurewebsites.net/))
 
 **NOTE:** See the AI Disclaimer below!
@@ -35,6 +35,14 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 ## AI Disclaimer
 
 * The v14 refactor was written largely via Opus 4.7. While I (skyl3lazer) am reviewing and testing this code over time to ensure its function and stability, I have not yet completed a full code-side review. Even when that is done, there will be code that was written by AI, even if I don't particularly plan on continuing to use it after the refactoring stage.
+
+## Mind the Gap!
+
+* There was a large gap between updates to this module. While the v13 branch will work with dnd3.3.2 and V13, the 2.x versions of GMMC will REQUIRE
+  - dnd5e 5.3.2
+  - Foundry v13, ideally v14. 
+* I will aim to be backwards compatible with v13 where I can, but development is aimed at v14.
+* If you are using any flavor of dnd5e 4.x or 5.1/5.2, GMMC 2.x **will not work for you.** No backwards compatibility is planned.
 
 ## Installation
 

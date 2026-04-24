@@ -19,6 +19,8 @@ Treat this as an extreme alpha, it's really just an experiment to see if an LLM 
 
 Again, I DO NOT TRUST THE AI, AND NEITHER SHOULD YOU. Over time I will be reviewing each change it made here to ensure that it is actually usable, and fix it where it breaks if possible.
 
+* Many bugs that were present in previous versions are fixed.
+
 ## v1.1.2.3 (v12)
 
 * #69 Fixed a deprecation (an old one!) that was sneaking by and finally broke in dnd5e 3.3.1. It was preventing damage from being added or removed from scaling abilities.

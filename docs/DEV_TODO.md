@@ -2,8 +2,7 @@
 
 ## Major
 
-* Foundry v12 compatibility (as v12 becomes more stable)
-* dnd5e 3.*.* updates as needed
+* Review AI generated code thoroughly. This will be in progress for a while.
 
 ## Visual
 
@@ -23,16 +22,12 @@
 
 ## Compendiums
 
-* Fixes for typos/misconfigurations/etc that likely exist.
-* More examples and elements will be added to the attacks compendium.
+* Compendiums need a rework for v14
 
 ## Modal/Info Updates
 
 * I'm sure there's lots!
-* Remove unused localization entries referring to deprecated data
-* Rename localization entries based on new uses
 * Consolidate duplicate attack_bonus + proficiency modifiers
-* Deprecation: Update ability_modifiers to have ability + check
 
 ## Automation
 
@@ -41,7 +36,6 @@
 ## Known Bugs
 
 
-
 ## Testing Stuff
 
-* The new compendiums need testing!
+* Everything
