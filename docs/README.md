@@ -34,7 +34,7 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 
 ## AI Disclaimer
 
-* The v14 refactor was written largely via Opus 4.7. While I (skyl3lazer) am reviewing and testing this code over time to ensure its function and stability, I have not yet completed a full code-side review. Even when that is done, there will be code that was written by AI, even if I don't plan on continuing to use it after the refactoring stage.
+* The v14 refactor was written largely via Opus. I (skyl3lazer) have reviewed and tested this code over time to ensure its function and stability. That said, there is still code that was written by AI, even if I don't plan on continuing to use it after the refactoring stage.
 
 * I recognize that this may be disappointing to some people, which I understand. Put simply, due to the staggering amount of work required to make this refactor happen it would not have occured if I wasn't able to hand it off to the LLM tools like this. I just wasn't interested in doing the updates myself, and this allowed me to bring the module back to a working state.
 
@@ -59,15 +59,19 @@ These modules are required for GMMC to function.
 These modules are optional, but may improve the experience of using GMMC.
 
 * [Midi QOL](https://foundryvtt.com/packages/midi-qol) - Provides automation, which some compendium items have built in already if Midi is active.
-* [Dfred's Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects) - Included in the `/importable/` folder is a `dfreds-ce-import.json` file which you can import to include the Conditions compendium in DFred's CE! This makes it easier to apply the conditions rather than needing to transfer them from the compendium actor.
+* [Side Effects](https://foundryvtt.com/packages/side-effects) - Provides custom statuses, which the compendium will use.
 
 ---
 
 You can install this Foundry module by copying a manifest URL into your Foundry setup:
 
 
-* **v3 2.0.0.x (Dev Release):** https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/v14dev/module.json	
-  * This is probably what you want
+* **v3 1.x (Main Release):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/latest/download/module.json
+  * The latest stable release — this is probably what you want.
+
+
+* **v3 2.x (Dev, may be unstable):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/download/dev/module.json
+  * Bleeding-edge builds from the dev branch. Newest fixes and features, but may be unstable. For testing and early access.
 
 
 * **GMMC for Foundry V13/dnd5e 3.3.1:** https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/v13/module.json
@@ -77,7 +81,7 @@ You can install this Foundry module by copying a manifest URL into your Foundry 
   * This is the original GMM v2 module, only updated for Foundry v10 / dnd5e 2.1+. It won't be getting bugfixes, it's just for data recovery.
 
 
-You can install multiple branches side-by-side, but you must activate only **one branch at a time**.
+All of these use the same module id, so only **one can be installed on a Foundry setup at a time** — installing one replaces the others.
 
 ## Incompatibilities / Differences
 
