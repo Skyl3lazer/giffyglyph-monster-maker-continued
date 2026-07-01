@@ -117,16 +117,16 @@
 	"manifest": "https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/latest/download/module.json",
 	"download": "https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/latest/download/module.zip",
 	"bugs": "https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/issues",
-	"readme": "https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/master/docs/README.md",
-	"changelog": "https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/master/docs/CHANGELOG.md",
+	"readme": "https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/main/docs/README.md",
+	"changelog": "https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/main/docs/CHANGELOG.md",
 	"media": [
 		{
 			"type": "screenshot",
-			"url": "https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/master/docs/img/scaling-monster-level.gif"
+			"url": "https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/main/docs/img/scaling-monster-level.gif"
 		},
 		{
 			"type": "cover",
-			"url": "https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/master/docs/img/fire-elemental.png"
+			"url": "https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/main/docs/img/fire-elemental.png"
 		}
 	]
 }

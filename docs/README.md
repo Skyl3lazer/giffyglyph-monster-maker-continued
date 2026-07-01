@@ -13,7 +13,7 @@ This is a continuation of the original module by Giffyglyph, updated to be compa
 
 **NOTE:** See the AI Disclaimer below!
 
-If you find issues not already listed in [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/master/docs/DEV_TODO.md) please leave an Issue here or contact me @Skyl3lazer on Discord.
+If you find issues not already listed in [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/main/docs/DEV_TODO.md) please leave an Issue here or contact me @Skyl3lazer on Discord.
 
 Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5e campaign, but aren't sure how to balance them easily? No worries—**Giffyglyph's 5e Monster Maker** has you covered! Build level-appropriate D&D 5e monsters in _seconds_ with an all-new automated monster sheet and scaling actions.
 
@@ -114,7 +114,7 @@ All of these use the same module id, so only **one can be installed on a Foundry
 
 ## Roadmap
 
-Currently GMMC handles GMMv3 functions as a standalone module, with some basic integrations working through other modules (MidiQOL, DAE). See [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/master/docs/DEV_TODO.md) for what I'm looking at next.
+Currently GMMC handles GMMv3 functions as a standalone module, with some basic integrations working through other modules (MidiQOL, DAE). See [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/main/docs/DEV_TODO.md) for what I'm looking at next.
 
 ## Thank Yous!
 

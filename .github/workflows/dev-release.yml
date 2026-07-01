@@ -2,8 +2,6 @@ name: Dev Release
 
 # Publishes a rolling "dev" pre-release on every push to the dev branch, so testers can
 # install once from releases/download/dev/module.json and auto-update.
-# The dev version is taken as-is from module.json — bump "version" manually when you want
-# testers to receive an update (Foundry only offers an update when the version increases).
 
 on:
   push:
@@ -34,6 +32,7 @@ jobs:
       - name: Stamp module.json for the dev channel
         run: |
           node -e "const fs=require('fs');const repo=process.env.GITHUB_REPOSITORY;const m=JSON.parse(fs.readFileSync('module.json','utf8'));m.manifest='https://github.com/'+repo+'/releases/download/dev/module.json';m.download='https://github.com/'+repo+'/releases/download/dev/module.zip';['manifestProd','manifestDev','downloadProd','downloadDev'].forEach(k=>delete m[k]);fs.writeFileSync('module.json',JSON.stringify(m,null,'\t')+'\n');console.log('Dev build',m.id,m.version);"
+          echo "MODULE_VERSION=$(node -p "require('./module.json').version")" >> "$GITHUB_ENV"
 
       - name: Build module.zip
         run: |
@@ -44,10 +43,12 @@ jobs:
 
       - name: Publish / refresh the rolling "dev" pre-release
         run: |
+          NOTES="Dev build $MODULE_VERSION — rolling build of the dev branch. Install manifest: https://github.com/$GITHUB_REPOSITORY/releases/download/dev/module.json"
           if gh release view dev >/dev/null 2>&1; then
             gh release upload dev module.json module.zip --clobber
+            gh release edit dev --title "Dev build $MODULE_VERSION" --notes "$NOTES"
           else
             gh release create dev module.json module.zip --prerelease --target "$GITHUB_SHA" \
-              --title "Dev build" \
-              --notes "Rolling build of the dev branch. Install manifest: https://github.com/$GITHUB_REPOSITORY/releases/download/dev/module.json"
+              --title "Dev build $MODULE_VERSION" \
+              --notes "$NOTES"
           fi
