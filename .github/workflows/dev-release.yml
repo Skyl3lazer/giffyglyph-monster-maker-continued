@@ -1,0 +1,54 @@
+name: Dev Release
+
+# Publishes a rolling "dev" pre-release on every push to the dev branch, so testers can
+# install once from releases/download/dev/module.json and auto-update.
+# The dev version is taken as-is from module.json — bump "version" manually when you want
+# testers to receive an update (Foundry only offers an update when the version increases).
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: write
+
+jobs:
+  dev-release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Build stylesheets (scss -> gmm.css)
+        run: |
+          npm ci
+          npx gulp build
+
+      - name: Stamp module.json for the dev channel
+        run: |
+          node -e "const fs=require('fs');const repo=process.env.GITHUB_REPOSITORY;const m=JSON.parse(fs.readFileSync('module.json','utf8'));m.manifest='https://github.com/'+repo+'/releases/download/dev/module.json';m.download='https://github.com/'+repo+'/releases/download/dev/module.zip';['manifestProd','manifestDev','downloadProd','downloadDev'].forEach(k=>delete m[k]);fs.writeFileSync('module.json',JSON.stringify(m,null,'\t')+'\n');console.log('Dev build',m.id,m.version);"
+
+      - name: Build module.zip
+        run: |
+          zip -r module.zip . \
+            -x ".git/*" ".github/*" "node_modules/*" ".claude/*" ".cursor/*" \
+               "package.json" "package-lock.json" "gulpfile.js" ".gitignore" \
+               ".eslintrc.json" ".jsbeautifyrc" "module.zip"
+
+      - name: Publish / refresh the rolling "dev" pre-release
+        run: |
+          if gh release view dev >/dev/null 2>&1; then
+            gh release upload dev module.json module.zip --clobber
+          else
+            gh release create dev module.json module.zip --prerelease --target "$GITHUB_SHA" \
+              --title "Dev build" \
+              --notes "Rolling build of the dev branch. Install manifest: https://github.com/$GITHUB_REPOSITORY/releases/download/dev/module.json"
+          fi
