@@ -4,3 +4,4 @@ package-lock.json
 /.vs
 CLAUDE.local.md
 .cursor/
+.claude/
