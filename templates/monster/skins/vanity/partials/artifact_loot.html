@@ -3,7 +3,7 @@
         {{#if item.img}}
             <img src="{{item.img}}"/>
         {{/if}}
-        <button data-action="roll-item"><i class="fas fa-dice-d20"></i></button>
+        <button type="button" data-action="roll-item"><i class="fas fa-dice-d20"></i></button>
     </div>
     <div class="item__body">
         <div class="item__title">
@@ -14,7 +14,7 @@
                         {{#if item.gmmLabels.recharge.charged}}
                             (charged)
                         {{else}}
-                            <button class="button--text" data-action="recharge-item">(<i class="fas fa-dice-d6"></i> recharge {{item.recharge.value}})</button>
+                            <button type="button" class="button--text" data-action="recharge-item">(<i class="fas fa-dice-d6"></i> recharge {{item.recharge.value}})</button>
                         {{/if}}
                     </div>
                 {{else}}
@@ -29,7 +29,7 @@
         </div>
         <div class="item__details">
             <ul class="item__tags">
-                <li class="item__rarity">{{item.system.rarity}}</li>
+                <li class="item__rarity">{{#if item.system.rarity}}{{item.system.rarity}}{{else}}Mundane{{/if}}</li>
                 <li class="item__quantity">
                     x {{item.system.quantity}}
                     <input class="input--quantity" data-action="update-item" data-target="{{item.id}}" data-field="system.quantity" data-type="number" />
@@ -55,9 +55,9 @@
             {{/if}}
         </div>
         <div class="item__actions">
-            <button data-action="roll-item"><i class="fas fa-fw fa-comments"></i></button>
-            <button data-action="edit-item"><i class="fas fa-fw fa-edit"></i></button>
-            <button data-action="delete-item"><i class="fas fa-fw fa-trash"></i></button>
+            <button type="button" data-action="roll-item"><i class="fas fa-fw fa-comments"></i></button>
+            <button type="button" data-action="edit-item"><i class="fas fa-fw fa-edit"></i></button>
+            <button type="button" data-action="delete-item"><i class="fas fa-fw fa-trash"></i></button>
         </div>
     </div>
 </div>

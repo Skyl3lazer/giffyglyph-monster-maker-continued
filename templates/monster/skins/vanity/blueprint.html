@@ -10,7 +10,7 @@
         </div>
     </div>
     <div class="blueprint__body" data-track-scrollbars="true" id="monster-blueprint-body">
-        <form class="blueprint__form" autocomplete="off">
+        <div class="blueprint__form" autocomplete="off">
             <div class="gmm-accordion blueprint__form-options" id="monster-configuration">
                 <div class="accordion-group">
                     <div class="accordion-section" data-section="description">
@@ -31,7 +31,7 @@
                                     <span class="form-group__title">{{localize 'gmm.monster.blueprint.description.image'}}</span>
                                 </div>
                                 <div class="form-group__body">
-                                    <img src="{{gmm.blueprint.description.image}}" data-edit="gmm.blueprint.description.image">
+                                    <img src="{{gmm.blueprint.description.image}}" data-action="edit-image" data-edit-image="flags.gmm.blueprint.data.description.image">
                                 </div>
                             </div>
                             <div class="form-fieldset">
@@ -649,14 +649,20 @@
                                 </div>
                                 <div class="form-group__body ability-rankings">
                                     {{#repeat 6}}
-                                    {{#with (lookup ../gmm.blueprint.ability_modifiers.ranking .) as | value |}}
-                                    <div class="move-parent ability-ranking">
-                                        <input type="hidden" name="gmm.blueprint.ability_modifiers.ranking" value="{{value}}" />
-                                        <span class="value"><i class="{{localize (concat 'gmm.common.ability.' value '.icon')}} fa-fw"></i> {{localize (concat 'gmm.common.ability.' value '.name')}}</span>
+                                    <div class="move-parent ability-ranking {{#if (or (eq . 0) (eq . 1))}}ability-ranking--high{{/if}} {{#if (or (eq . 2) (eq . 3))}}ability-ranking--medium{{/if}} {{#if (or (eq . 4) (eq . 5))}}ability-ranking--low{{/if}}">
+                                        <input type="hidden" name="gmm.blueprint.ability_modifiers.ranking" value="{{lookup ../gmm.blueprint.ability_modifiers.ranking .}}" />
+                                        <span class="value">
+                                            {{#with (lookup ../gmm.blueprint.ability_modifiers.ranking .) as |ability|}}
+                                            <i class="{{localize (concat 'gmm.common.ability.' ability '.icon')}} fa-fw"></i>
+                                            {{#if (lookup (lookup ../../gmm.monster.ability_modifiers ability) "value") includeZero=true}}
+                                            <strong class="value__modifier">{{numberFormat (lookup (lookup ../../gmm.monster.ability_modifiers ability) "value") sign=true}}</strong>
+                                            {{/if}}
+                                            {{localize (concat 'gmm.common.ability.' ability '.name')}}
+                                            {{/with}}
+                                        </span>
                                         <button type="button" class="move-up"><i class="fas fa-arrow-up"></i></button>
                                         <button type="button" class="move-down"><i class="fas fa-arrow-down"></i></button>
                                     </div>
-                                    {{/with}}
                                     {{/repeat}}
                                 </div>
                             </div>
@@ -801,14 +807,6 @@
                             <span class="accordion-section__title">{{localize 'gmm.monster.blueprint.effects.title'}}</span>
                         </div>
                         <div class="accordion-section__body">
-                            <div class="form-group form-group--modifier">
-                                <div class="form-group__header">
-                                    <span class="form-group__title">{{localize 'gmm.monster.blueprint.effects.always_show'}}</span>
-                                </div>
-                                <div class="form-group__body">
-                                    <input type="checkbox" name="gmm.blueprint.effects.always_show" {{#if gmm.blueprint.effects.always_show}} checked{{/if}} />
-                                </div>
-                            </div>
                             <{{elements.effects}}>
                                 {{#each effects as |section sid|}}
                                 {{#unless section.hidden}}
@@ -1647,8 +1645,10 @@
                             </div>
                             <div class="form-group">
                                 <div class="form-group__body">
-                                    <div class="html-field">
-                                        {{editor gmm.blueprint.biography.text target='flags.gmm.blueprint.data.biography.text' owner=owner button=false engine="prosemirror" collaborate=false}}
+                                    <div class="html-field gmm_prose-editor">
+                                        <prose-mirror name="flags.gmm.blueprint.data.biography.text"
+                                                      value="{{gmm.blueprint.biography.text}}"
+                                                      document-uuid="{{actor.uuid}}"></prose-mirror>
                                     </div>
                                 </div>
                             </div>
@@ -1989,6 +1989,6 @@
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>

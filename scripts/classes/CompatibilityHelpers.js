@@ -74,6 +74,26 @@ const CompatibilityHelpers = (function () {
 		}
 		return expandObject(...args);
 	}
+
+	/* Build a FormData object from the named form controls inside a container, for callers that no
+	 * longer receive a FormData automatically under Foundry V14's ApplicationV2. */
+	function readInputs(container) {
+		const fd = new FormData();
+		if (!container) return fd;
+		const controls = container.querySelectorAll(
+			"input[name], select[name], textarea[name]"
+		);
+		controls.forEach((el) => {
+			if ((el.type === "radio" || el.type === "checkbox") && !el.checked) return;
+			fd.append(el.name, el.value);
+		});
+		return fd;
+	}
+	/* v14 - roll visibility moved from the legacy `rollMode` option to `messageMode`
+	 * (CONFIG.ChatMessage.modes). Map legacy values; pass modern/unknown values through. */
+	function toMessageMode(mode) {
+		return { publicroll: "public", gmroll: "gm", blindroll: "blind", selfroll: "self" }[mode] ?? mode;
+	}
 	return {
 		hasProperty: hasProperty,
 		setProperty: setProperty,
@@ -84,7 +104,9 @@ const CompatibilityHelpers = (function () {
 		weight: weight,
 		getEncumbranceMultiplier: getEncumbranceMultiplier,
 		gmmDuplicate: gmmDuplicate,
-		gmmExpandObject: gmmExpandObject
+		gmmExpandObject: gmmExpandObject,
+		readInputs: readInputs,
+		toMessageMode: toMessageMode
 	};
 })();
 export default CompatibilityHelpers;

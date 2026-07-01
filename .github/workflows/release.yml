@@ -1,0 +1,52 @@
+name: Release
+
+# Publish a Foundry-installable release whenever a version tag is pushed.
+#   git tag 2.0.0.2 && git push origin 2.0.0.2
+# The workflow stamps module.json (version from the tag, versioned download URL,
+# releases/latest manifest URL), zips the module, and uploads both as release assets.
+
+on:
+  push:
+    tags:
+      - "*"      # any version tag (e.g. 2.0.0.2)
+      - "!dev"   # except the rolling dev pre-release tag (handled by dev-release.yml)
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Build stylesheets (scss -> gmm.css)
+        run: |
+          npm ci
+          npx gulp build
+
+      - name: Stamp module.json for this release
+        run: |
+          node -e "const fs=require('fs');const tag=process.env.GITHUB_REF_NAME;const repo=process.env.GITHUB_REPOSITORY;const m=JSON.parse(fs.readFileSync('module.json','utf8'));m.version=tag.replace(/^v/,'');m.manifest='https://github.com/'+repo+'/releases/latest/download/module.json';m.download='https://github.com/'+repo+'/releases/download/'+tag+'/module.zip';['manifestProd','manifestDev','downloadProd','downloadDev'].forEach(k=>delete m[k]);fs.writeFileSync('module.json',JSON.stringify(m,null,'\t')+'\n');console.log('Stamped',m.id,m.version);"
+
+      - name: Build module.zip
+        run: |
+          zip -r module.zip . \
+            -x ".git/*" ".github/*" "node_modules/*" ".claude/*" ".cursor/*" \
+               "package.json" "package-lock.json" "gulpfile.js" ".gitignore" \
+               ".eslintrc.json" ".jsbeautifyrc" "module.zip"
+
+      - name: Publish GitHub release with assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: |
+            module.json
+            module.zip

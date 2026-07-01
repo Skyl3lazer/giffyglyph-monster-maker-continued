@@ -156,7 +156,7 @@
 .gmm-accordion .accordion-section__header::before {
   content: "\f078";
   -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   font-weight: 900;
   display: inline-block;
   font-style: normal;
@@ -193,7 +193,7 @@
 .gmm-accordion .accordion-section__info .modifier::before {
   content: "\f071";
   -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   font-weight: 900;
   display: inline-block;
   font-style: normal;
@@ -711,15 +711,23 @@
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .damage .random {
   letter-spacing: 0;
+  height: 100%;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .damage .random .block__value,
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .damage .random .button--random-damage {
+  width: 100%;
+  height: 100%;
+  flex: 1 1 auto;
+  align-self: stretch;
+  justify-content: center;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .damage .random .roll {
   white-space: normal;
-  line-height: 0.875;
-  font-style: 1rem;
-  text-align: left;
+  line-height: 1;
+  font-size: 1rem;
+  text-align: center;
   letter-spacing: 0;
-  margin-top: -5px;
-  margin-bottom: -5px;
+  margin: 0;
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .hit-points__temporary:hover,
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__blocks .hit-points__current:hover {
@@ -1176,7 +1184,7 @@
   position: absolute;
   left: 2px;
   top: 2px;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   -webkit-font-smoothing: antialiased;
   font-style: normal;
   font-size: 2.1rem;
@@ -1578,7 +1586,6 @@
 .gmm-block .block__description,
 .gmm-block .block__footer {
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 .gmm-block .block__description {
@@ -1684,6 +1691,9 @@
   border-radius: 0.75rem;
 }
 .gmm-blueprint .blueprint__form .form-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   margin: 0;
   position: relative;
   align-items: normal;
@@ -1703,12 +1713,13 @@
   text-align: right;
   color: var(--color-primary-shade-4);
   width: 8rem;
-  flex: unset;
+  flex: 0 0 8rem;
   /*white-space: nowrap;
   overflow: hidden;*/
   text-overflow: ellipsis;
 }
 .gmm-blueprint .blueprint__form .form-group__body {
+  flex: 1 1 auto;
   min-height: 1.5rem;
   overflow: hidden;
 }
@@ -1751,15 +1762,51 @@
 .gmm-blueprint .blueprint__form .form-group__body input[type=checkbox]:focus {
   outline: none;
 }
+.gmm-blueprint .blueprint__form .form-group__body .html-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 18rem;
+}
+.gmm-blueprint .blueprint__form .form-group__body .html-field prose-mirror {
+  --min-height: 18rem;
+  --menu-background: var(--color-primary-tint-3);
+  --dropdown-background: var(--color-primary-tint-5);
+  --dropdown-border: var(--color-primary-tint-4);
+  --dialog-background: var(--color-primary-tint-5);
+  --dialog-border: var(--color-primary-tint-4);
+  --color-control-hover: var(--color-primary-tint-4);
+  --color-form-label-hover: var(--color-primary-shade-1);
+  --button-text-color: var(--color-primary-shade-1);
+  flex: 1 1 auto;
+  color: var(--color-primary-shade-1);
+  background: var(--color-primary-tint-5);
+  border: 1px solid var(--color-primary-tint-4);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+}
+.gmm-blueprint .blueprint__form .form-group__body .html-field prose-mirror .editor-content {
+  color: var(--color-primary-shade-1);
+  background: transparent;
+}
+.gmm-blueprint .blueprint__form .form-group__body .html-field prose-mirror .ProseMirror {
+  min-height: inherit;
+  color: inherit;
+  background: transparent;
+  outline: none;
+}
+.gmm-blueprint .blueprint__form .form-group__body .html-field .editor,
 .gmm-blueprint .blueprint__form .form-group__body .html-field .editor-content {
   padding: 0.5rem;
   min-height: 4rem;
   white-space: normal;
   word-break: break-word;
 }
+.gmm-blueprint .blueprint__form .form-group__body .html-field .editor > :first-child,
 .gmm-blueprint .blueprint__form .form-group__body .html-field .editor-content > :first-child {
   margin-top: 0;
 }
+.gmm-blueprint .blueprint__form .form-group__body .html-field .editor > :last-child,
 .gmm-blueprint .blueprint__form .form-group__body .html-field .editor-content > :last-child {
   margin-bottom: 0;
 }
@@ -1933,7 +1980,7 @@
 .gmm-blueprint .blueprint__form .form-fieldset .form-fieldset__header::after {
   content: "\f07c";
   -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   font-weight: bold;
   display: inline-block;
   font-style: normal;
@@ -2160,6 +2207,7 @@
   width: 26px;
   height: 26px;
   background: black;
+  flex: 0 0 26px;
 }
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .items .item__icon img {
   max-width: 100%;
@@ -2169,11 +2217,15 @@
 }
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .items .item__title {
   flex-grow: 1;
+  min-width: 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-right: 1rem;
 }
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .items .item__actions {
   display: flex;
+  flex-shrink: 0;
   margin-right: -0.25rem;
   margin-top: -0.25rem;
   margin-bottom: -0.25rem;
@@ -2273,7 +2325,16 @@
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .ability-ranking .value,
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .save-ranking .value {
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+  column-gap: 0.35rem;
   padding: 0 0.5rem;
+}
+.gmm-blueprint.blueprint--monster.blueprint--monster--vanity .ability-ranking .value .value__modifier,
+.gmm-blueprint.blueprint--monster.blueprint--monster--vanity .save-ranking .value .value__modifier {
+  font-weight: 700;
+  min-width: 1rem;
+  color: var(--color-primary-shade-1);
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .ability-ranking .value i,
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .save-ranking .value i {
@@ -2305,6 +2366,15 @@
   box-shadow: none;
   color: var(--color-primary-base);
 }
+.gmm-blueprint.blueprint--monster.blueprint--monster--vanity .ability-ranking--high {
+  background: linear-gradient(to left, #1c922c 1%, 2%, #ffffff);
+}
+.gmm-blueprint.blueprint--monster.blueprint--monster--vanity .ability-ranking--medium {
+  background: linear-gradient(to left, #b29403 1%, 2%, #ffffff);
+}
+.gmm-blueprint.blueprint--monster.blueprint--monster--vanity .ability-ranking--low {
+  background: linear-gradient(to left, #941212 1%, 2%, #ffffff);
+}
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .items .item {
   display: flex;
   padding: 0.25rem 0.5rem;
@@ -2326,6 +2396,7 @@
   width: 26px;
   height: 26px;
   background: black;
+  flex: 0 0 26px;
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .items .item__icon img {
   max-width: 100%;
@@ -2335,11 +2406,15 @@
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .items .item__title {
   flex-grow: 1;
+  min-width: 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-right: 1rem;
 }
 .gmm-blueprint.blueprint--monster.blueprint--monster--vanity .items .item__actions {
   display: flex;
+  flex-shrink: 0;
   margin-right: -0.25rem;
   margin-top: -0.25rem;
   margin-bottom: -0.25rem;
@@ -2717,7 +2792,7 @@
 .gmm-panel.panel--collapsible .panel__header::after {
   content: "\f077";
   -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 5 Free";
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
   font-weight: 900;
   display: inline-block;
   font-style: normal;
@@ -2839,6 +2914,9 @@
   grid-template-rows: 1fr auto;
   grid-column-gap: 0;
   pointer-events: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
 .gmm-forge > * {
   pointer-events: all;
@@ -4284,6 +4362,62 @@
   border-radius: 0 0 1.5rem 1.5rem;
   box-shadow: none;
   filter: drop-shadow(0px 0px 20px black);
+  background: none;
+  border: none;
+  overflow: visible;
+  --color-scheme: light;
+  color-scheme: light;
+  --color-text-primary: var(--color-dark-2);
+  --color-text-secondary: var(--color-dark-3);
+  --color-text-emphatic: var(--color-dark-1);
+  --color-text-subtle: var(--color-dark-4);
+  --color-form-label: var(--color-dark-3);
+  --color-form-label-hover: var(--color-dark-1);
+  --color-form-hint: var(--color-dark-4);
+  --color-form-hint-hover: var(--color-dark-2);
+  --input-text-color: var(--color-dark-2);
+  --input-placeholder-color: var(--color-dark-5);
+  --input-background-color: white;
+  --button-text-color: var(--color-dark-2);
+  --button-hover-text-color: var(--color-dark-1);
+  --content-link-background: rgba(0, 0, 0, 0.05);
+  --content-link-border-color: var(--color-dark-5);
+  --content-link-icon-color: var(--color-dark-3);
+  --content-link-text-color: var(--color-dark-2);
+  color: var(--color-dark-2);
+}
+.gmm-window input,
+.gmm-window select,
+.gmm-window textarea,
+.gmm-window code-mirror,
+.gmm-window formula-input,
+.gmm-window color-picker,
+.gmm-window file-picker,
+.gmm-window search,
+.gmm-window prose-mirror {
+  --input-text-color: var(--color-dark-2);
+  --input-placeholder-color: var(--color-dark-5);
+  --input-background-color: white;
+  color: var(--color-dark-2);
+}
+.gmm-window input[readonly],
+.gmm-window input:disabled,
+.gmm-window select:disabled,
+.gmm-window textarea:disabled {
+  --input-text-color: var(--color-dark-4);
+  color: var(--color-dark-4);
+}
+.gmm-window .window-content a.button,
+.gmm-window .window-content button,
+.gmm-window .window-content kbd {
+  --button-text-color: var(--color-dark-2);
+  --button-hover-text-color: var(--color-dark-1);
+}
+.gmm-window .window-header .header-control,
+.gmm-window .window-header button.header-control {
+  --button-text-color: var(--color-light-1);
+  --button-hover-text-color: var(--color-light-1);
+  color: var(--color-light-1);
 }
 .gmm-window .window-header {
   border-bottom: none;
@@ -4293,7 +4427,7 @@
   justify-content: flex-end;
   overflow: visible;
 }
-.gmm-window .window-header.resizable ~ .window-resizable-handle {
+.gmm-window > .window-resize-handle {
   background: white;
   color: black;
   border: none;
@@ -4308,11 +4442,24 @@
   right: 0.25rem;
   display: flex;
   z-index: 2;
+  filter: none;
+  cursor: nwse-resize;
 }
-.gmm-window .window-header.resizable ~ .window-resizable-handle i {
+.gmm-window > .window-resize-handle::before {
+  content: "\e0a4";
+  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-awesome, "Font Awesome 7 Pro");
+  font-weight: 900;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
   margin: auto;
 }
-.gmm-window .window-header.resizable ~ .window-content > .gmm-forge .forge__controls {
+.gmm-window > .window-resize-handle i {
+  margin: auto;
+}
+.gmm-window > .window-content > .gmm-forge .forge__controls {
   padding-right: 2.25rem;
 }
 .gmm-window.minimized {
@@ -4322,7 +4469,7 @@
 .gmm-window.minimized .window-header {
   border: none;
 }
-.gmm-window.minimized .window-header.resizable ~ .window-resizable-handle {
+.gmm-window.minimized > .window-resize-handle {
   display: none;
 }
 .gmm-window .window-content {
@@ -4331,6 +4478,8 @@
   border-radius: 1rem;
   overflow: visible;
   height: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .gmm-window.window--action {

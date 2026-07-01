@@ -1,10 +1,16 @@
-<div class="effect" data-effect-id="{{effect.id}}" draggable="true">
-    <div class="item__icon"><img src="{{effect.icon}}" /></div>
+<div class="effect" data-effect-id="{{effect.id}}" {{#if effect.parentId}}data-parent-id="{{effect.parentId}}"{{/if}} draggable="true">
+    <div class="item__icon"><img src="{{effect.img}}" /></div>
     <div class="item__title">{{effect.name}}</div>
     <div class="item__actions item-controls effect-controls">
-        <button type="button" data-action="toggle"><i class="fas fa-fw {{#if effect.disabled}}fa-check{{else}}fa-times{{/if}}"></i></button>
-        <button type="button" data-action="edit"><i class="fas fa-fw fa-edit"></i></button>
-        <button type="button" data-action="delete"><i class="fas fa-fw fa-trash"></i></button>
+        <button type="button" data-action="toggle" data-tooltip="{{#if effect.disabled}}DND5E.EffectEnable{{else}}DND5E.EffectDisable{{/if}}"><i class="fas fa-fw {{#if effect.disabled}}fa-check{{else}}fa-times{{/if}}"></i></button>
+        {{#if effect.gmmCanToggleMode}}
+        <button type="button" data-action="toggle-effect-mode"
+                data-tooltip="{{#if effect.gmmAlwaysMode}}Always applied{{else}}Applied On Use{{/if}}">
+            <i class="fas fa-fw {{#if effect.gmmAlwaysMode}}fa-user{{else}}fa-bullseye{{/if}}"></i>
+        </button>
+        {{/if}}
+        <button type="button" data-action="edit" data-tooltip="DND5E.EffectEdit"><i class="fas fa-fw fa-edit"></i></button>
+        <button type="button" data-action="delete" data-tooltip="DND5E.EffectDelete"><i class="fas fa-fw fa-trash"></i></button>
     </div>
 </div>
 

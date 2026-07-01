@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="block__description">
                                     {{#if gmm.monster.hit_points.use_formula}}
-                                    <button data-action="roll-hp" data-formula="{{gmm.monster.hit_points.formula}}"><i class="fas fa-dice"></i> {{gmm.monster.hit_points.formula}}</button>
+                                    <button type="button" data-action="roll-hp" data-formula="{{gmm.monster.hit_points.formula}}"><i class="fas fa-dice"></i> {{gmm.monster.hit_points.formula}}</button>
                                     {{else}}
                                     {{localize 'gmm.monster.artifact.blocks.hit_points.maximum'}}
                                     {{/if}}
@@ -103,7 +103,7 @@
                         <div class="block__title" data-action="open-config" data-config="attack-bonus">{{localize 'gmm.monster.artifact.blocks.attack_bonus.title'}}</div>
                         <div class="block__contents">
                             <div class="block__content">
-                                <button class="block__value button--text length-{{strlen (numberFormat gmm.monster.attack_bonus.value sign=true)}}" title="{{{parseSources gmm.monster.attack_bonus.sources}}}" data-action="open-modal" data-modal="modal_basic_attack_ac">
+                                <button type="button" class="block__value button--text length-{{strlen (numberFormat gmm.monster.attack_bonus.value sign=true)}}" title="{{{parseSources gmm.monster.attack_bonus.sources}}}" data-action="open-modal" data-modal="modal_basic_attack_ac">
                                     <i class="fas fa-crosshairs"></i> {{numberFormat gmm.monster.attack_bonus.value sign=true}}
                                 </button>
                                 <div class="block__description">
@@ -120,7 +120,7 @@
                         <div class="block__title" data-action="open-config" data-config="attack-dc">{{localize 'gmm.monster.artifact.blocks.attack_dcs.title'}}</div>
                         <div class="block__contents">
                             <div class="block__content">
-                                <button class="block__value button--text button--primary-dc length-{{strlen gmm.monster.attack_dcs.primary.value}}" title="{{{parseSources gmm.monster.attack_dcs.primary.sources}}}" data-action="open-modal" data-modal="modal_basic_attack_save">
+                                <button type="button" class="block__value button--text button--primary-dc length-{{strlen gmm.monster.attack_dcs.primary.value}}" title="{{{parseSources gmm.monster.attack_dcs.primary.sources}}}" data-action="open-modal" data-modal="modal_basic_attack_save">
                                     <i class="fas fa-bullseye"></i> +{{gmm.monster.attack_dcs.primary.value}}
                                 </button>
                                 <div class="block__description">
@@ -137,7 +137,7 @@
                         <div class="block__title" data-action="open-config" data-config="damage-per-action">{{localize 'gmm.monster.artifact.blocks.damage.title'}}</div>
                         <div class="block__contents">
                             <div class="block__content static">
-                                <button class="block__value button--text button--static-damage length-{{strlen gmm.monster.damage_per_action.value}}" title="{{{parseSources gmm.monster.damage_per_action.sources}}}" data-action="open-modal" data-modal="modal_basic_damage">
+                                <button type="button" class="block__value button--text button--static-damage length-{{strlen gmm.monster.damage_per_action.value}}" title="{{{parseSources gmm.monster.damage_per_action.sources}}}" data-action="open-modal" data-modal="modal_basic_damage">
                                     <i class="fas fa-fire"></i> {{gmm.monster.damage_per_action.value}}
                                 </button>
                                 {{#unless gmm.monster.damage_per_action.type}}
@@ -147,7 +147,7 @@
                                 {{/unless}}
                             </div>
                             <div class="block__content random">
-                                <button class="block__value button--text button--random-damage length-{{strlen gmm.monster.damage_per_action.dice}}" data-action="open-modal" data-modal="modal_basic_damage">
+                                <button type="button" class="block__value button--text button--random-damage length-{{strlen gmm.monster.damage_per_action.dice}}" data-action="open-modal" data-modal="modal_basic_damage">
                                     <i class="fas fa-dice"></i> <span class="roll">{{gmm.monster.damage_per_action.dice}}</span>
                                 </button>
                                 {{#unless gmm.monster.damage_per_action.type}}
@@ -208,7 +208,7 @@
                                 <div class="modifier">
                                     <div class="title" data-action="open-config" data-config="ability-modifiers">{{localize (concat 'gmm.common.ability.' ../. '.code')}}</div>
                                     <div class="value" title="{{{parseSources modifier.sources}}}">
-                                        <button class="button--text" data-ability="{{../.}}" data-action="open-modal" data-modal="modal_ability_check">
+                                        <button type="button" class="button--text" data-ability="{{../.}}" data-action="open-modal" data-modal="modal_ability_check">
                                             {{numberFormat modifier.value sign=true}}
                                         </button>
                                     </div>
@@ -216,7 +216,7 @@
                                 {{/with}}
                                 {{#with (lookup ../gmm.monster.saving_throws .) as | save |}}
                                         <div class="save {{#if (getSaveTrain ../../gmm.blueprint.trained_saves ..)}}trained{{/if}}" title="{{{parseSources save.sources}}}">
-                                            <button class="button--text" data-save="{{../.}}" data-action="open-modal" data-modal="modal_saving_throw">
+                                            <button type="button" class="button--text" data-save="{{../.}}" data-action="open-modal" data-modal="modal_saving_throw">
                                                 {{numberFormat save.value sign=true}}
                                             </button>
                                         </div>
@@ -233,7 +233,7 @@
                                     <div class="property__value">
                                         {{#each gmm.monster.skills as | skill |}}
                                         {{#if skill.value includeZero=false}}
-                                        <button class="button--text monster__skill" data-action="open-modal" data-modal="modal_ability_check" data-ability="{{skill.ability}}" data-skill="{{skill.code}}" title="{{{parseSources skill.sources}}}">
+                                        <button type="button" class="button--text monster__skill" data-action="open-modal" data-modal="modal_ability_check" data-ability="{{skill.ability}}" data-skill="{{skill.code}}" title="{{{parseSources skill.sources}}}">
                                             {{skill.title}} {{numberFormat skill.value sign=true}}
                                         </button>
                                         {{/if}}
@@ -388,7 +388,7 @@ localize 'gmm.monster.artifact.spellbook.spellcasting_ability.value'
                                 <div class="accordion-section__header">
                                     <span class="accordion-section__title" data-action="open-config" data-config="traits">{{localize 'gmm.monster.artifact.traits.title'}}</span>
                                     <span class="accordion-section__info">
-                                        <button class="header__add" data-action="add-item" data-type="feat">
+                                        <button type="button" class="header__add" data-action="add-item" data-type="feat">
                                             {{localize 'gmm.monster.artifact.traits.add'}}
                                         </button>
                                     </span>
@@ -434,7 +434,7 @@ localize 'gmm.monster.artifact.spellbook.spellcasting_ability.value'
                                 <div class="accordion-section__header">
                                     <span class="accordion-section__title" data-action="open-config" data-config="bonus-actions">{{localize 'gmm.monster.artifact.bonus_actions.title'}}</span>
                                     <span class="accordion-section__info">
-                                        <button class="header__add" data-action="add-item" data-type="feat" data-activation.type="bonus">
+                                        <button type="button" class="header__add" data-action="add-item" data-type="feat" data-activation.type="bonus">
                                             {{localize 'gmm.monster.artifact.bonus_actions.add'}}
                                         </button>
                                     </span>
@@ -455,7 +455,7 @@ localize 'gmm.monster.artifact.spellbook.spellcasting_ability.value'
                                 <div class="accordion-section__header">
                                     <span class="accordion-section__title" data-action="open-config" data-config="actions">{{localize 'gmm.monster.artifact.actions.title'}}</span>
                                     <span class="accordion-section__info">
-                                        <button class="header__add" data-action="add-item" data-type="feat" data-activation.type="action">
+                                        <button type="button" class="header__add" data-action="add-item" data-type="feat" data-activation.type="action">
                                             {{localize 'gmm.monster.artifact.actions.add'}}
                                         </button>
                                     </span>
@@ -476,7 +476,7 @@ localize 'gmm.monster.artifact.spellbook.spellcasting_ability.value'
                                 <div class="accordion-section__header">
                                     <span class="accordion-section__title" data-action="open-config" data-config="reactions">{{localize 'gmm.monster.artifact.reactions.title'}}</span>
                                     <span class="accordion-section__info">
-                                        <button class="header__add" data-action="add-item" data-type="feat" data-activation.type="reaction">
+                                        <button type="button" class="header__add" data-action="add-item" data-type="feat" data-activation.type="reaction">
                                             {{localize 'gmm.monster.artifact.reactions.add'}}
                                         </button>
                                     </span>
@@ -563,7 +563,7 @@ localize 'gmm.monster.artifact.spellbook.spellcasting_ability.value'
                                 <div class="accordion-section__header">
                                     <span class="accordion-section__title" data-action="open-config" data-config="legendary-actions">{{localize 'gmm.monster.artifact.legendary_actions.title'}}</span>
                                     <span class="accordion-section__info">
-                                        <button class="header__add" data-action="add-item" data-type="feat" data-activation.type="legendary">
+                                        <button type="button" class="header__add" data-action="add-item" data-type="feat" data-activation.type="legendary">
                                             {{localize 'gmm.monster.artifact.legendary_actions.add'}}
                                         </button>
                                     </span>
@@ -604,7 +604,7 @@ localize 'gmm.monster.artifact.spellbook.spellcasting_ability.value'
                                 <div class="accordion-section__header">
                                     <span class="accordion-section__title" data-action="open-config" data-config="lair-actions">{{localize 'gmm.monster.artifact.lair_actions.title'}}</span>
                                     <span class="accordion-section__info">
-                                        <button class="header__add" data-action="add-item" data-type="feat" data-activation.type="lair">
+                                        <button type="button" class="header__add" data-action="add-item" data-type="feat" data-activation.type="lair">
                                             {{localize 'gmm.monster.artifact.actions.add'}}
                                         </button>
                                     </span>
@@ -658,7 +658,7 @@ localize 'gmm.monster.artifact.spellbook.spellcasting_ability.value'
                                         {{/if}}
                                     </span>
                                     <span class="accordion-section__info">
-                                        <button class="header__add" data-action="add-item" data-type="spell" data-level="{{.}}" data-preparation.mode="prepared">
+                                        <button type="button" class="header__add" data-action="add-item" data-type="spell" data-level="{{.}}" data-preparation.mode="prepared">
                                             {{localize 'gmm.monster.artifact.spellbook.add'}}
                                         </button>
                                     </span>
