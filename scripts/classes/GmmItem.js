@@ -62,7 +62,6 @@ const GmmItem = (function () {
         // wraps) and replace the old prototype hooks on `Item5e.{getAttackToHit,...}`.
         Hooks.on("dnd5e.preRollAttackV2", _onPreRollAttack);
         Hooks.on("dnd5e.preRollDamageV2", _onPreRollDamage);
-        Hooks.on("dnd5e.preRollSaveV2", _onPreRollSave);
         Hooks.on("dnd5e.preUseActivity", _onPreUseActivity);
 
         // postBuild hooks fire after `_buildAttackConfig` / damage builders have produced the per-roll configuration objec...
@@ -147,18 +146,6 @@ const GmmItem = (function () {
         Activities.resolveDamageRollFormulas(rollConfig, monsterData);
     }
 
-    /* `dnd5e.preRollSaveV2` listener
- * Resolve and inject GMM save DC before the save roll prompt/config are finalized. */
-    function _onPreRollSave(rollConfig, _dialogConfig, _messageConfig) {
-        const activity = rollConfig?.subject;
-        const item = activity?.item;
-        if (!_isGmmActionItem(item)) return;
-
-        const monsterData = item.getOwningGmmMonster?.();
-        if (!monsterData) return;
-
-        _computeAndApplySaveDc(activity, monsterData, rollConfig);
-    }
 
     /* `dnd5e.preUseActivity` listener
  * Ensure save chat cards are built with a resolved non-zero DC before button datasets are generated. */

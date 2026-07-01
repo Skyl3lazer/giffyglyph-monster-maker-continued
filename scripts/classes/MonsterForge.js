@@ -709,7 +709,7 @@ const MonsterForge = (function () {
         slots["pact"] = {
             level: Math.ceil(Math.min(10, pactLevel) / 2),
             current: slotModifiers.pact.current || 0,
-            maximum: slotModifiers.pact.maximum || (pactLevel > 0) ? Math.max(1, Math.min(pactLevel, 2), Math.min(pactLevel - 8, 3), Math.min(pactLevel - 13, 4)) : 0
+            maximum: slotModifiers.pact.maximum || (pactLevel > 0 ? Math.max(1, Math.min(pactLevel, 2), Math.min(pactLevel - 8, 3), Math.min(pactLevel - 13, 4)) : 0)
         }
 
         return slots;

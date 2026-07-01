@@ -85,7 +85,7 @@ const MonsterBlueprint = (function () {
 		let combatType = (resources.lair.value) ? "paragon" : (resources.legact.max || resources.legres.max) ? "elite": "grunt";
 		let combatRank = GMM_MONSTER_RANKS[combatType];
 		let abilityRankings = Object.entries(actorData.abilities).sort((x, y) => y[1].value - x[1].value).map((x) => x[0]);
-		let combatLevel = GMM_5E_XP.filter((x) => x.xp <= actorData.details.xp?.value??0 / combatRank.xp).pop().level;
+		let combatLevel = GMM_5E_XP.filter((x) => x.xp <= (actorData.details.xp?.value ?? 0) / combatRank.xp).pop().level;
 		let combatRole = "striker";
 		switch (abilityRankings[0]) {
 			case "dex":
