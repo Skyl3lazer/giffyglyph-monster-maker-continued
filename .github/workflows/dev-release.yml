@@ -25,11 +25,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Build stylesheets (scss -> gmm.css)
         run: |
-          npm ci
+          npm install --no-audit --no-fund
           npx gulp build
 
       - name: Stamp module.json for the dev channel
