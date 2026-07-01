@@ -5,30 +5,26 @@ import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import { formatTargetLabel, formatRangeLabel } from "./Labels.js";
 
-/* A patcher which controls item data based on the selected sheet, and which bridges GMM scaling actions into the d...
- * The scaling logic instead lives in: */
+
 const GmmItem = (function () {
     function simplifyRollFormula(...args) {
         return dnd5e.dice.simplifyRollFormula(...args);
     }
 
-    /* Wrap libWrapper.register so that registering against a method which no longer exists emits a console warning ins...
- * no longer exists emits a console warning instead of throwing and aborting module init */
     function _safeWrap(target, fn, type) {
         try {
             libWrapper.register('giffyglyph-monster-maker-continued', target, fn, type);
             return true;
         } catch (error) {
-            console.warn(`GMM | Skipped libWrapper hook for "${target}" (likely removed in dnd5e v5.x): ${error.message}`);
+            console[game.modules.get('lib-wrapper')?.active ? "error" : "warn"](`GMM | libWrapper hook for "${target}" was not registered: ${error.message}`);
             return false;
         }
     }
 
-    /* Patch the Foundry Item5e entity to track GMM scaling-action state and wire the activity-aware roll hooks
- * Foundry Item5e entity to track GMM scaling-action state and wire the activity-aware roll hooks */
+    /* Patch the Foundry Item5e entity to track GMM scaling-action state and wire the activity-aware roll hooks. */
     function patchItem5e() {
-        // Maintain the runtime `flags.gmm.blueprint` snapshot whenever the item prepares its data
-        // The blueprint is rebuilt from the item document so any field the user sees in the GMM Forge sheet always matches
+        // Maintain the runtime `flags.gmm.blueprint` snapshot whenever the item prepares its data.
+        // The blueprint is rebuilt from the item document so it always matches the current item state.
         _safeWrap('game.dnd5e.documents.Item5e.prototype.prepareData', function (wrapped, ...args) {
             wrapped(...args);
             if (this.getSheetId() == `${GMM_MODULE_TITLE}.ActionSheet`) {
@@ -44,8 +40,8 @@ const GmmItem = (function () {
             }
         }, 'WRAPPER');
 
-        // Cache references to the original prototype methods only when they actually exist
-        // several were removed when their behaviour migrated to Activity classes and assigning `undefined` to the alias wo
+        // Cache references to the original prototype methods only when they actually exist;
+        // several were removed when their behaviour migrated to Activity classes.
         const Item5eProto = game.dnd5e.documents.Item5e.prototype;
         if (typeof Item5eProto.prepareData === "function") Item5eProto.prepare5eData = Item5eProto.prepareData;
 
@@ -64,8 +60,8 @@ const GmmItem = (function () {
         Hooks.on("dnd5e.preRollDamageV2", _onPreRollDamage);
         Hooks.on("dnd5e.preUseActivity", _onPreUseActivity);
 
-        // postBuild hooks fire after `_buildAttackConfig` / damage builders have produced the per-roll configuration objec...
-        // We use them to add the GMM-namespaced ammunition magical bonus, since GMM activities run with `attack.flat = tru
+        // postBuild hooks fire after the per-roll configuration object has been produced.
+        // We use them to add the GMM-namespaced ammunition magical bonus, since GMM activities run with `attack.flat = true`.
         Hooks.on("dnd5e.postBuildAttackRollConfig", _onPostBuildAttackConfig);
         Hooks.on("dnd5e.postBuildDamageRollConfig", _onPostBuildDamageConfig);
     }
@@ -102,8 +98,6 @@ const GmmItem = (function () {
     /*  Runtime shortcoder substitution             */
     /* -------------------------------------------- */
 
-    /* Resolve GMM shortcodes in this item's runtime data
- * Called from {@link GmmActor._prepareMonsterDerivedData} after the owning monster's artifact has been computed an */
     function _prepareShortcodes() {
         if (!_isGmmActionItem(this)) return;
         const gmmMonster = this.getOwningGmmMonster();
@@ -120,8 +114,6 @@ const GmmItem = (function () {
     /*  Roll hook listeners                         */
     /* -------------------------------------------- */
 
-    /* `dnd5e.preRollAttackV2` listener for GMM scaling actions
- * Two responsibilities: */
     function _onPreRollAttack(rollConfig, dialogConfig, _messageConfig) {
         const activity = rollConfig?.subject;
         const monsterData = _gmmMonsterForActivity(activity);
@@ -130,8 +122,6 @@ const GmmItem = (function () {
         Activities.injectAmmunition(rollConfig, dialogConfig, activity);
     }
 
-    /* `dnd5e.preRollDamageV2` listener
- * Defensive shortcoder substitution: */
     function _onPreRollDamage(rollConfig, _dialogConfig, _messageConfig) {
         const activity = rollConfig?.subject;
         const monsterData = _gmmMonsterForActivity(activity);
@@ -206,10 +196,8 @@ const GmmItem = (function () {
             activity.save.dc.formula = String(finalDc);
         }
 
-        // Keep source data aligned so any message/context built from source sees the corrected DC.
-        if (activity._source) {
-            foundry.utils.setProperty(activity._source, "save.dc.formula", String(finalDc));
-        }
+        // No _source write: resolveActivityFormulas() rebuilds save.dc from the blueprint on every
+        // data prep, so persisting the resolved formula onto the in-memory source here is redundant.
 
         // For target save roll prompts, force the live roll target/options.
         if (rollConfig) {
@@ -230,8 +218,8 @@ const GmmItem = (function () {
         return _isGmmActionItem(activity.item);
     }
 
-    /* `dnd5e.postBuildAttackRollConfig` listener
- * The per-roll `config.options.ammunition` carries whichever ammo the user actually picked in the attack-roll dial */
+    /* `dnd5e.postBuildAttackRollConfig` listener.
+     * The per-roll `config.options.ammunition` carries whichever ammo the user picked in the attack-roll dialog. */
     function _onPostBuildAttackConfig(process, config, index, _options = {}) {
         if (index !== 0) return;
         const activity = process?.subject;
@@ -242,8 +230,8 @@ const GmmItem = (function () {
         Activities.injectAmmoMagicPart(config, ammo);
     }
 
-    /* `dnd5e.postBuildDamageRollConfig` listener
- * The damage rollDamage call passes the chosen ammunition as an `Item5e` instance through `process.ammunition` (re */
+    /* `dnd5e.postBuildDamageRollConfig` listener.
+     * The damage roll passes the chosen ammunition as an `Item5e` instance through `process.ammunition`. */
     function _onPostBuildDamageConfig(process, config, index, _options = {}) {
         if (index !== 0) return;
         const activity = process?.subject;
@@ -315,8 +303,8 @@ const GmmItem = (function () {
     /*  GMM Labels (used by MonsterSheet rendering) */
     /* -------------------------------------------- */
 
-    /* Build the label bag used by the GMM monster sheet's action/trait partials
- * All fields are derived from the item's GMM activity (and the GMM blueprint flag for GMM-only concepts like rarit */
+    /* Build the label bag used by the GMM monster sheet's action/trait partials.
+     * Fields derive from the item's GMM activity, plus the GMM blueprint flag for GMM-only concepts like rarity. */
     async function _getGmmLabels() {
         const labels = {};
         const blueprint = this.flags?.gmm?.blueprint?.data;
@@ -478,8 +466,8 @@ const GmmItem = (function () {
 
     /* -------------------------------------------- */
 
-    /* Compute the GMM-displayed to-hit bonus by simplifying the activity's attack.bonus formula (which has already bee...
- * the related-stat ability mod Mirrors what {@link Activities.injectAttackBonusParts} contributes at roll time returns {number|null} */
+    /* Compute the GMM-displayed to-hit bonus from the monster's attack bonus, the related-stat ability mod,
+     * and the activity's attack.bonus formula. Mirrors what Activities.injectAttackBonusParts contributes at roll time. */
     function _computeAttackToHit(activity, blueprint, monsterData, rollData = {}) {
         if (!monsterData) return null;
         let total = monsterData.attack_bonus?.value ?? 0;
@@ -491,8 +479,8 @@ const GmmItem = (function () {
 
         const bonusFormula = activity?.attack?.bonus;
         if (bonusFormula) {
-            // Use dnd5e.utils.simplifyBonus when available — it builds a Roll with the full rollData so `@gmm.foo` and similar...
-            // Falls back to bare numeric coercion
+            // Use dnd5e.utils.simplifyBonus when available — it builds a Roll with the full rollData so `@gmm.foo`-style
+            // references resolve. Falls back to bare numeric coercion otherwise.
             const simplifyBonus = dnd5e?.utils?.simplifyBonus;
             try {
                 const resolved = (typeof simplifyBonus === "function")
@@ -505,8 +493,8 @@ const GmmItem = (function () {
         return total;
     }
 
-    /* Build the "<Ability> Saving Throw" label for a SaveActivity, handling the single-ability, multi-ability, and no-...
- * Multi-ability uses the locale's disjunction list formatter (e.g., "Strength or Dexterity Saving Throw") param ac */
+    /* Build the "<Ability> Saving Throw" label for a SaveActivity, handling the single-ability, multi-ability, and no-ability cases.
+     * Multi-ability uses the locale's disjunction list formatter (e.g., "Strength or Dexterity Saving Throw"). */
     function _formatSaveLabel(activity) {
         const raw = activity.save?.ability;
         const abilities = raw instanceof Set ? Array.from(raw)
@@ -559,13 +547,13 @@ const GmmItem = (function () {
         });
     }
 
-    /* Resolve a single damage part to a display formula
- * Prefers the live {@link DamageData#formula} getter (which knows about `custom.enabled` vs the structured `number */
+    /* Resolve a single damage part to a display formula, preferring the authored shortcoded blueprint
+     * formula, then the part's own formula, then its custom formula, then number/denomination + bonus. */
     function _resolvePartFormula(part, monsterData, rollData, rawBlueprintFormula) {
         let formula = "";
         try {
-            // Prefer the authored shortcoded formula from the blueprint flag when it still carries `[shortcode]` markers — the...
-            // standalone action-sheet preview, where `resolveActivityFormulas` hasn't run) or strip the scaling semantics before substitution
+            // Prefer the authored shortcoded formula from the blueprint flag when it still carries `[shortcode]` markers
+            // (e.g. the standalone action-sheet preview, where `resolveActivityFormulas` hasn't run yet).
             if (typeof rawBlueprintFormula === "string" && rawBlueprintFormula.includes("[")) {
                 formula = rawBlueprintFormula;
             } else if (typeof part?.formula === "string" && part.formula) {
@@ -597,8 +585,8 @@ const GmmItem = (function () {
 
     function _formatSignedBonus(n) {
         const r = Math.round(n);
-        // The token produced here is interpolated into `gmm.action.labels.attack.to_hit` and ultimately rendered by the ar...
-        // dnd5e's `utils.formatModifier` returns a `Handlebars.SafeString` containing `<span class="sign">+</span>11`, whi
+        // Return a plain signed string rather than dnd5e's `utils.formatModifier`, which returns a
+        // `Handlebars.SafeString` containing `<span class="sign">+</span>` markup that renders wrong here.
         return (r >= 0) ? `+${r}` : `${r}`;
     }
 

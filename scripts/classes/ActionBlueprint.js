@@ -3,12 +3,11 @@ import { GMM_DESCRIPTION_REPLACEMENTS, isDescriptionEffectivelyEmpty } from "../
 import Activities from "./Activities.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 
-/* Translates between the user-authored GMM blueprint stored in `flags.gmm.blueprint.data` and the underlying dnd5e...
- * In v5.x the per-use fields (action type, attack bonus, save DC, damage parts, target/range/duration/uses/recharg */
+/* Translates between the user-authored GMM blueprint (`flags.gmm.blueprint.data`) and the underlying dnd5e item.
+ * In v5.x the per-use fields (attack, save DC, damage, target/range/duration/uses/recharge) live on the activity. */
 const ActionBlueprint = (function () {
 
-    /* Item-level fields that still live on the document (rather than on the activity) and therefore need direct path-t...
- * on the document (rather than on the activity) and therefore need direct path-to-path bindings */
+    /* Item-level fields that still live on the document (not the activity) and need direct path-to-path bindings. */
     const itemMappings = [
         { from: "description.image", to: "img" },
         { from: "description.name", to: "name" },
@@ -25,8 +24,8 @@ const ActionBlueprint = (function () {
     }
 
     function _verifyBlueprint(blueprint) {
-        // Direct-leaf writes via `document.update({ "flags.gmm.blueprint.data.<x>":
-        // v })` (e.g
+        // Direct-leaf writes (e.g. `document.update({ "flags.gmm.blueprint.data.<x>": v })`) can leave
+        // the envelope without a `vid`, so backfill it when `data` is present.
         if (blueprint && blueprint.vid === undefined && blueprint.data) {
             blueprint.vid = 1;
             if (!blueprint.type) blueprint.type = "action";

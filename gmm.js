@@ -66,8 +66,8 @@ Hooks.once("init", function() {
 		}
 	});
 
-	// In Foundry v13+ the sidebar directories are ApplicationV2-based, so the `render*` hook signature is `(app, eleme...
-	// Older GMM code dereferenced `html[0]` which is `undefined` on a HTMLElement and crashed before the GMM "Create S
+	// In Foundry v13+ the sidebar directories are ApplicationV2-based, so the `render*` hook signature is `(app, element)`.
+	// Older GMM code dereferenced `html[0]`, which is `undefined` on a HTMLElement, and crashed before the GMM "Create" button was added.
 	Hooks.on("renderActorDirectory", (app, element) => {
 		if (game.user.isGM) {
 			_hookActorDirectory(element);
@@ -152,8 +152,7 @@ Hooks.once('ready', async () => {
 		ui.notifications.error("Module Giffyglyph's Monster Maker Continued requires the 'libWrapper' module. Please install and activate it.");
 	}
 
-	// One-shot migration of legacy GMM scaling-action items onto the dnd5e v5.x activity model
-	// Items that already carry a GMM-managed activity (for example items created via the new MonsterSheet#actionAddIte
+	// One-shot migration of legacy GMM scaling-action items onto the dnd5e v5.x activity model.
 	if (game.user.isGM) {
 		try {
 			await Activities.migrateWorld();
@@ -257,8 +256,8 @@ function _applyTokenCompatibilityShim() {
 	}
 }
 
-/* Locate the insertion point inside a sidebar directory's header for the GMM "create" button row
- * The dnd5e v5.x / Foundry v14 directory header (templates/sidebar/directory/header.hbs) lays its children out ver */
+/* Locate the insertion point inside a sidebar directory's header for the GMM "create" button row.
+ * Inserts before the search control when present, otherwise appends to the header. */
 function _findDirectoryInsertionPoint(root) {
 	if (!root?.querySelector) return null;
 	const header = root.querySelector(".directory-header");
@@ -282,8 +281,8 @@ async function _hookActorDirectory(html) {
 	);
 	section.querySelector("[data-action='create-scaling-monster']").addEventListener("click", async (ev) => {
 		ev.preventDefault();
-		// Use a nested flags object:
-		// Foundry reads the bound sheet at `document.flags.core?.sheetClass`, so a literal `"core.sheetClass"` key would n
+		// Use a nested flags object: Foundry reads the bound sheet at `document.flags.core?.sheetClass`,
+		// so a literal `"core.sheetClass"` key would not be found.
 		Actor.create({
 			name: "New Scaling Monster",
 			type: "npc",

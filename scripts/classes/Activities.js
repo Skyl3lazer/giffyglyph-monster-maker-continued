@@ -1,17 +1,16 @@
 import Shortcoder from "./Shortcoder.js";
 
-/* Helpers for translating between GMM scaling-action blueprints and the dnd5e v5.x Activity data model Each GMM sc...
- * The blueprint (stored in `flags.gmm.blueprint.data`) remains the user-authored source of truth */
+/* Helpers for translating between GMM scaling-action blueprints and the dnd5e v5.x Activity data model.
+ * The blueprint (stored in `flags.gmm.blueprint.data`) remains the user-authored source of truth. */
 const Activities = (function () {
 
-    /* Stable id for the GMM-managed Activity on a scaling action item
- * Built via {@link dnd5e.utils.staticID} when available so it matches the deterministic 16-character format dnd5e */
+    /* Stable id for the GMM-managed Activity on a scaling action item.
+     * Built via {@link dnd5e.utils.staticID} when available so it matches dnd5e's deterministic 16-character format. */
     const GMM_ACTIVITY_ID = (typeof dnd5e !== "undefined" && dnd5e?.utils?.staticID)
         ? dnd5e.utils.staticID("gmmprimary")
         : "gmmprimary000000";
 
-    /* Map from the GMM blueprint `attack.type` ↔ the dnd5e attack-activity attack.type pair @type {Object<string, {value:
- * "melee"|"ranged", classification: */
+    /* Map from GMM blueprint `attack.type` to the dnd5e attack-activity `attack.type` pair ({value, classification}). */
     const ATTACK_TYPES = {
         mwak: { value: "melee", classification: "weapon" },
         msak: { value: "melee", classification: "spell" },
@@ -23,8 +22,8 @@ const Activities = (function () {
     /*  Type Resolution                             */
     /* -------------------------------------------- */
 
-    /* Resolve which dnd5e activity type best represents a blueprint `attack.type` value `heal` is a first-class dnd5e...
- * Falling through to `utility` used to swallow the user's damage parts silently (no place to put them on a Utility */
+    /* Resolve which dnd5e activity type best represents a blueprint `attack.type` value.
+     * `other` maps to `damage` (not `utility`) so the user's damage parts have somewhere to live. */
     function activityTypeFor(blueprintAttackType) {
         if (blueprintAttackType in ATTACK_TYPES) return "attack";
         if (blueprintAttackType === "save") return "save";
@@ -33,7 +32,6 @@ const Activities = (function () {
         return "utility";
     }
 
-    /* param blueprintAttack The blueprint's `attack` subtree returns {string} */
     function actionTypeForBlueprint(blueprintAttack) {
         return blueprintAttack?.type ?? "";
     }
@@ -42,8 +40,8 @@ const Activities = (function () {
     /*  Damage Part Translation                     */
     /* -------------------------------------------- */
 
-    /* Translate a single GMM blueprint damage entry to a dnd5e DamageData payload Blueprint damage entries are `{formu...
- * `[strMod + 2, d6]`) */
+    /* Translate a single GMM blueprint damage entry (`{formula, type}`) to a dnd5e DamageData payload.
+     * Formulas may contain GMM shortcodes (e.g. `[strMod + 2, d6]`). */
     function damagePartFromBlueprint(entry) {
         const formula = entry?.formula ?? "";
         const type = entry?.type ?? "";
@@ -52,14 +50,14 @@ const Activities = (function () {
             denomination: null,
             bonus: "",
             types: type ? [type] : [],
-            // `custom.formula` flows into dnd5e's `FormulaField._validateType`, which instantiates a `Roll` from the value and...
-            // GMM shortcodes are `[…]`-wrapped expressions (e.g `[strMod + 2, d6]`) and Roll explicitly rejects `[` as an open
+            // `custom.formula` is validated by dnd5e's `FormulaField`, which builds a `Roll` from it;
+            // Roll rejects the `[` in GMM shortcodes, so it must be sanitised before storage.
             custom: { enabled: true, formula: _sanitizeFormulaForActivity(formula) },
             scaling: { mode: "", number: 1, formula: "" }
         };
 
-        // If the formula is a plain `NdM(+X)` literal with no shortcodes, store it in the structured fields so dnd5e's UI...
-        // UI can edit it natively if the user ever opens the stock item sheet
+        // If the formula is a plain `NdM(+X)` literal with no shortcodes, store it in the structured
+        // fields so dnd5e's UI can edit it natively if the user opens the stock item sheet.
         const parsed = formula.match(/^\s*(\d+)d(\d+)(?:\s*([+\-])\s*(\d+))?\s*$/i);
         if (parsed && CONFIG?.DND5E?.dieSteps?.includes?.(Number(parsed[2]))) {
             part.number = Number(parsed[1]);
@@ -83,6 +81,9 @@ const Activities = (function () {
      * Mutates and returns the activity source object in place. */
     function sanitizeActivitySource(value) {
         if (!value || typeof value !== "object") return value;
+        // Only touch GMM's own activity — the placeholder swap is destructive to any bracketed
+        // formula (e.g. `1d6[fire]`), so never rewrite other modules'/users' activity data.
+        if (value._id !== GMM_ACTIVITY_ID) return value;
         const replace = _sanitizeFormulaForActivity;
 
         if (value.attack && typeof value.attack === "object") {
@@ -274,8 +275,7 @@ const Activities = (function () {
         return foundry.utils.isEmpty(update) ? null : update;
     }
 
-    /* Translate a dnd5e DamageData (or its raw object form) back into a GMM blueprint entry param part returns {{formula:
- * string, type: */
+    /* Translate a dnd5e DamageData (or its raw object form) back into a GMM blueprint `{formula, type}` entry. */
     function damagePartToBlueprint(part) {
         if (!part) return { formula: "", type: "" };
 
@@ -302,8 +302,8 @@ const Activities = (function () {
     /*  Build Activity Payload                      */
     /* -------------------------------------------- */
 
-    /* Build the dnd5e activity payload for the GMM-managed activity on a scaling action item The result is suitable fo...
- * runtime substitution happens in {@link resolveActivityFormulas} param blueprint The full blueprint object (`{vid */
+    /* Build the dnd5e activity payload for the GMM-managed activity on a scaling action item. Formulas are stored
+     * sanitised (bracket-free); runtime shortcode substitution happens in {@link resolveActivityFormulas}. */
     function buildActivityData(blueprint) {
         const blueprintData = blueprint?.data ?? blueprint ?? {};
         const blueprintAttack = blueprintData.attack ?? {};
@@ -328,8 +328,8 @@ const Activities = (function () {
         if (type === "attack") {
             data.attack = {
                 ability: blueprintAttack.related_stat || "",
-                // `attack.bonus` is a dnd5e `FormulaField`, which validates on every save by throwing the string through `new Roll...
-                // If the user wrote a shortcoded bonus like `[strMod] + 2`, that would blow up validation, so sanitise the stored
+                // `attack.bonus` is a `FormulaField` validated via `new Roll` on every save; a shortcoded
+                // bonus like `[strMod] + 2` would fail validation, so store the sanitised form.
                 bonus: _sanitizeFormulaForActivity(blueprintAttack.bonus || ""),
                 critical: { threshold: null },
                 // Suppress dnd5e's automatic mod/prof/actorBonus injection; the GMM monster
@@ -343,8 +343,8 @@ const Activities = (function () {
                 parts: damageParts
             };
         } else if (type === "save") {
-            // `_buildSaveDcFormula` always yields a shortcoded string (it begins with `"[dcPrimaryBonus]"` and may append `+ [...
-            // true`) rejects at storage time
+            // `_buildSaveDcFormula` always yields a shortcoded string (begins with `[dcPrimaryBonus]`),
+            // so it must be sanitised or the `FormulaField` rejects it at storage time.
             data.save = {
                 ability: [blueprintAttack.defense || "str"],
                 dc: {
@@ -357,8 +357,8 @@ const Activities = (function () {
                 parts: damageParts
             };
         } else if (type === "heal") {
-            // `HealActivity` carries a single `healing` DamageData entry rather than an array of damage parts
-            // Fold the blueprint's first damage row into it so the displayed heal amount and roll pipeline stay consistent wit
+            // `HealActivity` carries a single `healing` DamageData entry rather than an array of damage parts.
+            // Fold the blueprint's first damage row into it so the heal amount and roll pipeline stay consistent.
             data.healing = damageParts[0] ?? damagePartFromBlueprint({ formula: "", type: "" });
         } else if (type === "damage") {
             data.damage = {
@@ -476,8 +476,8 @@ const Activities = (function () {
         const rc = blueprintData.resource_consumption ?? {};
         const empty = { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false };
         if (!rc.type) return empty;
-        // GMM "ammo" consumption is wired through the dnd5e v5 AttackActivity ammunition pipeline (see {@link injectAmmuni...
-        // Including it here would double-decrement the ammo:
+        // GMM "ammo" consumption runs through the dnd5e v5 AttackActivity ammunition pipeline
+        // (see {@link injectAmmunition}); adding it here too would double-decrement the ammo.
         if (rc.type === "ammo") return empty;
         const typeMap = {
             attribute: "attribute",
@@ -506,8 +506,8 @@ const Activities = (function () {
     }
 
     function _collectDamageParts(blueprintData) {
-        // The authored form inputs for damage rows are `name="gmm.blueprint.attack.hit.damage.{i}.formula"` (and `.type`)
-        // When FormDataExtended runs through `foundry.utils.expandObject` every intermediate container is created with `se
+        // Damage-row form inputs are named `gmm.blueprint.attack.hit.damage.{i}.formula` (and `.type`), so after
+        // `expandObject` the value can arrive as an object keyed by numeric strings rather than an array.
         const raw = blueprintData.attack?.hit?.damage;
         if (!raw) return [];
         const entries = Array.isArray(raw)
@@ -616,8 +616,8 @@ const Activities = (function () {
         if (type === "attack" && obj.attack) {
             const attackTypeKey = _findAttackTypeKey(obj.attack.type);
             if (attackTypeKey) blueprintData.attack.type = attackTypeKey;
-            // Preserve any shortcoded `attack.bonus` already on the blueprint flag — `buildActivityData` stores a bracket-sani...
-            // string and would otherwise overwrite the user's real shortcoded authoring on every sheet re-render
+            // Preserve any shortcoded `attack.bonus` already on the blueprint flag — the activity only holds the
+            // bracket-sanitised copy, which would otherwise overwrite the user's authoring on every sheet re-render.
             const existingBonus = blueprintData.attack.bonus;
             if (typeof existingBonus === "string" && existingBonus.includes("[")) {
                 // keep as-is
@@ -637,8 +637,8 @@ const Activities = (function () {
             blueprintData.attack.type = "other";
         }
 
-        // Damage parts
-        // `damagePartFromBlueprint` sanitises shortcoded formulas down to `0`-placeholder strings before they hit the acti
+        // Damage parts. The activity only holds `0`-placeholder formulas, so re-read the raw
+        // shortcoded formula from the existing blueprint and keep it instead of the sanitised copy.
         if (obj.damage?.parts?.length) {
             blueprintData.attack.hit ??= {};
             const existing = _normalizeBlueprintDamage(blueprintData.attack.hit.damage);
@@ -655,8 +655,8 @@ const Activities = (function () {
                 blueprintData.attack.damage = { formula: first.formula, type: first.type };
             }
         } else if (type === "heal" && obj.healing) {
-            // `HealActivity` stores a single `healing` DamageData rather than an array Mirror it into the blueprint's first da...
-            // attack-damage block above (sanitised activity values would otherwise overwrite user authoring on every re-render)
+            // `HealActivity` stores a single `healing` DamageData rather than an array. Mirror it into the blueprint's
+            // first damage row, preserving the user's raw shortcoded formula as in the attack-damage block above.
             blueprintData.attack.hit ??= {};
             const existing = _normalizeBlueprintDamage(blueprintData.attack.hit.damage);
             const bp = damagePartToBlueprint(obj.healing);
@@ -664,16 +664,16 @@ const Activities = (function () {
             if (typeof rawFormula === "string" && rawFormula.includes("[")) {
                 bp.formula = rawFormula;
             }
-            // Preserve any additional rows the user had authored on the blueprint (the activity only carries the first), so sw...
-            // the first), so switching temporarily to heal and back doesn't lose extra damage rows
+            // Preserve any extra rows the user authored (the activity only carries the first), so switching
+            // to heal and back doesn't lose the additional damage rows.
             const rest = existing.slice(1);
             blueprintData.attack.hit.damage = [bp, ...rest];
             blueprintData.attack.damage = { formula: bp.formula, type: bp.type };
         }
     }
 
-    /* Normalise a stored blueprint damage list into a plain ordered array of `{formula, type}` entries
- * The flag can surface as either an array (written by this file on the read path) or a dotted-object form like `{ */
+    /* Normalise a stored blueprint damage list into a plain ordered array of `{formula, type}` entries.
+     * The flag can surface as either an array or an object keyed by numeric strings (e.g. `{ "0": {…} }`). */
     function _normalizeBlueprintDamage(raw) {
         if (Array.isArray(raw)) {
             return raw.map(e => ({ formula: e?.formula ?? "", type: e?.type ?? "" }));
@@ -698,8 +698,8 @@ const Activities = (function () {
     /*  Update Payload Helpers                      */
     /* -------------------------------------------- */
 
-    /* Build a flat path update payload for the GMM activity, suitable for merging directly into an `Item5e#update` cal...
- * Why force a replacement on *every* edit, not just type swaps: */
+    /* Build a flat-path update payload for the GMM activity, suitable for an `Item5e#update` call. Uses
+     * ForcedReplacement so a type swap fully replaces the activity instead of leaving stale sub-fields behind. */
     function buildActivityUpdate(item, blueprint) { // eslint-disable-line no-unused-vars
         const newData = buildActivityData(blueprint);
         const ForcedReplacement = foundry.data?.operators?.ForcedReplacement;
@@ -718,8 +718,8 @@ const Activities = (function () {
     /*  Runtime Shortcoder Substitution             */
     /* -------------------------------------------- */
 
-    /* Substitute GMM shortcodes (e.g
- * `[strMod + 2, d6]`) into the runtime values of the GMM-managed activity on an item, using the supplied monster a */
+    /* Substitute GMM shortcodes (e.g. `[strMod + 2, d6]`) into the runtime values of the item's
+     * GMM-managed activity, using the supplied monster data. */
     function resolveActivityFormulas(item, monsterData) {
         if (!monsterData) return;
         const activity = item?.system?.activities?.get?.(GMM_ACTIVITY_ID);
@@ -727,8 +727,8 @@ const Activities = (function () {
 
         const blueprintData = item?.flags?.gmm?.blueprint?.data;
 
-        // Attack bonus
-        // The activity's stored `attack.bonus` is the sanitised (bracket free) placeholder written by `buildActivityData`,
+        // Attack bonus. The activity's stored `attack.bonus` is the sanitised placeholder, so prefer
+        // re-deriving from the raw shortcoded bonus on the blueprint flag.
         if (activity.attack) {
             const rawBonus = blueprintData?.attack?.bonus;
             if (typeof rawBonus === "string" && rawBonus.includes("[")) {
@@ -754,8 +754,8 @@ const Activities = (function () {
                 formula = Shortcoder.replaceShortcodes(formula, monsterData);
             }
             activity.save.dc.formula = formula;
-            // Re-derive save.dc.value now that the formula is numeric
-            // Using a fresh Roll keeps us consistent with how dnd5e itself simplifies the formula during prepareFinalData (`si
+            // Re-derive save.dc.value now that the formula is numeric, using a fresh Roll to stay
+            // consistent with how dnd5e itself simplifies the formula during prepareFinalData.
             try {
                 const dcRoll = new Roll(String(formula || "0"));
                 if (dcRoll.isDeterministic) {
@@ -765,8 +765,8 @@ const Activities = (function () {
             } catch (e) { /* swallow: keep whatever value the framework already computed */ }
         }
 
-        // Damage parts
-        // `custom.formula` on the activity's source is the bracket-sanitised placeholder (see `damagePartFromBlueprint`),
+        // Damage parts. `custom.formula` on the activity source is the bracket-sanitised placeholder
+        // (see `damagePartFromBlueprint`), so re-derive each from the raw blueprint formula.
         if (activity.damage?.parts?.length) {
             const blueprintDamage = _normalizeBlueprintDamage(
                 foundry.utils.getProperty(item.flags ?? {}, "gmm.blueprint.data.attack.hit.damage")
@@ -781,8 +781,8 @@ const Activities = (function () {
             }
         }
 
-        // Healing part
-        // `HealActivity#healing` is a single DamageData rather than a `parts` array, but the custom-formula sanitisation /
+        // Healing part. `HealActivity#healing` is a single DamageData rather than a `parts` array, but the
+        // same custom-formula sanitisation applies, so re-derive it from the blueprint's first damage row.
         if (activity.healing?.custom?.enabled) {
             const blueprintDamage = _normalizeBlueprintDamage(
                 foundry.utils.getProperty(item.flags ?? {}, "gmm.blueprint.data.attack.hit.damage")
@@ -798,8 +798,8 @@ const Activities = (function () {
     /*  Roll Hook Helpers                           */
     /* -------------------------------------------- */
 
-    /* Inject the GMM monster's standard attack bonus and (optional) ability mod into the roll configuration for a pend...
- * Called from the `dnd5e.preRollAttackV2` hook listener registered in {@link GmmItem.patchItem5e} The activity is */
+    /* Inject the GMM monster's standard attack bonus and (optional) ability mod into a pending attack roll config.
+     * Called from the `dnd5e.preRollAttackV2` hook listener registered in {@link GmmItem.patchItem5e}. */
     function injectAttackBonusParts(rollConfig, activity, monsterData) {
         if (!rollConfig?.rolls?.length || !monsterData) return;
         const roll = rollConfig.rolls[0];
@@ -820,8 +820,8 @@ const Activities = (function () {
         }
     }
 
-    /* Wire a GMM scaling action's blueprint-configured ammunition into the dnd5e v5 AttackActivity flow at attack-roll...
- * dnd5e v5 only exposes ammunition mechanics for **weapon** items via `WeaponData#ammunitionOptions` GMM scaling a */
+    /* Wire a GMM scaling action's blueprint-configured ammunition into the dnd5e v5 AttackActivity roll flow.
+     * dnd5e v5 only exposes ammunition mechanics for weapon items, so GMM builds the picker options itself. */
     function injectAmmunition(rollConfig, dialogConfig, activity) {
         const item = activity?.item;
         const actor = activity?.actor;
@@ -833,8 +833,8 @@ const Activities = (function () {
         const targetAmmoId = blueprint.resource_consumption.target;
         if (!targetAmmoId) return;
 
-        // Build the picker options from every ammo-type consumable on the actor Same shape WeaponData#ammunitionOptions em...
-        // WeaponData#ammunitionOptions emits (item / value / label / disabled), so AttackRollConfigurationDialog renders it natively
+        // Build picker options from every ammo-type consumable on the actor, matching the shape
+        // WeaponData#ammunitionOptions emits (item/value/label/disabled) so the dialog renders it natively.
         const ammoOptions = (actor.itemTypes?.consumable ?? [])
             .filter(i => i.system?.type?.value === "ammo")
             .map(i => ({
@@ -850,14 +850,14 @@ const Activities = (function () {
         dialogConfig.options ??= {};
         dialogConfig.options.ammunitionOptions = [{ value: "", label: "" }, ...ammoOptions];
 
-        // Default to the GMM-configured ammo unless dnd5e already cached a different pick on the item via `setFlag("dnd5e"...
-        // valid option, in which case the AttackActivity already selected it before we got here
+        // Default to the GMM-configured ammo unless the AttackActivity already selected a valid
+        // option (e.g. from a cached pick on the item) before we got here.
         if (!rollConfig.ammunition || !ammoOptions.some(o => o.value === rollConfig.ammunition)) {
             rollConfig.ammunition = targetAmmoId;
         }
 
-        // Mirror onto rolls[0].options.ammunition so the post-roll quantity decrement and the chat-card "Damage" button (w...
-        // user picks a different ammo in the dialog, which is exactly what we want
+        // Mirror onto rolls[0].options.ammunition so the post-roll quantity decrement and chat-card "Damage"
+        // button see the ammo, without overriding a different pick the user made in the dialog.
         const roll = rollConfig.rolls?.[0];
         if (roll) {
             roll.options ??= {};
@@ -865,8 +865,8 @@ const Activities = (function () {
         }
     }
 
-    /* Compute the resolved magical bonus the chosen ammunition contributes to attack and damage rolls, mirroring dnd5e...
- * numeric bonus, or 0 if the ammo isn't magic-available or has no magical bonus */
+    /* Resolve the magical bonus the chosen ammunition contributes to attack and damage rolls.
+     * Returns 0 if the ammo isn't magic-available or has no magical bonus. */
     function ammunitionMagicBonus(ammo, rollData = {}) {
         if (!ammo?.system?.magicAvailable) return 0;
         const formula = ammo.system.magicalBonus;
@@ -876,8 +876,8 @@ const Activities = (function () {
         return simplify(formula, rollData) || 0;
     }
 
-    /* Inject the chosen ammunition's `magicalBonus` into a per-roll config under a GMM-namespaced data key (`@gmm.ammo...
- * Used from both the `dnd5e.postBuildAttackRollConfig` and `dnd5e.postBuildDamageRollConfig` hooks because GMM act */
+    /* Inject the chosen ammunition's `magicalBonus` into a per-roll config under the `@gmm.ammoBonus` data key.
+     * Used from both the `dnd5e.postBuildAttackRollConfig` and `dnd5e.postBuildDamageRollConfig` hooks. */
     function injectAmmoMagicPart(config, ammo) {
         if (!ammo) return;
         config.data ??= {};
@@ -925,21 +925,19 @@ const Activities = (function () {
     /*  Migration                                   */
     /* -------------------------------------------- */
 
-    /* Determine whether an item is a GMM scaling-action item that needs the GMM-managed activity to be (re)created par...
- * scaling-action item that needs the GMM-managed activity to be (re)created param item returns {boolean} */
+    /* Determine whether an item is a legacy GMM scaling-action item that needs the GMM-managed activity (re)created. */
     function isLegacyGmmActionItem(item) {
         if (!item) return false;
         // Items the user explicitly opted into the GMM ActionSheet.
         const sheetClass = item.flags?.core?.sheetClass;
         if (typeof sheetClass !== "string") return false;
         if (!sheetClass.endsWith(".ActionSheet")) return false;
-        // Only items that already have a GMM blueprint flag are candidates
-        // items added via the new MonsterSheet#actionAddItem path already include the activity in their initial creation p
+        // Only items that already have a GMM blueprint flag are candidates; items added via the new
+        // MonsterSheet#actionAddItem path already include the activity in their initial creation payload.
         return !!item.flags?.gmm?.blueprint;
     }
 
-    /* Collect flat `system.activities.<id>` deletion entries for every activity on a GMM scaling-action item that *isn...
- * `"mwak"`) or `system.activation.type` */
+    /* Collect flat `system.activities.<id>` deletion entries for every activity on the item that isn't the GMM activity. */
     function buildForeignActivityPurge(source) {
         const raw = source?._source?.system?.activities
             ?? source?.system?.activities
@@ -964,8 +962,7 @@ const Activities = (function () {
         return deletes;
     }
 
-    /* Build the migration update payload for a single GMM scaling-action item, returning `null` if no migration is nee...
- * are present) param item returns {object|null} An update payload suitable for `Item5e#update`, or null */
+    /* Build the migration update payload for a single GMM scaling-action item, or `null` if no migration is needed. */
     function buildMigrationUpdate(item) {
         if (!isLegacyGmmActionItem(item)) return null;
         const purge = buildForeignActivityPurge(item);
@@ -983,8 +980,8 @@ const Activities = (function () {
         return update;
     }
 
-    /* Like {@link buildMigrationUpdate}, but operates against the pre-commit source of the document passed to the `pre...
- * Used to seed the GMM activity onto legacy compendium imports — items dragged from the GMM `gmm-monster-attacks`, */
+    /* Like {@link buildMigrationUpdate}, but operates on the pre-commit source in the `preCreate` hook.
+     * Used to seed the GMM activity onto legacy compendium imports (e.g. items dragged from `gmm-monster-attacks`). */
     function buildPreCreateUpdate(data, item) {
         const sheetClass = data?.flags?.core?.sheetClass;
         if (typeof sheetClass !== "string" || !sheetClass.endsWith(".ActionSheet")) return null;
@@ -1001,8 +998,8 @@ const Activities = (function () {
         return update;
     }
 
-    /* Migrate every GMM scaling-action item on a single actor that lacks the GMM-managed activity
- * Returns the count of items migrated param actor returns {Promise<number>} */
+    /* Migrate every GMM scaling-action item on a single actor that lacks the GMM-managed activity.
+     * Returns the count of items migrated. */
     async function migrateActor(actor) {
         if (!actor?.items?.size) return 0;
         const updates = [];
@@ -1015,8 +1012,8 @@ const Activities = (function () {
         return updates.length;
     }
 
-    /* Walk every world actor + every world item the current user is permitted to modify and migrate any GMM scaling-ac...
- * Should be called once during the `ready` hook on the GM client returns {Promise<number>} Total items migrated ac */
+    /* Walk every world actor and world item the user may modify and migrate any GMM scaling-action items.
+     * Should be called once during the `ready` hook on the GM client; returns the total count migrated. */
     async function migrateWorld() {
         let total = 0;
 

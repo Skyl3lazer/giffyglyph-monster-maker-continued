@@ -24,8 +24,8 @@ import Templates from "./Templates.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Activities from "./Activities.js";
 
-/* GMM monster sheet, rebuilt on the dnd5e v5.x ApplicationV2 NPC sheet base The custom "Forge" UI lives entirely i...
- * Form submission is intercepted in {@link _processFormData} so that edits to the `gmm.blueprint.*` fields are tra */
+/* GMM monster sheet, built on the dnd5e v5.x ApplicationV2 NPC sheet. The custom "Forge" UI replaces the
+ * stock parts, and _processFormData translates edits to the `gmm.blueprint.*` fields back into the blueprint flag. */
 export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet {
 
     constructor(options = {}) {
@@ -52,8 +52,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
     };
 
-    /* Replace the inherited NPC PARTS (header, sidebar, features, inventory, spells, effects, biography, specialTraits...
- * not merged across the inheritance chain, so this fully supplants the parent definition @inheritDoc */
+    /* Replace the inherited NPC PARTS with a single custom `forge` part. PARTS is not merged across the
+     * inheritance chain, so this fully supplants the parent definition. @inheritDoc */
     static PARTS = {
         forge: {
             template: "modules/giffyglyph-monster-maker-continued/templates/monster/forge.html",
@@ -61,12 +61,11 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
     };
 
-    /* The dnd5e NPC sheet inherits `static TABS` for its tab strip
- * clear it so the framework doesn't try to render a `tabs` part we never declare @inheritDoc */
+    /* Clear the inherited `static TABS` so the framework doesn't try to render a `tabs` part we never declare. @inheritDoc */
     static TABS = [];
 
-    /* Class names inherited from the dnd5e v5.x ApplicationV2 NPC sheet chain that apply heavy visual styling (parchme...
- * The GMM forge entirely replaces the dnd5e NPC PARTS markup, so none of these styles are wanted */
+    /* Class names inherited from the dnd5e NPC sheet chain that apply heavy visual styling. The GMM forge
+     * entirely replaces the dnd5e NPC PARTS markup, so none of these styles are wanted. */
     static #STRIPPED_CLASSES = new Set([
         "dnd5e2",
         "actor",
@@ -98,8 +97,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const actorData = this.actor.flags;
         const moduleVersion = game.modules.get(GMM_MODULE_TITLE)?.version ?? "";
 
-        // Templates rendered via the V1 sheet expected `cssClass` to be supplied by the framework
-        // ApplicationV2 doesn't populate it automatically, so provide an equivalent so the existing `forge--monster
+        // The V1 sheet framework supplied `cssClass`; ApplicationV2 does not, so provide an equivalent for the templates.
         context.cssClass = this.isEditable ? "editable" : "locked";
         context.editable = this.isEditable;
 
@@ -235,21 +233,20 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /*  Inherited dnd5e helpers we deliberately disable                                */
     /* -------------------------------------------- */
 
-    /* The dnd5e NPC sheet's `_onRender` invokes three helpers that decorate the stock `inventory`, `attunement`, and `...
- * Our {@link MonsterSheet.PARTS} replaces all of those with the single custom `forge` part, so the helpers' `this */
+    /* The dnd5e NPC sheet's `_onRender` invokes these helpers to decorate the stock inventory, attunement, and spellbook
+     * parts. Our PARTS replaces all of those with the single custom `forge` part, so disable them to avoid errors. */
     _renderCreateInventory() {}
     _renderAttunement() {}
     _renderSpellbook() {}
 
-    /* Suppress the dnd5e "mode slider" (`<slide-toggle class="mode-slider">`) that `PrimarySheet5e#_renderModeToggle`...
- * GMM's Forge UI is always editable and exposes its own controls */
+    /* Suppress the dnd5e "mode slider" (`.mode-slider`): GMM's Forge UI is always editable and exposes its own controls. */
     _renderModeToggle() {
         const toggle = this.element?.querySelector(".window-header .mode-slider");
         if (toggle) toggle.remove();
     }
 
-    /* Suppress the dnd5e "create child" footer button (gold "+" appended to `.window-content` by `PrimarySheet5e#_onFi...
- * The Forge UI provides its own per-section "Add" buttons, and dnd5e's button has no meaning here: */
+    /* Remove the dnd5e "create child" footer button (`.create-child`): the Forge UI provides its own per-section
+     * "Add" buttons, so dnd5e's button has no meaning here. */
     async _onFirstRender(context, options) {
         await super._onFirstRender(context, options);
         this.element?.querySelector(".window-content > .create-child")?.remove();
@@ -266,8 +263,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
 
         // Rich text editors are `<prose-mirror>` web components in the templates; they self-initialize.
 
-        // Bridge the GMM Gui controller and modal helpers (which still use jQuery) to the V2 root element
-        // `this.element` is the form created by DocumentSheetV2 (`tag:
+        // Bridge the GMM Gui controller and modal helpers (which still use jQuery) to the V2 root element.
         const $el = $(this.element);
         try {
             this._gui.activateListeners($el);
@@ -299,8 +295,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /*  Form Submission                             */
     /* -------------------------------------------- */
 
-    /* @inheritDoc Skip the auto-submit when an input inside a `.gmm-modal` changes
- * modal forms commit their own state via their roll buttons and should never trigger a sheet update by themselves */
+    /* Skip the auto-submit when an input inside a `.gmm-modal` changes: modal forms commit their own state via
+     * their roll buttons and should never trigger a sheet update by themselves. @inheritDoc */
     _onChangeForm(formConfig, event) {
         if (event?.target?.closest?.(".gmm-modal")) return;
         return super._onChangeForm(formConfig, event);
@@ -309,15 +305,14 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /* @inheritDoc Replaces the V1 `_updateObject`
  * The form fields use dotted names like `gmm.blueprint.combat.rank.type` */
     _processFormData(event, form, formData) {
-        // V14 ApplicationV2 puts the application root in a `<form>` element, and the forge template embeds GMM modals (abi...
-        // Their named radios/selects (`ability`, `mode`, `bonus`, …) would otherwise be picked up by FormDataExtended on e
-        const filtered = {};
-        for (const [name, value] of Object.entries(formData.object)) {
+        // The forge template embeds GMM modals inside the sheet's root form. Drop their named radios/selects
+        // (`ability`, `mode`, `bonus`, …) so FormDataExtended doesn't submit them as actor updates.
+        for (const name of Object.keys(formData.object)) {
             const input = form.querySelector(`[name="${CSS.escape(name)}"]`);
-            if (input?.closest(".gmm-modal")) continue;
-            filtered[name] = value;
+            if (input?.closest(".gmm-modal")) delete formData.object[name];
         }
-        const expanded = foundry.utils.expandObject(filtered);
+        // Call super so dnd5e's base handling runs (wildcard-token guard, flag `-=` cleanup, CR coercion).
+        const expanded = super._processFormData(event, form, formData);
         const target = event?.target;
 
         if (target) {
@@ -370,8 +365,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /*  Drag & Drop                                 */
     /* -------------------------------------------- */
 
-    /* @inheritDoc Extend the dnd5e default reset (which already strips `attuned`, `equipped`, `prepared`, `crew.value`...
- * already strips `attuned`, `equipped`, `prepared`, `crew.value`) with the GMM-specific fields the V1 sheet stripped */
+    /* Extend the dnd5e default drop reset with the GMM-specific fields (`proficient`, `attunement`) the V1 sheet stripped. @inheritDoc */
     _onDropResetData(event, itemData) {
         super._onDropResetData(event, itemData);
         if (!itemData.system) return;
@@ -405,8 +399,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /*  Action Handlers                             */
     /* -------------------------------------------- */
 
-    /* Handle adding a new item (loot, spell, or scaling action) to the monster Three paths:
- * **loot** → vanilla dnd5e loot item **spell** → vanilla dnd5e spell item using the standard dnd5e spell sheet (no */
+    /* Add a new item to the monster: loot and spell paths create vanilla dnd5e items, while any other type
+     * builds a GMM scaling-action item with a blueprint flag and the GMM activity. */
     static async #actionAddItem(event, target) {
         const type = target.dataset.type;
 
@@ -420,8 +414,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
 
         if (type === "spell") {
-            // Spells use the standard dnd5e spell sheet
-            // they represent the monster having access to non-scaling spells from dnd5e and aren't part of the GMM scaling-act
+            // Spells use the standard dnd5e spell sheet; they are non-scaling and not part of the GMM scaling-action system.
             const level = Number(target.dataset.level ?? 0) || 0;
             const preparationMode = target.dataset["preparation.mode"] || "prepared";
             let method = "spell";
@@ -473,8 +466,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             system: {
                 activities: { [Activities.GMM_ACTIVITY_ID]: activityData }
             },
-            // Nest the bound sheet under `flags.core.sheetClass`:
-            // a literal `"core.sheetClass"` key would never resolve because Foundry reads the bound sheet at `document.flags.c
+            // Nest the bound sheet under `flags.core.sheetClass`; a flat `"core.sheetClass"` key would not
+            // resolve, because Foundry reads the bound sheet from `document.flags.core.sheetClass`.
             flags: {
                 core: { sheetClass: `${GMM_MODULE_TITLE}.ActionSheet` },
                 gmm: { blueprint }
@@ -515,13 +508,12 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return ChatMessage.create({ content: DIV.innerHTML });
     }
 
-    /* Recharge an item @this {MonsterSheet} */
+    /** @this {MonsterSheet} */
     static #actionRechargeItem(event, target) {
         const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
         if (!item) return;
-        // GMM scaling-action items put their recharge on the GMM-managed activity, not at the item level, so try the activ...
-        // Fall back to item-level uses (for items that scope recharge at the item level), and finally to the legacy `Item5
+        // GMM scaling-action items put recharge on the GMM activity; fall back to item-level uses, then to the legacy Item method.
         const activity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
         if (activity?.uses?.rollRecharge) return activity.uses.rollRecharge();
         if (item.system?.uses?.rollRecharge) return item.system.uses.rollRecharge();
@@ -563,8 +555,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
     }
 
-    /* Open a Foundry FilePicker to choose an image for the field named in `target.dataset.editImage`, then write the p...
- * The V1 sheet wired the inline `<img data-edit="…">` pattern through Foundry's ImageHelper popup, but Application */
+    /* Open a Foundry FilePicker to choose an image for the field named in `target.dataset.editImage`, then write
+     * the chosen path back to the document. Replaces the V1 sheet's inline `<img data-edit>` handling. */
     static #actionEditImage(event, target) {
         const field = target.dataset.editImage;
         if (!field) return;
@@ -574,8 +566,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             current,
             callback: path => {
                 const update = { [field]: path };
-                // If we're writing into the GMM blueprint flag, also stamp the envelope's `vid` / `type` so a fresh actor that has...
-                // Without this, `_verifyBlueprint` sees a missing `vid` on the next render
+                // When writing into the GMM blueprint flag, also stamp the envelope's `vid` / `type`; without this
+                // a fresh actor's `_verifyBlueprint` would see a missing `vid` on the next render.
                 if (field.startsWith("flags.gmm.blueprint.")) {
                     update["flags.gmm.blueprint.vid"] = 1;
                     update["flags.gmm.blueprint.type"] = "monster";
@@ -630,8 +622,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return this.actor.updateEmbeddedDocuments("Item", [{ _id: target, [field]: value }]);
     }
 
-    /* Sync the ability ranking inputs back to the blueprint flag after the user reorders them via the `.move-up` / `.m...
- * Bypasses {@link _processFormData} because Gui's reorder doesn't dispatch a `change` event and the rankings only */
+    /* Sync the ability ranking inputs back to the blueprint flag after a `.move-up` / `.move-down` reorder.
+     * Updates directly because Gui's reorder doesn't dispatch a `change` event to trigger the normal form submit. */
     _updateAbilityRanking(event) {
         const rankings = [];
         event.currentTarget.closest(".accordion-section__body")

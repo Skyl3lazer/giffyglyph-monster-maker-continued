@@ -13,8 +13,8 @@ import CompatibilityHelpers from "./CompatibilityHelpers.js";
 
 const MonsterBlueprint = (function () {
 
-	// Plain path-to-path bindings used to copy values between the GMM blueprint and the underlying dnd5e Actor schema...
-	// Anything that needs a value transform (e.g
+	// Plain path-to-path bindings copied verbatim between the GMM blueprint and the dnd5e Actor schema.
+	// Anything needing a value transform is handled separately below, not here.
 	const mappings = [
 		{ from: "biography.text", to: "system.details.biography.value" },
 		{ from: "condition_immunities.other", to: "system.traits.ci.custom" },
@@ -129,8 +129,8 @@ const MonsterBlueprint = (function () {
 	}
 
 	function _verifyBlueprint(blueprint) {
-		// Direct-leaf writes via `document.update({ "flags.gmm.blueprint.data.<x>":
-		// v })` (e.g
+		// Direct-leaf writes via `document.update({ "flags.gmm.blueprint.data.<x>": v })` can leave
+		// data present but no version id; backfill it so the blueprint verifies.
 		if (blueprint && blueprint.vid === undefined && blueprint.data) {
 			blueprint.vid = 1;
 			if (!blueprint.type) blueprint.type = "monster";
@@ -163,8 +163,7 @@ const MonsterBlueprint = (function () {
 			// Initiative advantage moved from `flags.dnd5e.initiativeAdv` (boolean) to
 			// `system.attributes.init.roll.mode` (number, 1 = advantage, -1 = disadvantage).
 			blueprintData.initiative.advantage = actor.system?.attributes?.init?.roll?.mode === 1;
-			// `system.resources.legact.value` / `legres.value` are no longer stored fields dnd5e derives them from `max - spen...
-			// Recompute the "current remaining" value here so the blueprint shows correct numbers even when this runs during p
+			// dnd5e no longer stores legact/legres remaining; derive "current remaining" as max - spent.
 			const legact = actor.system?.resources?.legact ?? {};
 			blueprintData.legendary_actions.current = (legact.max ?? 0) - (legact.spent ?? 0);
 			const legres = actor.system?.resources?.legres ?? {};
@@ -248,8 +247,8 @@ const MonsterBlueprint = (function () {
 								blueprintData.inventory.items.push(_getItemDetails(item, blueprintData.display));
 								break;
 							default: {
-								// dnd5e v5+ moved `system.activation` off the item onto each activity
-								// Walk the item's activities and treat any of the 5e-specialized "reaction*" activation types as a reaction so pre
+								// dnd5e v5+ moved `system.activation` off the item onto each activity.
+								// Walk the activities and treat any "reaction*" activation type as a reaction, else an action.
 								const activations = item.system?.activities?.contents?.map(a => a.activation?.type).filter(_ => _) ?? [];
 								const isSpecialReaction = activations.some(t =>
 									t === "reactiondamage" || t === "reactionmanual" || t === "reactionpreattack"
@@ -396,8 +395,8 @@ const MonsterBlueprint = (function () {
 			CompatibilityHelpers.setProperty(actorData, "system.resources.legres.spent", Math.max(0, max - current));
 		}
 
-		// Initiative advantage moved from `flags.dnd5e.initiativeAdv` (boolean) to `system.attributes.init.roll.mode` (num...
-		// Mirror the boolean blueprint flag onto the new numeric mode (1 = advantage, 0 = none) when persisting the blueprint
+		// Initiative advantage moved from `flags.dnd5e.initiativeAdv` (boolean) to `system.attributes.init.roll.mode` (number).
+		// Mirror the boolean blueprint flag onto the numeric mode (1 = advantage, 0 = none) when persisting the blueprint.
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "initiative.advantage")) {
 			CompatibilityHelpers.setProperty(
 				actorData,

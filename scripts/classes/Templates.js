@@ -23,8 +23,8 @@ const Templates = (function() {
 
 	function registerTemplateHelpers() {
 
-		// Foundry v14 removed the legacy `{{#select VALUE}}...{{/select}}` block helper that used to mark the matching `<o...
-		// The GMM forge templates use this in ~30 places to bind blueprint values to native `<select>` elements
+		// Foundry v14 removed the legacy `{{#select VALUE}}...{{/select}}` block helper that marked the matching `<option>` as selected.
+		// The GMM forge templates use it in ~30 places to bind blueprint values to native `<select>` elements.
 		if (!Handlebars.helpers.select) {
 			Handlebars.registerHelper('select', function(selected, options) {
 				const value = (selected === null || selected === undefined) ? "" : String(selected);
