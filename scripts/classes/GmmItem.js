@@ -66,10 +66,6 @@ const GmmItem = (function () {
         Hooks.on("dnd5e.postBuildDamageRollConfig", _onPostBuildDamageConfig);
     }
 
-    /* -------------------------------------------- */
-    /*  Identity helpers                            */
-    /* -------------------------------------------- */
-
     function _isOwnedByGmmMonster() {
         return this.actor && this.actor.type == "npc" && (this.actor.getSheetId?.() == `${GMM_MODULE_TITLE}.MonsterSheet`);
     }
@@ -94,10 +90,6 @@ const GmmItem = (function () {
         return item?.getSheetId?.() === `${GMM_MODULE_TITLE}.ActionSheet`;
     }
 
-    /* -------------------------------------------- */
-    /*  Runtime shortcoder substitution             */
-    /* -------------------------------------------- */
-
     function _prepareShortcodes() {
         if (!_isGmmActionItem(this)) return;
         const gmmMonster = this.getOwningGmmMonster();
@@ -109,10 +101,6 @@ const GmmItem = (function () {
         }
         Activities.resolveActivityFormulas(this, gmmMonster);
     }
-
-    /* -------------------------------------------- */
-    /*  Roll hook listeners                         */
-    /* -------------------------------------------- */
 
     function _onPreRollAttack(rollConfig, dialogConfig, _messageConfig) {
         const activity = rollConfig?.subject;
@@ -240,10 +228,6 @@ const GmmItem = (function () {
         Activities.injectAmmoMagicPart(config, ammo);
     }
 
-    /* -------------------------------------------- */
-    /*  Sorting (used by MonsterSheet to bin items) */
-    /* -------------------------------------------- */
-
     function _getSortingCategory() {
         if (this.getSheetId() == `${GMM_MODULE_TITLE}.ActionSheet`) {
             const gmmActionBlueprint = this.getGmmActionBlueprint();
@@ -298,10 +282,6 @@ const GmmItem = (function () {
             }
         }
     }
-
-    /* -------------------------------------------- */
-    /*  GMM Labels (used by MonsterSheet rendering) */
-    /* -------------------------------------------- */
 
     /* Build the label bag used by the GMM monster sheet's action/trait partials.
      * Fields derive from the item's GMM activity, plus the GMM blueprint flag for GMM-only concepts like rarity. */
@@ -463,8 +443,6 @@ const GmmItem = (function () {
 
         return labels;
     }
-
-    /* -------------------------------------------- */
 
     /* Compute the GMM-displayed to-hit bonus from the monster's attack bonus, the related-stat ability mod,
      * and the activity's attack.bonus formula. Mirrors what Activities.injectAttackBonusParts contributes at roll time. */

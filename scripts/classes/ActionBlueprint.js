@@ -14,10 +14,6 @@ const ActionBlueprint = (function () {
         { from: "description.text", to: "system.description.value" }
     ];
 
-    /* -------------------------------------------- */
-    /*  Read direction (item -> blueprint)          */
-    /* -------------------------------------------- */
-
     function createFromItem(item) {
         const blueprint = $.extend(true, {}, GMM_ACTION_BLUEPRINT, item.flags.gmm ? _verifyBlueprint(item.flags.gmm.blueprint) : null);
         return _syncItemDataToBlueprint(blueprint, item);
@@ -63,10 +59,6 @@ const ActionBlueprint = (function () {
         }
     }
 
-    /* -------------------------------------------- */
-    /*  Write direction (blueprint -> item)         */
-    /* -------------------------------------------- */
-
     /* Build the partial item update derived from a saved blueprint
  * The result is a flat mix of nested item-level fields (img, name, system.description.value) and dotted path keys */
     function getItemDataFromBlueprint(blueprint, item = null) {
@@ -93,12 +85,8 @@ const ActionBlueprint = (function () {
         return itemData;
     }
 
-    /* -------------------------------------------- */
-    /*  Vanilla -> GMM derivation                   */
-    /* -------------------------------------------- */
-
     /* Build a fresh GMM blueprint from a vanilla weapon/feat that has never been a GMM scaling
-     * action. Reads the item's primary dnd5e activity (chosen via {@link Activities.pickPrimaryActivity})
+     * action. Reads the item's primary dnd5e activity (chosen via Activities.pickPrimaryActivity)
      * and patches anything still missing from the item-level fields dnd5e v5 keeps on the document
      * itself. Returns a `{vid:1, type:"action", data:{...}}` envelope ready for `flags.gmm.blueprint`. */
     function deriveFromVanillaItem(item) {
@@ -114,7 +102,7 @@ const ActionBlueprint = (function () {
 
         // One-time rewrite pass over the imported description so vanilla dnd5e conventions like
         // `[[lookup @name lowercase]]{monster}` are translated into GMMC shortcodes (`[name]`, …).
-        // See {@link GMM_DESCRIPTION_REPLACEMENTS} for the active rule set.
+        // See GMM_DESCRIPTION_REPLACEMENTS for the active rule set.
         try {
             _applyDescriptionReplacements(blueprintData);
         } catch (e) {
@@ -161,7 +149,7 @@ const ActionBlueprint = (function () {
         return blueprint;
     }
 
-    /* Apply the {@link GMM_DESCRIPTION_REPLACEMENTS} rule set in order to the blueprint's
+    /* Apply the GMM_DESCRIPTION_REPLACEMENTS rule set in order to the blueprint's
      * description text. After substitutions, if the remaining content is just whitespace,
      * HTML scaffolding, or stray punctuation, clear the description entirely so the converted
      * action doesn't render an empty `<p></p>` shell where vanilla button enrichers used to live. */

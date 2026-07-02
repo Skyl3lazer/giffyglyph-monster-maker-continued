@@ -104,7 +104,7 @@ All of these use the same module id, so only **one can be installed on a Foundry
 
 ### Converting an old Action
 
-**NOTE**: As of 2.x, converting an action into a GMMC action is *destructive*, meaning changing it back to a vanilla 5e action will not work as expected!
+**NOTE**: As of 2.x, if you convert back and forth between scalar and vanilla actions, changes made in one mode won't reflect in the other.
 
 1. Open an existing item, such as a weapon, feature, or piece of loot.
 2. Change the active sheet to **"Giffyglyph's 5e Scaling Action"**.

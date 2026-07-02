@@ -23,7 +23,7 @@ import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Activities from "./Activities.js";
 
 /* GMM scaling-action item sheet, rebuilt on the dnd5e v5.x ApplicationV2 ItemSheet5e base.
- * Form submission is intercepted in {@link _processFormData} to translate `gmm.blueprint.*` fields into flags. */
+ * Form submission is intercepted in _processFormData to translate `gmm.blueprint.*` fields into flags. */
 export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     constructor(options = {}) {
         super(options);
@@ -78,10 +78,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         const name = this.item?.name ?? this.document?.name ?? "";
         return name ? `${name} - GMMC Scalar Ability` : "GMMC Scalar Ability";
     }
-
-    /* -------------------------------------------- */
-    /*  Rendering                                   */
-    /* -------------------------------------------- */
 
     /** @inheritDoc */
     async _prepareContext(options) {
@@ -151,8 +147,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return context;
     }
 
-    /* -------------------------------------------- */
-
     /* Stamp the always/onUse flags consumed by `blueprint_effect.html` onto every effect entry.
      * Effects rendered here belong to `this.item` directly, so we deliberately leave `parentId`
      * unset — populating it would make dnd5e's `<dnd5e-effects>` element resolve the effect via
@@ -172,8 +166,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             }
         }
     }
-
-    /* -------------------------------------------- */
 
     /* Build the dropdown options for the consumption-target picker, driven by the blueprint's resource type.
      * dnd5e v5.x dropped the legacy `item.system.consume.*` schema in favour of per-activity consumption. */
@@ -196,8 +188,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             return {};
         }
     }
-
-    /* -------------------------------------------- */
 
     /* Ammo consumption: list every consumable item on the actor whose `system.type.value === "ammo"`,
      * plus the item itself when it is ammo. */
@@ -271,10 +261,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return targets;
     }
 
-    /* -------------------------------------------- */
-    /*  Inherited dnd5e helpers we deliberately disable                                */
-    /* -------------------------------------------- */
-
     /* Suppress the dnd5e "mode slider" (`<slide-toggle class="mode-slider">`) from the window header;
      * GMM's Forge UI is always editable and exposes its own controls. */
     _renderModeToggle() {
@@ -300,10 +286,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         this._mode = this.constructor.MODES.EDIT;
     }
 
-    /* -------------------------------------------- */
-    /*  Event Listeners                             */
-    /* -------------------------------------------- */
-
     /** @inheritDoc */
     async _onRender(context, options) {
         await super._onRender(context, options);
@@ -319,10 +301,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             console.warn("GMM | ActionSheet: Gui.activateListeners failed", e);
         }
     }
-
-    /* -------------------------------------------- */
-    /*  Form Submission                             */
-    /* -------------------------------------------- */
 
     /* @inheritDoc @see MonsterSheet#_onChangeForm */
     _onChangeForm(formConfig, event) {
@@ -384,12 +362,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return expanded;
     }
 
-    /* -------------------------------------------- */
-    /*  Action Handlers                             */
-    /* -------------------------------------------- */
-
     /* @this {ActionSheet} Append an empty damage part to the blueprint and rebuild the activity.
-     * See {@link #mutateBlueprintDamage} for why this drives off the flag rather than the activity. */
+     * See #mutateBlueprintDamage for why this drives off the flag rather than the activity. */
     static async #actionAddDamage(event, target) {
         event.preventDefault();
         return ActionSheet.#mutateBlueprintDamage.call(this, entries => {
@@ -478,7 +452,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
 
     /* Toggle this item's effect between GMM "always" (transfers passively) and "onUse" (offered as
      * an Apply Effect button on the GMM activity's chat card). Resolves the effect from
-     * `data-effect-id` on the row and delegates the storage update to {@link Activities.setEffectMode}.
+     * `data-effect-id` on the row and delegates the storage update to Activities.setEffectMode.
      * @this {ActionSheet} */
     static async #actionToggleEffectMode(event, target) {
         event?.preventDefault?.();

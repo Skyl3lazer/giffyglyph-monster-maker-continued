@@ -87,10 +87,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return name ? `${name} - GMMC Scalar Monster` : "GMMC Scalar Monster";
     }
 
-    /* -------------------------------------------- */
-    /*  Rendering                                   */
-    /* -------------------------------------------- */
-
     /** @inheritDoc */
     async _prepareContext(options) {
         const context = await super._prepareContext(options);
@@ -193,8 +189,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return context;
     }
 
-    /* -------------------------------------------- */
-
     /* For each prepared effect entry that lives on a GMMC scaling-action item the actor carries,
      * stamp the always/onUse flags consumed by `blueprint_effect.html`. Effects directly on the
      * actor (no parentId) are skipped — they have no activity to attach to. */
@@ -214,8 +208,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
     }
 
-    /* -------------------------------------------- */
-
     _getItemMapping(type, monster) {
         let items = CompatibilityHelpers.getProperty(monster, type);
         let mappedItems;
@@ -228,10 +220,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
         return mappedItems;
     }
-
-    /* -------------------------------------------- */
-    /*  Inherited dnd5e helpers we deliberately disable                                */
-    /* -------------------------------------------- */
 
     /* The dnd5e NPC sheet's `_onRender` invokes these helpers to decorate the stock inventory, attunement, and spellbook
      * parts. Our PARTS replaces all of those with the single custom `forge` part, so disable them to avoid errors. */
@@ -251,10 +239,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         await super._onFirstRender(context, options);
         this.element?.querySelector(".window-content > .create-child")?.remove();
     }
-
-    /* -------------------------------------------- */
-    /*  Event Listeners                             */
-    /* -------------------------------------------- */
 
     /** @inheritDoc */
     async _onRender(context, options) {
@@ -290,10 +274,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             console.warn("GMM | MonsterSheet: listener attachment failed", e);
         }
     }
-
-    /* -------------------------------------------- */
-    /*  Form Submission                             */
-    /* -------------------------------------------- */
 
     /* Skip the auto-submit when an input inside a `.gmm-modal` changes: modal forms commit their own state via
      * their roll buttons and should never trigger a sheet update by themselves. @inheritDoc */
@@ -361,10 +341,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return expanded;
     }
 
-    /* -------------------------------------------- */
-    /*  Drag & Drop                                 */
-    /* -------------------------------------------- */
-
     /* Extend the dnd5e default drop reset with the GMM-specific fields (`proficient`, `attunement`) the V1 sheet stripped. @inheritDoc */
     _onDropResetData(event, itemData) {
         super._onDropResetData(event, itemData);
@@ -394,10 +370,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
 
         return this.actor.updateEmbeddedDocuments("Item", updateData);
     }
-
-    /* -------------------------------------------- */
-    /*  Action Handlers                             */
-    /* -------------------------------------------- */
 
     /* Add a new item to the monster: loot and spell paths create vanilla dnd5e items, while any other type
      * builds a GMM scaling-action item with a blueprint flag and the GMM activity. */
@@ -536,7 +508,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
 
     /* Toggle an item-effect between GMM "always" (transfers passively) and "onUse" (offered as
      * an Apply Effect button on the GMM activity's chat card). Resolves the effect's parent item
-     * via the row's `data-parent-id` and delegates the storage update to {@link Activities.setEffectMode}.
+     * via the row's `data-parent-id` and delegates the storage update to Activities.setEffectMode.
      * @this {MonsterSheet} */
     static async #actionToggleEffectMode(event, target) {
         event?.preventDefault?.();
@@ -604,10 +576,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             [`flags.gmm.blueprint.data.hit_points.rolled_max`]: Math.max(1, roll.total),
         });
     }
-
-    /* -------------------------------------------- */
-    /*  Helpers (instance methods bound from _onRender) */
-    /* -------------------------------------------- */
 
     _toggleItemDetails(event) {
         const item = event.currentTarget.closest(".item");
