@@ -5,3 +5,8 @@ package-lock.json
 CLAUDE.local.md
 .cursor/
 .claude/
+
+# Foundry LevelDB runtime/diagnostic files (regenerated on pack, nondeterministic)
+packs/*/LOCK
+packs/*/LOG
+packs/*/LOG.old
