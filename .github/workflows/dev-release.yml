@@ -1,7 +1,7 @@
 name: Dev Release
 
-# Publishes a rolling "dev" pre-release on every push to the dev branch, so testers can
-# install once from releases/download/dev/module.json and auto-update.
+# Publishes a rolling pre-release on every push to the dev branch, so testers can install
+# once from releases/download/dev-latest/module.json and auto-update.
 
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
 
       - name: Stamp module.json for the dev channel
         run: |
-          node -e "const fs=require('fs');const repo=process.env.GITHUB_REPOSITORY;const m=JSON.parse(fs.readFileSync('module.json','utf8'));m.manifest='https://github.com/'+repo+'/releases/download/dev/module.json';m.download='https://github.com/'+repo+'/releases/download/dev/module.zip';['manifestProd','manifestDev','downloadProd','downloadDev'].forEach(k=>delete m[k]);fs.writeFileSync('module.json',JSON.stringify(m,null,'\t')+'\n');console.log('Dev build',m.id,m.version);"
+          node -e "const fs=require('fs');const repo=process.env.GITHUB_REPOSITORY;const m=JSON.parse(fs.readFileSync('module.json','utf8'));m.manifest='https://github.com/'+repo+'/releases/download/dev-latest/module.json';m.download='https://github.com/'+repo+'/releases/download/dev-latest/module.zip';['manifestProd','manifestDev','downloadProd','downloadDev'].forEach(k=>delete m[k]);fs.writeFileSync('module.json',JSON.stringify(m,null,'\t')+'\n');console.log('Dev build',m.id,m.version);"
           echo "MODULE_VERSION=$(node -p "require('./module.json').version")" >> "$GITHUB_ENV"
 
       - name: Build module.zip
@@ -41,14 +41,14 @@ jobs:
                "package.json" "package-lock.json" "gulpfile.js" ".gitignore" \
                ".eslintrc.json" ".jsbeautifyrc" "module.zip"
 
-      - name: Publish / refresh the rolling "dev" pre-release
+      - name: Publish / refresh the rolling dev pre-release
         run: |
-          NOTES="Dev build $MODULE_VERSION - rolling build of the dev branch. Install manifest: https://github.com/$GITHUB_REPOSITORY/releases/download/dev/module.json"
-          if gh release view dev >/dev/null 2>&1; then
-            gh release upload dev module.json module.zip --clobber
-            gh release edit dev --title "Dev build $MODULE_VERSION" --notes "$NOTES"
+          NOTES="Dev build $MODULE_VERSION - rolling build of the dev branch. Install manifest: https://github.com/$GITHUB_REPOSITORY/releases/download/dev-latest/module.json"
+          if gh release view dev-latest >/dev/null 2>&1; then
+            gh release upload dev-latest module.json module.zip --clobber
+            gh release edit dev-latest --title "Dev build $MODULE_VERSION" --notes "$NOTES"
           else
-            gh release create dev module.json module.zip --prerelease --target "$GITHUB_SHA" \
+            gh release create dev-latest module.json module.zip --prerelease --target "$GITHUB_SHA" \
               --title "Dev build $MODULE_VERSION" \
               --notes "$NOTES"
           fi
