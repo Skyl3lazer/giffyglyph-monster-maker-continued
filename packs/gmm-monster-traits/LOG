@@ -1,5 +1,3 @@
-2026/07/02-15:01:03.044 94edc Delete type=3 #1
-2026/07/02-15:01:03.198 112020 Level-0 table #5: started
-2026/07/02-15:01:03.206 112020 Level-0 table #5: 206393 bytes OK
-2026/07/02-15:01:03.208 112020 Delete type=0 #3
-2026/07/02-15:01:03.208 112020 Manual compaction at level-0 from '!folders!2LPDPz4IMyoc7wHb' @ 72057594037927935 : 1 .. '!items!zt753nz0iRhU9CwZ' @ 0 : 0; will stop at (end)
+2026/07/02-15:18:58.431 114300 Recovering log #4
+2026/07/02-15:18:58.435 114300 Delete type=0 #4
+2026/07/02-15:18:58.435 114300 Delete type=3 #2

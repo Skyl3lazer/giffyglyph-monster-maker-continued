@@ -1,0 +1,39 @@
+name: Packs Sync Check
+
+# Guards against a stale build: the shipped LevelDB in packs/ must match its editable
+# source in src/packs/. Unpacking packs/ and comparing to src/packs/ is deterministic;
+# a raw binary diff of packs/ is not (LevelDB writes timestamps into its LOG files).
+
+on:
+  push:
+    branches: [main, dev]
+    paths: ["src/packs/**", "packs/**", "tools/packs.mjs", "module.json"]
+  pull_request:
+    paths: ["src/packs/**", "packs/**", "tools/packs.mjs", "module.json"]
+
+jobs:
+  packs-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Regenerate src/packs from committed packs
+        run: npm run unpack
+
+      - name: Fail if packs/ is out of sync with src/packs/
+        run: |
+          if [ -n "$(git status --porcelain src/packs)" ]; then
+            echo "::error::packs/ (LevelDB) is out of sync with src/packs/. Run 'npm run pack' and commit the packs/ changes."
+            git status --porcelain src/packs
+            git --no-pager diff -- src/packs
+            exit 1
+          fi
+          echo "packs/ is in sync with src/packs/."

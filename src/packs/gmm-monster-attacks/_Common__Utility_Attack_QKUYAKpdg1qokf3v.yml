@@ -4,7 +4,7 @@ img: icons/skills/melee/unarmed-punch-fist-yellow-red.webp
 system:
   description:
     value: >-
-      <p>The target can spend their raction to make a basic attack against a
+      <p>The target can spend their reaction to make a basic attack against a
       target of your choice.</p>
     chat: ''
   source: {}
