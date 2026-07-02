@@ -69,7 +69,7 @@ flags:
         uses:
           value: 3
           max: 3
-          per: sr
+          per: lr
         display:
           layout: ''
           skin:
@@ -106,7 +106,7 @@ system:
   uses:
     value: 3
     max: 3
-    per: sr
+    per: lr
     recovery: ''
   consume:
     type: ''

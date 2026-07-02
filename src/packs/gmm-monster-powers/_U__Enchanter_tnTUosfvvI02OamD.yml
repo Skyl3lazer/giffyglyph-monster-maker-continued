@@ -28,9 +28,9 @@ system:
     long: null
     units: ft
   uses:
-    value: null
-    max: ''
-    per: null
+    value: 3
+    max: 3
+    per: lr
     recovery: ''
     prompt: true
   consume:
@@ -120,9 +120,9 @@ flags:
           value: 10
           width: null
         uses:
-          value: null
-          max: ''
-          per: ''
+          value: 3
+          max: 3
+          per: lr
         display:
           layout: ''
           skin:

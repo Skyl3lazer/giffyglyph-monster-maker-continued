@@ -1,3 +1,5 @@
-2026/07/02-14:47:14.246 112f8c Recovering log #4
-2026/07/02-14:47:14.251 112f8c Delete type=0 #4
-2026/07/02-14:47:14.252 112f8c Delete type=3 #2
+2026/07/02-15:01:03.500 10f1ac Delete type=3 #1
+2026/07/02-15:01:03.523 115a00 Level-0 table #5: started
+2026/07/02-15:01:03.525 115a00 Level-0 table #5: 10960 bytes OK
+2026/07/02-15:01:03.528 115a00 Delete type=0 #3
+2026/07/02-15:01:03.528 115a00 Manual compaction at level-0 from '!actors!wBCyTykvR2Nb2bna' @ 72057594037927935 : 1 .. '!actors.effects!wBCyTykvR2Nb2bna.tK8lciUDv0zrAxsa' @ 0 : 0; will stop at (end)
