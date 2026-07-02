@@ -106,10 +106,6 @@
 			{
 				"id": "midi-qol",
 				"type": "module"
-			},
-			{
-				"id": "dfreds-convenient-effects",
-				"type": "module"
 			}
 		]
 	},
