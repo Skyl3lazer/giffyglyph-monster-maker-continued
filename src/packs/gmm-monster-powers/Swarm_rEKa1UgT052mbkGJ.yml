@@ -1,0 +1,85 @@
+name: Swarm
+type: feat
+img: icons/creatures/invertebrates/spider-beetle-runed-green.webp
+effects: []
+folder: AFvQXBIFAgQ65eDW
+sort: 900000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+_id: rEKa1UgT052mbkGJ
+system:
+  description:
+    value: >-
+      You can occupy another creature's space and vice versa. You gain advantage
+      on attacks against any creature that shares your space.
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: ''
+    cost: 0
+    condition: ''
+  duration:
+    value: null
+    units: ''
+  cover: null
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: 0
+    max: 0
+    per: null
+    recovery: ''
+  consume:
+    type: ''
+    target: null
+    amount: null
+  ability: null
+  actionType: null
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        requirements:
+          role: ''
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1686232652800
+  modifiedTime: 1712180428323
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-powers.8nxNt6cVjGqSTnSp
+  duplicateSource: null
+  exportSource: null
+_key: '!items!rEKa1UgT052mbkGJ'

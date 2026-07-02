@@ -1,0 +1,153 @@
+name: (U) Enchanter
+type: feat
+img: icons/weapons/ammunition/arrowhead-glowing-blue.webp
+system:
+  description:
+    value: >-
+      <p>Allies in the area may change their attack damage type to one of your
+      choosing.</p>
+    chat: ''
+  source: {}
+  activation:
+    type: bonus
+    cost: null
+    condition: ''
+  duration:
+    value: '10'
+    units: minute
+  cover: null
+  crewed: false
+  target:
+    value: 10
+    width: null
+    units: ft
+    type: sphere
+    prompt: true
+  range:
+    value: 60
+    long: null
+    units: ft
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: util
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties:
+    - concentration
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: oxiwC5PP7UQyllNb
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (U) Enchanter
+          image: icons/weapons/ammunition/arrowhead-glowing-blue.webp
+          text: >-
+            <p>Allies in the area may change their attack damage type to one of
+            your choosing.</p>
+        activation:
+          type: bonus
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: util
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: minute
+          value: '10'
+        range:
+          units: ft
+          value: 60
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: sphere
+          units: ft
+          value: 10
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: true
+        rarity: uncommon
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716049043844
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: tnTUosfvvI02OamD
+sort: 200000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!tnTUosfvvI02OamD'

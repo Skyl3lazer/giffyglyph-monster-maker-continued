@@ -1,0 +1,153 @@
+name: (U) Watch Out
+type: feat
+img: icons/magic/perception/eye-ringed-glow-angry-red.webp
+system:
+  description:
+    value: >-
+      <p>Grant that creature +5 AC against the attack. You must be able to see
+      the source of the attack, and your ally must be able to hear you.</p>
+    chat: ''
+  source: {}
+  activation:
+    type: reaction
+    cost: null
+    condition: A creature you can see would be hit by an attack
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+    prompt: true
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: ''
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: J8E4I6WUVdsFmJFl
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (U) Watch Out
+          image: icons/magic/perception/eye-ringed-glow-angry-red.webp
+          text: >-
+            <p>Grant that creature +5 AC against the attack. You must be able to
+            see the source of the attack, and your ally must be able to hear
+            you.</p>
+        activation:
+          type: reaction
+          cost: null
+          condition: A creature you can see would be hit by an attack
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: ''
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ''
+          value: null
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: ''
+          units: ''
+          value: null
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: false
+        rarity: uncommon
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716048939009
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: Y9ic39wQIOsIWWhH
+sort: 200000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!Y9ic39wQIOsIWWhH'

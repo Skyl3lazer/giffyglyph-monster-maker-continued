@@ -1,0 +1,152 @@
+name: (Common) Utility Attack
+type: feat
+img: icons/skills/melee/unarmed-punch-fist-yellow-red.webp
+system:
+  description:
+    value: >-
+      <p>The target can spend their raction to make a basic attack against a
+      target of your choice.</p>
+    chat: ''
+  source: {}
+  activation:
+    type: action
+    cost: null
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: 1
+    width: null
+    units: ''
+    type: ally
+    prompt: true
+  range:
+    value: 30
+    long: null
+    units: ft
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: util
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: JPEHab7zdvYJ1DzZ
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Common) Utility Attack
+          image: icons/skills/melee/unarmed-punch-fist-yellow-red.webp
+          text: >-
+            <p>The target can spend their raction to make a basic attack against
+            a target of your choice.</p>
+        activation:
+          type: action
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: util
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ft
+          value: 30
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: ally
+          units: ''
+          value: 1
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: false
+        rarity: common
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716048285565
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: QKUYAKpdg1qokf3v
+sort: 0
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!QKUYAKpdg1qokf3v'

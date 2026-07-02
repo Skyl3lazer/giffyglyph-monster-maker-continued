@@ -1,0 +1,148 @@
+name: (U) Pressure Point
+type: feat
+img: icons/skills/melee/unarmed-punch-fist.webp
+system:
+  description:
+    value: <p>The target is paralyzed until the end of your next turn.</p>
+    chat: ''
+  source: {}
+  activation:
+    type: action
+    cost: null
+    condition: The target is restrained
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: null
+    width: null
+    units: ''
+    type: creature
+    prompt: true
+  range:
+    value: 5
+    long: null
+    units: ft
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: mwak
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: RvLPH8AFqBXXZ1tK
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (U) Pressure Point
+          image: icons/skills/melee/unarmed-punch-fist.webp
+          text: <p>The target is paralyzed until the end of your next turn.</p>
+        activation:
+          type: action
+          cost: null
+          condition: The target is restrained
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: mwak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ft
+          value: 5
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: creature
+          units: ''
+          value: null
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: false
+        rarity: uncommon
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716048886883
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: vcaqpoLeD34QKlie
+sort: 0
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!vcaqpoLeD34QKlie'

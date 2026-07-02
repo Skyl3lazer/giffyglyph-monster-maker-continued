@@ -1,0 +1,85 @@
+name: Shadow Stealth
+type: feat
+img: icons/magic/unholy/silhouette-robe-evil-power.webp
+effects: []
+folder: AFvQXBIFAgQ65eDW
+sort: 1900000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+_id: JHmvK77vUjGeSJ1N
+system:
+  description:
+    value: >-
+      While in dim light or darkness, you can take the <em>Hide</em> action as a
+      bonus action.
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: ''
+    cost: 0
+    condition: ''
+  duration:
+    value: null
+    units: ''
+  cover: null
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: 0
+    max: 0
+    per: null
+    recovery: ''
+  consume:
+    type: ''
+    target: null
+    amount: null
+  ability: null
+  actionType: null
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        requirements:
+          role: ''
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1686232652727
+  modifiedTime: 1712180428323
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-powers.YXMzVN1gBe4YM6qd
+  duplicateSource: null
+  exportSource: null
+_key: '!items!JHmvK77vUjGeSJ1N'

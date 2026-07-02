@@ -1,0 +1,145 @@
+name: (Common) Ranged Area Attack, Strong
+type: feat
+img: icons/magic/unholy/beam-impact-purple.webp
+effects: []
+folder: JPEHab7zdvYJ1DzZ
+sort: 1700000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Common) Ranged Area Attack, Strong
+          image: icons/magic/unholy/beam-impact-purple.webp
+        activation:
+          type: action
+          cost: 0
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: save
+          related_stat: max
+          bonus: ''
+          defense: str
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage * 0.75), damageDie]'
+                type: piercing
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        properties:
+          concentration:
+            checked: false
+        range:
+          units: ft
+          value: 30
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: sphere
+          units: ft
+          value: 10
+          width: 0
+        uses:
+          value: 0
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: common
+_id: riI3u2C4iQFeKHXO
+system:
+  description:
+    value: You attack every enemy within range.
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 10
+    width: ''
+    units: ft
+    type: sphere
+  range:
+    value: 30
+    long: null
+    units: ft
+  uses:
+    value: '0'
+    max: '0'
+    per: ''
+    recovery: ''
+  consume:
+    type: ''
+    target: ''
+    amount: null
+  ability: null
+  actionType: save
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts:
+      - - '[round(damage * 0.75), damageDie]'
+        - piercing
+    versatile: ''
+  formula: ''
+  save:
+    ability: str
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1686232662690
+  modifiedTime: 1716048330734
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-attacks.a96fPDyOAYXHa7YH
+  duplicateSource: null
+  exportSource: null
+_key: '!items!riI3u2C4iQFeKHXO'

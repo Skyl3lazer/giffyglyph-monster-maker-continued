@@ -1,0 +1,149 @@
+name: (C) Difficult Space
+type: feat
+img: icons/skills/melee/strike-axe-red.webp
+system:
+  description:
+    value: <p>A space within your reach is difficult terrain to enemies.</p>
+    chat: ''
+  source: {}
+  activation:
+    type: bonus
+    cost: null
+    condition: ''
+  duration:
+    value: '10'
+    units: minute
+  cover: null
+  crewed: false
+  target:
+    value: 5
+    width: null
+    units: ft
+    type: square
+    prompt: true
+  range:
+    value: 60
+    long: null
+    units: ft
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: util
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties:
+    - concentration
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: 5eUEcvRR7XG9ty5T
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (C) Difficult Space
+          image: icons/skills/melee/strike-axe-red.webp
+          text: <p>A space within your reach is difficult terrain to enemies.</p>
+        activation:
+          type: bonus
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: util
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: minute
+          value: '10'
+        range:
+          units: ft
+          value: 60
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: square
+          units: ft
+          value: 5
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: true
+        rarity: common
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716048862500
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: HiubPNLff55vQedb
+sort: 0
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!HiubPNLff55vQedb'

@@ -1,0 +1,167 @@
+name: Spirit Bomb
+type: feat
+img: icons/magic/lightning/barrier-shield-orb-pink.webp
+system:
+  description:
+    value: "<p>You draw spirit energy from nearby living creatures and channel it into a glowing ball of radiant power that is lethal to evil creatures. On your next turn, you launch the ball into\_the ground where the energy explodes.</p>\n<p><strong>Extreme: </strong>If a creature of evil alignment is reduced to 0\_hit points by this attack, it is disintegrated.</p>"
+    chat: ''
+  source: {}
+  activation:
+    type: action
+    cost: null
+    condition: You are bloodied.
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: 30
+    width: null
+    units: ft
+    type: sphere
+    prompt: true
+  range:
+    value: null
+    long: null
+    units: self
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: other
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts:
+      - - '[round(damage*4), damageDie]'
+        - radiant
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: UsguGrClEPv0cVDf
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: Spirit Bomb
+          image: icons/magic/lightning/barrier-shield-orb-pink.webp
+          text: >-
+            <p>You draw spirit energy from nearby living creatures and channel
+            it into a glowing ball of radiant power that is lethal to evil
+            creatures. On your next turn, you launch the ball into&nbsp;the
+            ground where the energy explodes.</p>
+
+            <p><strong>Extreme: </strong>If a creature of evil alignment is
+            reduced to 0&nbsp;hit points by this attack, it is
+            disintegrated.</p>
+        activation:
+          type: action
+          cost: null
+          condition: You are bloodied.
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: other
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage*4), damageDie]'
+                type: radiant
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: self
+          value: null
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: sphere
+          units: ft
+          value: 30
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: rare
+        deferral:
+          type: delayed
+          timer: 1
+          respite: ''
+        properties:
+          concentration:
+            checked: false
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716240925213
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: D99liQq0hnnERXkV
+sort: 200000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!D99liQq0hnnERXkV'

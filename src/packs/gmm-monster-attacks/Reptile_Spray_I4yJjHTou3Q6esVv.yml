@@ -1,0 +1,165 @@
+name: Reptile Spray
+type: feat
+img: icons/creatures/reptiles/lizard-mouth-glowing-red.webp
+system:
+  description:
+    value: "<p>You swallow a vial of reptile acid and mix it with your own digestive juices. On your next turn, you spew a thick spray of corrosive acid that can melt stone, steel, and flesh.</p>\n<p><strong>Extreme:</strong> If a creature is reduced to 0 hit points by this\_attack, it is dissolved.</p>"
+    chat: ''
+  source: {}
+  activation:
+    type: action
+    cost: null
+    condition: You consume a vial of reptile acid
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: 30
+    width: null
+    units: ft
+    type: cone
+    prompt: true
+  range:
+    value: null
+    long: null
+    units: self
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: other
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts:
+      - - '[round(damage*4), damageDie]'
+        - acid
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: UsguGrClEPv0cVDf
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: Reptile Spray
+          image: icons/creatures/reptiles/lizard-mouth-glowing-red.webp
+          text: >-
+            <p>You swallow a vial of reptile acid and mix it with your own
+            digestive juices. On your next turn, you spew a thick spray of
+            corrosive acid that can melt stone, steel, and flesh.</p>
+
+            <p><strong>Extreme:</strong> If a creature is reduced to 0 hit
+            points by this&nbsp;attack, it is dissolved.</p>
+        activation:
+          type: action
+          cost: null
+          condition: You consume a vial of reptile acid
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: other
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage*4), damageDie]'
+                type: acid
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: self
+          value: null
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: cone
+          units: ft
+          value: 30
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: rare
+        deferral:
+          type: delayed
+          timer: 1
+          respite: ''
+        properties:
+          concentration:
+            checked: false
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716240779227
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: I4yJjHTou3Q6esVv
+sort: 100000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!I4yJjHTou3Q6esVv'

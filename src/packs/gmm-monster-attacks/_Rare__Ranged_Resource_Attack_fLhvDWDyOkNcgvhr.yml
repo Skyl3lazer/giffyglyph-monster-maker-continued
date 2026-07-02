@@ -1,0 +1,143 @@
+name: (Rare) Ranged Resource Attack
+type: feat
+img: icons/magic/death/projectile-skull-flaming-green.webp
+effects: []
+folder: Xu0gwcuFy6NMHm0f
+sort: 1600000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Rare) Ranged Resource Attack
+          image: icons/magic/death/projectile-skull-flaming-green.webp
+          text: >-
+            <p>The target gains one failed death saving throw, and loses a
+            charge from an equipped magic item.</p>
+        activation:
+          type: action
+          cost: 0
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: rwak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        properties:
+          concentration:
+            checked: false
+        range:
+          units: ft
+          value: 120
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: creature
+          units: ''
+          value: 1
+          width: 0
+        uses:
+          value: 1
+          max: 1
+          per: lr
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: rare
+_id: fLhvDWDyOkNcgvhr
+system:
+  description:
+    value: >-
+      <p>The target gains one failed death saving throw, and loses a charge from
+      an equipped magic item.</p>
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 1
+    width: ''
+    units: ''
+    type: creature
+  range:
+    value: 120
+    long: null
+    units: ft
+  uses:
+    value: 1
+    max: 1
+    per: lr
+    recovery: ''
+  consume:
+    type: ''
+    target: ''
+    amount: null
+  ability: null
+  actionType: rwak
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1686232662669
+  modifiedTime: 1716048400154
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-attacks.3lmmkPrFCXWhUhSk
+  duplicateSource: null
+  exportSource: null
+_key: '!items!fLhvDWDyOkNcgvhr'

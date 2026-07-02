@@ -1,0 +1,157 @@
+name: (Construct) Lose Control
+type: feat
+img: icons/commodities/tech/levers-colored.webp
+system:
+  description:
+    value: >-
+      <p>You are controlled by another creature. If the creature is killed or
+      otherwise incapacitated, you lose control and must either a) attack the
+      nearest creature you can see or b) if no creature is near enough to move
+      to and attack, attack an object (with preference for an object smaller
+      than yourself).</p>
+    chat: ''
+  source: {}
+  activation:
+    type: ''
+    cost: null
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+    prompt: true
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: ''
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: pxm2WHPkmmMEun1n
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Construct) Lose Control
+          image: icons/commodities/tech/levers-colored.webp
+          text: >-
+            <p>You are controlled by another creature. If the creature is killed
+            or otherwise incapacitated, you lose control and must either a)
+            attack the nearest creature you can see or b) if no creature is near
+            enough to move to and attack, attack an object (with preference for
+            an object smaller than yourself).</p>
+        activation:
+          type: ''
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: ''
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ''
+          value: null
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: ''
+          units: ''
+          value: null
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: false
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1712254971747
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: KvefLJtChFl5OPn6
+sort: 300000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!KvefLJtChFl5OPn6'

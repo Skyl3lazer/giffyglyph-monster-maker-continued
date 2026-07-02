@@ -1,0 +1,153 @@
+name: (R) Mass Teleport
+type: feat
+img: icons/magic/movement/portal-vortex-orange.webp
+system:
+  description:
+    value: >-
+      <p>Choose allies within the area. Each ally is teleported to an unoccupied
+      space of your choice within 40 ft. of their original position.</p>
+    chat: ''
+  source: {}
+  activation:
+    type: action
+    cost: null
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: 25
+    width: null
+    units: ft
+    type: sphere
+    prompt: true
+  range:
+    value: 400
+    long: null
+    units: ft
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: util
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: C9CcFxosfvN1MhYb
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (R) Mass Teleport
+          image: icons/magic/movement/portal-vortex-orange.webp
+          text: >-
+            <p>Choose allies within the area. Each ally is teleported to an
+            unoccupied space of your choice within 40 ft. of their original
+            position.</p>
+        activation:
+          type: action
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: util
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ft
+          value: 400
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: sphere
+          units: ft
+          value: 25
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: false
+        rarity: rare
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716049057378
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: tKJb3FOTCIeMDMUW
+sort: 300000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!tKJb3FOTCIeMDMUW'

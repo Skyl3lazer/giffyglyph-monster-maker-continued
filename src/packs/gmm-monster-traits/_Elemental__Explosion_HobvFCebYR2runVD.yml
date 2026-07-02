@@ -1,0 +1,151 @@
+name: (Elemental) Explosion
+type: feat
+img: icons/magic/fire/barrier-shield-explosion-yellow.webp
+system:
+  description:
+    value: "<p>When you die, each creature within 10 ft. of you must make a DC [dcPrimaryBonus + maxMod] Dexterity saving throw. If the creature fails, it takes 50% ([round(damage*0.50), damageDie])\_ variant damage. If it succeeds, it takes half damage instead.</p>"
+    chat: ''
+  source: {}
+  activation:
+    type: ''
+    cost: null
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+    prompt: true
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: ''
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: YmYak9E5lZfQxjFV
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Elemental) Explosion
+          image: icons/magic/fire/barrier-shield-explosion-yellow.webp
+          text: >-
+            <p>When you die, each creature within 10 ft. of you must make a DC
+            [dcPrimaryBonus + maxMod] Dexterity saving throw. If the creature
+            fails, it takes 50% ([round(damage*0.50), damageDie])&nbsp; variant
+            damage. If it succeeds, it takes half damage instead.</p>
+        activation:
+          type: ''
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: ''
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ''
+          value: null
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: ''
+          units: ''
+          value: null
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: false
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1712255952414
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: HobvFCebYR2runVD
+sort: 0
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!HobvFCebYR2runVD'

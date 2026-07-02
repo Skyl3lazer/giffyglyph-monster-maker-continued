@@ -1,0 +1,163 @@
+name: Snap Neck
+type: feat
+img: icons/skills/wounds/bone-broken-marrow-red.webp
+system:
+  description:
+    value: "<p>You wrap your hands firmly around the head of a grappled creature, despite their struggles. On your next turn, if they haven't broken free, you sharply twist the head of your\_victim</p>"
+    chat: ''
+  source: {}
+  activation:
+    type: action
+    cost: null
+    condition: Grappling a creature
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: 1
+    width: null
+    units: null
+    type: creature
+    prompt: true
+  range:
+    value: 5
+    long: null
+    units: ft
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: other
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts:
+      - - '[round(damage*4), damageDie]'
+        - bludgeoning
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: UsguGrClEPv0cVDf
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: Snap Neck
+          image: icons/skills/wounds/bone-broken-marrow-red.webp
+          text: >-
+            <p>You wrap your hands firmly around the head of a grappled
+            creature, despite their struggles. On your next turn, if they
+            haven't broken free, you sharply twist the head of
+            your&nbsp;victim</p>
+        activation:
+          type: action
+          cost: null
+          condition: Grappling a creature
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: other
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage*4), damageDie]'
+                type: bludgeoning
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ft
+          value: 5
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: creature
+          units: ''
+          value: 1
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: rare
+        deferral:
+          type: delayed
+          timer: 1
+          respite: ''
+        properties:
+          concentration:
+            checked: false
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716240835590
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: THNMqbDTD7W90tmx
+sort: 300000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!THNMqbDTD7W90tmx'

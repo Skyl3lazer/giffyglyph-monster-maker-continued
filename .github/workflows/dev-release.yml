@@ -38,6 +38,7 @@ jobs:
         run: |
           zip -r module.zip . \
             -x ".git/*" ".github/*" "node_modules/*" ".claude/*" ".cursor/*" \
+               "src/*" "tools/*" \
                "package.json" "package-lock.json" "gulpfile.js" ".gitignore" \
                ".eslintrc.json" ".jsbeautifyrc" "module.zip"
 

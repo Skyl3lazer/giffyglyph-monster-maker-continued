@@ -1,0 +1,151 @@
+name: (Elemental) Elemental Pulse
+type: feat
+img: icons/magic/earth/explosion-lava-stone-yellow-orange.webp
+system:
+  description:
+    value: >-
+      <p>At the start of your turn, each creature within 10 ft. of you takes
+      variant damage equal to your combat level ([level]).</p>
+    chat: ''
+  source: {}
+  activation:
+    type: ''
+    cost: null
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+    prompt: true
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: ''
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: YmYak9E5lZfQxjFV
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Elemental) Elemental Pulse
+          image: icons/magic/earth/explosion-lava-stone-yellow-orange.webp
+          text: >-
+            <p>At the start of your turn, each creature within 10 ft. of you
+            takes variant damage equal to your combat level ([level]).</p>
+        activation:
+          type: ''
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: ''
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ''
+          value: null
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: ''
+          units: ''
+          value: null
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: false
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1712255944904
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: SHGg0GG2YLOc1Id4
+sort: 300000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!SHGg0GG2YLOc1Id4'

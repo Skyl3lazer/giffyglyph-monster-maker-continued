@@ -1,0 +1,85 @@
+name: (Defender) Counterattack
+type: feat
+img: icons/skills/melee/weapons-crossed-daggers-orange.webp
+effects: []
+folder: AFvQXBIFAgQ65eDW
+sort: 12100000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+_id: i7MfGn1uNxCHEQTk
+system:
+  description:
+    value: >-
+      When a creature misses you with a melee weapon attack misses you, you can
+      spend your reaction to make one attack against that creature.
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: reaction
+    cost: 0
+    condition: ''
+  duration:
+    value: null
+    units: ''
+  cover: null
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: 0
+    max: 0
+    per: null
+    recovery: ''
+  consume:
+    type: ''
+    target: null
+    amount: null
+  ability: null
+  actionType: null
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        requirements:
+          role: defender
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1686232652779
+  modifiedTime: 1712180428323
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-powers.F00pMnjVgo1Ylj7Y
+  duplicateSource: null
+  exportSource: null
+_key: '!items!i7MfGn1uNxCHEQTk'

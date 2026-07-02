@@ -1,0 +1,161 @@
+name: (U) Rend
+type: feat
+img: icons/skills/melee/blood-slash-foam-red.webp
+system:
+  description:
+    value: >-
+      <p>At the start of each of the creature's turns, the target makes a saving
+      throw (DC [dcPrimaryBonus + maxMod]). On a failed save, the target takes
+      this damage again.</p>
+    chat: ''
+  source: {}
+  activation:
+    type: action
+    cost: null
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: null
+    width: null
+    units: ''
+    type: creature
+    prompt: true
+  range:
+    value: 5
+    long: null
+    units: ft
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: mwak
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts:
+      - - '[round(damage*1.25), damageDie]'
+        - ''
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: EjqZPJ9sccgXUfgK
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (U) Rend
+          image: icons/skills/melee/blood-slash-foam-red.webp
+          text: >-
+            <p>At the start of each of the creature's turns, the target makes a
+            saving throw (DC [dcPrimaryBonus + maxMod]). On a failed save, the
+            target takes this damage again.</p>
+        activation:
+          type: action
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: mwak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage*1.25), damageDie]'
+                type: ''
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ft
+          value: 5
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: creature
+          units: ''
+          value: null
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: false
+        rarity: uncommon
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716048991640
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: IgUm2aXmT1EToqLT
+sort: 400000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!IgUm2aXmT1EToqLT'

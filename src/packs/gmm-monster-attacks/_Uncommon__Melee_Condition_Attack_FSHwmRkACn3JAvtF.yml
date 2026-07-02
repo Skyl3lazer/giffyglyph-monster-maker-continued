@@ -1,0 +1,215 @@
+name: (Uncommon) Melee Condition Attack
+type: feat
+img: icons/magic/perception/eye-tendrils-web-purple.webp
+effects:
+  - changes:
+      - key: flags.midi-qol.disadvantage.attack.all
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.disadvantage.ability.check.all
+        mode: 0
+        value: '1'
+        priority: null
+    description: >-
+      - A frightened creature has disadvantage on ability checks and attack
+      rolls while the source of its fear is within line of sight.<br />- The
+      creature can't willingly move closer to the source of its fear.
+    disabled: false
+    duration:
+      rounds: null
+      seconds: null
+      turns: null
+      startTime: null
+      combat: null
+      startRound: null
+      startTurn: null
+    flags:
+      dfreds-convenient-effects:
+        isConvenient: true
+        isDynamic: false
+        isViewable: true
+        nestedEffects: []
+        subEffects: []
+    name: Frightened
+    origin: Compendium.world.gmm-monster-attacks-dev.Item.FSHwmRkACn3JAvtF
+    tint: '#ffffff'
+    transfer: false
+    statuses:
+      - 'Convenient Effect: Frightened'
+      - frightened
+    _id: JRUn3EchoRMA356T
+    _stats:
+      coreVersion: '13.351'
+      systemId: null
+      systemVersion: null
+      createdTime: null
+      modifiedTime: null
+      lastModifiedBy: null
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    img: modules/dfreds-convenient-effects/images/frightened.svg
+    type: base
+    system: {}
+    sort: 0
+    _key: '!items.effects!FSHwmRkACn3JAvtF.JRUn3EchoRMA356T'
+folder: PCq12hdhmUnNMCak
+sort: 300000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Uncommon) Melee Condition Attack
+          image: icons/magic/perception/eye-tendrils-web-purple.webp
+          text: >-
+            <p>The target is <em>Frightened</em> of you. The target can make a
+            Charisma saving throw (DC [dcPrimaryBonus + maxMod]) at the end of
+            their turns to remove this condition.</p>
+        activation:
+          type: action
+          cost: 0
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: mwak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        properties:
+          concentration:
+            checked: false
+        range:
+          units: ft
+          value: 5
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: creature
+          units: ''
+          value: 1
+          width: 0
+        uses:
+          value: 1
+          max: 1
+          per: sr
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: uncommon
+  midi-qol:
+    fumbleThreshold: null
+    rollAttackPerTarget: default
+    removeAttackDamageButtons: default
+    itemCondition: ''
+    effectCondition: ''
+  midiProperties:
+    confirmTargets: default
+    autoFailFriendly: false
+    autoSaveFriendly: false
+    critOther: false
+    offHandWeapon: false
+    magicdam: false
+    magiceffect: false
+    concentration: false
+    noConcentrationCheck: false
+    toggleEffect: false
+    ignoreTotalCover: false
+_id: FSHwmRkACn3JAvtF
+system:
+  description:
+    value: >-
+      <p>The target is <em>Frightened</em> of you. The target can make a
+      Charisma saving throw (DC [dcPrimaryBonus + maxMod]) at the end of their
+      turns to remove this condition.</p>
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 1
+    width: ''
+    units: ''
+    type: creature
+  range:
+    value: 5
+    long: null
+    units: ft
+  uses:
+    value: 1
+    max: '1'
+    per: sr
+    recovery: ''
+  consume:
+    type: ''
+    target: ''
+    amount: null
+  ability: ''
+  actionType: mwak
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '13.351'
+  createdTime: 1686232662641
+  modifiedTime: 1716215982079
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-attacks.V5pkmFlb1N98AQSi
+  duplicateSource: null
+  exportSource: null
+_key: '!items!FSHwmRkACn3JAvtF'

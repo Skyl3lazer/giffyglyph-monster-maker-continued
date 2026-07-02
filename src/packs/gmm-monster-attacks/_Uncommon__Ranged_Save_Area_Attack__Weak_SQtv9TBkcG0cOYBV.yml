@@ -1,0 +1,145 @@
+name: (Uncommon) Ranged Save Area Attack, Weak
+type: feat
+img: icons/magic/air/wind-vortex-swirl-purple.webp
+effects: []
+folder: PCq12hdhmUnNMCak
+sort: 1800000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Uncommon) Ranged Save Area Attack, Weak
+          image: icons/magic/air/wind-vortex-swirl-purple.webp
+        activation:
+          type: action
+          cost: 0
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: save
+          related_stat: max
+          bonus: ''
+          defense: dex
+          hit:
+            damage:
+              '0':
+                formula: '[damage, damageDie]'
+                type: piercing
+          miss:
+            damage: '[round(damage * 0.5), damageDie]'
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        properties:
+          concentration:
+            checked: false
+        range:
+          units: ft
+          value: 60
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: sphere
+          units: ft
+          value: 15
+          width: 0
+        uses:
+          value: 1
+          max: 1
+          per: sr
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: uncommon
+_id: SQtv9TBkcG0cOYBV
+system:
+  description:
+    value: You attack every enemy within range.
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 15
+    width: ''
+    units: ft
+    type: sphere
+  range:
+    value: '60'
+    long: null
+    units: ft
+  uses:
+    value: 1
+    max: '1'
+    per: sr
+    recovery: ''
+  consume:
+    type: ''
+    target: ''
+    amount: null
+  ability: null
+  actionType: save
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts:
+      - - '[damage, damageDie]'
+        - piercing
+    versatile: ''
+  formula: '[round(damage * 0.5), damageDie]'
+  save:
+    ability: dex
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1686232662651
+  modifiedTime: 1716048472497
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-attacks.kEoyodmab3uAW3aQ
+  duplicateSource: null
+  exportSource: null
+_key: '!items!SQtv9TBkcG0cOYBV'

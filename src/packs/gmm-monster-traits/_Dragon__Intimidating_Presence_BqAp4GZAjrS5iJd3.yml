@@ -1,0 +1,153 @@
+name: (Dragon) Intimidating Presence
+type: feat
+img: icons/magic/control/fear-fright-monster-grin-red-orange.webp
+system:
+  description:
+    value: "<p>At the start of your turn, each enemy within 30 ft. of you that can hear or see you must succeed on an DC [dcPrimaryBonus + maxMod]\_Charisma saving throw or be frightened of you until the end of its next turn. If the saving throw succeeds by 5 or more, the creature is immune to your intimidating presence until it finishes a long rest.</p>"
+    chat: ''
+  source: {}
+  activation:
+    type: ''
+    cost: null
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+    prompt: true
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: null
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: ''
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: 2LPDPz4IMyoc7wHb
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Dragon) Intimidating Presence
+          image: icons/magic/control/fear-fright-monster-grin-red-orange.webp
+          text: >-
+            <p>At the start of your turn, each enemy within 30 ft. of you that
+            can hear or see you must succeed on an DC [dcPrimaryBonus +
+            maxMod]&nbsp;Charisma saving throw or be frightened of you until the
+            end of its next turn. If the saving throw succeeds by 5 or more, the
+            creature is immune to your intimidating presence until it finishes a
+            long rest.</p>
+        activation:
+          type: ''
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: ''
+          related_stat: str
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ''
+          value: null
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: ''
+          units: ''
+          value: null
+          width: null
+        uses:
+          value: null
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        properties:
+          concentration:
+            checked: false
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1712255696280
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: BqAp4GZAjrS5iJd3
+sort: 500000
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!BqAp4GZAjrS5iJd3'

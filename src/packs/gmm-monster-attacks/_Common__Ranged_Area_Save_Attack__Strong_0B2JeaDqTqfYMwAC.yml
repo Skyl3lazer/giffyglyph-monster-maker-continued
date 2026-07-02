@@ -1,0 +1,155 @@
+name: (Common) Ranged Area Save Attack, Strong
+type: feat
+img: icons/skills/ranged/arrows-flying-salvo-blue-light.webp
+effects: []
+folder: JPEHab7zdvYJ1DzZ
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Common) Ranged Area Save Attack, Strong
+          image: icons/skills/ranged/arrows-flying-salvo-blue-light.webp
+        activation:
+          type: action
+          cost: 0
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: save
+          related_stat: max
+          bonus: ''
+          defense: dex
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage * 0.75), damageDie]'
+                type: piercing
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        properties:
+          concentration:
+            checked: false
+        range:
+          units: ft
+          value: 60
+          long: 120
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: sphere
+          units: ft
+          value: 5
+          width: 0
+        uses:
+          value: 0
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: common
+system:
+  description:
+    value: You attack every enemy within range.
+    chat: ''
+  source:
+    custom: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 5
+    width: 0
+    units: ft
+    type: sphere
+    prompt: true
+  range:
+    value: 60
+    long: 120
+    units: ft
+  uses:
+    value: 0
+    max: ''
+    per: null
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: save
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts:
+      - - '[round(damage * 0.75), damageDie]'
+        - piercing
+    versatile: ''
+  formula: ''
+  save:
+    ability: dex
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+  attack:
+    bonus: ''
+    flat: false
+  crewed: false
+  summons: null
+  properties: []
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1686232662648
+  modifiedTime: 1716048323810
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: 0B2JeaDqTqfYMwAC
+sort: 0
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!0B2JeaDqTqfYMwAC'
