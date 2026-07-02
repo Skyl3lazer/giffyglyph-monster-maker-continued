@@ -144,6 +144,17 @@ Hooks.once("init", function() {
 	Hooks.on("updateActiveEffect", _rerenderForEffect);
 	Hooks.on("deleteActiveEffect", _rerenderForEffect);
 
+	Hooks.on("createActor", (actor, _options, userId) => {
+		if (game.userId !== userId) return;
+		_syncScalarMonsterHp(actor, { force: true }).catch(e => console.warn("GMM | HP sync on create failed", e));
+	});
+	Hooks.on("updateActor", (actor, change, _options, userId) => {
+		if (game.userId !== userId) return;
+		// A sheet-class switch to the monster sheet is a conversion; force current HP to full.
+		const convertedToGmm = foundry.utils.getProperty(change ?? {}, "flags.core.sheetClass") === `${GMM_MODULE_TITLE}.MonsterSheet`;
+		_syncScalarMonsterHp(actor, { force: convertedToGmm }).catch(e => console.warn("GMM | HP sync on update failed", e));
+	});
+
 	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialised`);
 });
 
@@ -274,6 +285,35 @@ async function _revertToVanilla(item, originalChange, originalOptions) {
 	);
 	await item.update(update, passOptions);
 	console.log(`GMM | Reverted item ${item.name} (${item.id}) to vanilla; scaling data preserved in flags.`);
+}
+
+/* True when an actor is an NPC bound to the GMMC monster sheet (i.e. a scalar monster). */
+function _isGmmMonster(actor) {
+	return actor?.type === "npc" && actor.getSheetId?.() === `${GMM_MODULE_TITLE}.MonsterSheet`;
+}
+
+/* Refill a scalar monster's current HP to its (blueprint-derived, unstored) max on creation/conversion or
+ * when the max changes. `appliedMax` tracks the last-synced max; it uses the module flag scope because the
+ * `flags.gmm` object is rebuilt each prepareData. */
+async function _syncScalarMonsterHp(actor, { force = false } = {}) {
+	if (!_isGmmMonster(actor)) return;
+	const hp = actor.system?.attributes?.hp;
+	if (!hp) return;
+	// Formula HP is owned by the sheet's "Roll HP" button, which sets current and max together.
+	if (actor.flags?.gmm?.monster?.data?.hit_points?.use_formula) return;
+
+	const max = Math.max(1, Number(hp.max) || 0);
+	const appliedMax = actor.getFlag(GMM_MODULE_TITLE, "appliedMax");
+
+	if (force || (appliedMax !== undefined && appliedMax !== max)) {
+		await actor.update({
+			"system.attributes.hp.value": max,
+			[`flags.${GMM_MODULE_TITLE}.appliedMax`]: max
+		});
+	} else if (appliedMax === undefined) {
+		// First sighting: track the max without touching current HP, so an existing damaged monster isn't healed.
+		await actor.setFlag(GMM_MODULE_TITLE, "appliedMax", max);
+	}
 }
 
 function _generateFlags() {
