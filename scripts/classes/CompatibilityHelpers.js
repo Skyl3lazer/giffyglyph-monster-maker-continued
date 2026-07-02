@@ -89,10 +89,16 @@ const CompatibilityHelpers = (function () {
 		});
 		return fd;
 	}
-	/* v14 - roll visibility moved from the legacy `rollMode` option to `messageMode`
-	 * (CONFIG.ChatMessage.modes). Map legacy values; pass modern/unknown values through. */
-	function toMessageMode(mode) {
-		return { publicroll: "public", gmroll: "gm", blindroll: "blind", selfroll: "self" }[mode] ?? mode;
+	/* Roll#toMessage visibility options differ by generation: v13 reads the legacy `rollMode`
+	 * (publicroll/gmroll/blindroll/selfroll/roll); v14+ reads `messageMode` (CONFIG.ChatMessage.modes:
+	 * public/gm/blind/self). GMM's modal mode-select emits the legacy values, so return the right option. */
+	function rollMessageOptions(mode) {
+		const generation = game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
+		if (generation < 14) return { rollMode: mode };
+		// A literal "roll"/unknown is left unset so toMessage falls back to the world default; passing
+		// "roll" as a messageMode would fail applyMode's CONFIG.ChatMessage.modes lookup.
+		const messageMode = { publicroll: "public", gmroll: "gm", blindroll: "blind", selfroll: "self" }[mode];
+		return messageMode ? { messageMode } : {};
 	}
 	return {
 		hasProperty: hasProperty,
@@ -106,7 +112,7 @@ const CompatibilityHelpers = (function () {
 		gmmDuplicate: gmmDuplicate,
 		gmmExpandObject: gmmExpandObject,
 		readInputs: readInputs,
-		toMessageMode: toMessageMode
+		rollMessageOptions: rollMessageOptions
 	};
 })();
 export default CompatibilityHelpers;

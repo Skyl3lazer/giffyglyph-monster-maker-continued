@@ -45,9 +45,7 @@ const ModalBasicAttackAc = (function() {
 					speaker: ChatMessage.getSpeaker({actor: this.actor}),
 					flavor: messageParts.join(" "),
 					flags: { dnd5e: { roll: { type: "other", itemId: this.id } } }
-				}, {
-					messageMode: CompatibilityHelpers.toMessageMode(form.get("mode"))
-				});
+				}, CompatibilityHelpers.rollMessageOptions(form.get("mode")));
 			});
 			modal.querySelector("[data-action='close-modal']").click();
 		} catch(err) {
