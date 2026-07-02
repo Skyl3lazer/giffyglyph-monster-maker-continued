@@ -12,7 +12,7 @@ system:
   description:
     value: >-
       When you would be reduced to 0 hit points outside of your lair, you
-      instead escape and flee to your lair. You remain there, paralysed and
+      instead escape and flee to your lair. You remain there, paralyzed and
       resting, until you recover at least 50% of your hit points.
     chat: ''
     unidentified: ''

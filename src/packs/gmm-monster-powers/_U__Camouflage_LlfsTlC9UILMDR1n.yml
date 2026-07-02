@@ -4,7 +4,7 @@ img: icons/creatures/reptiles/chameleon-camouflage-green-brown.webp
 system:
   description:
     value: >-
-      <p>You blend into your surroundings and become compeltely
+      <p>You blend into your surroundings and become completely
       indistinguishable from the environment. Moving, making an attack, or
       casting a spell ends this effect.</p>
     chat: ''
@@ -79,7 +79,7 @@ flags:
           name: (U) Camouflage
           image: icons/creatures/reptiles/chameleon-camouflage-green-brown.webp
           text: >-
-            <p>You blend into your surroundings and become compeltely
+            <p>You blend into your surroundings and become completely
             indistinguishable from the environment. Moving, making an attack, or
             casting a spell ends this effect.</p>
         activation:

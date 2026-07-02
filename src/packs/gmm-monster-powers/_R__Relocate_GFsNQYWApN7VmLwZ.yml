@@ -4,7 +4,7 @@ img: icons/magic/light/projectile-smoke-blue-white.webp
 system:
   description:
     value: >-
-      <p>You are banished. When this effect ends, you reappear in an unocupied
+      <p>You are banished. When this effect ends, you reappear in an unoccupied
       space within 30 ft.</p>
     chat: ''
   source: {}
@@ -80,7 +80,7 @@ flags:
           image: icons/magic/light/projectile-smoke-blue-white.webp
           text: >-
             <p>You are banished. When this effect ends, you reappear in an
-            unocupied space within 30 ft.</p>
+            unoccupied space within 30 ft.</p>
         activation:
           type: bonus
           cost: null

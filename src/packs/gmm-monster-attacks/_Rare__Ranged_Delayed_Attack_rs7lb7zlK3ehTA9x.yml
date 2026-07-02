@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You call a cadre of angelic creatures to descend upon your enemies and
-      wreak havock. Enemies take [round(damage*1.25), damageDie] radiant damage
+      wreak havoc. Enemies take [round(damage*1.25), damageDie] radiant damage
       on a hit and are knocked &amp;reference[prone]. On a miss, they take half
       of that damage and are not knocked prone.</p>
 
@@ -156,7 +156,7 @@ flags:
           image: icons/magic/holy/projectiles-blades-salvo-yellow.webp
           text: >-
             <p>You call a cadre of angelic creatures to descend upon your
-            enemies and wreak havock. Enemies take [round(damage*1.25),
+            enemies and wreak havoc. Enemies take [round(damage*1.25),
             damageDie] radiant damage on a hit and are knocked
             &amp;reference[prone]. On a miss, they take half of that damage and
             are not knocked prone.</p>
