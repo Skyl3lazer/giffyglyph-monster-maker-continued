@@ -61,7 +61,7 @@ Hooks.once("init", function() {
 		}
 	});
 
-	// v13+ sidebar directories are ApplicationV2, so the hook signature is `(app, element)` — not the old `html` jQuery arg.
+	// v13+ sidebar directories are ApplicationV2, so the hook signature is `(app, element)` - not the old `html` jQuery arg.
 	Hooks.on("renderActorDirectory", (app, element) => {
 		if (game.user.isGM) {
 			_hookActorDirectory(element);

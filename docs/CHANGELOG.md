@@ -7,7 +7,16 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
-## v2.0.0.0 (dev)
+## v2.0.0.4 (dev)
+
+This is the refined build, post-human-investigation, that is a viable candidate for re-merge into main. It can be used in live games if you're a bit adventurous. 
+
+* Updated to maintain compatibility with v13.
+* Made action transition to gmmc non-destructive to allow you to toggle if you wanted.
+* Github actions to save my brain from manual work editing manifests
+* More shortcodes!
+
+## v2.0.0.0
 
 #### Foundry v14 & DND5e 5.3.2
 

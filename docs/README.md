@@ -67,7 +67,7 @@ You can install this Foundry module by copying a manifest URL into your Foundry 
 
 
 * **v3 1.x (Main Release):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/latest/download/module.json
-  * The latest stable release — this is probably what you want.
+  * The latest stable release - this is probably what you want.
 
 
 * **v3 2.x (Dev, may be unstable):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/download/dev/module.json
@@ -81,7 +81,7 @@ You can install this Foundry module by copying a manifest URL into your Foundry 
   * This is the original GMM v2 module, only updated for Foundry v10 / dnd5e 2.1+. It won't be getting bugfixes, it's just for data recovery.
 
 
-All of these use the same module id, so only **one can be installed on a Foundry setup at a time** — installing one replaces the others.
+All of these use the same module id, so only **one can be installed on a Foundry setup at a time** - installing one replaces the others.
 
 ## Incompatibilities / Differences
 
