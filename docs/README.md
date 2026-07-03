@@ -38,7 +38,7 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 
 * I recognize that this may be disappointing to some people, which I understand. Put simply, due to the staggering amount of work required to make this refactor happen it would not have occured if I wasn't able to hand it off to the LLM tools like this. I just wasn't interested in doing the updates myself, and this allowed me to bring the module back to a working state.
 
-* None of the code prior to v14dev was made with AI, it was my (and Giffyglyph's) codebase, which I am very familiar with. Going forward, after v14dev gets merged and released, AI will not be used to continue making changes. I may use it until then, depending on the scope of the change needed.
+* None of the code prior to v14dev was made with AI, it was my (and Giffyglyph's) codebase, which I am very familiar with. Going forward, AI will not be relied on to continue making changes. I may use it until then, depending on the scope of the change needed.
 
 ## Mind the Gap!
 
