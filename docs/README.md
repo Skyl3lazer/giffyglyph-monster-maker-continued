@@ -66,11 +66,11 @@ These modules are optional, but may improve the experience of using GMMC.
 You can install this Foundry module by copying a manifest URL into your Foundry setup:
 
 
-* **v3 1.x (Main Release):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/latest/download/module.json
+* **v3 2.x (Main Release):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/latest/download/module.json
   * The latest stable release - this is probably what you want.
 
 
-* **v3 2.x (Dev, may be unstable):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/download/dev-latest/module.json
+* **v3 2.1.x (Dev, may be unstable):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/download/dev-latest/module.json
   * Bleeding-edge builds from the dev branch. Newest fixes and features, but may be unstable. For testing and early access.
 
 
