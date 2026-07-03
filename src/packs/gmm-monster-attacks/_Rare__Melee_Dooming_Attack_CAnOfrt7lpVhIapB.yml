@@ -1,0 +1,173 @@
+name: (Rare) Melee Dooming Attack
+type: feat
+img: icons/magic/death/hand-undead-skeleton-fire-pink.webp
+system:
+  description:
+    value: >-
+      <p>You begin draining the life out of a nearby foe. If they take damage
+      from this attack, they become &amp;reference[Frightened] of you. They make
+      make a DC [dcPrimaryBonus + maxMod] Wisdom save at the end of each of
+      their turns to end this effect.</p>
+
+      <p><em>Adding a deferral allows this feature to deal more damage and apply
+      a condition. (See GMM pdf p.45)</em></p>
+    chat: ''
+  source: {}
+  activation:
+    type: action
+    cost: null
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: null
+    width: null
+    units: null
+    type: creature
+    prompt: true
+  range:
+    value: 10
+    long: null
+    units: ft
+  uses:
+    value: 1
+    max: 1
+    per: lr
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: msak
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts:
+      - - '[round(damage*1.75), damageDie]'
+        - necrotic
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects: []
+folder: Xu0gwcuFy6NMHm0f
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Rare) Melee Dooming Attack
+          image: icons/magic/death/hand-undead-skeleton-fire-pink.webp
+          text: >-
+            <p>You begin draining the life out of a nearby foe. If they take
+            damage from this attack, they become &amp;reference[Frightened] of
+            you. They make make a DC [dcPrimaryBonus + maxMod] Wisdom save at
+            the end of each of their turns to end this effect.</p>
+
+            <p><em>Adding a deferral allows this feature to deal more damage and
+            apply a condition. (See GMM pdf p.45)</em></p>
+        activation:
+          type: action
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: msak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage*1.75), damageDie]'
+                type: necrotic
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ft
+          value: 10
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: creature
+          units: ''
+          value: null
+          width: null
+        uses:
+          value: 1
+          max: 1
+          per: lr
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: rare
+        deferral:
+          type: dooming
+          timer: 1
+          respite: The target moves farther than 10 feet from you
+        properties:
+          concentration:
+            checked: false
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1712154346132
+  modifiedTime: 1716244126624
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: CAnOfrt7lpVhIapB
+sort: 0
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!CAnOfrt7lpVhIapB'

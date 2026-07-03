@@ -67,7 +67,7 @@ const MonsterForge = (function () {
                 rank: monsterRank,
                 reactions: _parseReactions(derivedAttributes, blueprint.data.reactions, ignoreItemRequirements),
                 role: monsterRole,
-                saving_throws: _parseSavingThrows(blueprint.data.trained_saves, monsterProficiency, monsterAbilityModifiers, derivedAttributes.trainedSavingThrowCount),
+                saving_throws: _parseSavingThrows(blueprint.data.trained_saves, monsterProficiency, monsterAbilityModifiers, blueprint.data.ability_modifiers.ranking, derivedAttributes.trainedSavingThrowCount),
                 senses: _parseSenses(blueprint.data.senses),
                 skills: monsterSkills,
                 speeds: _parseSpeeds(blueprint.data.speeds, derivedAttributes.role),
@@ -256,10 +256,8 @@ const MonsterForge = (function () {
         return ams;
     }
 
-    function _parseSavingThrows(savingThrows, pb, abilityModifiers, tst) {
+    function _parseSavingThrows(savingThrows, pb, abilityModifiers, abilityRankings, tst) {
         const sts = {};
-        let abilityRankings = Object.entries(abilityModifiers).sort((x, y) => y[1].value - x[1].value).map((x) => x[0]);
-        abilityRankings = abilityRankings.filter(a => a !== "max");
         GMM_5E_ABILITIES.forEach(function (attrName) {
             if (savingThrows[attrName]) {
                 sts[attrName] = new DerivedAttribute();
@@ -539,7 +537,7 @@ const MonsterForge = (function () {
 
     function _parseLairActions(derivedAttributes, lairActions, ignoreItemRequirements) {
         return {
-            visible: lairActions.always_show || lairActions.initiative > 0 || lairActions.items.length > 0,
+            visible: lairActions.always_show || lairActions.items.length > 0,
             initiative: lairActions.initiative,
             items: _filterItems(derivedAttributes, lairActions.items, ignoreItemRequirements)
         };
@@ -711,7 +709,7 @@ const MonsterForge = (function () {
         slots["pact"] = {
             level: Math.ceil(Math.min(10, pactLevel) / 2),
             current: slotModifiers.pact.current || 0,
-            maximum: slotModifiers.pact.maximum || (pactLevel > 0) ? Math.max(1, Math.min(pactLevel, 2), Math.min(pactLevel - 8, 3), Math.min(pactLevel - 13, 4)) : 0
+            maximum: slotModifiers.pact.maximum || (pactLevel > 0 ? Math.max(1, Math.min(pactLevel, 2), Math.min(pactLevel - 8, 3), Math.min(pactLevel - 13, 4)) : 0)
         }
 
         return slots;

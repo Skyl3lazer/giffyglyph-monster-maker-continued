@@ -1,0 +1,156 @@
+name: (Rare) Ranged Area Attack, Strong
+type: feat
+img: icons/skills/ranged/arrows-flying-salvo-blue-light.webp
+effects: []
+folder: Xu0gwcuFy6NMHm0f
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Rare) Ranged Area Attack, Strong
+          image: icons/skills/ranged/arrows-flying-salvo-blue-light.webp
+          text: <p>You attack every enemy within range.</p>
+        activation:
+          type: action
+          cost: 0
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: rwak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage * 1.75), damageDie]'
+                type: piercing
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        properties:
+          concentration:
+            checked: false
+        range:
+          units: ft
+          value: 90
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: sphere
+          units: ft
+          value: 20
+          width: 0
+        uses:
+          value: 1
+          max: 1
+          per: lr
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: rare
+system:
+  description:
+    value: <p>You attack every enemy within range.</p>
+    chat: ''
+  source:
+    custom: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 20
+    width: 0
+    units: ft
+    type: sphere
+    prompt: true
+  range:
+    value: 90
+    long: null
+    units: ft
+  uses:
+    value: 1
+    max: 1
+    per: lr
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: null
+  actionType: rwak
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts:
+      - - '[round(damage * 1.75), damageDie]'
+        - piercing
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+  attack:
+    bonus: ''
+    flat: false
+  crewed: false
+  summons: null
+  properties: []
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1686232662648
+  modifiedTime: 1716048418454
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: 8upTqIkopg5yzcYf
+sort: 0
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!8upTqIkopg5yzcYf'

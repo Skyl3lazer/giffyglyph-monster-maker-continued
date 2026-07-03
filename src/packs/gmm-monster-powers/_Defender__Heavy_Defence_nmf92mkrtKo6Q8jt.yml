@@ -1,0 +1,85 @@
+name: (Defender) Heavy Defence
+type: feat
+img: icons/equipment/shield/heater-stone-orange.webp
+effects: []
+folder: AFvQXBIFAgQ65eDW
+sort: 11600000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+_id: nmf92mkrtKo6Q8jt
+system:
+  description:
+    value: >-
+      You may spend a bonus action to gain +2 AC until the start of your next
+      turn.
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: bonus
+    cost: 0
+    condition: ''
+  duration:
+    value: null
+    units: ''
+  cover: null
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: 0
+    max: 0
+    per: null
+    recovery: ''
+  consume:
+    type: ''
+    target: null
+    amount: null
+  ability: null
+  actionType: null
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        requirements:
+          role: defender
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1686232652793
+  modifiedTime: 1712180428323
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-powers.hKtWTOJBRrrjybYe
+  duplicateSource: null
+  exportSource: null
+_key: '!items!nmf92mkrtKo6Q8jt'

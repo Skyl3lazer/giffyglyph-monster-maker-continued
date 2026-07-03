@@ -1,0 +1,145 @@
+name: (Common) Melee Area Attack, Weak
+type: feat
+img: icons/magic/air/wind-vortex-swirl-blue.webp
+effects: []
+folder: JPEHab7zdvYJ1DzZ
+sort: 100000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Common) Melee Area Attack, Weak
+          image: icons/magic/air/wind-vortex-swirl-blue.webp
+        activation:
+          type: action
+          cost: 0
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: mwak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage * 0.5), damageDie]'
+                type: slashing
+          miss:
+            damage: '[round(damage * 0.25), damageDie]'
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        properties:
+          concentration:
+            checked: false
+        range:
+          units: self
+          value: null
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: radius
+          units: ft
+          value: 5
+          width: 0
+        uses:
+          value: 0
+          max: ''
+          per: ''
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: common
+_id: v82Jr8T7Cvf37slv
+system:
+  description:
+    value: You attack every enemy within reach.
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 5
+    width: ''
+    units: ft
+    type: radius
+  range:
+    value: null
+    long: null
+    units: self
+  uses:
+    value: '0'
+    max: '0'
+    per: ''
+    recovery: ''
+  consume:
+    type: ''
+    target: ''
+    amount: null
+  ability: null
+  actionType: mwak
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts:
+      - - '[round(damage * 0.5), damageDie]'
+        - slashing
+    versatile: ''
+  formula: '[round(damage * 0.25), damageDie]'
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1686232662702
+  modifiedTime: 1716048361172
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-attacks.oPkEmwaar9ppqahE
+  duplicateSource: null
+  exportSource: null
+_key: '!items!v82Jr8T7Cvf37slv'

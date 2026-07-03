@@ -1,37 +1,17 @@
 import { GMM_ACTION_BLUEPRINT } from "../consts/GmmActionBlueprint.js";
-import Shortcoder from './Shortcoder.js';
+import { GMM_DESCRIPTION_REPLACEMENTS, isDescriptionEffectivelyEmpty } from "../consts/GmmDescriptionReplacements.js";
+import Activities from "./Activities.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 
+/* Translates between the user-authored GMM blueprint (`flags.gmm.blueprint.data`) and the underlying dnd5e item.
+ * In v5.x the per-use fields (attack, save DC, damage, target/range/duration/uses/recharge) live on the activity. */
 const ActionBlueprint = (function () {
 
-    const mappings = [
+    /* Item-level fields that still live on the document (not the activity) and need direct path-to-path bindings. */
+    const itemMappings = [
         { from: "description.image", to: "img" },
         { from: "description.name", to: "name" },
-        { from: "description.text", to: "system.description.value" },
-        { from: "activation.cost", to: "system.activation.cost" },
-        { from: "activation.type", to: "system.activation.type" },
-        { from: "activation.condition", to: "system.activation.condition" },
-        { from: "cover", to: "system.cover" },
-        { from: "attack.type", to: "system.actionType" },
-        { from: "attack.bonus", to: "system.attackBonus" },
-        { from: "attack.defense", to: "system.save.ability" },
-        { from: "target.value", to: "system.target.value" },
-        { from: "target.units", to: "system.target.units" },
-        { from: "target.type", to: "system.target.type" },
-        { from: "target.width", to: "system.target.width" },
-        { from: "range.value", to: "system.range.value" },
-        { from: "range.long", to: "system.range.long" },
-        { from: "range.units", to: "system.range.units" },
-        { from: "duration.value", to: "system.duration.value" },
-        { from: "duration.units", to: "system.duration.units" },
-        { from: "uses.value", to: "system.uses.value" },
-        { from: "uses.max", to: "system.uses.max" },
-        { from: "uses.per", to: "system.uses.per" },
-        { from: "resource_consumption.type", to: "system.consume.type" },
-        { from: "resource_consumption.target", to: "system.consume.target" },
-        { from: "resource_consumption.amount", to: "system.consume.amount" },
-        { from: "recharge.value", to: "system.recharge.value" },
-        { from: "recharge.is_charged", to: "system.recharge.charged" }
+        { from: "description.text", to: "system.description.value" }
     ];
 
     function createFromItem(item) {
@@ -40,66 +20,36 @@ const ActionBlueprint = (function () {
     }
 
     function _verifyBlueprint(blueprint) {
-        switch (blueprint.vid) {
+        // Direct-leaf writes (e.g. `document.update({ "flags.gmm.blueprint.data.<x>": v })`) can leave
+        // the envelope without a `vid`, so backfill it when `data` is present.
+        if (blueprint && blueprint.vid === undefined && blueprint.data) {
+            blueprint.vid = 1;
+            if (!blueprint.type) blueprint.type = "action";
+        }
+        switch (blueprint?.vid) {
             case 1:
-                // Blueprint is up-to-date and requires no changes.
                 return blueprint;
-                break;
             default:
-                console.error(`This action blueprint has an invalid version id [${blueprint.vid}] and can't be verified.`, blueprint);
+                console.error(`This action blueprint has an invalid version id [${blueprint?.vid}] and can't be verified.`, blueprint);
                 return null;
-                break;
         }
     }
-    function _syncItemDataToBlueprint(blueprint, item) {
 
+    function _syncItemDataToBlueprint(blueprint, item) {
         const blueprintData = blueprint.data;
-        const gmmMonster = item.getOwningGmmMonster();
         try {
-            mappings.forEach((x) => {
+            // Pull item-level fields (img, name, description.value).
+            itemMappings.forEach((x) => {
                 if (CompatibilityHelpers.hasProperty(item, x.to)) {
                     CompatibilityHelpers.setProperty(blueprintData, x.from, CompatibilityHelpers.getProperty(item, x.to));
                 }
             });
-            //Properties
-            if (CompatibilityHelpers.hasProperty(item.system, "properties") && gmmMonster) {
-                Object.keys(blueprintData.properties).forEach((key, index) => {
-                    if (item.system.properties.has(key))
-                        blueprintData.properties[key].checked = true;
-                    else
-                        blueprintData.properties[key].checked = false;
-                });
-            }
-            //Versatile damage
-            if (CompatibilityHelpers.hasProperty(item.system, "damage.versatile")) {
-                setProperty(blueprintData, "attack.versatile.damage", (gmmMonster) ?
-                    Shortcoder.replaceShortcodes(item.system.damage?.versatile, gmmMonster)
-                    : item.system.damage?.versatile);
-            } else {
-                CompatibilityHelpers.setProperty(blueprintData, "attack.versatile.damage", "");
-            }
-            //Miss damage
-            if (CompatibilityHelpers.hasProperty(item.system, "formula")) {
-                CompatibilityHelpers.setProperty(blueprintData, "attack.miss.damage", (gmmMonster) ?
-                    Shortcoder.replaceShortcodes(item.system.formula, gmmMonster)
-                    : item.system.formula);
-            } else {
-                CompatibilityHelpers.setProperty(blueprintData, "attack.versatile.damage", "");
-            }
-            // Set damage array
-            if (CompatibilityHelpers.hasProperty(item.system, "damage.parts")) {
-                CompatibilityHelpers.setProperty(blueprintData, "attack.hit.damage", item.system.damage?.parts.map((x) => {
-                    return {
-                        formula: (gmmMonster) ? Shortcoder.replaceShortcodes(x[0], gmmMonster) : x[0],
-                        type: x[1]
-                    };
-                }));
-                if (item.system.damage.parts[0]) {
-                    CompatibilityHelpers.setProperty(blueprintData, 'attack.damage.formula', (gmmMonster) ? Shortcoder.replaceShortcodes(item.system.damage?.parts[0][0], gmmMonster) : item.system.damage?.parts[0][0]);
-                    CompatibilityHelpers.setProperty(blueprintData, 'attack.damage.type', (gmmMonster) ? Shortcoder.replaceShortcodes(item.system.damage?.parts[0][1], gmmMonster) : item.system.damage?.parts[0][1]);
-                }
-            } else {
-                CompatibilityHelpers.setProperty(blueprintData, "attack.hit.damage", []);
+
+            // Pull activity-driven fields (attack/save/damage/range/target/duration/ uses/consumption/concentration)
+            // Activities are the source of truth post dnd5e v3.x
+            const gmmActivity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
+            if (gmmActivity) {
+                Activities.readActivityIntoBlueprintData(gmmActivity, blueprintData);
             }
 
             return blueprint;
@@ -108,56 +58,120 @@ const ActionBlueprint = (function () {
             return blueprint;
         }
     }
-    function getItemDataFromBlueprint(blueprint) {
+
+    /* Build the partial item update derived from a saved blueprint
+ * The result is a flat mix of nested item-level fields (img, name, system.description.value) and dotted path keys */
+    function getItemDataFromBlueprint(blueprint, item = null) {
         const itemData = {};
 
-        mappings.forEach((x) => {
+        itemMappings.forEach((x) => {
             if (CompatibilityHelpers.hasProperty(blueprint.data, x.from)) {
                 CompatibilityHelpers.setProperty(itemData, x.to, CompatibilityHelpers.getProperty(blueprint.data, x.from));
             }
         });
-        //Properties
-        if (CompatibilityHelpers.hasProperty(blueprint.data, "properties")) {
-            if (!itemData.system.properties)
-                itemData.system.properties = new Set();
 
-            Object.keys(blueprint.data.properties).forEach((key, index) => {
-                if (blueprint.data.properties[key].checked)
-                    itemData.system.properties.add(key);
-                else
-                    itemData.system.properties.delete(key);
-            });
-            itemData.system.properties = [...itemData.system.properties]; //Needs to be an array to update properly
-        }
-        //Versatile damage
-        if (CompatibilityHelpers.hasProperty(blueprint.data, "attack.versatile.damage")) {
-            CompatibilityHelpers.setProperty(itemData, "system.damage.versatile", CompatibilityHelpers.getProperty(blueprint.data, "attack.versatile.damage"));
-        } else {
-            CompatibilityHelpers.setProperty(blueprintData, "attack.versatile.damage", "");
+        // Blank descriptions
+        if (!CompatibilityHelpers.hasProperty(blueprint.data, "description.text")) {
+            CompatibilityHelpers.setProperty(itemData, "system.description.value", "");
         }
 
-        //Miss damage
-        if (CompatibilityHelpers.hasProperty(blueprint.data, "attack.miss.damage")) {
-            CompatibilityHelpers.setProperty(itemData, "system.formula", CompatibilityHelpers.getProperty(blueprint.data, "attack.miss.damage"));
-        } else {
-            CompatibilityHelpers.setProperty(blueprintData, "attack.miss.damage", "");
-        }
-        // Set damage array
-        if (CompatibilityHelpers.getProperty(blueprint.data, "attack.hit.damage")) {
-            CompatibilityHelpers.setProperty(itemData, "system.damage.parts", Object.values(CompatibilityHelpers.getProperty(blueprint.data, "attack.hit.damage")).map((x) => {
-                return [x.formula, x.type];
-                //(gmmMonster) ? Shortcoder.replaceShortcodes(x[0], gmmMonster) : x[0]
-            }));
-        } else {
-            CompatibilityHelpers.setProperty(itemData, "system.damage.parts", []);
-        }
+        // Mirror the blueprint onto the GMM-managed activity
+        // `buildActivityUpdate` handles the type-swap deletion case when the activity's type changes
+        const activityUpdate = item
+            ? Activities.buildActivityUpdate(item, blueprint)
+            : { [`system.activities.${Activities.GMM_ACTIVITY_ID}`]: Activities.buildActivityData(blueprint) };
+        Object.assign(itemData, activityUpdate);
 
         return itemData;
     }
 
+    /* Build a fresh GMM blueprint from a vanilla weapon/feat that has never been a GMM scaling
+     * action. Reads the item's primary dnd5e activity (chosen via Activities.pickPrimaryActivity)
+     * and patches anything still missing from the item-level fields dnd5e v5 keeps on the document
+     * itself. Returns a `{vid:1, type:"action", data:{...}}` envelope ready for `flags.gmm.blueprint`. */
+    function deriveFromVanillaItem(item) {
+        const blueprint = $.extend(true, {}, GMM_ACTION_BLUEPRINT, { vid: 1, type: "action" });
+        const blueprintData = blueprint.data;
+
+        // Item-level fields (img/name/description.value) via the same mappings used at sheet render.
+        itemMappings.forEach((x) => {
+            if (CompatibilityHelpers.hasProperty(item, x.to)) {
+                CompatibilityHelpers.setProperty(blueprintData, x.from, CompatibilityHelpers.getProperty(item, x.to));
+            }
+        });
+
+        // One-time rewrite pass over the imported description so vanilla dnd5e conventions like
+        // `[[lookup @name lowercase]]{monster}` are translated into GMMC shortcodes (`[name]`, …).
+        // See GMM_DESCRIPTION_REPLACEMENTS for the active rule set.
+        try {
+            _applyDescriptionReplacements(blueprintData);
+        } catch (e) {
+            console.warn("GMM | deriveFromVanillaItem: description replacement pass failed", e);
+        }
+
+        // Per-activity fields (attack/save/heal/damage/range/target/uses/duration/consumption).
+        const primary = Activities.pickPrimaryActivity(item);
+        if (primary) {
+            try {
+                Activities.readActivityIntoBlueprintData(primary, blueprintData);
+            } catch (e) {
+                console.warn("GMM | deriveFromVanillaItem: readActivityIntoBlueprintData failed", e);
+            }
+        }
+
+        // Document-level leftovers (range, weapon base damage) the activity didn't already cover.
+        try {
+            Activities.applyItemLevelFallbacks(item, blueprintData);
+        } catch (e) {
+            console.warn("GMM | deriveFromVanillaItem: applyItemLevelFallbacks failed", e);
+        }
+
+        // Final pass: ensure the GMMC `attack.type` row is populated when the activity-read step
+        // left it blank (e.g. dnd5e attack activity missing `attack.type.classification`, or an
+        // unmapped value like "unarmed"). Inference reads range and item type as fallbacks.
+        // For every attack-typed conversion (mwak/msak/rwak/rsak), force `related_stat = "max"`
+        // so the converted action scales off the monster's highest ability modifier by default,
+        // matching the typical authoring intent for GMMC scaling actions.
+        try {
+            blueprintData.attack ??= {};
+            const current = blueprintData.attack.type;
+            if (current === undefined || current === null || current === "") {
+                const inferred = Activities.inferAttackType(item, primary);
+                if (inferred) blueprintData.attack.type = inferred;
+            }
+            if (["mwak", "msak", "rwak", "rsak"].includes(blueprintData.attack.type)) {
+                blueprintData.attack.related_stat = "max";
+            }
+        } catch (e) {
+            console.warn("GMM | deriveFromVanillaItem: attack-type inference failed", e);
+        }
+
+        return blueprint;
+    }
+
+    /* Apply the GMM_DESCRIPTION_REPLACEMENTS rule set in order to the blueprint's
+     * description text. After substitutions, if the remaining content is just whitespace,
+     * HTML scaffolding, or stray punctuation, clear the description entirely so the converted
+     * action doesn't render an empty `<p></p>` shell where vanilla button enrichers used to live. */
+    function _applyDescriptionReplacements(blueprintData) {
+        const text = blueprintData?.description?.text;
+        if (typeof text !== "string" || !text.length) return;
+        let next = text;
+        for (const rule of GMM_DESCRIPTION_REPLACEMENTS) {
+            if (!rule?.pattern) continue;
+            next = next.replace(rule.pattern, rule.replacement ?? "");
+        }
+        if (isDescriptionEffectivelyEmpty(next)) next = "";
+        if (next !== text) {
+            blueprintData.description ??= {};
+            blueprintData.description.text = next;
+        }
+    }
+
     return {
-        createFromItem: createFromItem,
-        getItemDataFromBlueprint: getItemDataFromBlueprint
+        createFromItem,
+        getItemDataFromBlueprint,
+        deriveFromVanillaItem
     };
 })();
 

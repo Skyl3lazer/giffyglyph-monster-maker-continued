@@ -1,0 +1,89 @@
+name: (Uncommon) Ranged Ongoing Attack
+type: feat
+img: icons/magic/fire/projectile-arrow-fire-red-yellow.webp
+effects: []
+folder: EqE74t7aZq9Gu41m
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+system:
+  description:
+    value: >-
+      The target takes [damage * 2] ongoing damage at the start of their turn.
+      The target can make a Constitution saving throw (DC [dcPrimaryBonus]) at
+      the end of their turns to remove this condition.
+    chat: ''
+  source:
+    custom: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 1
+    width: 0
+    units: ''
+    type: creature
+    prompt: true
+  range:
+    value: 60
+    long: 120
+    units: ft
+  uses:
+    value: 3
+    max: '3'
+    per: sr
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: null
+    amount: null
+    scale: false
+  ability: null
+  actionType: rwak
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+  attack:
+    bonus: ''
+    flat: false
+  crewed: false
+  summons: null
+  properties: []
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1686232662701
+  modifiedTime: 1712338087777
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: IcKWObfWLJzybxK8
+sort: 0
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!IcKWObfWLJzybxK8'

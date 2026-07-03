@@ -1,0 +1,150 @@
+name: (Rare) Melee Ongoing Attack
+type: feat
+img: icons/creatures/abilities/stinger-poison-green.webp
+effects: []
+folder: Xu0gwcuFy6NMHm0f
+sort: 500000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Rare) Melee Ongoing Attack
+          image: icons/creatures/abilities/stinger-poison-green.webp
+          text: >-
+            <p>&nbsp;The target can make a Constitution saving throw (DC
+            [dcPrimaryBonus + maxMod]) at the start of their turns. On success,
+            this effect ends. On failure, the target takes [round(damage *
+            1.75), damageDie] acid damage.</p>
+        activation:
+          type: action
+          cost: 0
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: mwak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage*1.75), damageDie]'
+                type: acid
+        duration:
+          units: ''
+          value: ''
+        properties:
+          concentration:
+            checked: false
+        range:
+          units: ft
+          value: 5
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: creature
+          units: ''
+          value: 1
+          width: 0
+        uses:
+          value: 1
+          max: 1
+          per: lr
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: rare
+_id: inn7H59CsOx0HyUQ
+system:
+  description:
+    value: "<p>\_The target can make a Constitution saving throw (DC [dcPrimaryBonus + maxMod]) at the start of their turns. On success, this effect ends. On failure, the target takes [round(damage * 1.75), damageDie] acid damage.</p>"
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 1
+    width: ''
+    units: ''
+    type: creature
+  range:
+    value: 5
+    long: null
+    units: ft
+  uses:
+    value: 1
+    max: 1
+    per: lr
+    recovery: ''
+  consume:
+    type: ''
+    target: ''
+    amount: null
+  ability: null
+  actionType: mwak
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts:
+      - - '[round(damage*1.75), damageDie]'
+        - acid
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '14.364'
+  createdTime: 1686232662673
+  modifiedTime: 1716048430264
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-attacks.bYUXv86ISJJuTITq
+  duplicateSource: null
+  exportSource: null
+_key: '!items!inn7H59CsOx0HyUQ'

@@ -7,18 +7,51 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
-## v1.1.2.3 (latest)
+## v2.0.0.5 (dev)
+
+* Moved the compendiums to the v13 format, which can easily forward to v14. There's a breaking change in here that means we'll be on the v13 format until support is dropped (when it will get its own forever-branch)
+* Fixed a bunch of typos in the compendiums
+* Gave uncommon and rare abilities their uses per day
+
+## v2.0.0.4
+
+This is the refined build, post-human-investigation, that is a viable candidate for re-merge into main. It can be used in live games if you're a bit adventurous. 
+
+* Updated to maintain compatibility with v13.
+* Made action transition to gmmc non-destructive to allow you to toggle if you wanted.
+* Github actions to save my brain from manual work editing manifests
+* More shortcodes!
+
+## v2.0.0.0
+
+#### Foundry v14 & DND5e 5.3.2
+
+"Yee Haw"
+
+THIS UPDATE IS LARGELY WRITTEN VIA AI. THIS SHOULD NOT BE USED IN ANY LIVE GAME, NOR BE EXPECTED TO SAFELY HANDLE ANY IMPORTANT DATA.
+
+Treat this as an extreme alpha, it's really just an experiment to see if an LLM can do the heavy lifting to move the codebase to V14/DND5.3 so I can continue to work on it in a reasonable manner.
+
+Again, I DO NOT TRUST THE AI, AND NEITHER SHOULD YOU. Over time I will be reviewing each change it made here to ensure that it is actually usable, and fix it where it breaks if possible.
+
+* Many bugs that were present in previous versions are fixed.
+
+## v1.1.2.3 (v12)
 
 * #69 Fixed a deprecation (an old one!) that was sneaking by and finally broke in dnd5e 3.3.1. It was preventing damage from being added or removed from scaling abilities.
 * Fixed bug in damage rolling in certain circumstances (from dev c29c7b2)
 
 ## v1.1.2.2
 
+* Fixed bug in damage rolling in certain circumstances
+
+## v1.1.2.2 (latest)
+
 * Confirmed dnd5e 3.3.0 compatibility
 * #59 Fixed descriptions on items to use the new editor and updated save/load code for same
 * #62 Fixed some bugs around damage rolling by updating to the newer rollConfigs format
-* Fixed bug with shortcoders 
-* Fix with max attribute breaking TST count
+* Fixed bug with shortcodes 
+* #60 Fix with max attribute breaking TST count
 
 ## v1.1.1.3
 

@@ -1,0 +1,85 @@
+name: (Supporter) Healer
+type: feat
+img: icons/magic/life/heart-cross-strong-purple-orange.webp
+effects: []
+folder: AFvQXBIFAgQ65eDW
+sort: 7800000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+_id: vxDQP6hsMMLkY3iC
+system:
+  description:
+    value: >-
+      You can spend a bonus action to grant [level] temporary hit points to a
+      creature within 30 ft.
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: bonus
+    cost: 0
+    condition: ''
+  duration:
+    value: null
+    units: ''
+  cover: null
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: 0
+    max: 0
+    per: null
+    recovery: ''
+  consume:
+    type: ''
+    target: null
+    amount: null
+  ability: null
+  actionType: null
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        requirements:
+          role: supporter
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1686232652813
+  modifiedTime: 1712180428323
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-powers.BgdkcKc6CJatYKyx
+  duplicateSource: null
+  exportSource: null
+_key: '!items!vxDQP6hsMMLkY3iC'

@@ -1,0 +1,266 @@
+name: (Rare) Ranged Delayed Attack
+type: feat
+img: icons/magic/holy/projectiles-blades-salvo-yellow.webp
+system:
+  description:
+    value: >-
+      <p>You call a cadre of angelic creatures to descend upon your enemies and
+      wreak havoc. Enemies take [round(damage*1.25), damageDie] radiant damage
+      on a hit and are knocked &amp;reference[prone]. On a miss, they take half
+      of that damage and are not knocked prone.</p>
+
+      <p><em>Adding a deferral allow this feature to deal more damage and apply
+      an effect. (See GMM pdf p.45)</em></p>
+    chat: ''
+  source: {}
+  activation:
+    type: action
+    cost: null
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  crewed: false
+  target:
+    value: 10
+    width: null
+    units: ft
+    type: sphere
+    prompt: true
+  range:
+    value: 120
+    long: null
+    units: ft
+  uses:
+    value: 1
+    max: 1
+    per: lr
+    recovery: ''
+    prompt: true
+  consume:
+    type: ''
+    target: ''
+    amount: null
+    scale: false
+  ability: ''
+  actionType: rwak
+  attack:
+    bonus: ''
+    flat: false
+  chatFlavor: ''
+  critical:
+    threshold: null
+    damage: ''
+  damage:
+    parts:
+      - - '[round(damage*1.25), damageDie]'
+        - radiant
+    versatile: ''
+  formula: '[round(damage*0.75), damageDie] radiant'
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  summons: null
+  type:
+    value: ''
+    subtype: ''
+  properties: []
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+effects:
+  - changes:
+      - key: flags.midi-qol.grants.advantage.attack.mwak
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.grants.advantage.attack.msak
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.grants.disadvantage.attack.rwak
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.grants.disadvantage.attack.rsak
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.disadvantage.attack.all
+        mode: 0
+        value: '1'
+        priority: null
+      - key: system.attributes.movement.all
+        mode: 0
+        value: '*0.5'
+        priority: 25
+    description: >-
+      - A prone creature's only movement option is to crawl, unless it stands up
+      and thereby ends the condition.<br />- The creature has disadvantage on
+      attack rolls.<br />- An attack roll against the creature has advantage if
+      the attacker is within 5 feet of the creature. Otherwise, the attack roll
+      has disadvantage.
+    disabled: false
+    duration:
+      rounds: null
+      seconds: null
+      turns: null
+      startTime: null
+      combat: null
+      startRound: null
+      startTurn: null
+    flags:
+      dfreds-convenient-effects:
+        isConvenient: true
+        isDynamic: false
+        isViewable: true
+        nestedEffects: []
+        subEffects: []
+    name: Prone
+    origin: Compendium.world.gmm-monster-attacks-dev.Item.rs7lb7zlK3ehTA9x
+    tint: '#ffffff'
+    transfer: false
+    statuses:
+      - 'Convenient Effect: Prone'
+      - prone
+    _id: KOIkUHzkD0vrYhnQ
+    _stats:
+      coreVersion: '13.351'
+      systemId: null
+      systemVersion: null
+      createdTime: null
+      modifiedTime: null
+      lastModifiedBy: null
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    img: modules/dfreds-convenient-effects/images/prone.svg
+    type: base
+    system: {}
+    sort: 0
+    _key: '!items.effects!rs7lb7zlK3ehTA9x.KOIkUHzkD0vrYhnQ'
+folder: Xu0gwcuFy6NMHm0f
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Rare) Ranged Delayed Attack
+          image: icons/magic/holy/projectiles-blades-salvo-yellow.webp
+          text: >-
+            <p>You call a cadre of angelic creatures to descend upon your
+            enemies and wreak havoc. Enemies take [round(damage*1.25),
+            damageDie] radiant damage on a hit and are knocked
+            &amp;reference[prone]. On a miss, they take half of that damage and
+            are not knocked prone.</p>
+
+            <p><em>Adding a deferral allow this feature to deal more damage and
+            apply an effect. (See GMM pdf p.45)</em></p>
+        activation:
+          type: action
+          cost: null
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: rwak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: '[round(damage*0.75), damageDie] radiant'
+          versatile:
+            damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage*1.25), damageDie]'
+                type: radiant
+        duration:
+          units: ''
+          value: ''
+        range:
+          units: ft
+          value: 120
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: sphere
+          units: ft
+          value: 10
+          width: null
+        uses:
+          value: 1
+          max: 1
+          per: lr
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: rare
+        deferral:
+          type: delayed
+          timer: 2
+          respite: ''
+        properties:
+          concentration:
+            checked: false
+  midi-qol:
+    fumbleThreshold: null
+    AoETargetType: any
+    AoETargetTypeIncludeSelf: true
+    autoTarget: default
+    rollAttackPerTarget: default
+    removeAttackDamageButtons: default
+    itemCondition: ''
+    otherCondition: ''
+    effectCondition: ''
+  midiProperties:
+    confirmTargets: default
+    autoFailFriendly: false
+    autoSaveFriendly: false
+    critOther: false
+    offHandWeapon: false
+    magicdam: false
+    magiceffect: false
+    concentration: false
+    noConcentrationCheck: false
+    toggleEffect: false
+    ignoreTotalCover: false
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '13.351'
+  createdTime: 1712154346132
+  modifiedTime: 1716244141903
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_id: rs7lb7zlK3ehTA9x
+sort: 0
+ownership:
+  default: 0
+  x5I9e6ueO5h4cZXY: 3
+_key: '!items!rs7lb7zlK3ehTA9x'

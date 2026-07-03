@@ -1,0 +1,16 @@
+name: '!GMMV2'
+sorting: a
+folder: null
+type: Item
+_id: EqE74t7aZq9Gu41m
+sort: 0
+color: '#656561'
+flags: {}
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '11.315'
+  createdTime: 1712338020694
+  modifiedTime: 1716241277320
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+_key: '!folders!EqE74t7aZq9Gu41m'

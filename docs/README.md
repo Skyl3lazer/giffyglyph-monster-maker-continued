@@ -8,12 +8,12 @@
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
 
-This is a continuation of the original module by Giffyglyph, updated to be compatable Foundry v10/11 and D&D 2.2.x/3.1.x.
+This is a continuation of the original module by Giffyglyph, updated to be compatable Foundry v14 (and mostly v13) and D&D 5.3.x
 (Also check out my [v3 updated Webapp!](https://giffyglyphmonstermakerv3.azurewebsites.net/))
 
-**NOTE:** There are still signposting issues around! Not all tooltips, etc, have been updated. 
+**NOTE:** See the AI Disclaimer below!
 
-If you find issues not already listed in [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/master/docs/DEV_TODO.md) please leave an Issue here or contact me @Skyl3lazer on Discord.
+If you find issues not already listed in [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/main/docs/DEV_TODO.md) please leave an Issue here or contact me @Skyl3lazer on Discord.
 
 Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5e campaign, but aren't sure how to balance them easily? No worries—**Giffyglyph's 5e Monster Maker** has you covered! Build level-appropriate D&D 5e monsters in _seconds_ with an all-new automated monster sheet and scaling actions.
 
@@ -32,6 +32,22 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 
 ![Scaling Adult Dragon](./img/scaling-monster-level.gif)
 
+## AI Disclaimer
+
+* The v14 refactor was written largely via Opus. I (skyl3lazer) have reviewed and tested this code over time to ensure its function and stability. That said, there is still code that was written by AI, even if I don't plan on continuing to use it after the refactoring stage.
+
+* I recognize that this may be disappointing to some people, which I understand. Put simply, due to the staggering amount of work required to make this refactor happen it would not have occured if I wasn't able to hand it off to the LLM tools like this. I just wasn't interested in doing the updates myself, and this allowed me to bring the module back to a working state.
+
+* None of the code prior to v14dev was made with AI, it was my (and Giffyglyph's) codebase, which I am very familiar with. Going forward, after v14dev gets merged and released, AI will not be used to continue making changes. I may use it until then, depending on the scope of the change needed.
+
+## Mind the Gap!
+
+* There was a large gap between updates to this module. While the v13 branch will work with dnd3.3.2 and V13, the 2.x versions of GMMC will REQUIRE
+  - dnd5e 5.3.2
+  - Foundry v13, ideally v14. 
+* I will aim to be backwards compatible with v13 where I can, but development is aimed at v14.
+* If you are using any flavor of dnd5e 4.x or 5.1/5.2, GMMC 2.x **will not work for you.** No backwards compatibility is planned.
+
 ## Installation
 
 ### Dependencies
@@ -43,22 +59,29 @@ These modules are required for GMMC to function.
 These modules are optional, but may improve the experience of using GMMC.
 
 * [Midi QOL](https://foundryvtt.com/packages/midi-qol) - Provides automation, which some compendium items have built in already if Midi is active.
-* [Dfred's Convenient Effects](https://foundryvtt.com/packages/dfreds-convenient-effects) - Included in the `/importable/` folder is a `dfreds-ce-import.json` file which you can import to include the Conditions compendium in DFred's CE! This makes it easier to apply the conditions rather than needing to transfer them from the compendium actor.
+* [Side Effects](https://foundryvtt.com/packages/side-effects) - Provides custom statuses, which the compendium will use.
 
 ---
 
 You can install this Foundry module by copying a manifest URL into your Foundry setup:
 
-* **v3 1.1.2.x (Main Release):** https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/master/module.json	
-  * This is probably what you want
-* **v3 Dev 1.1.3.x (May be unstable):** https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/dev/module.json
-  * For the Brave
+
+* **v3 1.x (Main Release):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/latest/download/module.json
+  * The latest stable release - this is probably what you want.
+
+
+* **v3 2.x (Dev, may be unstable):** https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/releases/download/dev-latest/module.json
+  * Bleeding-edge builds from the dev branch. Newest fixes and features, but may be unstable. For testing and early access.
+
+
+* **GMMC for Foundry V13/dnd5e 3.3.1:** https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/v13/module.json
+
 
 * **MM v2 (Legacy, only for recovering monsters from old games):** https://raw.githubusercontent.com/Skyl3lazer/giffyglyph-monster-maker-continued/v2/module.json
   * This is the original GMM v2 module, only updated for Foundry v10 / dnd5e 2.1+. It won't be getting bugfixes, it's just for data recovery.
 
 
-You can install multiple branches side-by-side, but you must activate only **one branch at a time**.
+All of these use the same module id, so only **one can be installed on a Foundry setup at a time** - installing one replaces the others.
 
 ## Incompatibilities / Differences
 
@@ -81,6 +104,8 @@ You can install multiple branches side-by-side, but you must activate only **one
 
 ### Converting an old Action
 
+**NOTE**: As of 2.x, if you convert back and forth between scalar and vanilla actions, changes made in one mode won't reflect in the other.
+
 1. Open an existing item, such as a weapon, feature, or piece of loot.
 2. Change the active sheet to **"Giffyglyph's 5e Scaling Action"**.
 3. Customise the action with some scaling features and shortcodes.
@@ -89,7 +114,7 @@ You can install multiple branches side-by-side, but you must activate only **one
 
 ## Roadmap
 
-Currently this release can handle GMMv3 functions as a standalone module, with some basic integrations working through other modules (MidiQOL, DAE). See [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/master/docs/DEV_TODO.md) for what I'm looking at next.
+Currently GMMC handles GMMv3 functions as a standalone module, with some basic integrations working through other modules (MidiQOL, DAE). See [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/main/docs/DEV_TODO.md) for what I'm looking at next.
 
 ## Thank Yous!
 

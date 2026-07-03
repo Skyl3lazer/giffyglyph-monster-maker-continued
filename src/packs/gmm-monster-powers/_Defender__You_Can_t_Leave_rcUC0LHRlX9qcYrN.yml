@@ -1,0 +1,87 @@
+name: (Defender) You Can't Leave
+type: feat
+img: icons/skills/melee/strike-axe-blood-red.webp
+effects: []
+folder: AFvQXBIFAgQ65eDW
+sort: 11400000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+_id: rcUC0LHRlX9qcYrN
+system:
+  description:
+    value: >-
+      Creatures always provoke opportunity attacks from you, even if they take
+      the <em>Disengage</em> action before leaving your reach. When you hit a
+      creature with an opportunity attack, that creature's speed becomes 0 for
+      the rest of the turn.
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: ''
+    cost: 0
+    condition: ''
+  duration:
+    value: null
+    units: ''
+  cover: null
+  target:
+    value: null
+    width: null
+    units: ''
+    type: ''
+  range:
+    value: null
+    long: null
+    units: ''
+  uses:
+    value: 0
+    max: 0
+    per: null
+    recovery: ''
+  consume:
+    type: ''
+    target: null
+    amount: null
+  ability: null
+  actionType: null
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        requirements:
+          role: defender
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.1
+  coreVersion: '14.364'
+  createdTime: 1686232652802
+  modifiedTime: 1712180428323
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-powers.zSssYK86FN2EY9kB
+  duplicateSource: null
+  exportSource: null
+_key: '!items!rcUC0LHRlX9qcYrN'

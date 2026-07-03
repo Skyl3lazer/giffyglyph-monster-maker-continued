@@ -62,6 +62,44 @@ const CompatibilityHelpers = (function () {
 			}
 		}
 	}
+	function gmmDuplicate(...args) {
+		if (game.version >= 12) {
+			return foundry.utils.duplicate(...args);
+		}
+		return duplicate(...args);
+	}
+	function gmmExpandObject(...args) {
+		if (game.version >= 12) {
+			return foundry.utils.expandObject(...args);
+		}
+		return expandObject(...args);
+	}
+
+	/* Build a FormData object from the named form controls inside a container, for callers that no
+	 * longer receive a FormData automatically under Foundry V14's ApplicationV2. */
+	function readInputs(container) {
+		const fd = new FormData();
+		if (!container) return fd;
+		const controls = container.querySelectorAll(
+			"input[name], select[name], textarea[name]"
+		);
+		controls.forEach((el) => {
+			if ((el.type === "radio" || el.type === "checkbox") && !el.checked) return;
+			fd.append(el.name, el.value);
+		});
+		return fd;
+	}
+	/* Roll#toMessage visibility options differ by generation: v13 reads the legacy `rollMode`
+	 * (publicroll/gmroll/blindroll/selfroll/roll); v14+ reads `messageMode` (CONFIG.ChatMessage.modes:
+	 * public/gm/blind/self). GMM's modal mode-select emits the legacy values, so return the right option. */
+	function rollMessageOptions(mode) {
+		const generation = game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
+		if (generation < 14) return { rollMode: mode };
+		// A literal "roll"/unknown is left unset so toMessage falls back to the world default; passing
+		// "roll" as a messageMode would fail applyMode's CONFIG.ChatMessage.modes lookup.
+		const messageMode = { publicroll: "public", gmroll: "gm", blindroll: "blind", selfroll: "self" }[mode];
+		return messageMode ? { messageMode } : {};
+	}
 	return {
 		hasProperty: hasProperty,
 		setProperty: setProperty,
@@ -70,7 +108,11 @@ const CompatibilityHelpers = (function () {
 		mergeObject: mergeObject,
 		replaceFormulaData: replaceFormulaData,
 		weight: weight,
-		getEncumbranceMultiplier: getEncumbranceMultiplier
+		getEncumbranceMultiplier: getEncumbranceMultiplier,
+		gmmDuplicate: gmmDuplicate,
+		gmmExpandObject: gmmExpandObject,
+		readInputs: readInputs,
+		rollMessageOptions: rollMessageOptions
 	};
 })();
 export default CompatibilityHelpers;

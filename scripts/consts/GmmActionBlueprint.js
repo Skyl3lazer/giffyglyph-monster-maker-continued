@@ -5,7 +5,7 @@ export const GMM_ACTION_BLUEPRINT = {
 		description: {
 			image: "icons/svg/clockwork.svg",
 			name: "Scaling Action",
-			text: null
+			text: ""
 		},
 		display: {
 			layout: "",

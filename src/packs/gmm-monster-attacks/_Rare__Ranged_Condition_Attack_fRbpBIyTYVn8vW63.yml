@@ -1,0 +1,289 @@
+name: (Rare) Ranged Condition Attack
+type: feat
+img: icons/weapons/polearms/spear-ice-crystal-blue.webp
+effects:
+  - changes:
+      - key: flags.midi-qol.fail.ability.save.dex
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.fail.ability.save.str
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.grants.advantage.attack.all
+        mode: 0
+        value: '1'
+        priority: null
+    description: >-
+      - A stunned creature is incapacitated (see the condition), can't move, and
+      can speak only falteringly.<br />- The creature automatically fails
+      Strength and Dexterity saving throws.<br />- Attack rolls against the
+      creature have advantage.
+    disabled: false
+    duration:
+      rounds: null
+      seconds: null
+      turns: null
+      startTime: null
+      combat: null
+      startRound: null
+      startTurn: null
+    flags:
+      dfreds-convenient-effects:
+        isConvenient: true
+        isDynamic: false
+        isViewable: true
+        nestedEffects: []
+        subEffects: []
+    name: Stunned
+    origin: Compendium.world.gmm-monster-attacks-dev.Item.fRbpBIyTYVn8vW63
+    tint: '#ffffff'
+    transfer: false
+    statuses:
+      - 'Convenient Effect: Stunned'
+      - stunned
+      - incapacitated
+    _id: 8QlZyAlW3wmBTqU0
+    _stats:
+      coreVersion: '13.351'
+      systemId: null
+      systemVersion: null
+      createdTime: null
+      modifiedTime: null
+      lastModifiedBy: null
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    img: modules/dfreds-convenient-effects/images/stunned.svg
+    type: base
+    system: {}
+    sort: 0
+    _key: '!items.effects!fRbpBIyTYVn8vW63.8QlZyAlW3wmBTqU0'
+  - changes:
+      - key: flags.midi-qol.grants.advantage.attack.mwak
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.grants.advantage.attack.msak
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.grants.disadvantage.attack.rwak
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.grants.disadvantage.attack.rsak
+        mode: 0
+        value: '1'
+        priority: null
+      - key: flags.midi-qol.disadvantage.attack.all
+        mode: 0
+        value: '1'
+        priority: null
+      - key: system.attributes.movement.all
+        mode: 0
+        value: '*0.5'
+        priority: 25
+    description: >-
+      - A prone creature's only movement option is to crawl, unless it stands up
+      and thereby ends the condition.<br />- The creature has disadvantage on
+      attack rolls.<br />- An attack roll against the creature has advantage if
+      the attacker is within 5 feet of the creature. Otherwise, the attack roll
+      has disadvantage.
+    disabled: false
+    duration:
+      rounds: null
+      seconds: null
+      turns: null
+      startTime: null
+      combat: null
+      startRound: null
+      startTurn: null
+    flags:
+      dfreds-convenient-effects:
+        isConvenient: true
+        isDynamic: false
+        isViewable: true
+        nestedEffects: []
+        subEffects: []
+    name: Prone
+    origin: Compendium.world.gmm-monster-attacks-dev.Item.fRbpBIyTYVn8vW63
+    tint: '#ffffff'
+    transfer: false
+    statuses:
+      - 'Convenient Effect: Prone'
+      - prone
+    _id: FzGu8SHw9hurCXOf
+    _stats:
+      coreVersion: '13.351'
+      systemId: null
+      systemVersion: null
+      createdTime: null
+      modifiedTime: null
+      lastModifiedBy: null
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+    img: modules/dfreds-convenient-effects/images/prone.svg
+    type: base
+    system: {}
+    sort: 0
+    _key: '!items.effects!fRbpBIyTYVn8vW63.FzGu8SHw9hurCXOf'
+folder: Xu0gwcuFy6NMHm0f
+sort: 1300000
+flags:
+  core:
+    sheetClass: giffyglyph-monster-maker-continued.ActionSheet
+  gmm:
+    blueprint:
+      vid: 1
+      type: action
+      data:
+        description:
+          name: (Rare) Ranged Condition Attack
+          image: icons/weapons/polearms/spear-ice-crystal-blue.webp
+          text: >-
+            <p>The target is knocked prone and <em>Stunned</em> until the end of
+            its next turn.</p>
+        activation:
+          type: action
+          cost: 0
+          condition: ''
+        requirements:
+          level:
+            min: null
+            max: null
+          rank: ''
+          role: ''
+        resource_consumption:
+          type: ''
+          target: ''
+          amount: null
+        attack:
+          type: rwak
+          related_stat: max
+          bonus: ''
+          defense: ''
+          miss:
+            damage: ''
+          versatile:
+            damage: ''
+        duration:
+          units: ''
+          value: ''
+        properties:
+          concentration:
+            checked: false
+        range:
+          units: ft
+          value: 120
+          long: null
+        recharge:
+          value: null
+          is_charged: false
+        target:
+          type: creature
+          units: ''
+          value: 1
+          width: 0
+        uses:
+          value: 1
+          max: 1
+          per: lr
+        display:
+          layout: ''
+          skin:
+            artifact: ''
+            blueprint: ''
+          color:
+            primary: ''
+            secondary: ''
+        rarity: rare
+  midi-qol:
+    fumbleThreshold: null
+    rollAttackPerTarget: default
+    removeAttackDamageButtons: default
+    itemCondition: ''
+    effectCondition: ''
+  midiProperties:
+    confirmTargets: default
+    autoFailFriendly: false
+    autoSaveFriendly: false
+    critOther: false
+    offHandWeapon: false
+    magicdam: false
+    magiceffect: false
+    concentration: false
+    noConcentrationCheck: false
+    toggleEffect: false
+    ignoreTotalCover: false
+_id: fRbpBIyTYVn8vW63
+system:
+  description:
+    value: >-
+      <p>The target is knocked prone and <em>Stunned</em> until the end of its
+      next turn.</p>
+    chat: ''
+    unidentified: ''
+  source: ''
+  activation:
+    type: action
+    cost: 0
+    condition: ''
+  duration:
+    value: ''
+    units: ''
+  cover: null
+  target:
+    value: 1
+    width: ''
+    units: ''
+    type: creature
+  range:
+    value: 120
+    long: null
+    units: ft
+  uses:
+    value: 1
+    max: 1
+    per: lr
+    recovery: ''
+  consume:
+    type: ''
+    target: ''
+    amount: null
+  ability: ''
+  actionType: rwak
+  attackBonus: 0
+  chatFlavor: ''
+  critical: null
+  damage:
+    parts: []
+    versatile: ''
+  formula: ''
+  save:
+    ability: ''
+    dc: null
+    scaling: spell
+  type:
+    value: ''
+    subtype: ''
+  requirements: ''
+  recharge:
+    value: null
+    charged: false
+ownership:
+  default: 0
+  9KqczVLBJ56sdiTI: 3
+_stats:
+  systemId: dnd5e
+  systemVersion: 3.1.2
+  coreVersion: '13.351'
+  createdTime: 1686232662670
+  modifiedTime: 1716215894926
+  lastModifiedBy: x5I9e6ueO5h4cZXY
+  compendiumSource: Compendium.world.gmm-dev-monster-attacks.jkyDGbZe81c6dTHI
+  duplicateSource: null
+  exportSource: null
+_key: '!items!fRbpBIyTYVn8vW63'

@@ -1,0 +1,58 @@
+name: Dev Release
+
+# Publishes a rolling pre-release on every push to the dev branch, so testers can install
+# once from releases/download/dev-latest/module.json and auto-update.
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: write
+
+jobs:
+  dev-release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build stylesheets (scss -> gmm.css)
+        run: |
+          npm install --no-audit --no-fund
+          npx gulp build
+
+      - name: Build compendium packs (src/packs -> packs)
+        run: npm run pack
+
+      - name: Stamp module.json for the dev channel
+        run: |
+          node -e "const fs=require('fs');const repo=process.env.GITHUB_REPOSITORY;const m=JSON.parse(fs.readFileSync('module.json','utf8'));m.manifest='https://github.com/'+repo+'/releases/download/dev-latest/module.json';m.download='https://github.com/'+repo+'/releases/download/dev-latest/module.zip';['manifestProd','manifestDev','downloadProd','downloadDev'].forEach(k=>delete m[k]);fs.writeFileSync('module.json',JSON.stringify(m,null,'\t')+'\n');console.log('Dev build',m.id,m.version);"
+          echo "MODULE_VERSION=$(node -p "require('./module.json').version")" >> "$GITHUB_ENV"
+
+      - name: Build module.zip
+        run: |
+          zip -r module.zip . \
+            -x ".git/*" ".github/*" "node_modules/*" ".claude/*" ".cursor/*" \
+               "src/*" "tools/*" \
+               "package.json" "package-lock.json" "gulpfile.js" ".gitignore" \
+               ".eslintrc.json" ".jsbeautifyrc" "module.zip"
+
+      - name: Publish / refresh the rolling dev pre-release
+        run: |
+          NOTES="Dev build $MODULE_VERSION - rolling build of the dev branch. Install manifest: https://github.com/$GITHUB_REPOSITORY/releases/download/dev-latest/module.json"
+          if gh release view dev-latest >/dev/null 2>&1; then
+            gh release upload dev-latest module.json module.zip --clobber
+            gh release edit dev-latest --title "Dev build $MODULE_VERSION" --notes "$NOTES"
+          else
+            gh release create dev-latest module.json module.zip --prerelease --target "$GITHUB_SHA" \
+              --title "Dev build $MODULE_VERSION" \
+              --notes "$NOTES"
+          fi

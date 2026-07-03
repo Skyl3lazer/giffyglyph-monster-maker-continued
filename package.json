@@ -7,11 +7,15 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"hi\""
+    "test": "echo \"hi\"",
+    "unpack": "node tools/packs.mjs unpack",
+    "pack": "node tools/packs.mjs pack",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "author": "Skyl3lazer",
   "license": "ISC",
   "devDependencies": {
+    "@foundryvtt/foundryvtt-cli": "^3.0.4",
     "eslint": "^9.3.0",
     "gulp": "^4.0.2",
     "gulp-sass": "^5.1.0",
