@@ -99,7 +99,7 @@ All of these use the same module id, so only **one can be installed on a Foundry
 ### Converting an old Monster
 
 1. Open an existing monster, or import one from the SRD compendium.
-2. Change the active sheet to **"Giffyglyph's 5e Monster Maker"**.
+2. Change the active sheet to **"Giffyglyph's 5e Monster Maker Continued"**.
 3. Change the monster's level, rank, and role to suit the expected encounter.
 
 ### Converting an old Action
