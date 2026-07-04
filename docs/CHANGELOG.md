@@ -9,6 +9,13 @@
 
 ## v2.0.0.8
 
+* Fixed several action fields (such as "Recharges On" and the range Units dropdown) not saving on Foundry v13.
+* Fixed clearing an action's description not always persisting.
+* Fixed compendium attacks not showing their normal hit damage formula.
+* Fixed a duplicate blank option in the resource-consumption target dropdown, and "This Item" not staying selected.
+* Removed unused attack templates that had no scaling data, plus some dead internal code.
+* Dev-only files (docs, stylesheets, git hooks) are no longer bundled in the packaged download.
+
 ## v2.0.0.7
 
 * Made the select helper for v14 also fire in v13 to avoid deprecation warnings
