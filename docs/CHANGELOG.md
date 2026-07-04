@@ -12,6 +12,8 @@
 * Git related changes, such as fixing packaging cleanup on levelDBs. This probably doesn't affect you unless you're rebuilding packs yourself.
 * Fixed monster proficient save bonuses being incorrect at some levels
 * Fixed duplicated compendium entries in attacks
+* Fixed the recharge button on the monster sheet not working
+* Fixed ranged/melee label on converted attacks
 * Typo fixes and language standardization.
 
 ## v2.0.0.5 (latest)

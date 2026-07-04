@@ -260,7 +260,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             $el.find('.ability-ranking .move-up, .ability-ranking .move-down').click(this._updateAbilityRanking.bind(this));
             $el.find('.save-ranking .move-up, .save-ranking .move-down').click(this._updateSaveRanking.bind(this));
             $el.find('.monster__panels .accordion-section__title').click((e) => e.stopPropagation());
-            $el.find('.item .item__recharge button').click((e) => e.stopPropagation());
             $el.find('.item .item__title input').click((e) => e.stopPropagation());
             $el.find('.item .item__title').click(this._toggleItemDetails.bind(this));
             // `update-item` inputs intentionally have no `name` attribute, so the V2 form
@@ -578,6 +577,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     }
 
     _toggleItemDetails(event) {
+        if (event.target.closest("button, input, a")) return;
         const item = event.currentTarget.closest(".item");
         item.classList.toggle("expanded");
     }
