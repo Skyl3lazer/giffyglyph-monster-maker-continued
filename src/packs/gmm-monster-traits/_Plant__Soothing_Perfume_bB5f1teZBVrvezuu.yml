@@ -3,7 +3,7 @@ type: feat
 img: icons/magic/nature/mushroom-glow-red.webp
 system:
   description:
-    value: "<p>At the start of your turn, each creature within 30 ft. of you must succeed on a DC [dcPrimaryBonus + maxMod]\_Constitution saving throw or fall unconscious. This effect ends after 1 minute or if the creature takes damage. If the saving throw succeeds by 5 or more, the creature is immune to your perfume until it finishes a long rest.</p>"
+    value: "<p>At the start of your turn, each creature within 30 ft. of you must succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving throw or fall unconscious. This effect ends after 1 minute or if the creature takes damage. If the saving throw succeeds by 5 or more, the creature is immune to your perfume until it finishes a long rest.</p>"
     chat: ''
   source: {}
   activation:
@@ -77,7 +77,7 @@ flags:
           image: icons/magic/nature/mushroom-glow-red.webp
           text: >-
             <p>At the start of your turn, each creature within 30 ft. of you
-            must succeed on a DC [dcPrimaryBonus + maxMod]&nbsp;Constitution
+            must succeed on a DC [dcPrimaryBonus + maxMod] Constitution
             saving throw or fall unconscious. This effect ends after 1 minute or
             if the creature takes damage. If the saving throw succeeds by 5 or
             more, the creature is immune to your perfume until it finishes a

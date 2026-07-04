@@ -10,7 +10,7 @@ flags:
 _id: GZPiT6tJoYbwbfoq
 system:
   description:
-    value: When you are bloodied, you become gain -2 AC and +2 attack.
+    value: When you are bloodied, you gain -2 AC and +2 attack.
     chat: ''
     unidentified: ''
   source: ''

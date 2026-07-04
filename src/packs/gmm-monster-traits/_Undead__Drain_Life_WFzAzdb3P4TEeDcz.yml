@@ -3,7 +3,7 @@ type: feat
 img: icons/magic/death/projectile-skull-fire-green.webp
 system:
   description:
-    value: "<p>When you critically hit a creature with a weapon attack, the creature must succeed on a DC [dcPrimaryBonus + maxMod]\_Constitution saving throw or lose one unspent hit die.</p>"
+    value: "<p>When you critically hit a creature with a weapon attack, the creature must succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving throw or lose one unspent hit die.</p>"
     chat: ''
   source: {}
   activation:
@@ -78,7 +78,7 @@ flags:
           text: >-
             <p>When you critically hit a creature with a weapon attack, the
             creature must succeed on a DC [dcPrimaryBonus +
-            maxMod]&nbsp;Constitution saving throw or lose one unspent hit
+            maxMod] Constitution saving throw or lose one unspent hit
             die.</p>
         activation:
           type: ''
