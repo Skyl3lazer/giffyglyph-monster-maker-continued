@@ -18,7 +18,7 @@ flags:
           text: >-
             <p>At the start of their turn. the target can make a Constitution
             saving throw (DC [dcPrimaryBonus + maxMod]). On success, the
-            condition ends. If they fail, they take take [round(damage * 1.75),
+            condition ends. If they fail, they take [round(damage * 1.75),
             damageDie] poison damage.</p>
         activation:
           type: action
@@ -85,7 +85,7 @@ system:
     value: >-
       <p>At the start of their turn. the target can make a Constitution saving
       throw (DC [dcPrimaryBonus + maxMod]). On success, the condition ends. If
-      they fail, they take take [round(damage * 1.75), damageDie] poison
+      they fail, they take [round(damage * 1.75), damageDie] poison
       damage.</p>
     chat: ''
     unidentified: ''
