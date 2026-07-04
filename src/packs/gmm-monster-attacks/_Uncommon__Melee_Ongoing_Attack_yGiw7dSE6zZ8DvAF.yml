@@ -42,7 +42,7 @@ flags:
           hit:
             damage:
               '0':
-                formula: '[round(damage * 1.25), damageDie]]'
+                formula: '[round(damage * 1.25), damageDie]'
                 type: acid
           miss:
             damage: ''

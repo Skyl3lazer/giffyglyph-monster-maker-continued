@@ -9,7 +9,9 @@
 
 ## v2.0.0.6 (dev)
 
-* 
+* Git related changes, such as fixing packaging cleanup on levelDBs. This probably doesn't affect you unless you're rebuilding packs yourself.
+* Fixed monster proficient save bonuses being incorrect at some levels
+* Typo fixes and language standardization.
 
 ## v2.0.0.5 (latest)
 
