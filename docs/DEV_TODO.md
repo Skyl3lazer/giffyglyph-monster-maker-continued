@@ -42,10 +42,14 @@
 * Consumption-target dropdown gets a duplicate blank option
 * Toggling the sheet between vanilla and gmmc can stretch it weirdly
 * Clearing descriptions doesn't always work
+* V13 deprecation errors, sheet5eRenderHook
 
 ### Dead Code to Remove
 
-* _updateSaveRanking
+* _updateSaveRanking (deprecated)
+* gmmDuplicate (deprecated)
+* gmmExpandObject (deprecated)
+* actionTypeForBlueprint (uncalled?)
 
 ## Testing Stuff
 

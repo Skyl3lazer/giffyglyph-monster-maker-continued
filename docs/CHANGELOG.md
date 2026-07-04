@@ -16,6 +16,7 @@
 * Fixed ranged/melee label on converted attacks
 * Fixed the uses counter not persisting in dnd5e 5.3
 * Fixed weight not showing correctly on loot
+* Minor Handlebars updates
 * Typo fixes and language standardization.
 
 ## v2.0.0.5 (latest)
