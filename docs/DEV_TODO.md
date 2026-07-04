@@ -2,7 +2,6 @@
 
 ## Major
 
-* Review AI generated code thoroughly. This will be in progress for a while.
 
 ## Visual
 
@@ -20,8 +19,6 @@
 
 
 ## Compendiums
-
-* Compendiums need a rework for v14
 
 ## Modal/Info Updates
 

@@ -189,7 +189,9 @@
                                 <div class="form-group__body">
                                     <select name="gmm.blueprint.resource_consumption.target">
                                         {{#select gmm.blueprint.resource_consumption.target}}
+                                        {{#unless (eq gmm.blueprint.resource_consumption.type "charges")}}
                                         <option value=""></option>
+                                        {{/unless}}
                                         {{#each gmm.enums.consumption_targets as | name key |}}
                                         <option value="{{key}}">{{name}}</option>
                                         {{/each}}
