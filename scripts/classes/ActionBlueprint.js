@@ -80,7 +80,10 @@ const ActionBlueprint = (function () {
         const activityUpdate = item
             ? Activities.buildActivityUpdate(item, blueprint)
             : { [`system.activities.${Activities.GMM_ACTIVITY_ID}`]: Activities.buildActivityData(blueprint) };
-        Object.assign(itemData, activityUpdate);
+        //  On v13 `item.update` silently drops a dotted `system.*` key when a nested `system` object is present
+        for (const [key, value] of Object.entries(activityUpdate)) {
+            CompatibilityHelpers.setProperty(itemData, key, value);
+        }
 
         return itemData;
     }
