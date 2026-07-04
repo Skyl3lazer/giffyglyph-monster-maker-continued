@@ -340,10 +340,11 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             expanded.gmm.blueprint.uses.max = "";
         }
 
-        // Description text submitted via the new editor is nested under `flags.gmm.blueprint.data.description.text`
-        // mirror it onto the blueprint form path so the gmm.blueprint -> flags.gmm.blueprint translation below captures it
-        if (expanded.flags?.gmm?.blueprint?.data?.description?.text) {
-            CompatibilityHelpers.setProperty(expanded, "gmm.blueprint.description.text", expanded.flags.gmm.blueprint.data.description.text);
+        // Mirror the editor's `flags.gmm.blueprint.data.description.text` onto the blueprint path so the
+        // repackaging below captures it.
+        const descText = expanded.flags?.gmm?.blueprint?.data?.description?.text;
+        if (descText !== undefined) {
+            CompatibilityHelpers.setProperty(expanded, "gmm.blueprint.description.text", descText);
         }
 
         if (CompatibilityHelpers.hasProperty(expanded, "gmm.blueprint")) {

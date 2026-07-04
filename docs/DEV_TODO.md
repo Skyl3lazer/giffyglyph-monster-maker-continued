@@ -39,7 +39,6 @@
 * Attacks in compendium don't show their normal hit damage formulas
 * Consumption-target dropdown gets a duplicate blank option
 * Toggling the sheet between vanilla and gmmc can stretch it weirdly
-* Clearing descriptions doesn't always work
 
 ### Dead Code to Remove
 
