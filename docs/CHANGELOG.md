@@ -12,6 +12,7 @@
 * Made the select helper for v14 also fire in v13 to avoid deprecation warnings
 * Fixed compatibility for other modules (quick insert specifically) that tied in to npc sheets based on DOM elements
 * Fixed an issue where having multiple monsters open would cause rolls to use the wrong monster
+* Fixed empty-target actions not saying 'one target' by default.
 
 ## v2.0.0.6
 

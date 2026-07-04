@@ -3,17 +3,20 @@
 
 /* Format `{ type, value, width, units }` blueprint target as a localised label; "" if unsupported. */
 export function formatTargetLabel(target) {
-	if (!target?.type) return "";
-	switch (target.type) {
+	if (!target) return "";
+	// Normalise a null/undefined type to "" so an empty-type target still reaches the case below
+	// (a bare `!target.type` guard used to drop it, losing the "one target" label entirely).
+	switch (target.type ?? "") {
 		case "":
 		case "none":
 			switch (target.units) {
 				case "self":
 					return game.i18n.format(`gmm.action.labels.target.self`);
+				case "any":
+					return game.i18n.format(`gmm.action.labels.target.any.all`);
 				case "touch":
 				case "ft":
 				case "mi":
-					if (target.units === "any") return game.i18n.format(`gmm.action.labels.target.any.all`);
 					return game.i18n.format(`gmm.action.labels.target.any.${target.value > 1 ? "multiple" : "single"}`,
 						{ quantity: Math.max(1, target.value) });
 			}
