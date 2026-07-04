@@ -2887,7 +2887,7 @@
   --color-secondary-shade-2: #923112;
   --color-secondary-shade-3: #62200c;
   --color-secondary-shade-4: #311006;
-  --color-secondary-shade-4: #180803;
+  --color-secondary-shade-5: #180803;
   --color-secondary-tone-1: #dc5d36;
   --color-secondary-tone-2: #c56a4d;
   --color-secondary-tone-3: #ad7665;
@@ -3486,7 +3486,7 @@
   --color-secondary-shade-2: #771818;
   --color-secondary-shade-3: #4f1010;
   --color-secondary-shade-4: #280808;
-  --color-secondary-shade-4: #140404;
+  --color-secondary-shade-5: #140404;
   --color-secondary-tone-1: #ae4040;
   --color-secondary-tone-2: #965858;
   --color-secondary-tone-3: #7f6f6f;
@@ -3504,7 +3504,7 @@
   --color-secondary-shade-2: #680c34;
   --color-secondary-shade-3: #450823;
   --color-secondary-shade-4: #230411;
-  --color-secondary-shade-4: #110209;
+  --color-secondary-shade-5: #110209;
   --color-secondary-tone-1: #9a2759;
   --color-secondary-tone-2: #863b5c;
   --color-secondary-tone-3: #734e5e;
@@ -3522,7 +3522,7 @@
   --color-secondary-shade-2: #551666;
   --color-secondary-shade-3: #390e44;
   --color-secondary-shade-4: #1c0722;
-  --color-secondary-shade-4: #0e0411;
+  --color-secondary-shade-5: #0e0411;
   --color-secondary-tone-1: #823995;
   --color-secondary-tone-2: #764d81;
   --color-secondary-tone-3: #6a626c;
@@ -3540,7 +3540,7 @@
   --color-secondary-shade-2: #38206a;
   --color-secondary-shade-3: #261547;
   --color-secondary-shade-4: #130b23;
-  --color-secondary-shade-4: #090512;
+  --color-secondary-shade-5: #090512;
   --color-secondary-tone-1: #664c9a;
   --color-secondary-tone-2: #6e6383;
   --color-secondary-tone-3: #737373;
@@ -3558,7 +3558,7 @@
   --color-secondary-shade-2: #222c67;
   --color-secondary-shade-3: #171d44;
   --color-secondary-shade-4: #0b0f22;
-  --color-secondary-shade-4: #060711;
+  --color-secondary-shade-5: #060711;
   --color-secondary-tone-1: #505994;
   --color-secondary-tone-2: #676a7d;
   --color-secondary-tone-3: #727272;
@@ -3576,7 +3576,7 @@
   --color-secondary-shade-2: #125289;
   --color-secondary-shade-3: #0c365c;
   --color-secondary-shade-4: #061b2e;
-  --color-secondary-shade-4: #030e17;
+  --color-secondary-shade-5: #030e17;
   --color-secondary-tone-1: #3786cc;
   --color-secondary-tone-2: #5085b3;
   --color-secondary-tone-3: #69839a;
@@ -3594,7 +3594,7 @@
   --color-secondary-shade-2: #01527d;
   --color-secondary-shade-3: #013654;
   --color-secondary-shade-4: #001b2a;
-  --color-secondary-shade-4: #000e15;
+  --color-secondary-shade-5: #000e15;
   --color-secondary-tone-1: #1782bc;
   --color-secondary-tone-2: #2c7ca7;
   --color-secondary-tone-3: #417592;
@@ -3612,7 +3612,7 @@
   --color-secondary-shade-2: #005b64;
   --color-secondary-shade-3: #003c43;
   --color-secondary-shade-4: #001e21;
-  --color-secondary-shade-4: #000f11;
+  --color-secondary-shade-5: #000f11;
   --color-secondary-tone-1: #118a96;
   --color-secondary-tone-2: #217c86;
   --color-secondary-tone-3: #326f75;
@@ -3630,7 +3630,7 @@
   --color-secondary-shade-2: #005a52;
   --color-secondary-shade-3: #003c36;
   --color-secondary-shade-4: #001e1b;
-  --color-secondary-shade-4: #000f0e;
+  --color-secondary-shade-5: #000f0e;
   --color-secondary-tone-1: #0f877c;
   --color-secondary-tone-2: #1e7870;
   --color-secondary-tone-3: #2d6963;
@@ -3648,7 +3648,7 @@
   --color-secondary-shade-2: #225524;
   --color-secondary-shade-3: #163918;
   --color-secondary-shade-4: #0b1c0c;
-  --color-secondary-shade-4: #060e06;
+  --color-secondary-shade-5: #060e06;
   --color-secondary-tone-1: #4c7a4e;
   --color-secondary-tone-2: #606660;
   --color-secondary-tone-3: #636363;
@@ -3666,7 +3666,7 @@
   --color-secondary-shade-2: #3e5f22;
   --color-secondary-shade-3: #2a4016;
   --color-secondary-shade-4: #15200b;
-  --color-secondary-shade-4: #0a1006;
+  --color-secondary-shade-5: #0a1006;
   --color-secondary-tone-1: #698a4e;
   --color-secondary-tone-2: #6b7463;
   --color-secondary-tone-3: #6c6c6c;
@@ -3684,7 +3684,7 @@
   --color-secondary-shade-2: #696c1a;
   --color-secondary-shade-3: #464811;
   --color-secondary-shade-4: #232409;
-  --color-secondary-shade-4: #121204;
+  --color-secondary-shade-5: #121204;
   --color-secondary-tone-1: #9a9e41;
   --color-secondary-tone-2: #868758;
   --color-secondary-tone-3: #71716e;
@@ -3702,7 +3702,7 @@
   --color-secondary-shade-2: #825a1a;
   --color-secondary-shade-3: #563c11;
   --color-secondary-shade-4: #2b1e09;
-  --color-secondary-shade-4: #160f04;
+  --color-secondary-shade-5: #160f04;
   --color-secondary-tone-1: #bf9044;
   --color-secondary-tone-2: #a68a5d;
   --color-secondary-tone-3: #8d8476;
@@ -3720,7 +3720,7 @@
   --color-secondary-shade-2: #824d0b;
   --color-secondary-shade-3: #563408;
   --color-secondary-shade-4: #2b1a04;
-  --color-secondary-shade-4: #160d02;
+  --color-secondary-shade-5: #160d02;
   --color-secondary-tone-1: #c17e2b;
   --color-secondary-tone-2: #a97c42;
   --color-secondary-tone-3: #92795a;
@@ -3738,7 +3738,7 @@
   --color-secondary-shade-2: #8e4c16;
   --color-secondary-shade-3: #5e320e;
   --color-secondary-shade-4: #2f1907;
-  --color-secondary-shade-4: #180d04;
+  --color-secondary-shade-5: #180d04;
   --color-secondary-tone-1: #d4803c;
   --color-secondary-tone-2: #bc8354;
   --color-secondary-tone-3: #a5856b;
@@ -3756,7 +3756,7 @@
   --color-secondary-shade-2: #803822;
   --color-secondary-shade-3: #562617;
   --color-secondary-shade-4: #2b130b;
-  --color-secondary-shade-4: #150906;
+  --color-secondary-shade-5: #150906;
   --color-secondary-tone-1: #be6b51;
   --color-secondary-tone-2: #a67769;
   --color-secondary-tone-3: #8e8481;
@@ -3774,7 +3774,7 @@
   --color-secondary-shade-2: #412e27;
   --color-secondary-shade-3: #2c1e1a;
   --color-secondary-shade-4: #160f0d;
-  --color-secondary-shade-4: #0b0807;
+  --color-secondary-shade-5: #0b0807;
   --color-secondary-tone-1: #5c5552;
   --color-secondary-tone-2: #575757;
   --color-secondary-tone-3: #575757;
@@ -3792,7 +3792,7 @@
   --color-secondary-shade-2: #464646;
   --color-secondary-shade-3: #2f2f2f;
   --color-secondary-shade-4: #171717;
-  --color-secondary-shade-4: #0c0c0c;
+  --color-secondary-shade-5: #0c0c0c;
   --color-secondary-tone-1: #757575;
   --color-secondary-tone-2: #757575;
   --color-secondary-tone-3: #757575;
@@ -3810,7 +3810,7 @@
   --color-secondary-shade-2: #324249;
   --color-secondary-shade-3: #222c31;
   --color-secondary-shade-4: #111618;
-  --color-secondary-shade-4: #080b0c;
+  --color-secondary-shade-5: #080b0c;
   --color-secondary-tone-1: #676767;
   --color-secondary-tone-2: #676767;
   --color-secondary-tone-3: #676767;

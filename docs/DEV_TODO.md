@@ -35,8 +35,6 @@
 ## Known Bugs
 
 * Custom saving throws per-stat aren't currently working.
-* Secondary theme colors don't make a change
-* Attacks in compendium don't show their normal hit damage formulas
 * Consumption-target dropdown gets a duplicate blank option
 * Toggling the sheet between vanilla and gmmc can stretch it weirdly
 

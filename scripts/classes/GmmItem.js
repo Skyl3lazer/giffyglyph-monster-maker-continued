@@ -342,6 +342,12 @@ const GmmItem = (function () {
                 .map((part, idx) => _formatDamagePart(part, gmmMonster, rollData, blueprintDamage[idx]?.formula))
                 .filter(_ => _)
                 .join(" plus ");
+        } else if (blueprintDamage.length) {
+            // No GMM activity to read parts from (compendium / unmigrated item) — format the blueprint hit damage directly.
+            labels.damage_hit = blueprintDamage
+                .map(d => _formatDamagePart({ formula: d.formula, types: d.type ? [d.type] : [] }, gmmMonster, rollData, d.formula))
+                .filter(_ => _)
+                .join(" plus ");
         }
 
         // --- Activation condition ---
