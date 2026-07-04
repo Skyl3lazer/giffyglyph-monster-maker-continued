@@ -7,7 +7,12 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
-## v2.0.0.6 (dev)
+## v2.0.0.7
+
+* Made the select helper for v14 also fire in v13 to avoid deprecation warnings
+* Fixed compatibility for other modules (quick insert specifically) that tied in to npc sheets based on DOM elements
+
+## v2.0.0.6
 
 * Git related changes, such as fixing packaging cleanup on levelDBs. This probably doesn't affect you unless you're rebuilding packs yourself.
 * Fixed monster proficient save bonuses being incorrect at some levels
