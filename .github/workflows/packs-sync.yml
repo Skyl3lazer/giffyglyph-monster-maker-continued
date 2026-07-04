@@ -22,8 +22,13 @@ jobs:
         with:
           node-version: 20
 
+      # npm ci (not install) so the pinned js-yaml is used verbatim. The Foundry CLI
+      # serializes src/packs via a bundled js-yaml whose fold/quote style shifts between
+      # patch releases; an unpinned version reserializes identical content differently and
+      # this job fails. package-lock.json must stay committed. After bumping the CLI, run
+      # `npm run unpack` locally and commit the reserialized src/packs alongside the bump.
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Regenerate src/packs from committed packs
         run: npm run unpack

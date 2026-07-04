@@ -3,7 +3,11 @@ type: feat
 img: icons/magic/nature/plant-sprout-snow-green.webp
 system:
   description:
-    value: "<p>The ground in a 10-foot radius around you is difficult terrain. Each creature that starts its turn in that area must succeed on a DC [dcPrimaryBonus + maxMod] Strength saving throw or have its speed reduced to 0 until the start of its next turn.</p>"
+    value: >-
+      <p>The ground in a 10-foot radius around you is difficult terrain. Each
+      creature that starts its turn in that area must succeed on a DC
+      [dcPrimaryBonus + maxMod] Strength saving throw or have its speed reduced
+      to 0 until the start of its next turn.</p>
     chat: ''
   source: {}
   activation:
@@ -78,8 +82,8 @@ flags:
           text: >-
             <p>The ground in a 10-foot radius around you is difficult terrain.
             Each creature that starts its turn in that area must succeed on a DC
-            [dcPrimaryBonus + maxMod] Strength saving throw or have its
-            speed reduced to 0 until the start of its next turn.</p>
+            [dcPrimaryBonus + maxMod] Strength saving throw or have its speed
+            reduced to 0 until the start of its next turn.</p>
         activation:
           type: ''
           cost: null

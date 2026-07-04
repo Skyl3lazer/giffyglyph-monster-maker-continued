@@ -87,8 +87,8 @@ flags:
           text: >-
             <p>You begin draining the life out of a nearby foe. If they take
             damage from this attack, they become &amp;reference[Frightened] of
-            you. They make a DC [dcPrimaryBonus + maxMod] Wisdom save at
-            the end of each of their turns to end this effect.</p>
+            you. They make a DC [dcPrimaryBonus + maxMod] Wisdom save at the end
+            of each of their turns to end this effect.</p>
 
             <p><em>Adding a deferral allows this feature to deal more damage and
             apply a condition. (See GMM pdf p.45)</em></p>

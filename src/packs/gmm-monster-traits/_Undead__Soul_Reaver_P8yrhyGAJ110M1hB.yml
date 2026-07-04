@@ -3,7 +3,11 @@ type: feat
 img: icons/magic/death/weapon-scythe-rune-green.webp
 system:
   description:
-    value: "<p>When you reduce a creature to 0 hit points, that creature must succeed on a DC [dcPrimaryBonus + maxMod] Charisma saving throw or have its soul reaved. A reaved creature can't be revived by any means short of a Wish spell.</p>"
+    value: >-
+      <p>When you reduce a creature to 0 hit points, that creature must succeed
+      on a DC [dcPrimaryBonus + maxMod] Charisma saving throw or have its soul
+      reaved. A reaved creature can't be revived by any means short of a Wish
+      spell.</p>
     chat: ''
   source: {}
   activation:
@@ -77,8 +81,8 @@ flags:
           image: icons/magic/death/weapon-scythe-rune-green.webp
           text: >-
             <p>When you reduce a creature to 0 hit points, that creature must
-            succeed on a DC [dcPrimaryBonus + maxMod] Charisma saving throw
-            or have its soul reaved. A reaved creature can't be revived by any
+            succeed on a DC [dcPrimaryBonus + maxMod] Charisma saving throw or
+            have its soul reaved. A reaved creature can't be revived by any
             means short of a Wish spell.</p>
         activation:
           type: ''

@@ -3,7 +3,10 @@ type: feat
 img: icons/magic/death/skull-horned-goat-pentagram-red.webp
 system:
   description:
-    value: "<p>When a creature touches you or hits you with a melee attack, it must make a DC [dcPrimaryBonus + maxMod] Charisma saving throw or be vulnerable to necrotic damage until the end of its next turn.</p>"
+    value: >-
+      <p>When a creature touches you or hits you with a melee attack, it must
+      make a DC [dcPrimaryBonus + maxMod] Charisma saving throw or be vulnerable
+      to necrotic damage until the end of its next turn.</p>
     chat: ''
   source: {}
   activation:
@@ -77,9 +80,8 @@ flags:
           image: icons/magic/death/skull-horned-goat-pentagram-red.webp
           text: >-
             <p>When a creature touches you or hits you with a melee attack, it
-            must make a DC [dcPrimaryBonus + maxMod] Charisma saving throw
-            or be vulnerable to necrotic damage until the end of its next
-            turn.</p>
+            must make a DC [dcPrimaryBonus + maxMod] Charisma saving throw or be
+            vulnerable to necrotic damage until the end of its next turn.</p>
         activation:
           type: ''
           cost: null

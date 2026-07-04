@@ -2,9 +2,8 @@ name: (U) Blast
 type: feat
 img: icons/magic/unholy/strike-beam-blood-large-red-blue.webp
 system:
-  description: 
-    value: >-
-      <p>Blast foes in an area.</p>
+  description:
+    value: <p>Blast foes in an area.</p>
     chat: ''
   source: {}
   activation:
@@ -78,8 +77,7 @@ flags:
         description:
           name: (U) Blast
           image: icons/magic/unholy/strike-beam-blood-large-red-blue.webp
-          text: >-
-                <p>Blast foes in an area.</p>
+          text: <p>Blast foes in an area.</p>
         activation:
           type: action
           cost: null

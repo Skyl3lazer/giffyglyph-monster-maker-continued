@@ -3,7 +3,10 @@ type: feat
 img: icons/magic/lightning/barrier-wall-shield-gray.webp
 system:
   description:
-    value: "<p>When you critically hit a creature with an attack, it must succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving throw or take force damage equal to your combat level ([level]).</p>"
+    value: >-
+      <p>When you critically hit a creature with an attack, it must succeed on a
+      DC [dcPrimaryBonus + maxMod] Constitution saving throw or take force
+      damage equal to your combat level ([level]).</p>
     chat: ''
   source: {}
   activation:
@@ -77,8 +80,8 @@ flags:
           image: icons/magic/lightning/barrier-wall-shield-gray.webp
           text: >-
             <p>When you critically hit a creature with an attack, it must
-            succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving
-            throw or take force damage equal to your combat level ([level]).</p>
+            succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving throw
+            or take force damage equal to your combat level ([level]).</p>
         activation:
           type: ''
           cost: null
