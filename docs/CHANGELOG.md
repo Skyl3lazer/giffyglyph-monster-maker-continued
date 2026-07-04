@@ -35,7 +35,7 @@
 * Minor Handlebars updates
 * Typo fixes and language standardization.
 
-## v2.0.0.5 (latest)
+## v2.0.0.5
 
 * Moved the compendiums to the v13 format, which can easily forward to v14. There's a breaking change in here that means we'll be on the v13 format until support is dropped (when it will get its own forever-branch)
 * Fixed a bunch of typos in the compendiums
