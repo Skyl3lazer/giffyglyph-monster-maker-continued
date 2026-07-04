@@ -5,9 +5,8 @@ import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 const ModalBasicAttackAc = (function() {
 
 	function activateListeners(html, actor, id) {
-		this.actor = actor;
-		this.id = id;
-		html.find('#modal_basic_attack_ac .modal__footer button').click(_submitForm.bind(this));
+		const ctx = { actor, id };
+		html.find('#modal_basic_attack_ac .modal__footer button').click(_submitForm.bind(ctx));
 	}
 
     function _submitForm(event) {

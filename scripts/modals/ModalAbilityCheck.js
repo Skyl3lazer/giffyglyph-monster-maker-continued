@@ -5,10 +5,9 @@ import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 const ModalAbilityCheck = (function() {
 
 	function activateListeners(html, actor, id) {
-		this.actor = actor;
-		this.id = id;
-		html.find('#modal_ability_check .modal__footer button').click(_submitForm.bind(this));
-		html.find('.monster__modifier .value button, .monster__skill').click(_setAbilityAndSkill.bind(this));
+		const ctx = { actor, id };
+		html.find('#modal_ability_check .modal__footer button').click(_submitForm.bind(ctx));
+		html.find('.monster__modifier .value button, .monster__skill').click(_setAbilityAndSkill.bind(ctx));
 	}
 
 	function _setAbilityAndSkill(event) {

@@ -2,13 +2,12 @@ import Shortcoder from '../classes/Shortcoder.js';
 import RollFormula from '../classes/RollFormula.js';
 import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 
-const ModalBasicAttackAc = (function() {
+const ModalBasicAttackSave = (function() {
 
 	function activateListeners(html, actor, id) {
-		this.actor = actor;
-		this.id = id;
-		html.find('#modal_basic_attack_save .modal__footer button').click(_submitForm.bind(this));
-		html.find('.button--primary-dc').click(_setPrimary.bind(this));
+		const ctx = { actor, id };
+		html.find('#modal_basic_attack_save .modal__footer button').click(_submitForm.bind(ctx));
+		html.find('.button--primary-dc').click(_setPrimary.bind(ctx));
 	}
 
 	function _setPrimary(event) {
@@ -56,4 +55,4 @@ const ModalBasicAttackAc = (function() {
 	};
 })();
 
-export default ModalBasicAttackAc;
+export default ModalBasicAttackSave;
