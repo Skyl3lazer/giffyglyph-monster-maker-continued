@@ -84,7 +84,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /** @inheritDoc */
     get title() {
         const name = this.actor?.name ?? this.document?.name ?? "";
-        return name ? `${name} - GMMC Scalar Monster` : "GMMC Scalar Monster";
+        return name ? `${name} - GMMC Scaling Monster` : "GMMC Scaling Monster";
     }
 
     /** @inheritDoc */

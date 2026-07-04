@@ -42,7 +42,7 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 
 ## Mind the Gap!
 
-* There was a large gap between updates to this module. While the v13 branch will work with dnd3.3.2 and V13, the 2.x versions of GMMC will REQUIRE
+* There was a large gap between updates to this module. While the v13 branch will work with dnd5e 3.3.2 and V13, the 2.x versions of GMMC will REQUIRE
   - dnd5e 5.3.2
   - Foundry v13, ideally v14. 
 * I will aim to be backwards compatible with v13 where I can, but development is aimed at v14.
@@ -118,7 +118,7 @@ Currently GMMC handles GMMv3 functions as a standalone module, with some basic i
 
 ## Thank Yous!
 
-Big shoutout to **@krigsmaskine** on Discord for assistance with the [tsponey](https://github.com/tposney) modules and general testing
+Big shoutout to **@krigsmaskine** on Discord for assistance with the [tposney](https://github.com/tposney) modules and general testing
 
 ## Bugs and Feature Suggestions
 

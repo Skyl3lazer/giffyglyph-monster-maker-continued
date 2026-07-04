@@ -7,7 +7,11 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
-## v2.0.0.5 (dev)
+## v2.0.0.6 (dev)
+
+* 
+
+## v2.0.0.5 (latest)
 
 * Moved the compendiums to the v13 format, which can easily forward to v14. There's a breaking change in here that means we'll be on the v13 format until support is dropped (when it will get its own forever-branch)
 * Fixed a bunch of typos in the compendiums
@@ -43,15 +47,12 @@ Again, I DO NOT TRUST THE AI, AND NEITHER SHOULD YOU. Over time I will be review
 
 ## v1.1.2.2
 
-* Fixed bug in damage rolling in certain circumstances
-
-## v1.1.2.2 (latest)
-
 * Confirmed dnd5e 3.3.0 compatibility
 * #59 Fixed descriptions on items to use the new editor and updated save/load code for same
 * #62 Fixed some bugs around damage rolling by updating to the newer rollConfigs format
 * Fixed bug with shortcodes 
 * #60 Fix with max attribute breaking TST count
+* Fixed bug in damage rolling in certain circumstances
 
 ## v1.1.1.3
 

@@ -1,1 +1,1 @@
-core.autocrlf=true
+packs/** -text
