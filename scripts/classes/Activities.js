@@ -26,10 +26,6 @@ const Activities = (function () {
         return "utility";
     }
 
-    function actionTypeForBlueprint(blueprintAttack) {
-        return blueprintAttack?.type ?? "";
-    }
-
     /* Translate a GMM blueprint damage entry (`{formula, type}`) to a dnd5e DamageData payload. */
     function damagePartFromBlueprint(entry) {
         const formula = entry?.formula ?? "";
@@ -1176,7 +1172,6 @@ const Activities = (function () {
         GMM_ACTIVITY_ID,
         ATTACK_TYPES,
         activityTypeFor,
-        actionTypeForBlueprint,
         damagePartFromBlueprint,
         damagePartToBlueprint,
         buildActivityData,

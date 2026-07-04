@@ -266,7 +266,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
 
         try {
             $el.find('.ability-ranking .move-up, .ability-ranking .move-down').click(this._updateAbilityRanking.bind(this));
-            $el.find('.save-ranking .move-up, .save-ranking .move-down').click(this._updateSaveRanking.bind(this));
             $el.find('.monster__panels .accordion-section__title').click((e) => e.stopPropagation());
             $el.find('.item .item__title input').click((e) => e.stopPropagation());
             $el.find('.item .item__title').click(this._toggleItemDetails.bind(this));
@@ -624,16 +623,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             .forEach(x => rankings.push(x.value));
         return this.document.update({
             "flags.gmm.blueprint.data.ability_modifiers.ranking": rankings
-        });
-    }
-
-    _updateSaveRanking(event) {
-        const rankings = [];
-        event.currentTarget.closest(".accordion-section__body")
-            .querySelectorAll("[name='gmm.blueprint.saving_throws.ranking']")
-            .forEach(x => rankings.push(x.value));
-        return this.document.update({
-            "flags.gmm.blueprint.data.saving_throws.ranking": rankings
         });
     }
 }
