@@ -37,8 +37,6 @@
 * Custom saving throws per-stat aren't currently working.
 * Secondary theme colors don't make a change
 * Attacks in compendium don't show their normal hit damage formulas
-* Roll modal breaks if you have multiple monsters open
-* Target line can render blank on some converted actions
 * Consumption-target dropdown gets a duplicate blank option
 * Toggling the sheet between vanilla and gmmc can stretch it weirdly
 * Clearing descriptions doesn't always work

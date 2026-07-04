@@ -378,14 +378,14 @@ const GmmItem = (function () {
                 break;
         }
 
-        // --- Target (read from blueprint, since the GMM target i18n catalog is richer
-        // than dnd5e's; the blueprint stays in sync with activity.target via ActionBlueprint).
-        const target = blueprint?.target ?? {};
-        labels.target = formatTargetLabel(target);
-
         // --- Range ---
         const range = blueprint?.range ?? activity?.range ?? {};
         labels.range = formatRangeLabel(range, blueprintAttackType);
+
+        // --- Target (read from blueprint, since the GMM target i18n catalog is richer
+        // than dnd5e's; the blueprint stays in sync with activity.target via ActionBlueprint).
+        const target = blueprint?.target ?? {};
+        labels.target = formatTargetLabel(target, range);
 
         // --- Description ---
         try {
