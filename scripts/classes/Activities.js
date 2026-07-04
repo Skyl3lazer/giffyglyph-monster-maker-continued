@@ -26,10 +26,6 @@ const Activities = (function () {
         return "utility";
     }
 
-    function actionTypeForBlueprint(blueprintAttack) {
-        return blueprintAttack?.type ?? "";
-    }
-
     /* Translate a GMM blueprint damage entry (`{formula, type}`) to a dnd5e DamageData payload. */
     function damagePartFromBlueprint(entry) {
         const formula = entry?.formula ?? "";
@@ -658,8 +654,9 @@ const Activities = (function () {
         if (ForcedReplacement) {
             update[`system.activities.${GMM_ACTIVITY_ID}`] = new ForcedReplacement(newData);
         } else {
-            // Pre-v14 fallback: legacy partial-merge form.
-            update[`system.activities.${GMM_ACTIVITY_ID}`] = newData;
+            // Pre-v14 has no ForcedReplacement; a plain assign deep-merges and drops sub-field edits on 5.3.x.
+            // The legacy "==" force-replace key replaces the whole activity, matching v14.
+            update[`system.activities.==${GMM_ACTIVITY_ID}`] = newData;
         }
         return update;
     }
@@ -1036,21 +1033,23 @@ const Activities = (function () {
             default:       return "";
         }
 
-        const a = obj.attack ?? {};
-        // 1. Direct map: dnd5e already filled both fields with values we recognise.
-        const direct = _findAttackTypeKey(a.type);
+        // Prefer the PREPARED attack.type toObject() is empty for imported monster features, 
+        // so range heuristic below would mislabel melee attacks as ranged.
+        const type = ((typeof activity.toObject === "function" && activity.attack?.type) || obj.attack?.type) ?? {};
+
+        // 1. Direct map when both fields are recognised (true for any prepared attack activity).
+        const direct = _findAttackTypeKey(type);
         if (direct) return direct;
 
-        // 2. Resolve melee/ranged.
-        let value = (a.type?.value === "melee" || a.type?.value === "ranged") ? a.type.value : null;
+        // 2. Resolve melee/ranged: explicit type/item value first, then range units (reach counts as melee).
+        let value = [type.value, item?.system?.attackType].find(v => v === "melee" || v === "ranged") ?? null;
         if (!value) {
             const units = obj.range?.units || item?.system?.range?.units || "";
-            if (["self", "touch", "", null, undefined].includes(units)) value = "melee";
-            else value = "ranged";
+            value = ["self", "touch", "reach", "", null, undefined].includes(units) ? "melee" : "ranged";
         }
 
         // 3. Resolve weapon/spell. Treat "unarmed" as "weapon" (GMMC has no unarmed key).
-        let classification = a.type?.classification;
+        let classification = type.classification || item?.system?.attackClassification;
         if (classification === "unarmed") classification = "weapon";
         if (classification !== "weapon" && classification !== "spell") {
             switch (item?.type) {
@@ -1173,7 +1172,6 @@ const Activities = (function () {
         GMM_ACTIVITY_ID,
         ATTACK_TYPES,
         activityTypeFor,
-        actionTypeForBlueprint,
         damagePartFromBlueprint,
         damagePartToBlueprint,
         buildActivityData,

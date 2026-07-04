@@ -7,7 +7,35 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
-## v2.0.0.5 (dev)
+## v2.0.0.8
+
+* Fixed several action fields (such as "Recharges On" and the range Units dropdown) not saving on Foundry v13.
+* Fixed clearing an action's description not always persisting.
+* Fixed compendium attacks not showing their normal hit damage formula.
+* Fixed a duplicate blank option in the resource-consumption target dropdown, and "This Item" not staying selected.
+* Removed unused attack templates that had no scaling data, plus some dead internal code.
+* Dev-only files (docs, stylesheets, git hooks) are no longer bundled in the packaged download.
+
+## v2.0.0.7
+
+* Made the select helper for v14 also fire in v13 to avoid deprecation warnings
+* Fixed compatibility for other modules (quick insert specifically) that tied in to npc sheets based on DOM elements
+* Fixed an issue where having multiple monsters open would cause rolls to use the wrong monster
+* Fixed empty-target actions not saying 'one target' by default.
+
+## v2.0.0.6
+
+* Git related changes, such as fixing packaging cleanup on levelDBs. This probably doesn't affect you unless you're rebuilding packs yourself.
+* Fixed monster proficient save bonuses being incorrect at some levels
+* Fixed duplicated compendium entries in attacks
+* Fixed the recharge button on the monster sheet not working
+* Fixed ranged/melee label on converted attacks
+* Fixed the uses counter not persisting in dnd5e 5.3
+* Fixed weight not showing correctly on loot
+* Minor Handlebars updates
+* Typo fixes and language standardization.
+
+## v2.0.0.5
 
 * Moved the compendiums to the v13 format, which can easily forward to v14. There's a breaking change in here that means we'll be on the v13 format until support is dropped (when it will get its own forever-branch)
 * Fixed a bunch of typos in the compendiums
@@ -43,15 +71,12 @@ Again, I DO NOT TRUST THE AI, AND NEITHER SHOULD YOU. Over time I will be review
 
 ## v1.1.2.2
 
-* Fixed bug in damage rolling in certain circumstances
-
-## v1.1.2.2 (latest)
-
 * Confirmed dnd5e 3.3.0 compatibility
 * #59 Fixed descriptions on items to use the new editor and updated save/load code for same
 * #62 Fixed some bugs around damage rolling by updating to the newer rollConfigs format
 * Fixed bug with shortcodes 
 * #60 Fix with max attribute breaking TST count
+* Fixed bug in damage rolling in certain circumstances
 
 ## v1.1.1.3
 

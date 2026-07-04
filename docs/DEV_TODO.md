@@ -2,7 +2,6 @@
 
 ## Major
 
-* Review AI generated code thoroughly. This will be in progress for a while.
 
 ## Visual
 
@@ -21,8 +20,6 @@
 
 ## Compendiums
 
-* Compendiums need a rework for v14
-
 ## Modal/Info Updates
 
 * I'm sure there's lots!
@@ -34,6 +31,16 @@
 
 ## Known Bugs
 
+* Custom saving throws per-stat aren't currently working.
+* Consumption-target dropdown gets a duplicate blank option
+* Toggling the sheet between vanilla and gmmc can stretch it weirdly
+
+### Dead Code to Remove
+
+* _updateSaveRanking (deprecated)
+* gmmDuplicate (deprecated)
+* gmmExpandObject (deprecated)
+* actionTypeForBlueprint (uncalled?)
 
 ## Testing Stuff
 

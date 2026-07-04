@@ -342,6 +342,12 @@ const GmmItem = (function () {
                 .map((part, idx) => _formatDamagePart(part, gmmMonster, rollData, blueprintDamage[idx]?.formula))
                 .filter(_ => _)
                 .join(" plus ");
+        } else if (blueprintDamage.length) {
+            // No GMM activity to read parts from (compendium / unmigrated item) — format the blueprint hit damage directly.
+            labels.damage_hit = blueprintDamage
+                .map(d => _formatDamagePart({ formula: d.formula, types: d.type ? [d.type] : [] }, gmmMonster, rollData, d.formula))
+                .filter(_ => _)
+                .join(" plus ");
         }
 
         // --- Activation condition ---
@@ -378,14 +384,14 @@ const GmmItem = (function () {
                 break;
         }
 
-        // --- Target (read from blueprint, since the GMM target i18n catalog is richer
-        // than dnd5e's; the blueprint stays in sync with activity.target via ActionBlueprint).
-        const target = blueprint?.target ?? {};
-        labels.target = formatTargetLabel(target);
-
         // --- Range ---
         const range = blueprint?.range ?? activity?.range ?? {};
         labels.range = formatRangeLabel(range, blueprintAttackType);
+
+        // --- Target (read from blueprint, since the GMM target i18n catalog is richer
+        // than dnd5e's; the blueprint stays in sync with activity.target via ActionBlueprint).
+        const target = blueprint?.target ?? {};
+        labels.target = formatTargetLabel(target, range);
 
         // --- Description ---
         try {

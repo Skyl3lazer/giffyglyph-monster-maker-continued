@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/nature/root-vine-entangled-hand.webp
 system:
   description:
-    value: "<p>Enemies standing on the ground within 10 ft. of you have disadvantage on DC [dcPrimaryBonus + maxMod]\_Dexterity saving throws.</p>"
+    value: >-
+      <p>Enemies standing on the ground within 10 ft. of you have disadvantage
+      on DC [dcPrimaryBonus + maxMod] Dexterity saving throws.</p>
     chat: ''
   source: {}
   activation:
@@ -77,7 +79,7 @@ flags:
           image: icons/magic/nature/root-vine-entangled-hand.webp
           text: >-
             <p>Enemies standing on the ground within 10 ft. of you have
-            disadvantage on DC [dcPrimaryBonus + maxMod]&nbsp;Dexterity saving
+            disadvantage on DC [dcPrimaryBonus + maxMod] Dexterity saving
             throws.</p>
         activation:
           type: ''

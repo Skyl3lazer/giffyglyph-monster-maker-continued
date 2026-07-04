@@ -38,11 +38,11 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 
 * I recognize that this may be disappointing to some people, which I understand. Put simply, due to the staggering amount of work required to make this refactor happen it would not have occured if I wasn't able to hand it off to the LLM tools like this. I just wasn't interested in doing the updates myself, and this allowed me to bring the module back to a working state.
 
-* None of the code prior to v14dev was made with AI, it was my (and Giffyglyph's) codebase, which I am very familiar with. Going forward, after v14dev gets merged and released, AI will not be used to continue making changes. I may use it until then, depending on the scope of the change needed.
+* None of the code prior to v14dev was made with AI, it was my (and Giffyglyph's) codebase, which I am very familiar with. Going forward, AI will not be relied on to continue making changes. I may use it until then, depending on the scope of the change needed.
 
 ## Mind the Gap!
 
-* There was a large gap between updates to this module. While the v13 branch will work with dnd3.3.2 and V13, the 2.x versions of GMMC will REQUIRE
+* There was a large gap between updates to this module. While the v13 branch will work with dnd5e 3.3.2 and V13, the 2.x versions of GMMC will REQUIRE
   - dnd5e 5.3.2
   - Foundry v13, ideally v14. 
 * I will aim to be backwards compatible with v13 where I can, but development is aimed at v14.
@@ -118,7 +118,7 @@ Currently GMMC handles GMMv3 functions as a standalone module, with some basic i
 
 ## Thank Yous!
 
-Big shoutout to **@krigsmaskine** on Discord for assistance with the [tsponey](https://github.com/tposney) modules and general testing
+Big shoutout to **@krigsmaskine** on Discord for assistance with the [tposney](https://github.com/tposney) modules and general testing
 
 ## Bugs and Feature Suggestions
 

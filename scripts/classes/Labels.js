@@ -1,19 +1,19 @@
 /* Shared label formatters for GmmItem and the Shortcoder pipeline. Kept dependency-free
  * to avoid a module cycle between those callers. */
 
-/* Format `{ type, value, width, units }` blueprint target as a localised label; "" if unsupported. */
-export function formatTargetLabel(target) {
-	if (!target?.type) return "";
-	switch (target.type) {
+/* Format a blueprint target as a localised label ("" if unsupported); an empty type falls back to `range`. */
+export function formatTargetLabel(target, range) {
+	if (!target) return "";
+	switch (target.type ?? "") {
 		case "":
 		case "none":
-			switch (target.units) {
+			// Typeless target has no count/units of its own — read them off the action's range.
+			switch (range?.units) {
 				case "self":
 					return game.i18n.format(`gmm.action.labels.target.self`);
 				case "touch":
 				case "ft":
 				case "mi":
-					if (target.units === "any") return game.i18n.format(`gmm.action.labels.target.any.all`);
 					return game.i18n.format(`gmm.action.labels.target.any.${target.value > 1 ? "multiple" : "single"}`,
 						{ quantity: Math.max(1, target.value) });
 			}

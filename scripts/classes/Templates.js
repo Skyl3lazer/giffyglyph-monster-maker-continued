@@ -23,18 +23,16 @@ const Templates = (function() {
 
 	function registerTemplateHelpers() {
 
-		// Foundry v14 removed the legacy `{{#select VALUE}}...{{/select}}` block helper that marked the matching `<option>` as selected.
-		// The GMM forge templates use it in ~30 places to bind blueprint values to native `<select>` elements.
-		if (!Handlebars.helpers.select) {
-			Handlebars.registerHelper('select', function(selected, options) {
-				const value = (selected === null || selected === undefined) ? "" : String(selected);
-				const escaped = Handlebars.Utils.escapeExpression(value)
-					.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-				const rgx = new RegExp(` value=["']${escaped}["']`);
-				const html = options.fn(this);
-				return html.replace(rgx, "$& selected");
-			});
-		}
+		// The GMM forge templates use the legacy `{{#select VALUE}}...{{/select}}` block helper (~40 places) to mark the
+		// matching `<option>` selected.
+		Handlebars.registerHelper('select', function(selected, options) {
+			const value = (selected === null || selected === undefined) ? "" : String(selected);
+			const escaped = Handlebars.Utils.escapeExpression(value)
+				.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+			const rgx = new RegExp(` value=["']${escaped}["']`);
+			const html = options.fn(this);
+			return html.replace(rgx, "$& selected");
+		});
 
 		// Foundry v14 ships these helpers with semantics matching GMM's previous re-implementations:
 		// `concat`, `eq`/`ne`/`lt`/`gt`/`lte`/`gte`, `and`, `or` See `client/applications/handlebars.mjs`

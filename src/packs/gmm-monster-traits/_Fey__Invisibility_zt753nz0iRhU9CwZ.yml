@@ -3,9 +3,7 @@ type: feat
 img: icons/creatures/magical/spirit-undead-ghost-purple.webp
 system:
   description:
-    value: >-
-      <p>You are invisible. If you take damage, you lose this invisibility
-      until</p>
+    value: <p>You are invisible. If you take damage, you lose this invisibility.</p>
     chat: ''
   source: {}
   activation:
@@ -78,8 +76,8 @@ flags:
           name: (Fey) Invisibility
           image: icons/creatures/magical/spirit-undead-ghost-purple.webp
           text: >-
-            <p>You are invisible. If you take damage, you lose this invisibility
-            until</p>
+            <p>You are invisible. If you take damage, you lose this
+            invisibility.</p>
         activation:
           type: ''
           cost: null

@@ -3,7 +3,14 @@ type: feat
 img: icons/magic/death/skull-energy-light-purple.webp
 system:
   description:
-    value: "<p>One humanoid that you are adjacent to must succeed on a DC [dcPrimaryBonus + maxMod]\_Charisma saving throw or be possessed by you. You take complete control of the target's body until a) you end the effect, b) the target dies, or c) you are forced out by a spell or effect.. If the target takes damage, you must make a Charisma saving throw with a DC of 5 + the damage dealt to retain possession, otherwise you are forced out into an unoccupied space within 5 ft.</p>"
+    value: >-
+      <p>One humanoid that you are adjacent to must succeed on a DC
+      [dcPrimaryBonus + maxMod] Charisma saving throw or be possessed by you.
+      You take complete control of the target's body until a) you end the
+      effect, b) the target dies, or c) you are forced out by a spell or effect.
+      If the target takes damage, you must make a Charisma saving throw with a
+      DC of 5 + the damage dealt to retain possession, otherwise you are forced
+      out into an unoccupied space within 5 ft.</p>
     chat: ''
   source: {}
   activation:
@@ -77,13 +84,13 @@ flags:
           image: icons/magic/death/skull-energy-light-purple.webp
           text: >-
             <p>One humanoid that you are adjacent to must succeed on a DC
-            [dcPrimaryBonus + maxMod]&nbsp;Charisma saving throw or be possessed
-            by you. You take complete control of the target's body until a) you
-            end the effect, b) the target dies, or c) you are forced out by a
-            spell or effect.. If the target takes damage, you must make a
-            Charisma saving throw with a DC of 5 + the damage dealt to retain
-            possession, otherwise you are forced out into an unoccupied space
-            within 5 ft.</p>
+            [dcPrimaryBonus + maxMod] Charisma saving throw or be possessed by
+            you. You take complete control of the target's body until a) you end
+            the effect, b) the target dies, or c) you are forced out by a spell
+            or effect. If the target takes damage, you must make a Charisma
+            saving throw with a DC of 5 + the damage dealt to retain possession,
+            otherwise you are forced out into an unoccupied space within 5
+            ft.</p>
         activation:
           type: ''
           cost: null

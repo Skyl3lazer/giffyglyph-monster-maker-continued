@@ -78,8 +78,8 @@ flags:
           name: (Common) Utility Attack
           image: icons/skills/melee/unarmed-punch-fist-yellow-red.webp
           text: >-
-            <p>The target can spend their raction to make a basic attack against
-            a target of your choice.</p>
+            <p>The target can spend their reaction to make a basic attack
+            against a target of your choice.</p>
         activation:
           type: action
           cost: null

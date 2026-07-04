@@ -5,10 +5,9 @@ import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 const ModalSavingThrow = (function() {
 
 	function activateListeners(html, actor, id) {
-		this.actor = actor;
-		this.id = id;
-		html.find('#modal_saving_throw .modal__footer button').click(_submitForm.bind(this));
-		html.find('.monster__modifier .save button').click(_setSave.bind(this));
+		const ctx = { actor, id };
+		html.find('#modal_saving_throw .modal__footer button').click(_submitForm.bind(ctx));
+		html.find('.monster__modifier .save button').click(_setSave.bind(ctx));
 	}
 
 	function _setSave(event) {

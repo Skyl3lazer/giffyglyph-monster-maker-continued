@@ -16,7 +16,7 @@ flags:
           name: (Uncommon) Ranged Ongoing Attack
           image: icons/magic/fire/projectile-arrow-fire-red-yellow.webp
           text: >-
-            <p>&nbsp;The target can make a Constitution saving throw (DC
+            <p>The target can make a Constitution saving throw (DC
             [dcPrimaryBonus + maxMod]) at the start of their turns. On success,
             this effect ends. On failure, the target takes [round(damage *
             1.25), damageDie] acid damage.</p>
@@ -46,7 +46,7 @@ flags:
           hit:
             damage:
               '0':
-                formula: '[round(damage * 1.25), damageDie]]'
+                formula: '[round(damage * 1.25), damageDie]'
                 type: acid
         duration:
           units: ''
@@ -82,7 +82,11 @@ flags:
 _id: v6oWpn76YTXAJEj4
 system:
   description:
-    value: "<p>\_The target can make a Constitution saving throw (DC [dcPrimaryBonus + maxMod]) at the start of their turns. On success, this effect ends. On failure, the target takes [round(damage * 1.25), damageDie] acid damage.</p>"
+    value: >-
+      <p>The target can make a Constitution saving throw (DC [dcPrimaryBonus +
+      maxMod]) at the start of their turns. On success, this effect ends. On
+      failure, the target takes [round(damage * 1.25), damageDie] acid
+      damage.</p>
     chat: ''
     unidentified: ''
   source: ''
@@ -119,7 +123,7 @@ system:
   critical: null
   damage:
     parts:
-      - - '[round(damage * 1.25), damageDie]]'
+      - - '[round(damage * 1.25), damageDie]'
         - acid
     versatile: ''
   formula: ''

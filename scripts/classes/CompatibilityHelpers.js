@@ -62,18 +62,6 @@ const CompatibilityHelpers = (function () {
 			}
 		}
 	}
-	function gmmDuplicate(...args) {
-		if (game.version >= 12) {
-			return foundry.utils.duplicate(...args);
-		}
-		return duplicate(...args);
-	}
-	function gmmExpandObject(...args) {
-		if (game.version >= 12) {
-			return foundry.utils.expandObject(...args);
-		}
-		return expandObject(...args);
-	}
 
 	/* Build a FormData object from the named form controls inside a container, for callers that no
 	 * longer receive a FormData automatically under Foundry V14's ApplicationV2. */
@@ -109,8 +97,6 @@ const CompatibilityHelpers = (function () {
 		replaceFormulaData: replaceFormulaData,
 		weight: weight,
 		getEncumbranceMultiplier: getEncumbranceMultiplier,
-		gmmDuplicate: gmmDuplicate,
-		gmmExpandObject: gmmExpandObject,
 		readInputs: readInputs,
 		rollMessageOptions: rollMessageOptions
 	};

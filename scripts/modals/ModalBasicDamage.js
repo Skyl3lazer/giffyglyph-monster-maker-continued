@@ -5,11 +5,10 @@ import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 const ModalBasicDamage = (function() {
 
 	function activateListeners(html, actor, id) {
-		this.actor = actor;
-		this.id = id;
-		html.find('#modal_basic_damage .modal__footer button').click(_submitForm.bind(this));
-		html.find('.button--static-damage').click(_setStatic.bind(this));
-		html.find('.button--random-damage').click(_setRandom.bind(this));
+		const ctx = { actor, id };
+		html.find('#modal_basic_damage .modal__footer button').click(_submitForm.bind(ctx));
+		html.find('.button--static-damage').click(_setStatic.bind(ctx));
+		html.find('.button--random-damage').click(_setRandom.bind(ctx));
 	}
 
 	function _setStatic(event) {

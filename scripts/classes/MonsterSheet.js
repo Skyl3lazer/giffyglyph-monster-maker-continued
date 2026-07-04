@@ -84,7 +84,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /** @inheritDoc */
     get title() {
         const name = this.actor?.name ?? this.document?.name ?? "";
-        return name ? `${name} - GMMC Scalar Monster` : "GMMC Scalar Monster";
+        return name ? `${name} - GMMC Scaling Monster` : "GMMC Scaling Monster";
     }
 
     /** @inheritDoc */
@@ -243,6 +243,14 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /** @inheritDoc */
     async _onRender(context, options) {
         await super._onRender(context, options);
+
+        // Our forge omits the `dnd5e2` class (its styles would fight the forge), but rendering still fires
+        // `renderNPCActorSheet`. Pre-v14 `this.element` is native DOM with no jQuery API
+        const generation = game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
+        if (generation < 14 && this.element && typeof this.element.hasClass !== "function") {
+            this.element.hasClass = (cls) => cls === "dnd5e2" || this.element.classList.contains(cls);
+        }
+
         this.element?.querySelector(".header-elements .cr-xp")?.remove();
 
         // Rich text editors are `<prose-mirror>` web components in the templates; they self-initialize.
@@ -258,9 +266,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
 
         try {
             $el.find('.ability-ranking .move-up, .ability-ranking .move-down').click(this._updateAbilityRanking.bind(this));
-            $el.find('.save-ranking .move-up, .save-ranking .move-down').click(this._updateSaveRanking.bind(this));
             $el.find('.monster__panels .accordion-section__title').click((e) => e.stopPropagation());
-            $el.find('.item .item__recharge button').click((e) => e.stopPropagation());
             $el.find('.item .item__title input').click((e) => e.stopPropagation());
             $el.find('.item .item__title').click(this._toggleItemDetails.bind(this));
             // `update-item` inputs intentionally have no `name` attribute, so the V2 form
@@ -578,6 +584,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     }
 
     _toggleItemDetails(event) {
+        if (event.target.closest("button, input, a")) return;
         const item = event.currentTarget.closest(".item");
         item.classList.toggle("expanded");
     }
@@ -587,7 +594,24 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const field = input.dataset.field;
         const target = input.dataset.target;
         const value = event.currentTarget.value;
-        return this.actor.updateEmbeddedDocuments("Item", [{ _id: target, [field]: value }]);
+        const item = this.actor.items.get(target);
+        if (!item) return;
+
+        // `system.uses.value` is derived in dnd5e 5.x (max - spent); translate the entered "remaining"
+        // count into the stored `spent`, on the GMM activity for actions or item-level uses for loot.
+        if (field === "system.uses.value") {
+            const activity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
+            const uses = activity?.uses ?? item.system?.uses;
+            const max = parseInt(uses?.max);
+            const remaining = Math.max(0, parseInt(value) || 0);
+            const spent = Number.isFinite(max) ? Math.max(0, max - remaining) : 0;
+            const path = activity
+                ? `system.activities.${Activities.GMM_ACTIVITY_ID}.uses.spent`
+                : "system.uses.spent";
+            return item.update({ [path]: spent });
+        }
+
+        return item.update({ [field]: value });
     }
 
     /* Sync the ability ranking inputs back to the blueprint flag after a `.move-up` / `.move-down` reorder.
@@ -599,16 +623,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             .forEach(x => rankings.push(x.value));
         return this.document.update({
             "flags.gmm.blueprint.data.ability_modifiers.ranking": rankings
-        });
-    }
-
-    _updateSaveRanking(event) {
-        const rankings = [];
-        event.currentTarget.closest(".accordion-section__body")
-            .querySelectorAll("[name='gmm.blueprint.saving_throws.ranking']")
-            .forEach(x => rankings.push(x.value));
-        return this.document.update({
-            "flags.gmm.blueprint.data.saving_throws.ranking": rankings
         });
     }
 }

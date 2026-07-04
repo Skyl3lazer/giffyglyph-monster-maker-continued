@@ -3,7 +3,13 @@ type: feat
 img: icons/magic/lightning/strike-arrow-spear-red.webp
 system:
   description:
-    value: "<p>You overcharge your thunder cannon to create a massive, deadly surge of raw lighting energy. On your next turn, you fire an electrical bolt that can pierce through even the\_thickest armor.</p>\n<p><strong>Extreme:</strong> If a creature is reduced to 0 hit points by this\_attack, it is killed outright by the shock.</p>"
+    value: >-
+      <p>You overcharge your thunder cannon to create a massive, deadly surge of
+      raw lightning energy. On your next turn, you fire an electrical bolt that
+      can pierce through even the thickest armor.</p>
+
+      <p><strong>Extreme:</strong> If a creature is reduced to 0 hit points by
+      this attack, it is killed outright by the shock.</p>
     chat: ''
   source: {}
   activation:
@@ -80,11 +86,10 @@ flags:
           text: >-
             <p>You overcharge your thunder cannon to create a massive, deadly
             surge of raw lighting energy. On your next turn, you fire an
-            electrical bolt that can pierce through even the&nbsp;thickest
-            armor.</p>
+            electrical bolt that can pierce through even the thickest armor.</p>
 
             <p><strong>Extreme:</strong> If a creature is reduced to 0 hit
-            points by this&nbsp;attack, it is killed outright by the shock.</p>
+            points by this attack, it is killed outright by the shock.</p>
         activation:
           type: action
           cost: null

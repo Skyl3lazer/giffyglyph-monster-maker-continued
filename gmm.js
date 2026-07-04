@@ -146,13 +146,13 @@ Hooks.once("init", function() {
 
 	Hooks.on("createActor", (actor, _options, userId) => {
 		if (game.userId !== userId) return;
-		_syncScalarMonsterHp(actor, { force: true }).catch(e => console.warn("GMM | HP sync on create failed", e));
+		_syncScalingMonsterHp(actor, { force: true }).catch(e => console.warn("GMM | HP sync on create failed", e));
 	});
 	Hooks.on("updateActor", (actor, change, _options, userId) => {
 		if (game.userId !== userId) return;
 		// A sheet-class switch to the monster sheet is a conversion; force current HP to full.
 		const convertedToGmm = foundry.utils.getProperty(change ?? {}, "flags.core.sheetClass") === `${GMM_MODULE_TITLE}.MonsterSheet`;
-		_syncScalarMonsterHp(actor, { force: convertedToGmm }).catch(e => console.warn("GMM | HP sync on update failed", e));
+		_syncScalingMonsterHp(actor, { force: convertedToGmm }).catch(e => console.warn("GMM | HP sync on update failed", e));
 	});
 
 	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialised`);
@@ -287,15 +287,15 @@ async function _revertToVanilla(item, originalChange, originalOptions) {
 	console.log(`GMM | Reverted item ${item.name} (${item.id}) to vanilla; scaling data preserved in flags.`);
 }
 
-/* True when an actor is an NPC bound to the GMMC monster sheet (i.e. a scalar monster). */
+/* True when an actor is an NPC bound to the GMMC monster sheet (i.e. a scaling monster). */
 function _isGmmMonster(actor) {
 	return actor?.type === "npc" && actor.getSheetId?.() === `${GMM_MODULE_TITLE}.MonsterSheet`;
 }
 
-/* Refill a scalar monster's current HP to its (blueprint-derived, unstored) max on creation/conversion or
+/* Refill a scaling monster's current HP to its (blueprint-derived, unstored) max on creation/conversion or
  * when the max changes. `appliedMax` tracks the last-synced max; it uses the module flag scope because the
  * `flags.gmm` object is rebuilt each prepareData. */
-async function _syncScalarMonsterHp(actor, { force = false } = {}) {
+async function _syncScalingMonsterHp(actor, { force = false } = {}) {
 	if (!_isGmmMonster(actor)) return;
 	const hp = actor.system?.attributes?.hp;
 	if (!hp) return;

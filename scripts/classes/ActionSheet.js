@@ -76,7 +76,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     /** @inheritDoc */
     get title() {
         const name = this.item?.name ?? this.document?.name ?? "";
-        return name ? `${name} - GMMC Scalar Ability` : "GMMC Scalar Ability";
+        return name ? `${name} - GMMC Scaling Ability` : "GMMC Scaling Ability";
     }
 
     /** @inheritDoc */
@@ -250,9 +250,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             return `${name} (${game.i18n.format("DND5E.AbilityUseChargesLabel", { value: uses.value ?? uses.max })})`;
         };
 
-        if (currentItem.system?.uses?.max) {
-            targets[""] = fmt(game.i18n.localize("DND5E.CONSUMPTION.Target.ThisItem") || currentItem.name, currentItem.system.uses);
-        }
+        const thisUses = currentItem.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID)?.uses ?? currentItem.system?.uses;
+        targets[""] = fmt(game.i18n.localize("DND5E.CONSUMPTION.Target.ThisItem") || currentItem.name, thisUses);
         for (const i of actor.items ?? []) {
             if (i === currentItem) continue;
             if (!i.system?.uses?.max) continue;
@@ -340,10 +339,11 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             expanded.gmm.blueprint.uses.max = "";
         }
 
-        // Description text submitted via the new editor is nested under `flags.gmm.blueprint.data.description.text`
-        // mirror it onto the blueprint form path so the gmm.blueprint -> flags.gmm.blueprint translation below captures it
-        if (expanded.flags?.gmm?.blueprint?.data?.description?.text) {
-            CompatibilityHelpers.setProperty(expanded, "gmm.blueprint.description.text", expanded.flags.gmm.blueprint.data.description.text);
+        // Mirror the editor's `flags.gmm.blueprint.data.description.text` onto the blueprint path so the
+        // repackaging below captures it.
+        const descText = expanded.flags?.gmm?.blueprint?.data?.description?.text;
+        if (descText !== undefined) {
+            CompatibilityHelpers.setProperty(expanded, "gmm.blueprint.description.text", descText);
         }
 
         if (CompatibilityHelpers.hasProperty(expanded, "gmm.blueprint")) {
