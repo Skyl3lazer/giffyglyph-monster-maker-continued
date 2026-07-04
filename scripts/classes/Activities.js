@@ -658,8 +658,11 @@ const Activities = (function () {
         if (ForcedReplacement) {
             update[`system.activities.${GMM_ACTIVITY_ID}`] = new ForcedReplacement(newData);
         } else {
-            // Pre-v14 fallback: legacy partial-merge form.
-            update[`system.activities.${GMM_ACTIVITY_ID}`] = newData;
+            // Pre-v14 has no ForcedReplacement operator. A plain assignment deep-MERGES into the existing
+            // activity, and on dnd5e 5.3.x that silently drops sub-field edits (recharge, range units, ...)
+            // and leaves stale fields across a type swap. The legacy "==" force-replace key replaces the whole
+            // activity instead, matching v14's behavior.
+            update[`system.activities.==${GMM_ACTIVITY_ID}`] = newData;
         }
         return update;
     }
