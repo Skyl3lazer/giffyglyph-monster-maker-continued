@@ -4,7 +4,7 @@ img: icons/skills/targeting/crosshair-triple-strike-orange.webp
 system:
   description:
     value: >-
-      <p>The target is market until the end of your next turn. Allies have
+      <p>The target is marked until the end of your next turn. Allies have
       advantage on their first attack roll made against the marked creature.</p>
     chat: ''
   source: {}
@@ -78,7 +78,7 @@ flags:
           name: (C) Direct the Attack
           image: icons/skills/targeting/crosshair-triple-strike-orange.webp
           text: >-
-            <p>The target is market until the end of your next turn. Allies have
+            <p>The target is marked until the end of your next turn. Allies have
             advantage on their first attack roll made against the marked
             creature.</p>
         activation:

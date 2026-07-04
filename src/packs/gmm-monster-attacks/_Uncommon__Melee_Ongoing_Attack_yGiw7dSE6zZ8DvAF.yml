@@ -119,7 +119,7 @@ system:
   critical: null
   damage:
     parts:
-      - - '[round(damage * 1.25), damageDie]]'
+      - - '[round(damage * 1.25), damageDie]'
         - acid
     versatile: ''
   formula: ''

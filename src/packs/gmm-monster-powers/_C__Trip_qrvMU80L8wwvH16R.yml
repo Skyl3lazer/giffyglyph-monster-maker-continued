@@ -4,7 +4,7 @@ img: icons/skills/melee/strike-sword-stabbed-brown.webp
 system:
   description:
     value: >-
-      <p>Whenever you hit a target with an opportunity attacks, that creature
+      <p>Whenever you hit a target with an opportunity attack, that creature
       falls prone.</p>
     chat: ''
   source: {}
@@ -78,7 +78,7 @@ flags:
           name: (C) Trip
           image: icons/skills/melee/strike-sword-stabbed-brown.webp
           text: >-
-            <p>Whenever you hit a target with an opportunity attacks, that
+            <p>Whenever you hit a target with an opportunity attack, that
             creature falls prone.</p>
         activation:
           type: ''

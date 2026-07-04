@@ -34,6 +34,8 @@
 
 ## Known Bugs
 
+* Custom saving throws per-stat aren't currently working.
+* Secondary theme colors don't make a change
 
 ## Testing Stuff
 

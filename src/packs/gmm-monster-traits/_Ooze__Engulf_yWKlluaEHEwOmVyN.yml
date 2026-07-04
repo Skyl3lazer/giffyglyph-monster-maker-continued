@@ -3,7 +3,7 @@ type: feat
 img: icons/magic/acid/dissolve-bone-ribs-skull.webp
 system:
   description:
-    value: "<p>When a creature enters your space (or you enter a creature's space), it must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or be engulfed. While engulfed, the creature can't breath, is restrained, and takes 100%\_([round(damage), damageDie]) acid damage at the start of each of your turns. The creature can try to escape on its turn by making a Strength check.</p>"
+    value: "<p>When a creature enters your space (or you enter a creature's space), it must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or be engulfed. While engulfed, the creature can't breathe, is restrained, and takes 100%\_([round(damage), damageDie]) acid damage at the start of each of your turns. The creature can try to escape on its turn by making a Strength check.</p>"
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
             <p>When a creature enters your space (or you enter a creature's
             space), it must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity
             saving throw or be engulfed. While engulfed, the creature can't
-            breath, is restrained, and takes 100%&nbsp;([round(damage),
+            breathe, is restrained, and takes 100%&nbsp;([round(damage),
             damageDie]) acid damage at the start of each of your turns. The
             creature can try to escape on its turn by making a Strength
             check.</p>

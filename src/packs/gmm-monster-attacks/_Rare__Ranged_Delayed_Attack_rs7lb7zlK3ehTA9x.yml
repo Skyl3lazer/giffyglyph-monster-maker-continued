@@ -9,7 +9,7 @@ system:
       on a hit and are knocked &amp;reference[prone]. On a miss, they take half
       of that damage and are not knocked prone.</p>
 
-      <p><em>Adding a deferral allow this feature to deal more damage and apply
+      <p><em>Adding a deferral allows this feature to deal more damage and apply
       an effect. (See GMM pdf p.45)</em></p>
     chat: ''
   source: {}
@@ -161,7 +161,7 @@ flags:
             &amp;reference[prone]. On a miss, they take half of that damage and
             are not knocked prone.</p>
 
-            <p><em>Adding a deferral allow this feature to deal more damage and
+            <p><em>Adding a deferral allows this feature to deal more damage and
             apply an effect. (See GMM pdf p.45)</em></p>
         activation:
           type: action
