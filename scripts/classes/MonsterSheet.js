@@ -243,6 +243,14 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /** @inheritDoc */
     async _onRender(context, options) {
         await super._onRender(context, options);
+
+        // Our forge omits the `dnd5e2` class (its styles would fight the forge), but rendering still fires
+        // `renderNPCActorSheet`. Pre-v14 `this.element` is native DOM with no jQuery API
+        const generation = game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
+        if (generation < 14 && this.element && typeof this.element.hasClass !== "function") {
+            this.element.hasClass = (cls) => cls === "dnd5e2" || this.element.classList.contains(cls);
+        }
+
         this.element?.querySelector(".header-elements .cr-xp")?.remove();
 
         // Rich text editors are `<prose-mirror>` web components in the templates; they self-initialize.
