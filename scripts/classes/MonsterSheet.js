@@ -587,7 +587,24 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const field = input.dataset.field;
         const target = input.dataset.target;
         const value = event.currentTarget.value;
-        return this.actor.updateEmbeddedDocuments("Item", [{ _id: target, [field]: value }]);
+        const item = this.actor.items.get(target);
+        if (!item) return;
+
+        // `system.uses.value` is derived in dnd5e 5.x (max - spent); translate the entered "remaining"
+        // count into the stored `spent`, on the GMM activity for actions or item-level uses for loot.
+        if (field === "system.uses.value") {
+            const activity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
+            const uses = activity?.uses ?? item.system?.uses;
+            const max = parseInt(uses?.max);
+            const remaining = Math.max(0, parseInt(value) || 0);
+            const spent = Number.isFinite(max) ? Math.max(0, max - remaining) : 0;
+            const path = activity
+                ? `system.activities.${Activities.GMM_ACTIVITY_ID}.uses.spent`
+                : "system.uses.spent";
+            return item.update({ [path]: spent });
+        }
+
+        return item.update({ [field]: value });
     }
 
     /* Sync the ability ranking inputs back to the blueprint flag after a `.move-up` / `.move-down` reorder.
