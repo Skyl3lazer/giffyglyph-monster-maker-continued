@@ -82,7 +82,11 @@ flags:
 _id: v6oWpn76YTXAJEj4
 system:
   description:
-    value: "<p>The target can make a Constitution saving throw (DC [dcPrimaryBonus + maxMod]) at the start of their turns. On success, this effect ends. On failure, the target takes [round(damage * 1.25), damageDie] acid damage.</p>"
+    value: >-
+      <p>The target can make a Constitution saving throw (DC [dcPrimaryBonus +
+      maxMod]) at the start of their turns. On success, this effect ends. On
+      failure, the target takes [round(damage * 1.25), damageDie] acid
+      damage.</p>
     chat: ''
     unidentified: ''
   source: ''
