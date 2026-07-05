@@ -336,7 +336,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
                 expanded.flags.gmm.blueprint.data.combat.role.modifiers = GMM_MONSTER_ROLES[target.value];
             }
 
-            $.extend(true, expanded, MonsterBlueprint.getActorDataFromBlueprint(expanded.flags.gmm.blueprint));
+            $.extend(true, expanded, MonsterBlueprint.getActorDataFromBlueprint(expanded.flags.gmm.blueprint, this.actor));
 
             const nextName = expanded.name;
             const currentActorName = this.actor.name ?? "";

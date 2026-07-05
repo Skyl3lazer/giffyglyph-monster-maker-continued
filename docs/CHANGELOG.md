@@ -12,6 +12,7 @@
 * Fixed an issue that sizing forge windows could mess up NPC sheets and vice versa
 * Moved a few hardcoded strings into lang file.
 * Fixed shortcoder eating legit errors in some cases.
+* Fixed disadvantage rolls getting eaten
 
 ## v2.0.0.8
 
