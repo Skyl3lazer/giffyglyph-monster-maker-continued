@@ -29,8 +29,11 @@ import Activities from "./Activities.js";
 export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet {
 
     constructor(options = {}) {
+        // Have to handle this a little differently so that aspect ratios don't get bonked
+        options.position = { ...MonsterSheet.DEFAULT_OPTIONS.position, ...(options.position ?? {}) };
         super(options);
         this._gui = new Gui();
+        this._saveSheetPosition = () => {};
     }
 
     /** @inheritDoc */
