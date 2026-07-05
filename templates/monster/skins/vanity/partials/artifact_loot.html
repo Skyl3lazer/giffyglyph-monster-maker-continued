@@ -29,7 +29,7 @@
         </div>
         <div class="item__details">
             <ul class="item__tags">
-                <li class="item__rarity">{{#if item.system.rarity}}{{item.system.rarity}}{{else}}Mundane{{/if}}</li>
+                <li class="item__rarity">{{#if item.system.rarity}}{{item.system.rarity}}{{else}}{{localize 'gmm.common.rarity.mundane'}}{{/if}}</li>
                 <li class="item__quantity">
                     x {{item.system.quantity}}
                     <input class="input--quantity" data-action="update-item" data-target="{{item.id}}" data-field="system.quantity" data-type="number" />
