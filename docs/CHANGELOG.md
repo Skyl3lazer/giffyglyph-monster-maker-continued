@@ -10,6 +10,7 @@
 ## v2.0.0.9
 
 * Fixed an issue that sizing forge windows could mess up NPC sheets and vice versa
+* Moved a few hardcoded strings into lang file.
 
 ## v2.0.0.8
 

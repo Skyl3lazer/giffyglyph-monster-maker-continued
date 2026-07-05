@@ -16,7 +16,7 @@ flags:
           name: (Rare) Ranged Ongoing Attack
           image: icons/magic/fire/projectile-arrow-fire-red-yellow.webp
           text: >-
-            <p>At the start of their turn. the target can make a Constitution
+            <p>At the start of their turn, the target can make a Constitution
             saving throw (DC [dcPrimaryBonus + maxMod]). On success, the
             condition ends. If they fail, they take [round(damage * 1.75),
             damageDie] poison damage.</p>
@@ -83,7 +83,7 @@ _id: vQK1E1cIpjuz9zTd
 system:
   description:
     value: >-
-      <p>At the start of their turn. the target can make a Constitution saving
+      <p>At the start of their turn, the target can make a Constitution saving
       throw (DC [dcPrimaryBonus + maxMod]). On success, the condition ends. If
       they fail, they take [round(damage * 1.75), damageDie] poison damage.</p>
     chat: ''
