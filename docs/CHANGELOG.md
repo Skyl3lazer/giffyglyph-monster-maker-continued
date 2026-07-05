@@ -13,6 +13,7 @@
 * Moved a few hardcoded strings into lang file.
 * Fixed shortcoder eating legit errors in some cases.
 * Fixed disadvantage rolls getting eaten
+* Updated range lables to handle more cases, such as enemies with X feet.
 
 ## v2.0.0.8
 

@@ -127,6 +127,8 @@
   "gmm.action.labels.target.sphere": "{size} sphere",
   "gmm.action.labels.target.square": "{size} square",
   "gmm.action.labels.target.wall": "{area} wall",
+  "gmm.action.labels.target.within.ft": "{target} within {distance} feet",
+  "gmm.action.labels.target.within.mi": "{target} within {distance} miles",
   "gmm.action.labels.range.ft": "range {range} ft.",
   "gmm.action.labels.range.mi": "range {range} mi.",
   "gmm.action.labels.range.reach.ft": "reach {range} ft.",

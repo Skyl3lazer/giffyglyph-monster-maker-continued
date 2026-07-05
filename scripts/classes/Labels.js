@@ -23,10 +23,20 @@ export function formatTargetLabel(target, range) {
 		case "ally":
 		case "enemy":
 		case "creature":
-		case "object":
+		case "object": {
+			// A distance in the size field turns an affiliation into a self-centred area ("all creatures within 10 feet").
+			if (["ft", "mi"].includes(target.units) && target.width) {
+				const affected = (target.value >= 1)
+					? game.i18n.format(`gmm.action.labels.target.${target.type}.${target.value > 1 ? "multiple" : "single"}`,
+						{ quantity: target.value })
+					: game.i18n.format(`gmm.action.labels.target.${target.type}.all`);
+				return game.i18n.format(`gmm.action.labels.target.within.${target.units}`,
+					{ target: affected, distance: Math.max(1, target.width) });
+			}
 			if (target.units === "any") return game.i18n.format(`gmm.action.labels.target.${target.type}.all`);
 			return game.i18n.format(`gmm.action.labels.target.${target.type}.${target.value > 1 ? "multiple" : "single"}`,
 				{ quantity: Math.max(1, target.value) });
+		}
 		case "line":
 		case "wall":
 			if (["ft", "mi"].includes(target.units)) {

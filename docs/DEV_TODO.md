@@ -9,7 +9,6 @@
 * Several attributes don't display or function correctly when under the effects of a DAE
 	* Initiative
 	* Attack bonus
-* Some of the wording of targeting is incorrect now with the field changes. Specifically "enemies within 5 feet", that sort of thing.
 
 ## Module Ecosystem
 
