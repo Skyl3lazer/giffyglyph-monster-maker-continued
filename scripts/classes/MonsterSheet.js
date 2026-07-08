@@ -29,8 +29,11 @@ import Activities from "./Activities.js";
 export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet {
 
     constructor(options = {}) {
+        // Have to handle this a little differently so that aspect ratios don't get bonked
+        options.position = { ...MonsterSheet.DEFAULT_OPTIONS.position, ...(options.position ?? {}) };
         super(options);
         this._gui = new Gui();
+        this._saveSheetPosition = () => {};
     }
 
     /** @inheritDoc */
@@ -333,7 +336,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
                 expanded.flags.gmm.blueprint.data.combat.role.modifiers = GMM_MONSTER_ROLES[target.value];
             }
 
-            $.extend(true, expanded, MonsterBlueprint.getActorDataFromBlueprint(expanded.flags.gmm.blueprint));
+            $.extend(true, expanded, MonsterBlueprint.getActorDataFromBlueprint(expanded.flags.gmm.blueprint, this.actor));
 
             const nextName = expanded.name;
             const currentActorName = this.actor.name ?? "";

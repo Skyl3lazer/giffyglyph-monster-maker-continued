@@ -7,6 +7,14 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
+## v2.0.0.9
+
+* Fixed an issue that sizing forge windows could mess up NPC sheets and vice versa
+* Moved a few hardcoded strings into lang file.
+* Fixed shortcoder eating legit errors in some cases.
+* Fixed disadvantage rolls getting eaten
+* Updated range lables to handle more cases, such as enemies with X feet.
+
 ## v2.0.0.8
 
 * Fixed several action fields (such as "Recharges On" and the range Units dropdown) not saving on Foundry v13.

@@ -139,9 +139,9 @@ const Shortcoder = (function () {
                 return valueMath;
             }
         } catch (e) {
-            if (e.message.startsWith("Undefined symbol") || e.message.startsWith("Value expected") || e.name === "SyntaxError")
-                return token;
-            console.error(e);
+            if (!(e.message.startsWith("Undefined symbol") || e.message.startsWith("Value expected") || e.name === "SyntaxError"))
+                console.error(e);
+            return token;
         }
     }
 

@@ -7,7 +7,7 @@ system:
       <p>Following the sound of your familiar's call, you ready a special
       arrow.</p>
 
-      <p><em>Adding a condition and a deferral allow this feature to deal more
+      <p><em>Adding a condition and a deferral allows this feature to deal more
       damage. (See GMM pdf p.45)</em></p>
     chat: ''
   source: {}
@@ -86,7 +86,7 @@ flags:
             <p>Following the sound of your familiar's call, you ready a special
             arrow.</p>
 
-            <p><em>Adding a condition and a deferral allow this feature to deal
+            <p><em>Adding a condition and a deferral allows this feature to deal
             more damage. (See GMM pdf p.45)</em></p>
         activation:
           type: action

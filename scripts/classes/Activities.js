@@ -174,6 +174,8 @@ const Activities = (function () {
 
         for (const [aid, raw] of Object.entries(activities)) {
             if (!raw || typeof raw !== "object" || aid.startsWith("-=")) continue;
+            // Only heal GMM's own activity
+            if (aid !== GMM_ACTIVITY_ID) continue;
             const base = `system.activities.${aid}`;
 
             if (raw.attack && typeof raw.attack.bonus === "string") {

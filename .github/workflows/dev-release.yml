@@ -48,11 +48,7 @@ jobs:
       - name: Publish / refresh the rolling dev pre-release
         run: |
           NOTES="Dev build $MODULE_VERSION - rolling build of the dev branch. Install manifest: https://github.com/$GITHUB_REPOSITORY/releases/download/dev-latest/module.json"
-          if gh release view dev-latest >/dev/null 2>&1; then
-            gh release upload dev-latest module.json module.zip --clobber
-            gh release edit dev-latest --title "Dev build $MODULE_VERSION" --notes "$NOTES"
-          else
-            gh release create dev-latest module.json module.zip --prerelease --target "$GITHUB_SHA" \
-              --title "Dev build $MODULE_VERSION" \
-              --notes "$NOTES"
-          fi
+          gh release delete dev-latest --cleanup-tag --yes 2>/dev/null || true
+          gh release create dev-latest module.json module.zip --prerelease --target "$GITHUB_SHA" \
+            --title "Dev build $MODULE_VERSION" \
+            --notes "$NOTES"

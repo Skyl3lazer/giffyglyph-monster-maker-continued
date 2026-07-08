@@ -316,7 +316,7 @@ const MonsterBlueprint = (function () {
 		let sortValue = bRarity - aRarity || a.name.localeCompare(b.name);
 		return sortValue;
 	}
-	function getActorDataFromBlueprint(blueprint) {
+	function getActorDataFromBlueprint(blueprint, currentActor = null) {
 		const actorData = {};
 
 		mappings.forEach((x) => {
@@ -395,14 +395,15 @@ const MonsterBlueprint = (function () {
 			CompatibilityHelpers.setProperty(actorData, "system.resources.legres.spent", Math.max(0, max - current));
 		}
 
-		// Initiative advantage moved from `flags.dnd5e.initiativeAdv` (boolean) to `system.attributes.init.roll.mode` (number).
-		// Mirror the boolean blueprint flag onto the numeric mode (1 = advantage, 0 = none) when persisting the blueprint.
+		// The blueprint only models a boolean advantage, so only write mode when toggling it:
+		// preserve a user-set -1 (disadvantage) instead of forcing 0 on every save.
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "initiative.advantage")) {
-			CompatibilityHelpers.setProperty(
-				actorData,
-				"system.attributes.init.roll.mode",
-				blueprint.data.initiative.advantage ? 1 : 0
-			);
+			const currentMode = currentActor?.system?.attributes?.init?.roll?.mode;
+			if (blueprint.data.initiative.advantage) {
+				CompatibilityHelpers.setProperty(actorData, "system.attributes.init.roll.mode", 1);
+			} else if (currentMode === 1) {
+				CompatibilityHelpers.setProperty(actorData, "system.attributes.init.roll.mode", 0);
+			}
 		}
 
 		return actorData;
