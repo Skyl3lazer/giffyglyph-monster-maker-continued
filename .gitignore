@@ -6,7 +6,5 @@ CLAUDE.local.md
 .claude/
 CONTEXT.md
 
-# Foundry LevelDB runtime/diagnostic files (regenerated on pack, nondeterministic)
-packs/*/LOCK
-packs/*/LOG
-packs/*/LOG.old
+# Compiled LevelDB packs - built from src/packs via `npm run pack`; source of truth is the yml.
+packs/

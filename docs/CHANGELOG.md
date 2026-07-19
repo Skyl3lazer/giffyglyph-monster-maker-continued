@@ -11,6 +11,7 @@
 
 * Fixed some remaining compendium oopsies.
 * Removed the GGMMv2 items from the compendiums.
+* Fixed some pathways where renaming the monster wouldn't rename the prototype token.
 
 ## v2.0.0.9
 

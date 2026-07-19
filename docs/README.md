@@ -116,6 +116,28 @@ All of these use the same module id, so only **one can be installed on a Foundry
 
 Currently GMMC handles GMMv3 functions as a standalone module, with some basic integrations working through other modules (MidiQOL, DAE). See [DEV_TODO](https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued/blob/main/docs/DEV_TODO.md) for what I'm looking at next.
 
+## Building from Source
+
+The shipped compendium packs are compiled LevelDB, which is not committed to the repo. The editable source of truth is the YAML under `src/packs/`. If you clone this repo and point Foundry at the working tree, you must build the packs first or the compendiums will be empty.
+
+```
+npm install    # installs deps and builds the packs automatically (postinstall)
+```
+
+After that, whenever you edit a `.yml` under `src/packs/`, rebuild with:
+
+```
+npm run pack   # src/packs/*.yml -> packs/ (LevelDB Foundry loads)
+```
+
+To go the other way, extracting an existing pack back to editable YAML:
+
+```
+npm run unpack # packs/ -> src/packs/*.yml
+```
+
+Installs from a release manifest include the prebuilt packs and need none of this.
+
 ## Thank Yous!
 
 Big shoutout to **@krigsmaskine** on Discord for assistance with the [tposney](https://github.com/tposney) modules and general testing

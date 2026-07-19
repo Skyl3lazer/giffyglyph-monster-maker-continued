@@ -37,7 +37,7 @@ flags:
           hit:
             damage:
               '0':
-                formula: '[damage*2, damageDie]'
+                formula: '[round(damage*1.75), damageDie]'
                 type: piercing
           miss:
             damage: ''
@@ -114,7 +114,7 @@ system:
   critical: null
   damage:
     parts:
-      - - '[damage*2, damageDie]'
+      - - '[round(damage*1.75), damageDie]'
         - piercing
     versatile: ''
   formula: ''
