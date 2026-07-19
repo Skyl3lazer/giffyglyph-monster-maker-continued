@@ -148,6 +148,15 @@ Hooks.once("init", function() {
 		if (game.userId !== userId) return;
 		_syncScalingMonsterHp(actor, { force: true }).catch(e => console.warn("GMM | HP sync on create failed", e));
 	});
+	// Foundry auto-follows a synced prototype-token image on an actor rename, but not the name; mirror that here.
+	Hooks.on("preUpdateActor", (actor, change) => {
+		if (!_isGmmMonster(actor)) return;
+		const nextName = change?.name;
+		if ((typeof nextName !== "string") || !nextName.trim() || (nextName === actor.name)) return;
+		if (foundry.utils.hasProperty(change, "prototypeToken.name")) return;
+		if (actor.prototypeToken?.name !== actor.name) return;
+		foundry.utils.setProperty(change, "prototypeToken.name", nextName);
+	});
 	Hooks.on("updateActor", (actor, change, _options, userId) => {
 		if (game.userId !== userId) return;
 		// A sheet-class switch to the monster sheet is a conversion; force current HP to full.

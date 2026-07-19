@@ -337,14 +337,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             }
 
             $.extend(true, expanded, MonsterBlueprint.getActorDataFromBlueprint(expanded.flags.gmm.blueprint, this.actor));
-
-            const nextName = expanded.name;
-            const currentActorName = this.actor.name ?? "";
-            const currentPrototypeName = this.actor.prototypeToken?.name ?? this.actor._source?.prototypeToken?.name ?? "";
-            const tokenNameIsSynced = currentPrototypeName === currentActorName;
-            if ((typeof nextName === "string") && nextName.trim() && (nextName !== currentActorName) && tokenNameIsSynced) {
-                expanded["prototypeToken.name"] = nextName;
-            }
         }
 
         return expanded;

@@ -4,6 +4,7 @@ node_modules/
 CLAUDE.local.md
 .cursor/
 .claude/
+CONTEXT.md
 
 # Foundry LevelDB runtime/diagnostic files (regenerated on pack, nondeterministic)
 packs/*/LOCK
