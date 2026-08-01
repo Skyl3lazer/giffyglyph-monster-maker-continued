@@ -116,9 +116,8 @@ const Templates = (function() {
 		});
 
 
-		Handlebars.registerHelper('getTstCount', function (maxTst) {
-			var checkedChecks = document.querySelectorAll(".tstCheckbox:checked");
-			return checkedChecks.length > maxTst;
+		Handlebars.registerHelper('isTstOverLimit', function (trainedSaves, maxTst) {
+			return Object.values(trainedSaves ?? {}).filter((x) => x?.trained).length > maxTst;
 		});
 	}
 

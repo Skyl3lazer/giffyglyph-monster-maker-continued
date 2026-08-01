@@ -15,6 +15,7 @@
 * Sync paragon defenses, and converted monsters get defenses correctly.
 * Enabled drag and drop in the V2 sheet rework
 * Fixed some old button rendering
+* Fixed bug with custom TST sometimes desynching
 
 ## v2.0.0.9
 

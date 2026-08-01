@@ -151,13 +151,13 @@ export default class Gui {
 	}
 
 	_limitTst(event) {
-		if (event.currentTarget.getAttribute("checked") == false)
-			return true;
+		const checkbox = event.currentTarget;
+		if (!checkbox.checked) return;
 
-		let checkedChecks = document.querySelectorAll(".tstCheckbox:checked");
-		let tst = event.currentTarget.closest("#monster__tst_count");
-		if (checkedChecks.length >= Number(tst.getAttribute("name")) + 1)
+		const group = checkbox.closest("#monster__tst_count");
+		if (group.querySelectorAll(".tstCheckbox:checked").length > Number(group.getAttribute("name"))) {
 			event.preventDefault();
+		}
 	}
 
 	_toggleAccordionCollapse(event) {
