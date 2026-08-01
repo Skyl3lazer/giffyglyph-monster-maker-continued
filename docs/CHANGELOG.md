@@ -14,6 +14,7 @@
 * Fixed some pathways where renaming the monster wouldn't rename the prototype token.
 * Sync paragon defenses, and converted monsters get defenses correctly.
 * Enabled drag and drop in the V2 sheet rework
+* Fixed some old button rendering
 
 ## v2.0.0.9
 

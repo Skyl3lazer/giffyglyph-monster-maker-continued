@@ -167,7 +167,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             context.gmm.monster.spellbook.maximum_visible_spell_level = maximum_spell_level;
 
             // Show/hide features panel
-            ["bonus_actions", "actions", "reactions", "traits", "paragon_actions", "legendary_actions", "lair_actions", "legendary_resistances"].forEach((x) => {
+            ["bonus_actions", "actions", "reactions", "traits", "paragon_actions", "paragon_defenses", "legendary_actions", "lair_actions", "legendary_resistances"].forEach((x) => {
                 if (context.gmm.monster[x].visible) {
                     if (context.gmm.monster.features) {
                         context.gmm.monster.features.visible = true;
