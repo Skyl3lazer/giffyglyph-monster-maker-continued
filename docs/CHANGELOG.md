@@ -13,6 +13,7 @@
 * Removed the GGMMv2 items from the compendiums.
 * Fixed some pathways where renaming the monster wouldn't rename the prototype token.
 * Sync paragon defenses, and converted monsters get defenses correctly.
+* Enabled drag and drop in the V2 sheet rework
 
 ## v2.0.0.9
 
