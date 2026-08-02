@@ -1,3 +1,4 @@
+import AutomationHelpers from './AutomationHelpers.js';
 import MonsterBlueprint from './MonsterBlueprint.js';
 import MonsterForge from './MonsterForge.js';
 import { GMM_5E_ABILITIES } from "../consts/Gmm5eAbilities.js";
@@ -85,6 +86,19 @@ const GmmActor = (function () {
 		});
 		monsterData.initiative.applyModifier(actorData.attributes.init.bonus, false);
 	}
+	/* Effects apply before prepareDerivedData, so anything the pass below assigns would discard them. */
+	const GMM_DERIVED_KEYS = [
+		/^system\.abilities\.[a-z]+\.(value|mod|proficient|saveProf|checkProf|dc)$/,
+		/^system\.skills\.[a-z]+\.(value|bonus|mod|prof|total|passive)$/,
+		/^system\.details\.(cr|xp\.value)$/,
+		/^system\.attributes\.prof$/,
+		/^system\.attributes\.init\.(prof|ability|mod)$/,
+		/^system\.attributes\.hp\.(effectiveMax|formula)$/,
+		/^system\.attributes\.encumbrance(\.|$)/,
+		/^system\.attributes\.spellcasting$/,
+		/^system\.attributes\.spell\.(level|dc)$/
+	];
+
 	/* Prepare actor-specific derived data (abilities, skills, CR, HP, initiative, encumbrance, spellcasting). */
 	function _prepareMonsterDerivedData(actor) {
 		try {
@@ -163,6 +177,8 @@ const GmmActor = (function () {
 			actorData.attributes.spell ??= {};
 			actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
 			actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
+
+			AutomationHelpers.reapplyOverwrittenEffects(actor, GMM_DERIVED_KEYS);
 
 			// Compute owned item attributes which depend on prepared Actor data
 			// The V1 `getSaveDC` / `getAttackToHit` calls were replaced by Activity-driven roll hooks (see GmmItem.patchItem5e)

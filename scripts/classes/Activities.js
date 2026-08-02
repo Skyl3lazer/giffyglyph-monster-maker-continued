@@ -1,3 +1,4 @@
+import AutomationHelpers from "./AutomationHelpers.js";
 import Shortcoder from "./Shortcoder.js";
 
 /* Helpers for translating between GMM scaling-action blueprints and the dnd5e v5.x Activity data model.
@@ -648,9 +649,17 @@ const Activities = (function () {
         return null;
     }
 
+    /* Fields not listed here belong to dnd5e or another module; ForcedReplacement would reset them. */
+    const GMM_OWNED_ACTIVITY_FIELDS = new Set([
+        "_id", "type", "name", "sort", "activation", "consumption", "description",
+        "duration", "range", "target", "uses", "attack", "damage", "healing", "save"
+    ]);
+
     /* Build an Item5e#update payload for the GMM activity. ForcedReplacement so a type swap leaves no stale sub-fields. */
-    function buildActivityUpdate(item, blueprint) { // eslint-disable-line no-unused-vars
-        const newData = buildActivityData(blueprint);
+    function buildActivityUpdate(item, blueprint) {
+        const newData = AutomationHelpers.preserveForeignActivityFields(
+            item, GMM_ACTIVITY_ID, buildActivityData(blueprint), GMM_OWNED_ACTIVITY_FIELDS
+        );
         const ForcedReplacement = foundry.data?.operators?.ForcedReplacement;
         const update = {};
         if (ForcedReplacement) {

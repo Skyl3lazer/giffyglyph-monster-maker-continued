@@ -5,6 +5,7 @@ CLAUDE.local.md
 .cursor/
 .claude/
 CONTEXT.md
+CONTEXT-MAP.md
 
 # Compiled LevelDB packs - built from src/packs via `npm run pack`; source of truth is the yml.
 packs/
