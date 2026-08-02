@@ -167,7 +167,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             context.gmm.monster.spellbook.maximum_visible_spell_level = maximum_spell_level;
 
             // Show/hide features panel
-            ["bonus_actions", "actions", "reactions", "traits", "paragon_actions", "legendary_actions", "lair_actions", "legendary_resistances"].forEach((x) => {
+            ["bonus_actions", "actions", "reactions", "traits", "paragon_actions", "paragon_defenses", "legendary_actions", "lair_actions", "legendary_resistances"].forEach((x) => {
                 if (context.gmm.monster[x].visible) {
                     if (context.gmm.monster.features) {
                         context.gmm.monster.features.visible = true;
@@ -337,17 +337,18 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             }
 
             $.extend(true, expanded, MonsterBlueprint.getActorDataFromBlueprint(expanded.flags.gmm.blueprint, this.actor));
-
-            const nextName = expanded.name;
-            const currentActorName = this.actor.name ?? "";
-            const currentPrototypeName = this.actor.prototypeToken?.name ?? this.actor._source?.prototypeToken?.name ?? "";
-            const tokenNameIsSynced = currentPrototypeName === currentActorName;
-            if ((typeof nextName === "string") && nextName.trim() && (nextName !== currentActorName) && tokenNameIsSynced) {
-                expanded["prototypeToken.name"] = nextName;
-            }
         }
 
         return expanded;
+    }
+
+    /* GMM effect rows name their owning item `data-parent-id`, but the core handler reads `data-item-id`, so an
+     * item-owned effect would be looked up against the actor's own effects and drag an empty payload. @inheritDoc */
+    async _onDragStart(event) {
+        const row = event.currentTarget?.closest?.(".effect[data-effect-id][data-parent-id]");
+        const effect = row ? this.actor.items.get(row.dataset.parentId)?.effects?.get(row.dataset.effectId) : null;
+        if (!effect) return super._onDragStart(event);
+        event.dataTransfer.setData("text/plain", JSON.stringify(effect.toDragData()));
     }
 
     /* Extend the dnd5e default drop reset with the GMM-specific fields (`proficient`, `attunement`) the V1 sheet stripped. @inheritDoc */

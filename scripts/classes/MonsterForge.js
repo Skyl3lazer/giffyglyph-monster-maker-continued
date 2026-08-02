@@ -28,8 +28,8 @@ const MonsterForge = (function () {
         const monsterInventoryCapacity = _getInventoryCapacity(monsterAbilityModifiers, blueprint.data);
         const monsterClasses = blueprint.data.traits.items.filter((x) => x.class);
         const showLegendaryActions = blueprint.data.legendary_actions.always_show || blueprint.data.legendary_actions.maximum > 0 || blueprint.data.legendary_actions.items.length > 0;
-        const showLegendaryResistances = blueprint.data.legendary_resistances.always_show || blueprint.data.legendary_resistances.maximum > 0;
         const ignoreItemRequirements = blueprint.data.display.ignore_item_requirements;
+        const monsterParagonDefenses = _parseParagonDefenses(derivedAttributes.rank, blueprint.data.paragon_defenses, derivedAttributes.level);
 
         return {
             vid: 1,
@@ -56,11 +56,11 @@ const MonsterForge = (function () {
                 lair_actions: _parseLairActions(derivedAttributes, blueprint.data.lair_actions, ignoreItemRequirements),
                 languages: _parseCollection(GMM_5E_LANGUAGES, blueprint.data.languages, "language"),
                 legendary_actions: _parseLegendaryActions(derivedAttributes, blueprint.data.legendary_actions, showLegendaryActions, ignoreItemRequirements),
-                legendary_resistances: _parseLegendaryResistances(blueprint.data.legendary_resistances),
+                legendary_resistances: _parseLegendaryResistances(blueprint.data.legendary_resistances, monsterParagonDefenses.maximum.value > 0),
                 level: _parseLevel(derivedAttributes.level),
                 name: _parseName(blueprint.data.description.name),
                 paragon_actions: _parseParagonActions(derivedAttributes.rank, blueprint.data.paragon_actions, showLegendaryActions),
-                paragon_defenses: _parseParagonDefenses(derivedAttributes.rank, blueprint.data.paragon_defenses, showLegendaryResistances, derivedAttributes.level),
+                paragon_defenses: monsterParagonDefenses,
                 passive_perception: _parsePassivePerception(monsterSkills, monsterAbilityModifiers, derivedAttributes.rank, derivedAttributes.role, blueprint.data.passive_perception),
                 phase: _parsePhase(derivedAttributes.rank),
                 proficiency_bonus: monsterProficiency,
@@ -492,8 +492,7 @@ const MonsterForge = (function () {
         };
     }
 
-    function _parseParagonDefenses(rank, paragonDefenses, showLegendaryResistances, level) {
-        //Retrofit for earlier bug
+    function _parseParagonDefenses(rank, paragonDefenses, level) {
         if (paragonDefenses.maximum === null)
             paragonDefenses.maximum = {
                 modifier: {
@@ -511,16 +510,16 @@ const MonsterForge = (function () {
         mx.ceil();
 
         return {
-            visible: paragonDefenses.always_show || (!showLegendaryResistances && (mx.value > 0)),
+            visible: paragonDefenses.always_show || (mx.value > 0),
             current: paragonDefenses.current,
             maximum: mx,
             cost: (level * 2)
         };
     }
 
-    function _parseLegendaryResistances(legendaryResistances) {
+    function _parseLegendaryResistances(legendaryResistances, replacedByParagonDefenses) {
         return {
-            visible: legendaryResistances.always_show || legendaryResistances.maximum > 0,
+            visible: legendaryResistances.always_show || (!replacedByParagonDefenses && legendaryResistances.maximum > 0),
             current: legendaryResistances.current,
             maximum: legendaryResistances.maximum
         };

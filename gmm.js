@@ -147,12 +147,23 @@ Hooks.once("init", function() {
 	Hooks.on("createActor", (actor, _options, userId) => {
 		if (game.userId !== userId) return;
 		_syncScalingMonsterHp(actor, { force: true }).catch(e => console.warn("GMM | HP sync on create failed", e));
+		_syncParagonDefenses(actor).catch(e => console.warn("GMM | Paragon defense sync on create failed", e));
+	});
+	// Foundry auto-follows a synced prototype-token image on an actor rename, but not the name; mirror that here.
+	Hooks.on("preUpdateActor", (actor, change) => {
+		if (!_isGmmMonster(actor)) return;
+		const nextName = change?.name;
+		if ((typeof nextName !== "string") || !nextName.trim() || (nextName === actor.name)) return;
+		if (foundry.utils.hasProperty(change, "prototypeToken.name")) return;
+		if (actor.prototypeToken?.name !== actor.name) return;
+		foundry.utils.setProperty(change, "prototypeToken.name", nextName);
 	});
 	Hooks.on("updateActor", (actor, change, _options, userId) => {
 		if (game.userId !== userId) return;
 		// A sheet-class switch to the monster sheet is a conversion; force current HP to full.
 		const convertedToGmm = foundry.utils.getProperty(change ?? {}, "flags.core.sheetClass") === `${GMM_MODULE_TITLE}.MonsterSheet`;
 		_syncScalingMonsterHp(actor, { force: convertedToGmm }).catch(e => console.warn("GMM | HP sync on update failed", e));
+		_syncParagonDefenses(actor).catch(e => console.warn("GMM | Paragon defense sync on update failed", e));
 	});
 
 	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialised`);
@@ -314,6 +325,22 @@ async function _syncScalingMonsterHp(actor, { force = false } = {}) {
 		// First sighting: track the max without touching current HP, so an existing damaged monster isn't healed.
 		await actor.setFlag(GMM_MODULE_TITLE, "appliedMax", max);
 	}
+}
+
+async function _syncParagonDefenses(actor) {
+	if (!_isGmmMonster(actor)) return;
+	const paragonDefenses = actor.flags?.gmm?.monster?.data?.paragon_defenses;
+	if (!paragonDefenses) return;
+
+	const max = Number(paragonDefenses.maximum?.value) || 0;
+	const applied = actor.getFlag(GMM_MODULE_TITLE, "appliedParagonDefenses");
+	if (applied === max) return;
+
+	const update = { [`flags.${GMM_MODULE_TITLE}.appliedParagonDefenses`]: max };
+	if ((applied !== undefined) || (paragonDefenses.current ?? null) === null) {
+		update["flags.gmm.blueprint.data.paragon_defenses.current"] = max;
+	}
+	await actor.update(update);
 }
 
 function _generateFlags() {

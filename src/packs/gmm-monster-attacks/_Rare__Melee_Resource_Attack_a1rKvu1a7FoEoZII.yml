@@ -41,11 +41,6 @@ flags:
             damage: ''
           versatile:
             damage: ''
-          hit:
-            damage:
-              '0':
-                formula: '[damage, damageDie]'
-                type: ''
         duration:
           units: ''
           value: ''

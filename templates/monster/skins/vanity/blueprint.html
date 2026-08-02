@@ -1576,7 +1576,7 @@
                         <div class="accordion-section__header">
                             <span class="accordion-section__title">{{localize 'gmm.monster.blueprint.saving_throws.title'}}</span>
                             <span class="accordion-section__info">
-                                {{#if (getTstCount gmm.monster.tst_count) includeZero=false}}
+                                {{#if (isTstOverLimit gmm.blueprint.trained_saves gmm.monster.tst_count)}}
                                 <span class="modifier"></span>
                                 {{/if}}
                             </span>
