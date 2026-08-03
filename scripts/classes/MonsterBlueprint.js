@@ -74,9 +74,28 @@ const MonsterBlueprint = (function () {
 		{ from: "spellbook.spellcasting.level", to: "system.attributes.spell.level" }
 	];
 
+	// Everything AC and max HP derive from, none of it synced from actor data.
+	const BASE_SUBTREES = ["combat", "armor_class", "hit_points"];
+
 	function createFromActor(actor) {
 		const blueprint = $.extend(true, {}, GMM_MONSTER_BLUEPRINT, actor.flags.gmm ? _verifyBlueprint(actor.flags.gmm.blueprint) : _getInitialData(actor));
 		return _syncActorDataToBlueprint(blueprint, actor);
+	}
+
+	/* AC and max HP have to be assigned in base data, and nothing else the forge produces does. */
+	function createBaseFromActor(actor) {
+		const source = actor.flags.gmm ? _verifyBlueprint(actor.flags.gmm.blueprint) : _getInitialData(actor);
+		return {
+			data: $.extend(true, {}, _pickBaseSubtrees(GMM_MONSTER_BLUEPRINT.data), _pickBaseSubtrees(source?.data))
+		};
+	}
+
+	function _pickBaseSubtrees(data) {
+		const picked = {};
+		BASE_SUBTREES.forEach((x) => {
+			if (data?.[x] !== undefined) picked[x] = data[x];
+		});
+		return picked;
 	}
 
 	function _getInitialData(actor) {
@@ -466,6 +485,7 @@ const MonsterBlueprint = (function () {
 
 	return {
 		createFromActor: createFromActor,
+		createBaseFromActor: createBaseFromActor,
 		getActorDataFromBlueprint: getActorDataFromBlueprint
 	};
 })();

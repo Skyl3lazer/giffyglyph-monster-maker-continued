@@ -56,16 +56,14 @@ const GmmActor = (function () {
 	/* Prepare actor-specific base data that does not depend on Items or Active Effects. */
 	function _prepareMonsterBaseData(actor) {
 		const actorData = actor.system;
-		const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
-		const monsterArtifact = MonsterForge.createArtifact(monsterBlueprint);
-		const monsterData = monsterArtifact.data;
+		const monsterBlueprint = MonsterBlueprint.createBaseFromActor(actor);
+		const baseAttributes = MonsterForge.createBaseAttributes(monsterBlueprint);
 		actorData.attributes.ac.calc = "natural";
-		actorData.attributes.ac.flat = monsterData.armor_class.value;
-		actorData.attributes.ac.base = monsterData.armor_class.value;
-		if (!monsterData.hit_points.use_formula) {
-			actorData.attributes.hp.max = monsterData.hit_points.maximum.value;
+		actorData.attributes.ac.flat = baseAttributes.armor_class.value;
+		actorData.attributes.ac.base = baseAttributes.armor_class.value;
+		if (!baseAttributes.hit_points.use_formula) {
+			actorData.attributes.hp.max = baseAttributes.hit_points.maximum.value;
 		}
-		
 	}
 	function _postProcessData(actor) {
 		const actorData = actor.system;
@@ -160,6 +158,19 @@ const GmmActor = (function () {
 		GMM_5E_ABILITIES.flatMap((x) => ["value", "mod"].map((f) => `system.abilities.${x}.${f}`))
 	);
 
+	/* The blueprint is read before effects apply, so an effect targeting it cannot be honored. */
+	const GMM_UNSUPPORTED_EFFECT_PREFIXES = ["flags.gmm.blueprint"];
+	const _reportedUnsupportedTargets = new Set();
+
+	function _warnUnsupportedEffectTargets(actor, unsupported) {
+		for (const entry of unsupported) {
+			const id = `${actor.id}:${entry.effect?.id}:${entry.key}`;
+			if (_reportedUnsupportedTargets.has(id)) continue;
+			_reportedUnsupportedTargets.add(id);
+			console.warn(`GMM | Active effect "${entry.effect?.name}" on "${actor.name}" targets "${entry.key}", which is not a supported effect target on a scaling monster. The blueprint is read before effects apply, so this will reach the sheet inconsistently or not at all.`);
+		}
+	}
+
 	function _abilitiesTargetedByScore(changes) {
 		return new Set(GMM_5E_ABILITIES.filter((x) => changes.some((y) => y.key === `system.abilities.${x}.value`)));
 	}
@@ -201,7 +212,8 @@ const GmmActor = (function () {
 		try {
 			const actorData = actor.system;
 			const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
-			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_EFFECT_ABILITY_KEYS);
+			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_EFFECT_ABILITY_KEYS, GMM_UNSUPPORTED_EFFECT_PREFIXES);
+			if (effectChanges.unsupported.length) _warnUnsupportedEffectTargets(actor, effectChanges.unsupported);
 			const checkBonuses = _collectCheckBonuses(actorData);
 			let monsterArtifact = MonsterForge.createArtifact(monsterBlueprint, { checkBonuses: checkBonuses });
 

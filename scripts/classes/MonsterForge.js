@@ -81,6 +81,20 @@ const MonsterForge = (function () {
         };
     }
 
+    /* Shares getDerivedAttributes and both parsers with createArtifact so the two passes cannot drift. */
+    function createBaseAttributes(blueprint) {
+        const derivedAttributes = MonsterHelpers.getDerivedAttributes(
+            blueprint.data.combat.level,
+            blueprint.data.combat.rank,
+            blueprint.data.combat.role
+        );
+
+        return {
+            armor_class: _parseArmorClass(derivedAttributes, blueprint.data.armor_class),
+            hit_points: _parseHitPoints(derivedAttributes, blueprint.data.hit_points)
+        };
+    }
+
     function _parseName(name) {
         return (name && name.trim().length > 0) ? name.trim() : "???";
     }
@@ -768,7 +782,8 @@ const MonsterForge = (function () {
     }
 
     return {
-        createArtifact: createArtifact
+        createArtifact: createArtifact,
+        createBaseAttributes: createBaseAttributes
     };
 })();
 

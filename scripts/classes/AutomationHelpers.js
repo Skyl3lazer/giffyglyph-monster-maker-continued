@@ -21,15 +21,21 @@ const AutomationHelpers = (function () {
 			: change.effect.apply(actor, change);
 	}
 
-	/* `earlyKeys` have to land before the rest of the derived pass reads them. */
-	function collectOverwrittenEffects(actor, keys, earlyKeys) {
+	/* `earlyKeys` have to land before the rest of the derived pass reads them.
+	 * `unsupportedPrefixes` are reported, not collected - the caller decides what to say. */
+	function collectOverwrittenEffects(actor, keys, earlyKeys, unsupportedPrefixes) {
 		const early = [];
 		const late = [];
+		const unsupported = [];
 		if (typeof actor.allApplicableEffects === "function") {
 			for (const effect of actor.allApplicableEffects()) {
 				if (!effect.active) continue;
 				for (const change of (effect.system?.changes ?? effect.changes ?? [])) {
-					if (!change?.key || !keys.has(change.key)) continue;
+					if (!change?.key) continue;
+					if (unsupportedPrefixes?.some((x) => change.key.startsWith(x))) {
+						unsupported.push({ key: change.key, effect: effect });
+					}
+					if (!keys.has(change.key)) continue;
 					if (_effectiveChangePhase(change, effect) !== "initial") continue;
 					const copy = foundry.utils.deepClone(change);
 					copy.effect = effect;
@@ -42,7 +48,7 @@ const AutomationHelpers = (function () {
 		const byPriority = (a, b) => a.priority - b.priority;
 		early.sort(byPriority);
 		late.sort(byPriority);
-		return { early: early, late: late };
+		return { early: early, late: late, unsupported: unsupported };
 	}
 
 	/* Replaying the change, not the stored override, keeps ADD/MULTIPLY relative to the new base. */
