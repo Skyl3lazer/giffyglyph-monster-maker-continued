@@ -22,14 +22,14 @@ const AutomationHelpers = (function () {
 	}
 
 	/* Replaying the change, not the stored override, keeps ADD/MULTIPLY relative to the new base. */
-	function reapplyOverwrittenEffects(actor, keyPatterns) {
+	function reapplyOverwrittenEffects(actor, keys) {
 		if (typeof actor.allApplicableEffects !== "function") return;
 
 		const changes = [];
 		for (const effect of actor.allApplicableEffects()) {
 			if (!effect.active) continue;
 			for (const change of (effect.system?.changes ?? effect.changes ?? [])) {
-				if (!change?.key || !keyPatterns.some((pattern) => pattern.test(change.key))) continue;
+				if (!change?.key || !keys.has(change.key)) continue;
 				if (_effectiveChangePhase(change, effect) !== "initial") continue;
 				const copy = foundry.utils.deepClone(change);
 				copy.effect = effect;

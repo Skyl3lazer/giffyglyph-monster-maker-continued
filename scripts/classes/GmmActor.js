@@ -106,18 +106,36 @@ const GmmActor = (function () {
 		});
 		monsterData.initiative.applyModifier(actorData.attributes.init.bonus, false);
 	}
+	// `attack` and `save.value` are absent: dnd5e re-derives both from `mod` every prepare cycle.
+	const GMM_DERIVED_ABILITY_FIELDS = ["value", "mod", "proficient", "saveProf", "checkProf", "dc"];
+	const GMM_DERIVED_SKILL_FIELDS = ["value", "bonus", "mod", "prof", "total", "passive"];
+
 	/* Effects apply before prepareDerivedData, so anything the pass below assigns would discard them. */
-	const GMM_DERIVED_KEYS = [
-		/^system\.abilities\.[a-z]+\.(value|mod|proficient|saveProf|checkProf|dc)$/,
-		/^system\.skills\.[a-z]+\.(value|bonus|mod|prof|total|passive)$/,
-		/^system\.details\.(cr|xp\.value)$/,
-		/^system\.attributes\.prof$/,
-		/^system\.attributes\.init\.(prof|ability|mod)$/,
-		/^system\.attributes\.hp\.(effectiveMax|formula)$/,
-		/^system\.attributes\.encumbrance(\.|$)/,
-		/^system\.attributes\.spellcasting$/,
-		/^system\.attributes\.spell\.(level|dc)$/
-	];
+	const GMM_DERIVED_KEYS = new Set([
+		...GMM_5E_ABILITIES.flatMap((x) => GMM_DERIVED_ABILITY_FIELDS.map((f) => `system.abilities.${x}.${f}`)),
+		...GMM_5E_SKILLS.flatMap((x) => GMM_DERIVED_SKILL_FIELDS.map((f) => `system.skills.${x.foundry}.${f}`)),
+		"system.details.cr",
+		"system.details.xp.value",
+		"system.attributes.prof",
+		"system.attributes.init.prof",
+		"system.attributes.init.ability",
+		"system.attributes.init.mod",
+		"system.attributes.hp.effectiveMax",
+		"system.attributes.hp.formula",
+		"system.attributes.encumbrance",
+		"system.attributes.encumbrance.value",
+		"system.attributes.encumbrance.max",
+		"system.attributes.encumbrance.pct",
+		"system.attributes.encumbrance.encumbered",
+		"system.attributes.encumbrance.thresholds.encumbered",
+		"system.attributes.encumbrance.thresholds.heavilyEncumbered",
+		"system.attributes.encumbrance.thresholds.maximum",
+		"system.attributes.encumbrance.stops.encumbered",
+		"system.attributes.encumbrance.stops.heavilyEncumbered",
+		"system.attributes.spellcasting",
+		"system.attributes.spell.level",
+		"system.attributes.spell.dc"
+	]);
 
 	/* Prepare actor-specific derived data (abilities, skills, CR, HP, initiative, encumbrance, spellcasting). */
 	function _prepareMonsterDerivedData(actor) {
