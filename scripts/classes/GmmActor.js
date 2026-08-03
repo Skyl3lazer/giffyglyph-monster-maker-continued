@@ -79,8 +79,20 @@ const GmmActor = (function () {
 				monsterData.passive_perception.add(Number(actorData.skills[x.foundry].bonuses.passive) ?? 0, "passive bonus");
 				
 		});
+		const rollData = actor.getRollData({ deterministic: true });
 		GMM_5E_ABILITIES.forEach((x) => {
-			monsterData.saving_throws[x].add(Number(actorData.abilities[x].bonuses.save) ?? 0, "bonus");
+			const ability = actorData.abilities[x];
+			const saveBonus = dnd5e.utils.simplifyBonus(ability.bonuses.save, rollData);
+			monsterData.saving_throws[x].add(saveBonus, "bonus");
+
+			// dnd5e rolls a save as mod + saveProf + bonuses.save, so anything the forge derived beyond those
+			// (a Custom Unique value, say) has to go back through bonuses.save or it would only ever be displayed.
+			const proficiency = monsterBlueprint.data.trained_saves[x].trained ? monsterData.proficiency_bonus.value : 0;
+			const delta = monsterData.saving_throws[x].value - (monsterData.ability_modifiers[x].value + proficiency + saveBonus);
+			if (delta) {
+				const existing = String(ability.bonuses.save ?? "").trim();
+				ability.bonuses.save = existing ? `${existing} ${delta < 0 ? "-" : "+"} ${Math.abs(delta)}` : String(delta);
+			}
 			//TODO: Deprecated, split in to ability + check mod
 			//monsterData.ability_modifiers[x].setValue(actorData.abilities[x].mod, "bonus");
 		});

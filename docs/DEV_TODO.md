@@ -24,11 +24,11 @@
 
 ## Automation
 
-* MidiQOL effects for deferral timers
+* MidiQOL effects for deferral timers, dooming, etc
+* 
 
 ## Known Bugs
 
-* Custom saving throws per-stat aren't currently working.
 
 ## Testing Stuff
 

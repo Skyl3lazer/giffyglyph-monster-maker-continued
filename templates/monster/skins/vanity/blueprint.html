@@ -1591,6 +1591,7 @@
                                         {{#select gmm.blueprint.trained_saves.method}}
                                         <option value="sync">{{localize 'gmm.monster.blueprint.saving_throws.method.sync'}}</option>
                                         <option value="custom">{{localize 'gmm.monster.blueprint.saving_throws.method.custom'}}</option>
+                                        <option value="custom-unique">{{localize 'gmm.monster.blueprint.saving_throws.method.custom_unique'}}</option>
                                         {{/select}}
                                     </select>
                                 </div>
@@ -1624,6 +1625,9 @@
                                     <button type="button" class="button button--help" data-action="open-modal" data-modal="modal_modifying_abilities">
                                         <i class="fas fa-question"></i>
                                     </button>
+                                </div>
+                                <div class="form-group__body">
+                                    <input name="gmm.blueprint.trained_saves.modifier.value" value="{{gmm.blueprint.trained_saves.modifier.value}}" />
                                 </div>
                             </div>
                         </div>

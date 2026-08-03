@@ -10,6 +10,10 @@
 ## v2.0.1.0
 
 * Began to add better support for automation modules using GMMC scalar effects
+* The saving throw modifiers field now works, and applies to every saving throw method
+* Added a "Custom Unique" saving throw method, which starts every save at 0 so the modifiers field sets them outright
+* Renamed the "Custom TST" saving throw method to "Custom Trained Saves"
+* Saving throw rolls now honor whatever the forge derived, rather than only the ability modifier and proficiency
 
 ## v2.0.0.10
 

@@ -237,16 +237,9 @@ const MonsterForge = (function () {
                 ams["max"] = ams[x];
         });
 
-        if (abilityModifiers.modifier.value) {
-            const modifiers = abilityModifiers.modifier.value.split(";").map(x => x.split("="));
-            modifiers.forEach(function (modifier) {
-                const ability = modifier[0].trim().toLowerCase();
-                const value = Number(modifier[1]);
-                if (GMM_5E_ABILITIES.includes(ability)) {
-                    ams[ability].applyModifier(value, abilityModifiers.modifier.override);
-                }
-            });
-        }
+        Object.entries(_parseModifierList(abilityModifiers.modifier.value)).forEach(([ability, value]) => {
+            ams[ability].applyModifier(value, abilityModifiers.modifier.override);
+        });
 
         for (const am in ams) {
             ams[am].ceil();
@@ -256,8 +249,24 @@ const MonsterForge = (function () {
         return ams;
     }
 
+    // Parses the shared "str=1; int=-2; cha=7" modifier syntax into { ability: number }.
+    function _parseModifierList(value) {
+        const modifiers = {};
+        String(value ?? "").split(";").forEach((entry) => {
+            const [key, amount] = entry.split("=");
+            const ability = (key ?? "").trim().toLowerCase();
+            const number = Number(amount);
+            if (GMM_5E_ABILITIES.includes(ability) && amount !== undefined && !isNaN(number)) {
+                modifiers[ability] = number;
+            }
+        });
+        return modifiers;
+    }
+
     function _parseSavingThrows(savingThrows, pb, abilityModifiers, abilityRankings, tst) {
         const sts = {};
+        const isUnique = savingThrows.method === "custom-unique";
+        const modifiers = _parseModifierList(savingThrows.modifier.value);
         GMM_5E_ABILITIES.forEach(function (attrName) {
             if (savingThrows[attrName]) {
                 sts[attrName] = new DerivedAttribute();
@@ -271,12 +280,18 @@ const MonsterForge = (function () {
                     } else {
                         savingThrows[attrName].trained = false;
                     }
+                } else if (isUnique) {
+                    savingThrows[attrName].trained = false;
                 }
-                sts[attrName].applyModifier(abilityModifiers[attrName].value, savingThrows[attrName].modifier.override);
+                if (!isUnique) {
+                    sts[attrName].applyModifier(abilityModifiers[attrName].value, savingThrows[attrName].modifier.override);
+                }
                 if (savingThrows[attrName].modifier.value) {
                     sts[attrName].applyModifier(savingThrows[attrName].modifier.value, savingThrows[attrName].modifier.override);
                 }
-
+                if (attrName in modifiers) {
+                    sts[attrName].applyModifier(modifiers[attrName], false);
+                }
             }
         });
         return sts;
