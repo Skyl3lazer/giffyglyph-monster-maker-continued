@@ -9,7 +9,7 @@ class DerivedAttribute {
 	add(value, source) {
 		if (value != 0) {
 			this.value += value;
-			this.sources.push({ value: (value >= 0) ? `+${value}` : `−${Math.abs(value)}`, source: source});
+			this.sources.push({ value: (value >= 0) ? `+${value}` : `-${Math.abs(value)}`, source: source});
 		}
 	}
 

@@ -72,15 +72,22 @@ const GmmActor = (function () {
 		const monsterBlueprint = actor.flags.gmm.blueprint;
 		const monsterArtifact = actor.flags.gmm.monster;
 		const monsterData = monsterArtifact.data;
-		GMM_5E_SKILLS.forEach((x) => {
-			let monsterSkill = monsterData.skills.find((y) => y.code == x.name);
-			if(monsterSkill)
-				monsterSkill.add(Number(actorData.skills[x.foundry].bonuses.check) ?? 0, "bonus");
-			if (x.name === "perception" && actorData.skills[x.foundry].bonuses.passive)
-				monsterData.passive_perception.add(Number(actorData.skills[x.foundry].bonuses.passive) ?? 0, "passive bonus");
-				
-		});
 		const rollData = actor.getRollData({ deterministic: true });
+		const globalSkillBonus = dnd5e.utils.simplifyBonus(actorData.bonuses?.abilities?.skill, rollData);
+		GMM_5E_SKILLS.forEach((x) => {
+			const skill = actorData.skills[x.foundry];
+			const monsterSkill = monsterData.skills.find((y) => y.code == x.name);
+			if (monsterSkill) {
+				// The ability and global check bonuses reach every check, so they live on check_modifiers instead.
+				monsterSkill.add(dnd5e.utils.simplifyBonus(skill.bonuses.check, rollData), game.i18n.format('gmm.common.derived_source.check_bonus'));
+				monsterSkill.add(globalSkillBonus, game.i18n.format('gmm.common.derived_source.skill_bonus'));
+			}
+			if (x.name === "perception") {
+				// dnd5e counts every check bonus toward a passive score; the forge only had the ability modifier.
+				monsterData.passive_perception.add(skill.bonus ?? 0, game.i18n.format('gmm.common.derived_source.check_bonus'));
+				monsterData.passive_perception.add(dnd5e.utils.simplifyBonus(skill.bonuses.passive, rollData), game.i18n.format('gmm.common.derived_source.passive_bonus'));
+			}
+		});
 		const globalSaveBonus = dnd5e.utils.simplifyBonus(actorData.bonuses?.abilities?.save, rollData);
 		GMM_5E_ABILITIES.forEach((x) => {
 			const ability = actorData.abilities[x];
@@ -101,14 +108,25 @@ const GmmActor = (function () {
 			ability.saveBonus = abilitySaveBonus + delta + globalSaveBonus + cover;
 			ability.save.value = ability.mod + ability.saveBonus
 				+ (Number.isNumeric(ability.saveProf.term) ? ability.saveProf.flat : 0);
-			//TODO: Deprecated, split in to ability + check mod
-			//monsterData.ability_modifiers[x].setValue(actorData.abilities[x].mod, "bonus");
 		});
-		monsterData.initiative.applyModifier(actorData.attributes.init.bonus, false);
+
+		// init.mod was copied out before this, so folding the bonuses in here cannot double-count the roll.
+		const init = actorData.attributes.init;
+		const initBonus = dnd5e.utils.simplifyBonus(init.bonus, rollData);
+		const initCheckBonus = actorData.abilities[monsterData.initiative.ability]?.checkBonus ?? 0;
+		monsterData.initiative.add(initBonus, game.i18n.format('gmm.common.derived_source.relative_modifier'));
+		monsterData.initiative.add(initCheckBonus, game.i18n.format('gmm.common.derived_source.check_bonus'));
+
+		// prepareInitiative derived these from the pre-scaling ability modifier, before init.mod replaced it.
+		const alert = actor.flags?.dnd5e?.initiativeAlert && (dnd5e.settings?.rulesVersion === "legacy") ? 5 : 0;
+		init.total = init.mod + initBonus + initCheckBonus + (actorData.attributes.quality?.value ?? 0) + alert
+			+ (Number.isNumeric(init.prof.term) ? init.prof.flat : 0);
+		init.score = (CONFIG.DND5E.skillPassive?.base ?? 10) + init.total
+			+ ((init.roll?.mode ?? 0) * (CONFIG.DND5E.skillPassive?.modifier ?? 5));
 	}
-	// `attack` and `save.value` are absent: dnd5e re-derives both from `mod` every prepare cycle.
+	// Absent by design - dnd5e re-derives abilities.*.{attack, save.value} and skills.*.bonus every cycle.
 	const GMM_DERIVED_ABILITY_FIELDS = ["value", "mod", "proficient", "saveProf", "checkProf", "dc"];
-	const GMM_DERIVED_SKILL_FIELDS = ["value", "bonus", "mod", "prof", "total", "passive"];
+	const GMM_DERIVED_SKILL_FIELDS = ["value", "mod", "prof", "total", "passive"];
 
 	/* Effects apply before prepareDerivedData, so anything the pass below assigns would discard them. */
 	const GMM_DERIVED_KEYS = new Set([
@@ -153,8 +171,13 @@ const GmmActor = (function () {
 			: game.i18n.format('gmm.common.derived_source.active_effects', { count: names.length });
 	}
 
-	/* The forge cannot see effects, so what the replay moved is folded back in and the artifact rebuilt. */
-	function _reforgeWithAbilityEffects(actor, blueprint, artifact, changes) {
+	/* dnd5e resolves these from the bonus formulas before the derived pass, so they are already final. */
+	function _collectCheckBonuses(actorData) {
+		return Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, actorData.abilities[x].checkBonus ?? 0]));
+	}
+
+	/* The forge reads only the blueprint, so a modifier an effect moved is invisible to it. */
+	function _reforgeWithAbilityEffects(actor, blueprint, artifact, changes, checkBonuses) {
 		if (!changes.length) return artifact;
 
 		const abilityDeltas = {};
@@ -169,7 +192,7 @@ const GmmActor = (function () {
 		});
 
 		return Object.keys(abilityDeltas).length
-			? MonsterForge.createArtifact(blueprint, { abilityDeltas: abilityDeltas })
+			? MonsterForge.createArtifact(blueprint, { abilityDeltas: abilityDeltas, checkBonuses: checkBonuses })
 			: artifact;
 	}
 
@@ -179,7 +202,8 @@ const GmmActor = (function () {
 			const actorData = actor.system;
 			const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
 			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_EFFECT_ABILITY_KEYS);
-			let monsterArtifact = MonsterForge.createArtifact(monsterBlueprint);
+			const checkBonuses = _collectCheckBonuses(actorData);
+			let monsterArtifact = MonsterForge.createArtifact(monsterBlueprint, { checkBonuses: checkBonuses });
 
 			// The replay reads these as its base, so they are seeded before it rather than in the pass below.
 			GMM_5E_ABILITIES.forEach((x) => {
@@ -187,7 +211,7 @@ const GmmActor = (function () {
 				actorData.abilities[x].mod = monsterArtifact.data.ability_modifiers[x].value;
 			});
 			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.early);
-			monsterArtifact = _reforgeWithAbilityEffects(actor, monsterBlueprint, monsterArtifact, effectChanges.early);
+			monsterArtifact = _reforgeWithAbilityEffects(actor, monsterBlueprint, monsterArtifact, effectChanges.early, checkBonuses);
 
 			const monsterData = monsterArtifact.data;
 			actor.flags.gmm = {
@@ -197,7 +221,7 @@ const GmmActor = (function () {
 
 			const scoreTargeted = _abilitiesTargetedByScore(effectChanges.early);
 			GMM_5E_ABILITIES.forEach((x) => {
-                // A score-targeting effect keeps the score it asked for; otherwise it follows the scaled modifier.
+                // Nothing derives from the score, so an effect that set one outright should keep it.
                 if (!scoreTargeted.has(x)) actorData.abilities[x].value = monsterData.ability_modifiers[x].score;
                 actorData.abilities[x].mod = monsterData.ability_modifiers[x].value;
                 actorData.abilities[x].proficient = false;
@@ -214,15 +238,17 @@ const GmmActor = (function () {
 
 			GMM_5E_SKILLS.forEach((x) => {
 				let monsterSkill = monsterData.skills.find((y) => y.code == x.name);
-				actorData.skills[x.foundry].value = 0;
-				actorData.skills[x.foundry].bonus = 0;
-				actorData.skills[x.foundry].mod = monsterData.ability_modifiers[actorData.skills[x.foundry].ability].value;
-				actorData.skills[x.foundry].prof = new Proficiency(monsterSkill ? monsterSkill.value : 0, 1);
-				actorData.skills[x.foundry].total = actorData.skills[x.foundry].mod + actorData.skills[x.foundry].prof;
+				const skill = actorData.skills[x.foundry];
+				skill.value = 0;
+				skill.mod = monsterData.ability_modifiers[skill.ability].value;
+				skill.prof = new Proficiency(monsterSkill ? monsterSkill.value : 0, 1);
+				// `bonus` is left as dnd5e resolved it: the skill, ability and global check bonuses.
+				// Proficiency stringifies to its term, so adding the object would build text, not a total.
+				skill.total = skill.mod + (skill.bonus ?? 0) + (Number.isNumeric(skill.prof.term) ? skill.prof.flat : 0);
 				if (x.name == "perception") {
-					actorData.skills[x.foundry].passive = monsterData.passive_perception.value;
+					skill.passive = monsterData.passive_perception.value;
 				} else {
-					actorData.skills[x.foundry].passive = 10 + actorData.skills[x.foundry].total;
+					skill.passive = 10 + skill.total;
 				}
 			});
 

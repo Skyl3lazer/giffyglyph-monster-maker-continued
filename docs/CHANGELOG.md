@@ -12,6 +12,9 @@
 * Paragon actions are now tracked in combat: taking an action outside its own turn spends one, and the pool refills at the start of its turn and at the start of a fight. An empty pool warns but never blocks the action, and the whole thing can be turned off in the module settings
 * Began to add better support for automation modules using GMMC scalar effects
 * Active effects that change an ability score or modifier now reach the whole monster instead of only the die roll: the displayed modifier, spell save DC, initiative, passive perception, carrying capacity, shortcodes and generated activities all follow. Effects can target either the score or the modifier, and an effect that sets a score to a fixed value correctly does nothing to a monster whose scaled score is already higher. Hovering the modifier names the effect responsible.
+* Fixed skill totals and passive scores being assembled as text rather than added up, which made them wrong everywhere except the Forge sheet.
+* Ability check, skill and initiative bonuses now reach the stat block instead of only the die roll. Skill totals and passive scores include them, an ability's check bonus shows up in the sheet's ability check roll, and passive perception counts them the way dnd5e does
+* Fixed a scaling monster's initiative total and passive initiative score being derived from its unscaled ability modifier. This was visible if you use the "Fixed Initiative Score" setting, where a monster rolled a score that ignored its scaling
 * The paragon defenses maximum now has its "is fixed" toggle, so the modifier can override the rank-derived value instead of only adding to it
 * The saving throw modifiers field now works, and applies to every saving throw method
 * Added a "Custom Unique" saving throw method, which starts every save at 0 so the modifiers field sets them outright

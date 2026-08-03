@@ -67,6 +67,7 @@
 									<label class="radio ability">
 										<input type="radio" class="radio--str" name="ability" value="str" checked/>
 										<input type="hidden" name="ability_str" value="{{gmm.monster.ability_modifiers.str.value}}"/>
+										<input type="hidden" name="check_str" value="{{gmm.monster.check_modifiers.str.value}}"/>
 										<span>
 											<span class="ability__name">{{localize 'gmm.common.ability.str.code'}}</span>
 											<span class="ability__value">{{numberFormat gmm.monster.ability_modifiers.str.value sign=true}}</span>
@@ -75,6 +76,7 @@
 									<label class="radio ability">
 										<input type="radio" class="radio--dex" name="ability" value="dex"/>
 										<input type="hidden" name="ability_dex" value="{{gmm.monster.ability_modifiers.dex.value}}"/>
+										<input type="hidden" name="check_dex" value="{{gmm.monster.check_modifiers.dex.value}}"/>
 										<span>
 											<span class="ability__name">{{localize 'gmm.common.ability.dex.code'}}</span>
 											<span class="ability__value">{{numberFormat gmm.monster.ability_modifiers.dex.value sign=true}}</span>
@@ -83,6 +85,7 @@
 									<label class="radio ability">
 										<input type="radio" class="radio--con" name="ability" value="con"/>
 										<input type="hidden" name="ability_con" value="{{gmm.monster.ability_modifiers.con.value}}"/>
+										<input type="hidden" name="check_con" value="{{gmm.monster.check_modifiers.con.value}}"/>
 										<span>
 											<span class="ability__name">{{localize 'gmm.common.ability.con.code'}}</span>
 											<span class="ability__value">{{numberFormat gmm.monster.ability_modifiers.con.value sign=true}}</span>
@@ -91,6 +94,7 @@
 									<label class="radio ability">
 										<input type="radio" class="radio--int" name="ability" value="int"/>
 										<input type="hidden" name="ability_int" value="{{gmm.monster.ability_modifiers.int.value}}"/>
+										<input type="hidden" name="check_int" value="{{gmm.monster.check_modifiers.int.value}}"/>
 										<span>
 											<span class="ability__name">{{localize 'gmm.common.ability.int.code'}}</span>
 											<span class="ability__value">{{numberFormat gmm.monster.ability_modifiers.int.value sign=true}}</span>
@@ -99,6 +103,7 @@
 									<label class="radio ability">
 										<input type="radio" class="radio--wis" name="ability" value="wis"/>
 										<input type="hidden" name="ability_wis" value="{{gmm.monster.ability_modifiers.wis.value}}"/>
+										<input type="hidden" name="check_wis" value="{{gmm.monster.check_modifiers.wis.value}}"/>
 										<span>
 											<span class="ability__name">{{localize 'gmm.common.ability.wis.code'}}</span>
 											<span class="ability__value">{{numberFormat gmm.monster.ability_modifiers.wis.value sign=true}}</span>
@@ -107,6 +112,7 @@
 									<label class="radio ability">
 										<input type="radio" class="radio--cha" name="ability" value="cha"/>
 										<input type="hidden" name="ability_cha" value="{{gmm.monster.ability_modifiers.cha.value}}"/>
+										<input type="hidden" name="check_cha" value="{{gmm.monster.check_modifiers.cha.value}}"/>
 										<span>
 											<span class="ability__name">{{localize 'gmm.common.ability.cha.code'}}</span>
 											<span class="ability__value">{{numberFormat gmm.monster.ability_modifiers.cha.value sign=true}}</span>

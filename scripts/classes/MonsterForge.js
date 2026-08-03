@@ -21,6 +21,7 @@ const MonsterForge = (function () {
         );
         const monsterProficiency = _parseProficiency(derivedAttributes, blueprint.data.proficiency_bonus);
         const monsterAbilityModifiers = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers, options.abilityDeltas);
+        const monsterCheckModifiers = _parseCheckModifiers(options.checkBonuses);
         const monsterRank = _parseRank(derivedAttributes.rank);
         const monsterRole = _parseRole(derivedAttributes.role);
         const monsterSkills = _parseSkills(monsterProficiency.value, blueprint.data.skills, derivedAttributes.role);
@@ -43,6 +44,7 @@ const MonsterForge = (function () {
                 biography: _parseBiography(blueprint.data.biography),
                 bonus_actions: _parseBonusActions(derivedAttributes, blueprint.data.bonus_actions, ignoreItemRequirements),
                 challenge_rating: _parseChallengeRating(derivedAttributes, blueprint.data.challenge_rating),
+                check_modifiers: monsterCheckModifiers,
                 condition_immunities: _parseCollection(GMM_5E_CONDITIONS, blueprint.data.condition_immunities, "condition"),
                 damage_immunities: _parseCollection(GMM_5E_DAMAGE_TYPES, blueprint.data.damage_immunities, "damage"),
                 damage_per_action: _parseDamagePerAction(derivedAttributes, blueprint.data.damage_per_action),
@@ -241,7 +243,7 @@ const MonsterForge = (function () {
             ams[ability].applyModifier(value, abilityModifiers.modifier.override);
         });
 
-        // After the fixed modifier, which resets the attribute, and before the score is derived from it.
+        // Must land after the fixed modifier resets the attribute and before the score is derived.
         Object.entries(abilityDeltas ?? {}).forEach(([ability, delta]) => {
             ams[ability]?.add(delta.value, delta.source);
         });
@@ -252,6 +254,16 @@ const MonsterForge = (function () {
         }
 
         return ams;
+    }
+
+    /* A skill-scoped bonus belongs on the skill, not on every check made with the ability. */
+    function _parseCheckModifiers(checkBonuses) {
+        const cms = {};
+        GMM_5E_ABILITIES.forEach((x) => {
+            cms[x] = new DerivedAttribute();
+            cms[x].add(Number(checkBonuses?.[x]) || 0, game.i18n.format('gmm.common.derived_source.check_bonus'));
+        });
+        return cms;
     }
 
     function _parseModifierList(value) {

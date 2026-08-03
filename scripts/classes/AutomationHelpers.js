@@ -21,7 +21,7 @@ const AutomationHelpers = (function () {
 			: change.effect.apply(actor, change);
 	}
 
-	/* Split into two buckets in one walk: `earlyKeys` are needed before the rest of the pass reads them. */
+	/* `earlyKeys` have to land before the rest of the derived pass reads them. */
 	function collectOverwrittenEffects(actor, keys, earlyKeys) {
 		const early = [];
 		const late = [];
@@ -49,7 +49,7 @@ const AutomationHelpers = (function () {
 	function applyOverwrittenEffects(actor, changes) {
 		if (!changes?.length) return;
 
-		// Resolved per call rather than shared, so a late bucket sees what an earlier one produced.
+		// A late bucket must resolve against what an earlier one already produced.
 		const replacementData = actor.getRollData();
 		const overrides = {};
 		for (const change of changes) {

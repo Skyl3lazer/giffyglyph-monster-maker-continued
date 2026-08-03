@@ -131,7 +131,7 @@ const Shortcoder = (function () {
                 let modifier = valueMath - Math.floor(dice * scale);
 
                 if (dice > 0) {
-                    return dice + "d" + die + ((modifier != 0) ? (" " + ((modifier > 0) ? "+ " : "− ") + Math.abs(modifier)) : "");
+                    return dice + "d" + die + ((modifier != 0) ? (" " + ((modifier > 0) ? "+ " : "- ") + Math.abs(modifier)) : "");
                 } else {
                     return valueMath;
                 }
