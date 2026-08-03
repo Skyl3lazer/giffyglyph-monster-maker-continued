@@ -106,6 +106,14 @@
 			{
 				"id": "midi-qol",
 				"type": "module"
+			},
+			{
+				"id": "cat",
+				"type": "module"
+			},
+			{
+				"id": "dae",
+				"type": "module"
 			}
 		]
 	},
