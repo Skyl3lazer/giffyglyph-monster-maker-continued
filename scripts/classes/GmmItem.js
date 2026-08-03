@@ -310,7 +310,7 @@ const GmmItem = (function () {
             labels.attack = game.i18n.format(`gmm.action.labels.attack.${blueprintAttackType || "mwak"}`);
             const toHit = _computeAttackToHit(activity, blueprint, gmmMonster, rollData);
             if (toHit !== null) {
-                labels.to_hit = game.i18n.format(`gmm.action.labels.attack.to_hit`, { bonus: _formatSignedBonus(toHit) });
+                labels.to_hit = game.i18n.format(`gmm.action.labels.attack.to_hit`, { bonus: toHit });
             }
         } else if (activity?.type === "save") {
             labels.attack = _formatSaveLabel(activity);
@@ -450,31 +450,25 @@ const GmmItem = (function () {
         return labels;
     }
 
-    /* Compute the GMM-displayed to-hit bonus from the monster's attack bonus, the related-stat ability mod,
-     * and the activity's attack.bonus formula. Mirrors what Activities.injectAttackBonusParts contributes at roll time. */
+    /* Returns a string, not a number, because the actor's attack bonus permits dice.
+     * `attack.bonus` is added here rather than in the shared terms: dnd5e already contributes it to the roll. */
     function _computeAttackToHit(activity, blueprint, monsterData, rollData = {}) {
         if (!monsterData) return null;
-        let total = monsterData.attack_bonus?.value ?? 0;
 
-        const relatedStat = blueprint?.attack?.related_stat || activity?.attack?.ability;
-        if (relatedStat && monsterData.ability_modifiers?.[relatedStat]) {
-            total += monsterData.ability_modifiers[relatedStat].value ?? 0;
-        }
+        /* No attackMode: it only exists mid-roll, so the sheet cannot know a thrown attack became rwak. */
+        const { parts, data } = Activities.buildAttackToHitTerms(activity, blueprint, monsterData, { attackMode: "" });
 
         const bonusFormula = activity?.attack?.bonus;
-        if (bonusFormula) {
-            // Use dnd5e.utils.simplifyBonus when available — it builds a Roll with the full rollData so `@gmm.foo`-style
-            // references resolve. Falls back to bare numeric coercion otherwise.
-            const simplifyBonus = dnd5e?.utils?.simplifyBonus;
-            try {
-                const resolved = (typeof simplifyBonus === "function")
-                    ? simplifyBonus(bonusFormula, rollData)
-                    : Number(simplifyRollFormula(String(bonusFormula)));
-                if (Number.isFinite(resolved)) total += resolved;
-            } catch (e) { /* ignore simplification failures */ }
-        }
+        if (bonusFormula) parts.push(String(bonusFormula));
+        if (!parts.length) return null;
 
-        return total;
+        try {
+            const formula = new Roll(parts.join(" + "), { ...rollData, ...data }).formula;
+            const simplified = simplifyRollFormula(formula).trim() || "0";
+            return /^[+-]/.test(simplified) ? simplified : `+${simplified}`;
+        } catch (e) {
+            return null;
+        }
     }
 
     /* Build the "<Ability> Saving Throw" label for a SaveActivity, handling the single-ability, multi-ability, and no-ability cases.
@@ -565,13 +559,6 @@ const GmmItem = (function () {
         } catch (e) {
             return formula;
         }
-    }
-
-    function _formatSignedBonus(n) {
-        const r = Math.round(n);
-        // Return a plain signed string rather than dnd5e's `utils.formatModifier`, which returns a
-        // `Handlebars.SafeString` containing `<span class="sign">+</span>` markup that renders wrong here.
-        return (r >= 0) ? `+${r}` : `${r}`;
     }
 
     return {

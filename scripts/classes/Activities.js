@@ -741,24 +741,64 @@ const Activities = (function () {
         }
     }
 
-    /* Inject the monster's attack bonus and optional ability mod into a pending attack roll (from preRollAttackV2). */
+    /* Shared by the roll and the sheet so a new term cannot reach one and miss the other.
+     * `attack.bonus` is omitted on purpose: dnd5e already contributes it at roll time, so only the sheet adds it. */
+    function buildAttackToHitTerms(activity, blueprint, monsterData, { attackMode = "" } = {}) {
+        const parts = [];
+        const data = {};
+        if (!monsterData) return { parts, data };
+
+        const gmm = {};
+        const monsterBonus = monsterData.attack_bonus?.value;
+        if (Number.isFinite(monsterBonus)) {
+            parts.push("@gmm.monsterBonus");
+            gmm.monsterBonus = monsterBonus;
+        }
+
+        const relatedStat = blueprint?.attack?.related_stat
+            || activity?._source?.attack?.ability
+            || activity?.attack?.ability;
+        if (relatedStat && monsterData.ability_modifiers?.[relatedStat]) {
+            const abilityMod = monsterData.ability_modifiers[relatedStat].value;
+            if (Number.isFinite(abilityMod)) {
+                parts.push("@gmm.abilityMod");
+                gmm.abilityMod = abilityMod;
+            }
+        }
+        if (Object.keys(gmm).length) data.gmm = gmm;
+
+        /* dnd5e skips the actor bonus and exhaustion under `attack.flat`, so GMM supplies both. */
+        const actor = activity?.actor;
+        const actionType = typeof activity?.getActionType === "function"
+            ? activity.getActionType(attackMode)
+            : null;
+        if (actor && actionType) {
+            /* Pushed as a formula, not a simplified number: this field permits dice (Bless is `1d4`). */
+            const actorBonus = actor.system?.bonuses?.[actionType]?.attack;
+            if (actorBonus && !/^0+$/.test(String(actorBonus).trim())) parts.push(String(actorBonus));
+        }
+        if (typeof actor?.addRollExhaustion === "function") actor.addRollExhaustion(parts, data);
+
+        return { parts, data };
+    }
+
+    /* Called from preRollAttackV2. */
     function injectAttackBonusParts(rollConfig, activity, monsterData) {
         if (!rollConfig?.rolls?.length || !monsterData) return;
         const roll = rollConfig.rolls[0];
         roll.parts ??= [];
         roll.data ??= {};
-        const monsterBonus = monsterData.attack_bonus?.value;
-        if (Number.isFinite(monsterBonus)) {
-            roll.parts.push("@gmm.monsterBonus");
-            roll.data.gmm = { ...(roll.data.gmm ?? {}), monsterBonus };
-        }
-        const relatedStat = activity?._source?.attack?.ability || activity?.attack?.ability;
-        if (relatedStat && monsterData.ability_modifiers?.[relatedStat]) {
-            const abilityMod = monsterData.ability_modifiers[relatedStat].value;
-            if (Number.isFinite(abilityMod)) {
-                roll.parts.push("@gmm.abilityMod");
-                roll.data.gmm = { ...(roll.data.gmm ?? {}), abilityMod };
-            }
+
+        const blueprint = activity?.item?.flags?.gmm?.blueprint?.data;
+        const { parts, data } = buildAttackToHitTerms(activity, blueprint, monsterData, {
+            attackMode: rollConfig.attackMode ?? ""
+        });
+        if (!parts.length) return;
+
+        roll.parts.push(...parts);
+        roll.data.gmm = { ...(roll.data.gmm ?? {}), ...(data.gmm ?? {}) };
+        for (const [key, value] of Object.entries(data)) {
+            if (key !== "gmm") roll.data[key] = value;
         }
     }
 
@@ -1189,6 +1229,7 @@ const Activities = (function () {
         buildActivityUpdate,
         readActivityIntoBlueprintData,
         resolveActivityFormulas,
+        buildAttackToHitTerms,
         injectAttackBonusParts,
         injectAmmunition,
         ammunitionMagicBonus,
