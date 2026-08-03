@@ -461,7 +461,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterLayout", {
-		name: "Monster Menu Layout",
+		name: "gmm.settings.monster_layout.name",
 		scope: "world",
 		config: true,
 		default: "slide-out",
@@ -470,7 +470,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterArtifactSkin", {
-		name: "Monster Artifact Skin",
+		name: "gmm.settings.monster_artifact_skin.name",
 		scope: "world",
 		config: true,
 		default: "vanity",
@@ -479,7 +479,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterBlueprintSkin", {
-		name: "Monster Blueprint Skin",
+		name: "gmm.settings.monster_blueprint_skin.name",
 		scope: "world",
 		config: true,
 		default: "vanity",
@@ -488,7 +488,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterPrimaryColor", {
-		name: "Monster Primary Color",
+		name: "gmm.settings.monster_primary_color.name",
 		scope: "world",
 		config: true,
 		default: "blue",
@@ -497,7 +497,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterSecondaryColor", {
-		name: "Monster Secondary Color",
+		name: "gmm.settings.monster_secondary_color.name",
 		scope: "world",
 		config: true,
 		default: "orange",
@@ -506,7 +506,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionLayout", {
-		name: "Action Menu Layout",
+		name: "gmm.settings.action_layout.name",
 		scope: "world",
 		config: true,
 		default: "slide-out",
@@ -515,7 +515,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionArtifactSkin", {
-		name: "Action Artifact Skin",
+		name: "gmm.settings.action_artifact_skin.name",
 		scope: "world",
 		config: true,
 		default: "vanity",
@@ -524,7 +524,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionBlueprintSkin", {
-		name: "Action Blueprint Skin",
+		name: "gmm.settings.action_blueprint_skin.name",
 		scope: "world",
 		config: true,
 		default: "vanity",
@@ -533,7 +533,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionPrimaryColor", {
-		name: "Action Primary Color",
+		name: "gmm.settings.action_primary_color.name",
 		scope: "world",
 		config: true,
 		default: "blue-gray",
@@ -542,7 +542,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionSecondaryColor", {
-		name: "Action Secondary Color",
+		name: "gmm.settings.action_secondary_color.name",
 		scope: "world",
 		config: true,
 		default: "amber",
