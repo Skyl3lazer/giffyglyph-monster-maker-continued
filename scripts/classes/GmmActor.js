@@ -137,20 +137,68 @@ const GmmActor = (function () {
 		"system.attributes.spell.dc"
 	]);
 
+	/* The forge derives too much from an ability modifier to replay these with the rest of the list. */
+	const GMM_EFFECT_ABILITY_KEYS = new Set(
+		GMM_5E_ABILITIES.flatMap((x) => ["value", "mod"].map((f) => `system.abilities.${x}.${f}`))
+	);
+
+	function _abilitiesTargetedByScore(changes) {
+		return new Set(GMM_5E_ABILITIES.filter((x) => changes.some((y) => y.key === `system.abilities.${x}.value`)));
+	}
+
+	function _effectSourceLabel(changes) {
+		const names = [...new Set(changes.map((x) => x.effect?.name).filter(Boolean))];
+		return names.length === 1
+			? names[0]
+			: game.i18n.format('gmm.common.derived_source.active_effects', { count: names.length });
+	}
+
+	/* The forge cannot see effects, so what the replay moved is folded back in and the artifact rebuilt. */
+	function _reforgeWithAbilityEffects(actor, blueprint, artifact, changes) {
+		if (!changes.length) return artifact;
+
+		const abilityDeltas = {};
+		GMM_5E_ABILITIES.forEach((x) => {
+			const ability = actor.system.abilities[x];
+			const scaled = artifact.data.ability_modifiers[x].value;
+			// A score-targeting effect is the 5e convention, so convert it the way dnd5e reads a score.
+			const delta = (ability.mod - scaled) || (Math.floor((ability.value - 10) / 2) - scaled);
+			if (!delta) return;
+			const keys = [`system.abilities.${x}.value`, `system.abilities.${x}.mod`];
+			abilityDeltas[x] = { value: delta, source: _effectSourceLabel(changes.filter((y) => keys.includes(y.key))) };
+		});
+
+		return Object.keys(abilityDeltas).length
+			? MonsterForge.createArtifact(blueprint, { abilityDeltas: abilityDeltas })
+			: artifact;
+	}
+
 	/* Prepare actor-specific derived data (abilities, skills, CR, HP, initiative, encumbrance, spellcasting). */
 	function _prepareMonsterDerivedData(actor) {
 		try {
 			const actorData = actor.system;
 			const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
-			const monsterArtifact = MonsterForge.createArtifact(monsterBlueprint);
+			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_EFFECT_ABILITY_KEYS);
+			let monsterArtifact = MonsterForge.createArtifact(monsterBlueprint);
+
+			// The replay reads these as its base, so they are seeded before it rather than in the pass below.
+			GMM_5E_ABILITIES.forEach((x) => {
+				actorData.abilities[x].value = monsterArtifact.data.ability_modifiers[x].score;
+				actorData.abilities[x].mod = monsterArtifact.data.ability_modifiers[x].value;
+			});
+			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.early);
+			monsterArtifact = _reforgeWithAbilityEffects(actor, monsterBlueprint, monsterArtifact, effectChanges.early);
+
 			const monsterData = monsterArtifact.data;
 			actor.flags.gmm = {
 				blueprint: monsterBlueprint,
 				monster: monsterArtifact
 			};
 
+			const scoreTargeted = _abilitiesTargetedByScore(effectChanges.early);
 			GMM_5E_ABILITIES.forEach((x) => {
-                actorData.abilities[x].value = monsterData.ability_modifiers[x].score;
+                // A score-targeting effect keeps the score it asked for; otherwise it follows the scaled modifier.
+                if (!scoreTargeted.has(x)) actorData.abilities[x].value = monsterData.ability_modifiers[x].score;
                 actorData.abilities[x].mod = monsterData.ability_modifiers[x].value;
                 actorData.abilities[x].proficient = false;
                 //actorData.abilities[x].prof = 0;
@@ -218,7 +266,7 @@ const GmmActor = (function () {
 			actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
 			actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
 
-			AutomationHelpers.reapplyOverwrittenEffects(actor, GMM_DERIVED_KEYS);
+			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.late);
 
 			// Compute owned item attributes which depend on prepared Actor data
 			// The V1 `getSaveDC` / `getAttackToHit` calls were replaced by Activity-driven roll hooks (see GmmItem.patchItem5e)

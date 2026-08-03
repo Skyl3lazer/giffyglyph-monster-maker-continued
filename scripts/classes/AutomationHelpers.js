@@ -21,25 +21,35 @@ const AutomationHelpers = (function () {
 			: change.effect.apply(actor, change);
 	}
 
-	/* Replaying the change, not the stored override, keeps ADD/MULTIPLY relative to the new base. */
-	function reapplyOverwrittenEffects(actor, keys) {
-		if (typeof actor.allApplicableEffects !== "function") return;
-
-		const changes = [];
-		for (const effect of actor.allApplicableEffects()) {
-			if (!effect.active) continue;
-			for (const change of (effect.system?.changes ?? effect.changes ?? [])) {
-				if (!change?.key || !keys.has(change.key)) continue;
-				if (_effectiveChangePhase(change, effect) !== "initial") continue;
-				const copy = foundry.utils.deepClone(change);
-				copy.effect = effect;
-				copy.priority ??= (copy.mode ?? 0) * 10;
-				changes.push(copy);
+	/* Split into two buckets in one walk: `earlyKeys` are needed before the rest of the pass reads them. */
+	function collectOverwrittenEffects(actor, keys, earlyKeys) {
+		const early = [];
+		const late = [];
+		if (typeof actor.allApplicableEffects === "function") {
+			for (const effect of actor.allApplicableEffects()) {
+				if (!effect.active) continue;
+				for (const change of (effect.system?.changes ?? effect.changes ?? [])) {
+					if (!change?.key || !keys.has(change.key)) continue;
+					if (_effectiveChangePhase(change, effect) !== "initial") continue;
+					const copy = foundry.utils.deepClone(change);
+					copy.effect = effect;
+					copy.priority ??= (copy.mode ?? 0) * 10;
+					(earlyKeys?.has(change.key) ? early : late).push(copy);
+				}
 			}
 		}
-		if (!changes.length) return;
 
-		changes.sort((a, b) => a.priority - b.priority);
+		const byPriority = (a, b) => a.priority - b.priority;
+		early.sort(byPriority);
+		late.sort(byPriority);
+		return { early: early, late: late };
+	}
+
+	/* Replaying the change, not the stored override, keeps ADD/MULTIPLY relative to the new base. */
+	function applyOverwrittenEffects(actor, changes) {
+		if (!changes?.length) return;
+
+		// Resolved per call rather than shared, so a late bucket sees what an earlier one produced.
 		const replacementData = actor.getRollData();
 		const overrides = {};
 		for (const change of changes) {
@@ -70,7 +80,8 @@ const AutomationHelpers = (function () {
 	}
 
 	return {
-		reapplyOverwrittenEffects: reapplyOverwrittenEffects,
+		collectOverwrittenEffects: collectOverwrittenEffects,
+		applyOverwrittenEffects: applyOverwrittenEffects,
 		preserveForeignActivityFields: preserveForeignActivityFields
 	};
 })();

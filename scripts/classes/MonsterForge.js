@@ -13,14 +13,14 @@ import CompatibilityHelpers from "./CompatibilityHelpers.js";
 
 const MonsterForge = (function () {
 
-    function createArtifact(blueprint) {
+    function createArtifact(blueprint, options = {}) {
         const derivedAttributes = MonsterHelpers.getDerivedAttributes(
             blueprint.data.combat.level,
             blueprint.data.combat.rank,
             blueprint.data.combat.role
         );
         const monsterProficiency = _parseProficiency(derivedAttributes, blueprint.data.proficiency_bonus);
-        const monsterAbilityModifiers = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
+        const monsterAbilityModifiers = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers, options.abilityDeltas);
         const monsterRank = _parseRank(derivedAttributes.rank);
         const monsterRole = _parseRole(derivedAttributes.role);
         const monsterSkills = _parseSkills(monsterProficiency.value, blueprint.data.skills, derivedAttributes.role);
@@ -228,7 +228,7 @@ const MonsterForge = (function () {
         });
     }
 
-    function _parseAbilityModifiers(derivedAttributes, abilityModifiers) {
+    function _parseAbilityModifiers(derivedAttributes, abilityModifiers, abilityDeltas) {
         const ams = {};
         GMM_5E_ABILITIES.forEach((x) => {
             let ranking = abilityModifiers.ranking.indexOf(x);
@@ -239,6 +239,11 @@ const MonsterForge = (function () {
 
         Object.entries(_parseModifierList(abilityModifiers.modifier.value)).forEach(([ability, value]) => {
             ams[ability].applyModifier(value, abilityModifiers.modifier.override);
+        });
+
+        // After the fixed modifier, which resets the attribute, and before the score is derived from it.
+        Object.entries(abilityDeltas ?? {}).forEach(([ability, delta]) => {
+            ams[ability]?.add(delta.value, delta.source);
         });
 
         for (const am in ams) {
