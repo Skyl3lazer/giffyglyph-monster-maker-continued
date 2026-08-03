@@ -86,4 +86,5 @@ be encoded in the item.
 
 The rules applied here live in `.claude/skills/gmmc-monster-rules/` (scaling-engine,
 features-effects, combat-roles, special-attacks). Book-vs-code engine findings are
-separate and tracked in that skill's `FINDINGS.md`.
+separate: unresolved ones in [OPEN_ISSUES.md](./OPEN_ISSUES.md), settled ones in that
+skill's `FINDINGS.md`.

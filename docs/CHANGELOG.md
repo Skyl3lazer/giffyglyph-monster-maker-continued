@@ -9,6 +9,7 @@
 
 ## v2.0.1.0
 
+* Paragon actions are now tracked in combat: taking an action outside its own turn spends one, and the pool refills at the start of its turn and at the start of a fight. An empty pool warns but never blocks the action, and the whole thing can be turned off in the module settings
 * Began to add better support for automation modules using GMMC scalar effects
 * The paragon defenses maximum now has its "is fixed" toggle, so the modifier can override the rank-derived value instead of only adding to it
 * The saving throw modifiers field now works, and applies to every saving throw method

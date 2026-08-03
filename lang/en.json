@@ -641,6 +641,7 @@
   "gmm.monster.artifact.legendary_resistances.title": "Legendary Resistances",
   "gmm.monster.artifact.paragon_actions.blurb": "When another creature ends its turn, you can spend 1 paragon action to a) move or b) perform one action (attack, help, hide, etc). You regain spent paragon actions at the start of your turn.",
   "gmm.monster.artifact.paragon_actions.current": "Current",
+  "gmm.monster.artifact.paragon_actions.depleted": "{name} has no paragon actions remaining.",
   "gmm.monster.artifact.paragon_actions.maximum": "Maximum",
   "gmm.monster.artifact.paragon_actions.title": "Paragon Actions",
   "gmm.monster.artifact.paragon_defenses.blurb": "When you would fail a saving throw, you may spend {cost} hit points to succeed. You regain spent paragon defenses on a long rest.",
@@ -911,6 +912,8 @@
   "gmm.monster.errors.invalid_monster": "This monster is invalid. Please check your configuration settings and try again.",
   "gmm.monster.errors.missing_blueprint": "Your configuration data is missing. Please try again.",
   "gmm.monster.errors.missing_monster": "Your monster data is missing. Please check your configuration settings and try again.",
+  "gmm.settings.track_paragon_actions.name": "Track Paragon Actions",
+  "gmm.settings.track_paragon_actions.hint": "Spend one of a scaling monster's paragon actions whenever it takes an action outside its own turn in combat, and refill the pool at the start of its turn. An empty pool warns but never blocks the action.",
   "gmm.sheet.action.label": "Giffyglyph's 5e Scaling Action",
   "gmm.sheet.monster.label": "Giffyglyph's 5e Monster Maker Continued"
 }

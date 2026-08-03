@@ -5,6 +5,7 @@ import ActionSheet from './scripts/classes/ActionSheet.js';
 import Templates from './scripts/classes/Templates.js';
 import Activities from './scripts/classes/Activities.js';
 import ActionBlueprint from './scripts/classes/ActionBlueprint.js';
+import ParagonPower from './scripts/classes/ParagonPower.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
@@ -35,6 +36,7 @@ Hooks.once("init", function() {
 
 	GmmActor.patchActor5e();
 	GmmItem.patchItem5e();
+	ParagonPower.init();
 
 	// Backward-compatible API used by legacy migration scripts/macros.
 	const moduleRef = game.modules.get(GMM_MODULE_TITLE);
@@ -300,7 +302,7 @@ async function _revertToVanilla(item, originalChange, originalOptions) {
 
 /* True when an actor is an NPC bound to the GMMC monster sheet (i.e. a scaling monster). */
 function _isGmmMonster(actor) {
-	return actor?.type === "npc" && actor.getSheetId?.() === `${GMM_MODULE_TITLE}.MonsterSheet`;
+	return !!actor?.isGmmMonster?.();
 }
 
 /* Refill a scaling monster's current HP to its (blueprint-derived, unstored) max on creation/conversion or
@@ -448,6 +450,15 @@ async function _hookItemDirectory(html) {
 }
 
 function _registerSettings() {
+
+	game.settings.register(GMM_MODULE_TITLE, "trackParagonActions", {
+		name: "gmm.settings.track_paragon_actions.name",
+		hint: "gmm.settings.track_paragon_actions.hint",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterLayout", {
 		name: "Monster Menu Layout",

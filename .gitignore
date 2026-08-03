@@ -7,6 +7,8 @@ CLAUDE.local.md
 CONTEXT.md
 CONTEXT-MAP.md
 docs/adr/
+docs/OPEN_ISSUES.md
+docs/compendium-audit.md
 
 # Compiled LevelDB packs - built from src/packs via `npm run pack`; source of truth is the yml.
 packs/

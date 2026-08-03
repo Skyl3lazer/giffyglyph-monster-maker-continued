@@ -50,6 +50,7 @@ const GmmActor = (function () {
 		if (typeof Actor5eProto.prepareBaseData === "function") Actor5eProto.prepare5eBaseData = Actor5eProto.prepareBaseData;
 		if (typeof Actor5eProto.prepareDerivedData === "function") Actor5eProto.prepare5eDerivedData = Actor5eProto.prepareDerivedData;
 		Actor5eProto.getSheetId = _getActorSheetId;
+		Actor5eProto.isGmmMonster = _isGmmMonster;
 	}
 
 	/* Prepare actor-specific base data that does not depend on Items or Active Effects. */
@@ -222,6 +223,10 @@ const GmmActor = (function () {
 		} catch (error) {
 			return "";
 		}
+	}
+
+	function _isGmmMonster() {
+		return this.type === "npc" && this.getSheetId() === `${GMM_MODULE_TITLE}.MonsterSheet`;
 	}
 
 	return {

@@ -499,9 +499,11 @@ const MonsterForge = (function () {
         mx.applyModifier(paragonActions.maximum.modifier.value, paragonActions.maximum.modifier.override);
         mx.ceil();
 
+        const current = CompatibilityHelpers.clamped(paragonActions.current ?? mx.value, 0, mx.value);
+
         return {
             visible: paragonActions.always_show || (!showLegendaryActions && (mx.value > 0)),
-            current: paragonActions.current,
+            current: current,
             maximum: mx
         };
     }
