@@ -1492,6 +1492,11 @@
                     <div class="accordion-section" data-section="paragon-defenses">
                         <div class="accordion-section__header">
                             <span class="accordion-section__title">{{localize 'gmm.monster.blueprint.paragon_defenses.title'}}</span>
+                            <span class="accordion-section__info">
+                                {{#if gmm.blueprint.paragon_defenses.maximum.modifier.value includeZero=true}}
+                                <span class="modifier"></span>
+                                {{/if}}
+                            </span>
                         </div>
                         <div class="accordion-section__body">
                             <div class="form-group form-group--modifier">
@@ -1510,12 +1515,23 @@
                                     <input name="gmm.blueprint.paragon_defenses.current" value="{{gmm.blueprint.paragon_defenses.current}}" type="number" />
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="form-group__header">
-                                    <span class="form-group__title">{{localize 'gmm.monster.blueprint.paragon_defenses.maximum'}}</span>
-                                </div>
-                                <div class="form-group__body">
-                                    <input name="gmm.blueprint.paragon_defenses.maximum.modifier.value" value="{{gmm.blueprint.paragon_defenses.maximum.modifier.value}}" type="number" />
+                            <div class="form-fieldset">
+                                <div class="form-fieldset__header">{{localize 'gmm.monster.blueprint.paragon_defenses.maximum'}}</div>
+                                <div class="form-fieldset__body">
+                                    <div class="form-group form-group--modifier">
+                                        <div class="form-group__header">
+                                            <span class="form-group__title">{{localize 'gmm.monster.blueprint.paragon_defenses.modifier'}}</span>
+                                            <button type="button" class="button button--help" data-action="open-modal" data-modal="modal_modifiers">
+                                                <i class="fas fa-question"></i>
+                                            </button>
+                                        </div>
+                                        <div class="form-group__body">
+                                            <input name="gmm.blueprint.paragon_defenses.maximum.modifier.value" type="number" value="{{gmm.blueprint.paragon_defenses.maximum.modifier.value}}" />
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="gmm.blueprint.paragon_defenses.maximum.modifier.override" {{#if gmm.blueprint.paragon_defenses.maximum.modifier.override}} checked{{/if}} /> {{localize 'gmm.monster.blueprint.is_fixed'}}
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -10,6 +10,7 @@
 ## v2.0.1.0
 
 * Began to add better support for automation modules using GMMC scalar effects
+* The paragon defenses maximum now has its "is fixed" toggle, so the modifier can override the rank-derived value instead of only adding to it
 * The saving throw modifiers field now works, and applies to every saving throw method
 * Added a "Custom Unique" saving throw method, which starts every save at 0 so the modifiers field sets them outright
 * Renamed the "Custom TST" saving throw method to "Custom Trained Saves"
