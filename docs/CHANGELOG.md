@@ -14,6 +14,8 @@
 * Added a "Custom Unique" saving throw method, which starts every save at 0 so the modifiers field sets them outright
 * Renamed the "Custom TST" saving throw method to "Custom Trained Saves"
 * Saving throw rolls now honor whatever the forge derived, rather than only the ability modifier and proficiency
+* Saving throws now include the actor's global save bonus, which was previously dropped from the stat block
+* Fixed the saving throw, ability attack and spellcasting attack/modifier values a scaling monster reports to other modules and to the vanilla NPC sheet, which were left over from before scaling was applied. This probably doesn't have a visible consequence, but matters if other content reads info about a GMMC scalar.
 
 ## v2.0.0.10
 

@@ -249,7 +249,6 @@ const MonsterForge = (function () {
         return ams;
     }
 
-    // Parses the shared "str=1; int=-2; cha=7" modifier syntax into { ability: number }.
     function _parseModifierList(value) {
         const modifiers = {};
         String(value ?? "").split(";").forEach((entry) => {

@@ -80,19 +80,26 @@ const GmmActor = (function () {
 				
 		});
 		const rollData = actor.getRollData({ deterministic: true });
+		const globalSaveBonus = dnd5e.utils.simplifyBonus(actorData.bonuses?.abilities?.save, rollData);
 		GMM_5E_ABILITIES.forEach((x) => {
 			const ability = actorData.abilities[x];
-			const saveBonus = dnd5e.utils.simplifyBonus(ability.bonuses.save, rollData);
-			monsterData.saving_throws[x].add(saveBonus, "bonus");
+			const abilitySaveBonus = dnd5e.utils.simplifyBonus(ability.bonuses.save, rollData);
+			monsterData.saving_throws[x].add(abilitySaveBonus + globalSaveBonus, "bonus");
 
-			// dnd5e rolls a save as mod + saveProf + bonuses.save, so anything the forge derived beyond those
-			// (a Custom Unique value, say) has to go back through bonuses.save or it would only ever be displayed.
+			// The roll never sees the artifact, so the forge's excess over mod + saveProf goes through bonuses.save.
 			const proficiency = monsterBlueprint.data.trained_saves[x].trained ? monsterData.proficiency_bonus.value : 0;
-			const delta = monsterData.saving_throws[x].value - (monsterData.ability_modifiers[x].value + proficiency + saveBonus);
+			const derived = monsterData.ability_modifiers[x].value + proficiency + abilitySaveBonus + globalSaveBonus;
+			const delta = monsterData.saving_throws[x].value - derived;
 			if (delta) {
 				const existing = String(ability.bonuses.save ?? "").trim();
 				ability.bonuses.save = existing ? `${existing} ${delta < 0 ? "-" : "+"} ${Math.abs(delta)}` : String(delta);
 			}
+
+			// prepareAbilities ran before the derived pass replaced mod and saveProf, so its output is stale.
+			const cover = x === "dex" ? (actorData.attributes.ac?.cover ?? 0) : 0;
+			ability.saveBonus = abilitySaveBonus + delta + globalSaveBonus + cover;
+			ability.save.value = ability.mod + ability.saveBonus
+				+ (Number.isNumeric(ability.saveProf.term) ? ability.saveProf.flat : 0);
 			//TODO: Deprecated, split in to ability + check mod
 			//monsterData.ability_modifiers[x].setValue(actorData.abilities[x].mod, "bonus");
 		});
@@ -130,12 +137,12 @@ const GmmActor = (function () {
                 //actorData.abilities[x].prof = 0;
 				actorData.abilities[x].saveProf = new Proficiency(monsterData.proficiency_bonus.value, monsterBlueprint.data.trained_saves[x].trained ? 1 : 0);
 				actorData.abilities[x].checkProf = new Proficiency(0, 1);
-				// DO NOT overwrite actorData.abilities[x].save - it is a dnd5e v5.x modifier object with .mode property
-				// that dnd5e's #rollD20Test needs. Let dnd5e build it from saveProf instead.
+				// Replace only save.value - the save object carries the .mode and .roll #rollD20Test needs.
 				if (monsterBlueprint.data.trained_saves[x].trained) {
 					actorData.abilities[x].proficient = true;
 				}
                 actorData.abilities[x].dc = 8 + monsterData.ability_modifiers[x].value;
+                actorData.abilities[x].attack = monsterData.ability_modifiers[x].value + monsterData.proficiency_bonus.value;
             });
 
 			GMM_5E_SKILLS.forEach((x) => {
@@ -184,6 +191,8 @@ const GmmActor = (function () {
 				}
 			};
 			actorData.attributes.spellcasting = monsterData.spellbook.spellcasting.ability;
+			// This already ran, before the scaled spellcasting ability and attack bonus existed.
+			dnd5e.dataModels?.actor?.AttributesFields?.prepareSpellcastingAbility?.call(actorData);
 			// `system.details.spellLevel` was migrated to `system.attributes.spell.level`
 			// and `system.attributes.spelldc` to `system.attributes.spell.dc` in dnd5e v5.x.
 			actorData.attributes.spell ??= {};
