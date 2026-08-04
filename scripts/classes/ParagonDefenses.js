@@ -161,7 +161,7 @@ const ParagonDefenses = (function () {
 	function _onRenderChatMessage(message, html) {
 		if (!_isEnabled()) return;
 
-		const actor = message.getAssociatedActor?.();
+		const actor = _getCardActor(message);
 		if (!actor?.isGmmMonster?.()) return;
 
 		const roll = message.getFlag("dnd5e", "roll");
@@ -199,6 +199,18 @@ const ParagonDefenses = (function () {
 			});
 		});
 		html.querySelector(".message-content")?.append(content);
+	}
+
+	/* Every unlinked token of one base actor has the same actor id, so a speaker carrying no token cannot
+	 * say which of them a card belongs to. Guessing would put a scaler's button on the wrong creature. */
+	function _getCardActor(message) {
+		const speaker = message?.speaker ?? {};
+		if (speaker.scene && speaker.token) {
+			return game.scenes.get(speaker.scene)?.tokens.get(speaker.token)?.actor ?? null;
+		}
+		const actor = game.actors.get(speaker.actor);
+		if (!actor) return null;
+		return (actor.getActiveTokens(false, true).length > 1) ? null : actor;
 	}
 
 	/* dnd5e writes its own resisted line from forceSuccess, naming the resource GMMC did not spend. */
