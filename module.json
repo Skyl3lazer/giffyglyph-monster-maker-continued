@@ -101,20 +101,6 @@
 					"verified": "1.13.4.0"
 				}
 			}
-		],
-		"recommends": [
-			{
-				"id": "midi-qol",
-				"type": "module"
-			},
-			{
-				"id": "cat",
-				"type": "module"
-			},
-			{
-				"id": "dae",
-				"type": "module"
-			}
 		]
 	},
 	"url": "https://github.com/Skyl3lazer/giffyglyph-monster-maker-continued",
