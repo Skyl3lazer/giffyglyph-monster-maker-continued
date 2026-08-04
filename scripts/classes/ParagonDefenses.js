@@ -6,10 +6,10 @@ const GMM_PARAGON_DEFENSES_KEY = "flags.gmm.blueprint.data.paragon_defenses.curr
 const GMM_MIDI_OPTIONAL_KEY = "flags.midi-qol.optional.gmmParagonDefense";
 const GMM_MIDI_OPTIONALS_USED = "flags.midi-qol.optionalsUsed";
 const GMM_MIDI_OPTIONAL_NAME = "gmmParagonDefense";
+const GMM_MESSAGE_FLAG = "paragonDefense";
 const GMM_SPEND_MARKER = "gmmParagonDefense";
 
-/* Two surfaces, because dnd5e's own `forceSuccess` only repaints the card - under midi the
- * optional-bonus prompt is the only thing that can still change the outcome. */
+/* Two surfaces, because dnd5e's `forceSuccess` only repaints the card while midi can still change the outcome. */
 const ParagonDefenses = (function () {
 
 	function init() {
@@ -61,8 +61,7 @@ const ParagonDefenses = (function () {
 		_applyMidiFlags(actor);
 	}
 
-	/* dnd5e offers its Resist button off the re-derived `legres.value`, so zeroing that is what hides
-	 * the button once the forge has replaced the block with paragon defenses. `max` and `spent` stand. */
+	/* dnd5e offers its Resist button off the re-derived `legres.value`, so zeroing it withdraws the button. */
 	function _suppressReplacedLegendaryResistances(actor) {
 		if (actor?.flags?.gmm?.monster?.data?.legendary_resistances?.visible) return;
 		const legres = actor?.system?.resources?.legres;
@@ -75,8 +74,7 @@ const ParagonDefenses = (function () {
 		if (!game.modules.get("midi-qol")?.active || !_getMaximum(actor)) return;
 
 		const spendable = _getSpendable(actor);
-		// midi reads a count of 0 as "no budget configured" and offers the prompt anyway, so withdraw
-		// the whole block instead of zeroing it.
+		// midi reads a count of 0 as "no budget configured" and prompts anyway, so the block goes instead.
 		if (!spendable) {
 			const optional = actor.flags?.["midi-qol"]?.optional;
 			if (optional) delete optional[GMM_MIDI_OPTIONAL_NAME];
@@ -94,8 +92,7 @@ const ParagonDefenses = (function () {
 		return game.i18n.format("gmm.monster.artifact.paragon_defenses.spend", { cost: cost });
 	}
 
-	/* midi appends " (<value>)" to every optional button label with no way to opt out, so a keyword
-	 * value reads as "(success)". Cosmetic: if the match ever fails, the suffix simply comes back. */
+	/* midi appends " (<value>)" to every optional button label with no opt-out, so ours would read "(success)". */
 	function _onRenderRollModifyDialog(app, element) {
 		const actor = app?.data?.actor;
 		if (!_isEnabled() || !actor?.isGmmMonster?.()) return;
@@ -122,7 +119,6 @@ const ParagonDefenses = (function () {
 		}
 	}
 
-	/* Public API, so an options object rather than positional arguments. */
 	async function spendParagonDefense(options = {}) {
 		const actor = options?.actor;
 		try {
@@ -166,10 +162,13 @@ const ParagonDefenses = (function () {
 		if (!_isEnabled()) return;
 
 		const actor = message.getAssociatedActor?.();
-		if (!actor?.isGmmMonster?.() || !actor.isOwner) return;
+		if (!actor?.isGmmMonster?.()) return;
 
 		const roll = message.getFlag("dnd5e", "roll");
-		if ((roll?.type !== "save") || roll?.forceSuccess) return;
+		if (roll?.type !== "save") return;
+		// Everyone who can see the card sees the status line, so this runs ahead of the ownership gate.
+		if (message.getFlag(GMM_MODULE_TITLE, GMM_MESSAGE_FLAG)) return _relabelResistedStatus(html);
+		if (roll?.forceSuccess || !actor.isOwner) return;
 		if (message.rolls.some((x) => x.isSuccess)) return;
 
 		const spendable = _getSpendable(actor);
@@ -193,9 +192,23 @@ const ParagonDefenses = (function () {
 
 		content.querySelector("button")?.addEventListener("click", async () => {
 			if (await spendParagonDefense({ actor: actor }) !== "success") return;
-			await message.setFlag("dnd5e", "roll.forceSuccess", true);
+			// forceSuccess is what marks the total as a success; the marker is what renames the line below.
+			await message.update({
+				"flags.dnd5e.roll.forceSuccess": true,
+				[`flags.${GMM_MODULE_TITLE}.${GMM_MESSAGE_FLAG}`]: true
+			});
 		});
 		html.querySelector(".message-content")?.append(content);
+	}
+
+	/* dnd5e writes its own resisted line from forceSuccess, naming the resource GMMC did not spend. */
+	function _relabelResistedStatus(html) {
+		const resisted = game.i18n.localize("DND5E.LegendaryResistance.Resisted");
+		for (const supplement of html.querySelectorAll("p.supplement")) {
+			if (!supplement.textContent.includes(resisted)) continue;
+			supplement.innerHTML = `<strong>${game.i18n.localize("DND5E.ROLL.Status")}</strong> `
+				+ game.i18n.localize("gmm.monster.artifact.paragon_defenses.resisted");
+		}
 	}
 
 	return {

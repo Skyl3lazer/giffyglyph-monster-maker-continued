@@ -652,6 +652,7 @@
   "gmm.monster.artifact.paragon_defenses.current": "Current",
   "gmm.monster.artifact.paragon_defenses.legendary_overlap": "Legendary Resistances and Paragon Defenses are not intended to be used together on the same creature.",
   "gmm.monster.artifact.paragon_defenses.maximum": "Maximum",
+  "gmm.monster.artifact.paragon_defenses.resisted": "Used Paragon Defense",
   "gmm.monster.artifact.paragon_defenses.spend": "Paragon Defense ({cost} HP)",
   "gmm.monster.artifact.paragon_defenses.title": "Paragon Defenses",
   "gmm.monster.artifact.reactions.activation": "Activation",
