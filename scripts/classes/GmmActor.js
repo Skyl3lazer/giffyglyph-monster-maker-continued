@@ -1,4 +1,5 @@
 import AutomationHelpers from './AutomationHelpers.js';
+import ParagonDefenses from './ParagonDefenses.js';
 import MonsterBlueprint from './MonsterBlueprint.js';
 import MonsterForge from './MonsterForge.js';
 import { GMM_5E_ABILITIES } from "../consts/Gmm5eAbilities.js";
@@ -122,7 +123,7 @@ const GmmActor = (function () {
 		init.score = (CONFIG.DND5E.skillPassive?.base ?? 10) + init.total
 			+ ((init.roll?.mode ?? 0) * (CONFIG.DND5E.skillPassive?.modifier ?? 5));
 	}
-	// Absent by design - dnd5e re-derives abilities.*.{attack, save.value} and skills.*.bonus every cycle.
+	// Absent by design, along with resources.legres.value - dnd5e re-derives these from spent/max
 	const GMM_DERIVED_ABILITY_FIELDS = ["value", "mod", "proficient", "saveProf", "checkProf", "dc"];
 	const GMM_DERIVED_SKILL_FIELDS = ["value", "mod", "prof", "total", "passive"];
 
@@ -305,6 +306,9 @@ const GmmActor = (function () {
 			actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
 
 			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.late);
+
+			// Reads the finished artifact and current hit points, so it goes after the late replay.
+			ParagonDefenses.prepareDerivedData(actor);
 
 			// Compute owned item attributes which depend on prepared Actor data
 			// The V1 `getSaveDC` / `getAttackToHit` calls were replaced by Activity-driven roll hooks (see GmmItem.patchItem5e)

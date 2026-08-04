@@ -25,7 +25,6 @@
 ## Automation
 
 * MidiQOL effects for deferral timers, dooming, etc
-* Automatic paragon defenses?
 
 ## Known Bugs
 

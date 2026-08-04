@@ -6,6 +6,7 @@ import Templates from './scripts/classes/Templates.js';
 import Activities from './scripts/classes/Activities.js';
 import ActionBlueprint from './scripts/classes/ActionBlueprint.js';
 import ParagonPower from './scripts/classes/ParagonPower.js';
+import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
@@ -37,6 +38,7 @@ Hooks.once("init", function() {
 	GmmActor.patchActor5e();
 	GmmItem.patchItem5e();
 	ParagonPower.init();
+	ParagonDefenses.init();
 
 	// Backward-compatible API used by legacy migration scripts/macros.
 	const moduleRef = game.modules.get(GMM_MODULE_TITLE);
@@ -47,6 +49,8 @@ Hooks.once("init", function() {
 			const activity = Activities.buildActivityData({ data: blueprintData });
 			return activity ? [activity] : [];
 		};
+		// midi reaches this by name through a `function.` optional-bonus flag, so it is API, not internal.
+		moduleRef.api.spendParagonDefense = ParagonDefenses.spendParagonDefense;
 	}
 
 	// Patch ActivityField to sanitise legacy shortcode formulas pre-validation; persistent cleanup runs in migrateWorld().
@@ -454,6 +458,15 @@ function _registerSettings() {
 	game.settings.register(GMM_MODULE_TITLE, "trackParagonActions", {
 		name: "gmm.settings.track_paragon_actions.name",
 		hint: "gmm.settings.track_paragon_actions.hint",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+
+	game.settings.register(GMM_MODULE_TITLE, "trackParagonDefenses", {
+		name: "gmm.settings.track_paragon_defenses.name",
+		hint: "gmm.settings.track_paragon_defenses.hint",
 		scope: "world",
 		config: true,
 		default: true,

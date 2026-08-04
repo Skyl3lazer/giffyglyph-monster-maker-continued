@@ -9,7 +9,10 @@
 
 ## v2.0.1.0
 
-* Paragon actions are now tracked in combat: taking an action outside its own turn spends one, and the pool refills at the start of its turn and at the start of a fight. An empty pool warns but never blocks the action, and the whole thing can be turned off in the module settings
+* Paragon defenses are now offered on a failed saving throw. With Midi QOL installed you get a prompt before damage is applied, and taking it converts the failure into a success for real. Without Midi the failed-save card gets a button similar to the Legendary Resistance button. Either way it spends the hit point cost and one defense, never spends hit points it cannot survive, and never eats temporary hit points. The pool refills on a long rest.
+* The Legendary Resistance button now follows the stat block: if paragon defenses have replaced the legendary resistances section on the sheet, the button stops appearing too. Tick "always show" on legendary resistances to see both if you really want to.
+* Paragon actions are now tracked in combat: taking an action outside its own turn spends one, and the pool refills at the start of its turn and at the start of a fight. An empty pool warns but never blocks the action.
+* Module settings for Paragon Defense and Action automation.
 * Began to add better support for automation modules using GMMC scalar effects
 * Active effects that change an ability score or modifier now reach the whole monster instead of only the die roll: the displayed modifier, spell save DC, initiative, passive perception, carrying capacity, shortcodes and generated activities all follow. Effects can target either the score or the modifier, and an effect that sets a score to a fixed value correctly does nothing to a monster whose scaled score is already higher. Hovering the modifier names the effect responsible.
 * Fixed skill totals and passive scores being assembled as text rather than added up, which made them wrong everywhere except the Forge sheet.

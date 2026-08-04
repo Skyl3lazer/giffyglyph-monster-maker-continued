@@ -650,7 +650,9 @@
   "gmm.monster.artifact.paragon_actions.title": "Paragon Actions",
   "gmm.monster.artifact.paragon_defenses.blurb": "When you would fail a saving throw, you may spend {cost} hit points to succeed. You regain spent paragon defenses on a long rest.",
   "gmm.monster.artifact.paragon_defenses.current": "Current",
+  "gmm.monster.artifact.paragon_defenses.legendary_overlap": "Legendary Resistances and Paragon Defenses are not intended to be used together on the same creature.",
   "gmm.monster.artifact.paragon_defenses.maximum": "Maximum",
+  "gmm.monster.artifact.paragon_defenses.spend": "Paragon Defense ({cost} HP)",
   "gmm.monster.artifact.paragon_defenses.title": "Paragon Defenses",
   "gmm.monster.artifact.reactions.activation": "Activation",
   "gmm.monster.artifact.reactions.add": "Add",
@@ -928,6 +930,8 @@
   "gmm.settings.monster_secondary_color.name": "Monster Secondary Color",
   "gmm.settings.track_paragon_actions.hint": "Spend one of a scaling monster's paragon actions whenever it takes an action outside its own turn in combat, and refill the pool at the start of its turn. An empty pool warns but never blocks the action.",
   "gmm.settings.track_paragon_actions.name": "Track Paragon Actions",
+  "gmm.settings.track_paragon_defenses.hint": "Offer a scaling monster's paragon defenses on a failed saving throw, spending the hit point cost and one defense to turn the failure into a success. With Midi QOL active the save is converted before damage is applied; without it, the card is marked and damage is left to you.",
+  "gmm.settings.track_paragon_defenses.name": "Track Paragon Defenses",
   "gmm.sheet.action.label": "Giffyglyph's 5e Scaling Action",
   "gmm.sheet.monster.label": "Giffyglyph's 5e Monster Maker Continued"
 }
