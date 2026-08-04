@@ -99,6 +99,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         // The V1 sheet framework supplied `cssClass`; ApplicationV2 does not, so provide an equivalent for the templates.
         context.cssClass = this.isEditable ? "editable" : "locked";
         context.editable = this.isEditable;
+        // dnd5e sets this in `_prepareHeaderContext`, which never runs because the forge part replaces its header.
+        context.showRests = game.user.isGM || (this.actor.isOwner && game.settings.get("dnd5e", "allowRests"));
 
         context.gmm = {
             blueprint: actorData.gmm?.blueprint ? actorData.gmm.blueprint.data : null,

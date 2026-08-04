@@ -2,7 +2,19 @@
     <div class="artifact__header monster__header">
         <div class="monster__image" data-action="open-config" data-config="description"><img src="{{gmm.monster.image}}"></div>
         <div class="monster__name" data-action="open-config" data-config="description">{{gmm.monster.name}}</div>
-        <div class="monster__description" data-action="open-config" data-config="description">{{gmm.monster.description}}</div>
+        <div class="monster__subtitle">
+            <div class="monster__description" data-action="open-config" data-config="description">{{gmm.monster.description}}</div>
+            {{#if showRests}}
+            <div class="monster__rests">
+                {{#each CONFIG.restTypes}}
+                <button type="button" class="button--rest" data-action="rest" data-type="{{@key}}"
+                        data-tooltip aria-label="{{localize label}}">
+                    <i class="{{icon}}" inert></i>
+                </button>
+                {{/each}}
+            </div>
+            {{/if}}
+        </div>
         <div class="monster__combat">
             <div class="level" data-action="open-config" data-config="combat">
                 <i class="fas fa-crown"></i> {{gmm.monster.level.label}}

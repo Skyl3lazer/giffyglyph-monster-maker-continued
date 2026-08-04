@@ -18,6 +18,14 @@ const ParagonDefenses = (function () {
 		Hooks.on("dnd5e.preApplyDamage", _onPreApplyDamage);
 		Hooks.on("midi-qol.postCheckSaves", _onPostCheckSaves);
 		Hooks.on("renderRollModifyDialog", _onRenderRollModifyDialog);
+		Hooks.on("dnd5e.getUnknownAttributeLabel", _onGetUnknownAttributeLabel);
+	}
+
+	/* The rest card renders a delta line per key in the rest's updateData, and falls back to printing the raw
+	 * key path when nothing names it. */
+	function _onGetUnknownAttributeLabel(attribute, options) {
+		if (attribute !== GMM_PARAGON_DEFENSES_KEY) return;
+		options.label = "gmm.monster.artifact.paragon_defenses.title";
 	}
 
 	function _isEnabled() {

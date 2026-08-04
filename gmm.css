@@ -593,10 +593,42 @@
   font-family: "Londrina Solid";
   line-height: 1.1;
 }
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__subtitle {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__description {
   font-weight: 600;
   font-size: larger;
-  grid-column: 2;
+  flex: 1;
+  min-width: 0;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__rests {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__rests .button--rest {
+  background: none;
+  border: 1px solid var(--color-primary-shade-4);
+  border-radius: 0.25rem;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  flex: 0 0 auto;
+  line-height: 1;
+  margin: 0;
+  padding: 0.15rem 0.4rem;
+  width: auto;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__rests .button--rest i {
+  margin: 0;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__rests .button--rest:hover {
+  border-color: var(--color-secondary-base);
+  color: var(--color-secondary-shade-1);
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__name,
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__description {
