@@ -4,8 +4,8 @@ import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 const GMM_PARAGON_DEFENSES_SETTING = "trackParagonDefenses";
 const GMM_PARAGON_DEFENSES_KEY = "flags.gmm.blueprint.data.paragon_defenses.current";
 const GMM_MIDI_OPTIONAL_KEY = "flags.midi-qol.optional.gmmParagonDefense";
-/* Returning "success" beats declaring it: a thrown macro then declines the save rather than granting it free. */
-const GMM_MIDI_MACRO = `function.game.modules.get('${GMM_MODULE_TITLE}').api.spendParagonDefense`;
+const GMM_MIDI_OPTIONALS_USED = "flags.midi-qol.optionalsUsed";
+const GMM_MIDI_OPTIONAL_NAME = "gmmParagonDefense";
 const GMM_SPEND_MARKER = "gmmParagonDefense";
 
 /* Two surfaces, because dnd5e's own `forceSuccess` only repaints the card - under midi the
@@ -16,6 +16,8 @@ const ParagonDefenses = (function () {
 		Hooks.on("dnd5e.renderChatMessage", _onRenderChatMessage);
 		Hooks.on("dnd5e.preRestCompleted", _onPreRestCompleted);
 		Hooks.on("dnd5e.preApplyDamage", _onPreApplyDamage);
+		Hooks.on("midi-qol.postCheckSaves", _onPostCheckSaves);
+		Hooks.on("renderRollModifyDialog", _onRenderRollModifyDialog);
 	}
 
 	function _isEnabled() {
@@ -73,15 +75,54 @@ const ParagonDefenses = (function () {
 		if (!game.modules.get("midi-qol")?.active || !_getMaximum(actor)) return;
 
 		const spendable = _getSpendable(actor);
-		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.save.fail.all`, GMM_MIDI_MACRO);
-		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.count`, spendable ? spendable.remaining : 0);
-		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.label`, game.i18n.format(
-			"gmm.monster.artifact.paragon_defenses.spend",
-			{ cost: spendable ? spendable.cost : _getCost(actor) }
-		));
+		// midi reads a count of 0 as "no budget configured" and offers the prompt anyway, so withdraw
+		// the whole block instead of zeroing it.
+		if (!spendable) {
+			const optional = actor.flags?.["midi-qol"]?.optional;
+			if (optional) delete optional[GMM_MIDI_OPTIONAL_NAME];
+			return;
+		}
+
+		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.save.fail.all`, "success");
+		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.count`, spendable.remaining);
+		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.label`, _getSpendLabel(actor, spendable.cost));
+		// Otherwise the fabricated 99 is posted a second time as a before/after card.
+		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.displayBonusRolls`, false);
 	}
 
-	/* midi calls this through `function.` with a single object, so the shape is the contract. */
+	function _getSpendLabel(actor, cost = _getCost(actor)) {
+		return game.i18n.format("gmm.monster.artifact.paragon_defenses.spend", { cost: cost });
+	}
+
+	/* midi appends " (<value>)" to every optional button label with no way to opt out, so a keyword
+	 * value reads as "(success)". Cosmetic: if the match ever fails, the suffix simply comes back. */
+	function _onRenderRollModifyDialog(app, element) {
+		const actor = app?.data?.actor;
+		if (!_isEnabled() || !actor?.isGmmMonster?.()) return;
+
+		const label = _getSpendLabel(actor);
+		for (const button of element.querySelectorAll(".dialog-button")) {
+			if (button.textContent.includes(label)) button.innerHTML = button.innerHTML.replace(" (success)", "");
+		}
+	}
+
+	/* midi converts the save itself off the plain "success" keyword, and the only trace it leaves is a
+	 * marker on the roll - a macro cannot be used here, because its DummyWorkflow has no item. */
+	async function _onPostCheckSaves(workflow) {
+		if (!_isEnabled()) return;
+
+		for (const [uuid, roll] of Object.entries(workflow?.tokenSaves ?? {})) {
+			const used = CompatibilityHelpers.getProperty(roll ?? {}, GMM_MIDI_OPTIONALS_USED);
+			if (!used?.some?.((x) => String(x).startsWith(GMM_MIDI_OPTIONAL_KEY))) continue;
+
+			// Dropping our entry stops a second pass over the same roll charging twice.
+			CompatibilityHelpers.setProperty(roll, GMM_MIDI_OPTIONALS_USED,
+				used.filter((x) => !String(x).startsWith(GMM_MIDI_OPTIONAL_KEY)));
+			await spendParagonDefense({ actor: fromUuidSync(uuid)?.actor });
+		}
+	}
+
+	/* Public API, so an options object rather than positional arguments. */
 	async function spendParagonDefense(options = {}) {
 		const actor = options?.actor;
 		try {
@@ -132,23 +173,25 @@ const ParagonDefenses = (function () {
 		if (message.rolls.some((x) => x.isSuccess)) return;
 
 		const spendable = _getSpendable(actor);
-		if (!spendable) return;
+		// The overlap is a configuration problem, not a spending one, so the note outlives an empty pool.
+		const overlaps = _getMaximum(actor) > 0 && !!actor.system?.resources?.legres?.value;
+		if (!spendable && !overlaps) return;
 
 		const content = document.createElement("div");
 		content.classList.add("chat-card");
-		content.insertAdjacentHTML("beforeend", `
+		if (spendable) content.insertAdjacentHTML("beforeend", `
 			<div class="card-buttons">
 				<button type="button">
 					<i class="fa-solid fa-shield-halved" inert></i>
-					${game.i18n.format("gmm.monster.artifact.paragon_defenses.spend", { cost: spendable.cost })}
+					${_getSpendLabel(actor, spendable.cost)}
 				</button>
 			</div>
 		`);
-		if (actor.system?.resources?.legres?.value) content.insertAdjacentHTML("beforeend", `
+		if (overlaps) content.insertAdjacentHTML("beforeend", `
 			<p class="supplement"><em>${game.i18n.localize("gmm.monster.artifact.paragon_defenses.legendary_overlap")}</em></p>
 		`);
 
-		content.querySelector("button").addEventListener("click", async () => {
+		content.querySelector("button")?.addEventListener("click", async () => {
 			if (await spendParagonDefense({ actor: actor }) !== "success") return;
 			await message.setFlag("dnd5e", "roll.forceSuccess", true);
 		});
