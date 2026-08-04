@@ -9,6 +9,9 @@
 
 ## v2.0.1.0
 
+* The sheet-converted level now reads the challenge rating directly instead of the experience value dnd5e works out from it. This lets stuff like the +1 CR "in lair" change matter. It also means that GMM's level/rank calculation can matter, so a CR14 isn't always a level 14 scaler if it's also an elite or paragon.
+	* This does leave a weird edge case I'm thinking about - a CR14 monster that doesn't have legendary or lair actions becomes a level 22 grunt. Is that OK? I'm not sure yet.
+* A converted monster with no challenge rating at all now starts at level 1 rather than level -5.
 * Paragon defenses are now offered on a failed saving throw. With Midi QOL installed you get a prompt before damage is applied, and taking it converts the failure into a success for real. Without Midi the failed-save card gets a button similar to the Legendary Resistance button. Either way it spends the hit point cost and one defense, never spends hit points it cannot survive, and never eats temporary hit points. The pool refills on a long rest.
 * The Legendary Resistance button now follows the stat block: if paragon defenses have replaced the legendary resistances section on the sheet, the button stops appearing too. Tick "always show" on legendary resistances to see both if you really want to.
 * Paragon actions are now tracked in combat: taking an action outside its own turn spends one, and the pool refills at the start of its turn and at the start of a fight. An empty pool warns but never blocks the action.

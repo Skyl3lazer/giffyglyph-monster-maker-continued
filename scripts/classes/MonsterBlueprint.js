@@ -77,16 +77,25 @@ const MonsterBlueprint = (function () {
 	// Everything AC and max HP derive from, none of it synced from actor data.
 	const BASE_SUBTREES = ["combat", "armor_class", "hit_points"];
 
+	/* Defaults, then the seed derived from a static block, then whatever is stored */
+	function _resolveBlueprintSources(actor) {
+		const stored = actor.flags.gmm?.blueprint ? _verifyBlueprint(actor.flags.gmm.blueprint) : null;
+		return [stored?.data?.combat?.rank?.type ? null : _getInitialData(actor), stored];
+	}
+
 	function createFromActor(actor) {
-		const blueprint = $.extend(true, {}, GMM_MONSTER_BLUEPRINT, actor.flags.gmm ? _verifyBlueprint(actor.flags.gmm.blueprint) : _getInitialData(actor));
+		const blueprint = $.extend(true, {}, GMM_MONSTER_BLUEPRINT, ..._resolveBlueprintSources(actor));
 		return _syncActorDataToBlueprint(blueprint, actor);
 	}
 
 	/* AC and max HP have to be assigned in base data, and nothing else the forge produces does. */
 	function createBaseFromActor(actor) {
-		const source = actor.flags.gmm ? _verifyBlueprint(actor.flags.gmm.blueprint) : _getInitialData(actor);
+		const [seed, stored] = _resolveBlueprintSources(actor);
 		return {
-			data: $.extend(true, {}, _pickBaseSubtrees(GMM_MONSTER_BLUEPRINT.data), _pickBaseSubtrees(source?.data))
+			data: $.extend(true, {},
+				_pickBaseSubtrees(GMM_MONSTER_BLUEPRINT.data),
+				_pickBaseSubtrees(seed?.data),
+				_pickBaseSubtrees(stored?.data))
 		};
 	}
 
@@ -104,7 +113,10 @@ const MonsterBlueprint = (function () {
 		let combatType = (resources.lair.value) ? "paragon" : (resources.legact.max || resources.legres.max) ? "elite": "grunt";
 		let combatRank = GMM_MONSTER_RANKS[combatType];
 		let abilityRankings = Object.entries(actorData.abilities).sort((x, y) => y[1].value - x[1].value).map((x) => x[0]);
-		let combatLevel = GMM_5E_XP.filter((x) => x.xp <= (actorData.details.xp?.value ?? 0) / combatRank.xp).pop().level;
+		const cr = actorData.details.cr;
+		const staticXp = (cr ?? null) === null ? null : (GMM_5E_XP.filter((x) => x.cr <= cr).pop()?.xp ?? 0);
+		// Left undefined so jQuery's extend skips it and the blueprint's own default level stands.
+		let combatLevel = (staticXp === null) ? undefined : GMM_5E_XP.filter((x) => x.xp <= staticXp / combatRank.xp).pop().level;
 		let combatRole = "striker";
 		switch (abilityRankings[0]) {
 			case "dex":
