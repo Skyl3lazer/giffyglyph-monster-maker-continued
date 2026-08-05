@@ -61,6 +61,7 @@ These modules are optional, but may improve the experience of using GMMC.
 
 * [Midi QOL](https://foundryvtt.com/packages/midi-qol) - Provides automation, which some compendium items have built in already if Midi is active.
 * [Side Effects](https://foundryvtt.com/packages/side-effects) - Adds a sidebar effect directory and lets you turn effects into token statuses. Works with GMM's conditions compendium - see [Conditions](#conditions). Needs Foundry v14.
+* [Automated Conditions 5E](https://foundryvtt.com/packages/automated-conditions-5e) - Adds more automation options. Needs Foundry v14.
 
 ---
 
@@ -120,14 +121,6 @@ Banished, Bleeding, Bound, Cursed, Dazed, Decaying, Dehydrated, Disoriented, Fat
 Silenced, Slowed, Starving, Stinking, Swarmed, Transformed, Vulnerable and Exposed - in a
 `Conditions` folder. Drag one onto a token to apply it.
 
-Each entry states its rarity, because that is what a condition costs when you are spending a
-feature's effect points on it: **1 point for a Common, 2 for an Uncommon, 4 for a Rare.**
-
-These conditions are **descriptive**. They carry the rules text and leave the adjudication to you -
-none of them change a creature's numbers on their own. Four of them overlap ids with markers dnd5e
-ships without any rules attached (`bleeding`, `cursed`, `silenced`, `transformed`), so GMM's
-versions are filling in text the system deliberately leaves blank.
-
 ### With the Side Effects module
 
 [Side Effects](https://foundryvtt.com/packages/side-effects) adds an effect directory to the
@@ -142,14 +135,6 @@ sidebar, built from **one** compendium of your choosing. Two ways to use it with
 
 Either way, right-clicking a condition and choosing **Add Status Effect** promotes it to a real
 status on the token HUD.
-
-### Foundry v13
-
-Active effect compendiums are a Foundry v14 feature. On v13 the GMM Effects compendium cannot load
-at all, and you will see a warning in the console saying the pack was skipped - this is harmless
-and the rest of the module works normally. The older **GMM Conditions (Legacy)** compendium holds
-the same eighteen conditions on a placeholder actor; open the actor and drag the effects off its
-Effects tab. That compendium is frozen, so new condition work only lands in GMM Effects.
 
 ## Roadmap
 
