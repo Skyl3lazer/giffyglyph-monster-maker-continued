@@ -189,6 +189,7 @@ export const GMM_MONSTER_BLUEPRINT = {
 		hit_points: {
 			current: null,
 			temporary: null,
+			temporary_maximum: null,
 			maximum: {
 				use_formula: false,
 				die_size: "4",

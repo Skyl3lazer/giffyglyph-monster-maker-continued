@@ -28,6 +28,7 @@ const MonsterBlueprint = (function () {
 		{ from: "description.type.tags", to: "system.details.type.subtype" },
 		{ from: "hit_points.current", to: "system.attributes.hp.value" },
 		{ from: "hit_points.temporary", to: "system.attributes.hp.temp" },
+		{ from: "hit_points.temporary_maximum", to: "system.attributes.hp.tempmax" },
 		{ from: "inventory.encumbrance.powerful_build", to: "flags.dnd5e.powerfulBuild" },
 		{ from: "inventory.currency.cp", to: "system.currency.cp" },
 		{ from: "inventory.currency.ep", to: "system.currency.ep" },

@@ -37,7 +37,8 @@ const Shortcoder = (function () {
         { code: "xp", data: "xp.value" },
         { code: "cr", data: "challenge_rating.value" },
         { code: "ac", data: "armor_class.value" },
-        { code: "hpMax", data: "hit_points.maximum.value" },
+        { code: "hpMax", data: "hit_points.effective_maximum" },
+        { code: "naturalMax", data: "hit_points.natural_maximum" },
         { code: "damageDie", data: "damage_per_action.die_size" },
         { code: "name", data: "name", type: "string" },
         {

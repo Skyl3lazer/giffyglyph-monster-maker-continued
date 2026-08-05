@@ -584,7 +584,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return this.actor.update({
             [`system.attributes.hp.value`]: Math.max(1, roll.total),
             [`system.attributes.hp.max`]: Math.max(1, roll.total),
-            [`system.attributes.hp.effectiveMax`]: Math.max(1, roll.total),
             [`flags.gmm.blueprint.data.hit_points.rolled_max`]: Math.max(1, roll.total),
         });
     }

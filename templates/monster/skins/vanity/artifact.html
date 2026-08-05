@@ -62,19 +62,15 @@
                                 </div>
                             </div>
                             <div class="block__content hit-points__maximum">
-                                <div class="block__value length-{{strlen gmm.monster.hit_points.maximum.value}}" title="{{{parseSources gmm.monster.hit_points.maximum.sources}}}">
-                                    {{#if gmm.monster.hit_points.use_formula}}
-                                    <i class="fas fa-heartbeat"></i> {{gmm.blueprint.hit_points.rolled_max}}
-                                    {{else}}
-                                    <i class="fas fa-heartbeat"></i> {{gmm.monster.hit_points.maximum.value}}
-                                    {{/if}}
+                                <div class="block__value length-{{strlen gmm.monster.hit_points.effective_maximum}}" title="{{{parseSources gmm.monster.hit_points.maximum.sources}}}">
+                                    <i class="fas fa-heartbeat"></i> {{gmm.monster.hit_points.effective_maximum}}
                                 </div>
                                 <div class="block__description">
                                     {{#if gmm.monster.hit_points.use_formula}}
                                     <button type="button" data-action="roll-hp" data-formula="{{gmm.monster.hit_points.formula}}"><i class="fas fa-dice"></i> {{gmm.monster.hit_points.formula}}</button>
                                     {{else}}
                                     {{localize 'gmm.monster.artifact.blocks.hit_points.maximum'}}
-                                    {{/if}}
+                                    {{/if}}{{#if gmm.monster.hit_points.temporary_maximum}}<span title="{{localize 'gmm.monster.artifact.blocks.hit_points.temporary_maximum_flag'}}">*</span>{{/if}}
                                 </div>
                             </div>
                         </div>

@@ -195,7 +195,11 @@ const MonsterForge = (function () {
             formula: formula ? formula : null,
             current: hitPoints.current,
             temporary: hitPoints.temporary,
-            maximum: maximumHp
+            temporary_maximum: hitPoints.temporary_maximum,
+            maximum: maximumHp,
+            // Placeholders until the derived pass stamps what the schema settled on, so a shortcode always resolves.
+            natural_maximum: maximumHp.value,
+            effective_maximum: maximumHp.value
         };
     }
 

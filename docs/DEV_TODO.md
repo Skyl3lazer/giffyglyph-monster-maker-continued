@@ -5,7 +5,6 @@
 
 ## Visual
 
-* Should proficiency show still under Attributes?
 
 ## Module Ecosystem
 
@@ -19,7 +18,6 @@
 ## Modal/Info Updates
 
 * I'm sure there's lots!
-* Consolidate duplicate attack_bonus + proficiency modifiers
 
 ## Automation
 

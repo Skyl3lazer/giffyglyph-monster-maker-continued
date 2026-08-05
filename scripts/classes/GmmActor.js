@@ -137,7 +137,7 @@ const GmmActor = (function () {
 		"system.attributes.init.prof",
 		"system.attributes.init.ability",
 		"system.attributes.init.mod",
-		"system.attributes.hp.effectiveMax",
+		"system.attributes.hp.max",
 		"system.attributes.hp.formula",
 		"system.attributes.encumbrance",
 		"system.attributes.encumbrance.value",
@@ -166,7 +166,7 @@ const GmmActor = (function () {
 		["system.attributes.prof", (x) => x.proficiency_bonus],
 		["system.details.cr", (x) => x.challenge_rating],
 		["system.details.xp.value", (x) => x.xp],
-		["system.attributes.hp.effectiveMax", (x) => x.hit_points.maximum],
+		["system.attributes.hp.max", (x) => x.hit_points.maximum],
 		["system.attributes.spell.dc", (x) => x.spellbook.spellcasting.dc],
 		["system.attributes.encumbrance.max", (x) => x.inventory.capacity],
 		["system.attributes.encumbrance.value", (x) => x.inventory.weight],
@@ -174,8 +174,12 @@ const GmmActor = (function () {
 		...GMM_5E_SKILLS.map((x) => [`system.skills.${x.foundry}.total`, (y) => y.skills.find((z) => z.code == x.name)])
 	]);
 
-	/* The blueprint is read before effects apply, so an effect targeting it cannot be honored. */
-	const GMM_UNSUPPORTED_EFFECT_PREFIXES = ["flags.gmm.blueprint"];
+	/* Targets a scaling which a monster cannot honor, each with the reason the console reports. */
+	const GMM_UNSUPPORTED_EFFECT_TARGETS = new Map([
+		["flags.gmm.blueprint", "The blueprint is read before effects apply, so this will reach the sheet inconsistently or not at all."],
+		["system.attributes.hp.effectiveMax", "It is re-derived from system.attributes.hp.max and system.attributes.hp.tempmax after effects apply; target one of those instead."]
+	]);
+	const GMM_UNSUPPORTED_EFFECT_PREFIXES = [...GMM_UNSUPPORTED_EFFECT_TARGETS.keys()];
 	const _reportedUnsupportedTargets = new Set();
 
 	function _warnUnsupportedEffectTargets(actor, unsupported) {
@@ -183,7 +187,8 @@ const GmmActor = (function () {
 			const id = `${actor.id}:${entry.effect?.id}:${entry.key}`;
 			if (_reportedUnsupportedTargets.has(id)) continue;
 			_reportedUnsupportedTargets.add(id);
-			console.warn(`GMM | Active effect "${entry.effect?.name}" on "${actor.name}" targets "${entry.key}", which is not a supported effect target on a scaling monster. The blueprint is read before effects apply, so this will reach the sheet inconsistently or not at all.`);
+			const reason = GMM_UNSUPPORTED_EFFECT_PREFIXES.filter((x) => entry.key.startsWith(x)).map((x) => GMM_UNSUPPORTED_EFFECT_TARGETS.get(x)).join(" ");
+			console.warn(`GMM | Active effect "${entry.effect?.name}" on "${actor.name}" targets "${entry.key}", which is not a supported effect target on a scaling monster. ${reason}`);
 		}
 	}
 
@@ -243,6 +248,12 @@ const GmmActor = (function () {
 			if (!node || !Number.isFinite(delta)) continue;
 			node.add(delta, _effectSourceLabel(entry.changes));
 		}
+	}
+
+	/* A rolled total is the creature's own maximum once it exists; until then the scaled average stands in for it. */
+	function _resolveMaximumHitPoints(blueprint, monsterData) {
+		const rolled = Number(blueprint.data.hit_points.rolled_max) || 0;
+		return (monsterData.hit_points.use_formula && rolled) ? rolled : monsterData.hit_points.maximum.value;
 	}
 
 	/* Prepare actor-specific derived data (abilities, skills, CR, HP, initiative, encumbrance, spellcasting). */
@@ -309,7 +320,8 @@ const GmmActor = (function () {
 
 			
 
-			actorData.attributes.hp.effectiveMax = monsterData.hit_points.maximum.value;
+			// Both HP modes: the replay below is unconditional, so a mode that skipped this would count an effect twice.
+			actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, monsterData);
 
 			// Mutate fields on the existing init RollConfigField object instead of replacing it wholesale;
 			// replacing it would clobber `init.roll` (which carries advantage/disadvantage state) and other dnd5e v5+ fields.
@@ -345,6 +357,13 @@ const GmmActor = (function () {
 			const reconciledNodes = _snapshotReconciledNodes(actor, effectChanges.late);
 			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.late);
 			_reconcileArtifactWithEffects(actor, monsterData, reconciledNodes);
+
+			// dnd5e derived the whole hit point read model before the scaled maximum existed, and its
+			// half-health halving has to land on the replayed one rather than the number it saw.
+			dnd5e.dataModels?.actor?.AttributesFields?.prepareHitPoints?.call(actorData, actorData.attributes.hp);
+			monsterData.hit_points.natural_maximum = actorData.attributes.hp.max;
+			monsterData.hit_points.effective_maximum = actorData.attributes.hp.effectiveMax;
+			monsterData.hit_points.temporary_maximum = actorData.attributes.hp.tempmax;
 
 			// Reads the finished artifact and current hit points, so it goes after the late replay.
 			ParagonDefenses.prepareDerivedData(actor);
