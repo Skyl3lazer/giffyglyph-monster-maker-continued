@@ -22,6 +22,7 @@
 * More attributes are handled correctly now though effects and visually displayed as changed on the sheet when effects are active. This includes (temp)max HP, initiative, skill modifiers, attribute modifiers, global mods (i.e. +2 to all checks), and proficiency.
 * [hpMax] now targets `effective_maximum`, so is modified by temporary max HP, and effects like 2014's exhaustion. A new [naturalMax] shortcode has been added to reference the monster's max hp ignoring temp max.
 * The Proficiency block on the artifact is now "To-Hit Bonus". By default that matches proficiency, but modifiers will now make sense.
+	* A global attack bonus from an effect now shows in that block, and in the basic attack roll dialog.
 
 ## v2.0.1.0
 

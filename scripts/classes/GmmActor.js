@@ -122,7 +122,21 @@ const GmmActor = (function () {
 			+ (Number.isNumeric(init.prof.term) ? init.prof.flat : 0);
 		init.score = (CONFIG.DND5E.skillPassive?.base ?? 10) + init.total
 			+ ((init.roll?.mode ?? 0) * (CONFIG.DND5E.skillPassive?.modifier ?? 5));
+
+		// Display-only: the roll gets these per action type from Activities.buildAttackToHitTerms.
+		monsterData.attack_bonus.display = monsterData.attack_bonus.value + _getGlobalAttackBonus(actorData, rollData);
 	}
+
+	/* A block that reads "to Attacks/Spells" can only show what every action type gets, so an
+	 * action-type-specific bonus (`bonuses.weapon.attack`, which DAE writes to mwak/rwak alone) is excluded. */
+	function _getGlobalAttackBonus(actorData, rollData) {
+		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => dnd5e.utils.simplifyBonus(actorData.bonuses?.[x]?.attack, rollData));
+		return Math.min(...bonuses);
+	}
+
+	/* dnd5e keys every global attack bonus per action type; DAE's `system.bonuses.All-Attacks` writes all four. */
+	const GMM_5E_ATTACK_ACTION_TYPES = ["mwak", "rwak", "msak", "rsak"];
+
 	// Absent by design, along with resources.legres.value - dnd5e re-derives these from spent/max
 	const GMM_DERIVED_ABILITY_FIELDS = ["value", "mod", "proficient", "saveProf", "checkProf", "dc"];
 	const GMM_DERIVED_SKILL_FIELDS = ["value", "mod", "prof", "total", "passive"];

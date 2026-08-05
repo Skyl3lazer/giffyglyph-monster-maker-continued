@@ -111,8 +111,8 @@
                         <div class="block__title" data-action="open-config" data-config="attack-bonus">{{localize 'gmm.monster.artifact.blocks.attack_bonus.title'}}</div>
                         <div class="block__contents">
                             <div class="block__content">
-                                <button type="button" class="block__value button--text length-{{strlen (numberFormat gmm.monster.attack_bonus.value sign=true)}}" title="{{{parseSources gmm.monster.attack_bonus.sources}}}" data-action="open-modal" data-modal="modal_basic_attack_ac">
-                                    <i class="fas fa-crosshairs"></i> {{numberFormat gmm.monster.attack_bonus.value sign=true}}
+                                <button type="button" class="block__value button--text length-{{strlen (numberFormat gmm.monster.attack_bonus.display sign=true)}}" title="{{{parseSources gmm.monster.attack_bonus.sources}}}" data-action="open-modal" data-modal="modal_basic_attack_ac">
+                                    <i class="fas fa-crosshairs"></i> {{numberFormat gmm.monster.attack_bonus.display sign=true}}
                                 </button>
                                 <div class="block__description">
                                     {{#if gmm.monster.attack_bonus.type}}
