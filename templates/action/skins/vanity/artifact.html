@@ -26,16 +26,16 @@
                     {{#if gmm.action.gmmLabels.recharge}}
                     <div class="item__recharge {{#if gmm.action.recharge.charged}}charged{{/if}}" data-action="open-config" data-config="recharge">
                         {{#if gmm.action.gmmLabels.recharge.charged}}
-                        (charged{{#if (and gmm.action.gmmLabels.recharge.charged gmm.action.gmmLabels.deferral)}} , {{/if}}{{#if gmm.action.gmmLabels.deferral}}{{gmm.action.gmmLabels.deferral.type}} {{gmm.action.gmmLabels.deferral.timer}}{{/if}})
+                        (charged{{#if (and gmm.action.gmmLabels.recharge.charged gmm.action.gmmLabels.deferral)}}, {{/if}}{{#if gmm.action.gmmLabels.deferral}}{{gmm.action.gmmLabels.deferral.type}} {{gmm.action.gmmLabels.deferral.timer}}{{/if}})
                         {{else}}
-                        <button type="button" class="button--text">(recharge {{gmm.action.gmmLabels.recharge.value}}{{#if gmm.action.gmmLabels.deferral}} , {{gmm.action.gmmLabels.deferral.type}} {{gmm.action.gmmLabels.deferral.timer}}{{/if}})</button>
+                        <button type="button" class="button--text">(recharge {{gmm.action.gmmLabels.recharge.value}}{{#if gmm.action.gmmLabels.deferral}}, {{gmm.action.gmmLabels.deferral.type}} {{gmm.action.gmmLabels.deferral.timer}}{{/if}})</button>
                         {{/if}}
 
                     </div>
                     {{else}}
                     {{#if gmm.action.gmmLabels.uses}}
                     <div class="item__uses" data-action="open-config" data-config="uses">
-                        <span class="">(<span class="value">{{#if gmm.action.gmmLabels.uses}}{{gmm.action.gmmLabels.uses.current}}, {{gmm.action.gmmLabels.uses.maximum}}/{{localize (concat 'gmm.common.use_period.' gmm.action.gmmLabels.uses.per)}}{{/if}}</span>{{#if (and gmm.action.gmmLabels.uses gmm.action.gmmLabels.deferral)}} , {{/if}}{{#if gmm.action.gmmLabels.deferral}}{{gmm.action.gmmLabels.deferral.type}} {{gmm.action.gmmLabels.deferral.timer}}{{/if}})</span>
+                        <span class="">(<span class="value">{{#if gmm.action.gmmLabels.uses}}{{gmm.action.gmmLabels.uses.current}}, {{gmm.action.gmmLabels.uses.maximum}}/{{localize (concat 'gmm.common.use_period.' gmm.action.gmmLabels.uses.per)}}{{/if}}</span>{{#if (and gmm.action.gmmLabels.uses gmm.action.gmmLabels.deferral)}}, {{/if}}{{#if gmm.action.gmmLabels.deferral}}{{gmm.action.gmmLabels.deferral.type}} {{gmm.action.gmmLabels.deferral.timer}}{{/if}})</span>
                     </div>
                     {{/if}}
                     {{/if}}

@@ -2,7 +2,9 @@
 	<p>{{localize 'gmm.deferral.resolution.intro' name=name}}</p>
 	{{#if hasTargets}}
 	<p class="supplement"><strong>{{localize 'gmm.deferral.resolution.targets'}}:</strong> {{#each targets}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</p>
-	{{else}}
+	{{else if unread}}
+	<p class="supplement"><em>{{localize 'gmm.deferral.resolution.unread'}}</em></p>
+	{{else if hasArea}}
 	<p class="supplement"><em>{{localize 'gmm.deferral.resolution.no_targets'}}</em></p>
 	{{/if}}
 	{{#if cancel}}

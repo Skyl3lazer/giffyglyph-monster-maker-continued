@@ -13,6 +13,8 @@ const Deferrals = (function () {
 		Hooks.on("deleteActiveEffect", _onDeleteActiveEffect);
 		Hooks.on("combatTurnChange", _onCombatTurnChange);
 		Hooks.on("deleteCombat", _onDeleteCombat);
+		Hooks.on("preDeleteToken", _onPreDeleteToken);
+		Hooks.on("preDeleteActor", _onPreDeleteActor);
 		Hooks.on("dnd5e.renderChatMessage", _onRenderChatMessage);
 		Hooks.on("createMeasuredTemplate", _onCreateMeasuredTemplate);
 	}
@@ -160,8 +162,8 @@ const Deferrals = (function () {
 		const item = actor?.items?.get(clock?.itemId);
 		if (!item) return void await _cancel(effect, { silent: true });
 
-		const targets = await _templateTargets(clock);
-		const targetNames = targets.map(t => t.name);
+		const { tokens, unread, hasArea } = await _templateTargets(clock);
+		const targetNames = tokens.map(t => t.name);
 
 		const content = await foundry.applications.handlebars.renderTemplate(
 			`modules/${GMM_MODULE_TITLE}/templates/chat/deferral-resolution.html`,
@@ -170,6 +172,8 @@ const Deferrals = (function () {
 				cancel: clock.cancel,
 				targets: targetNames,
 				hasTargets: !!targetNames.length,
+				unread: unread > 0,
+				hasArea: hasArea,
 				effectUuid: effect.uuid
 			}
 		);
@@ -205,9 +209,9 @@ const Deferrals = (function () {
 		if (!item) return void await _cancel(effect, { silent: true });
 
 		// Targets first: deleting the clock takes the template with it.
-		const targets = await _templateTargets(clock);
+		const { tokens } = await _templateTargets(clock);
 		await _cancel(effect, { silent: true });
-		await _useDeferredActivity(item, { targets });
+		await _useDeferredActivity(item, { targets: tokens });
 	}
 
 	/* midi drives its whole workflow from `completeActivityUse`; core dnd5e has no equivalent entry point. */
@@ -245,6 +249,27 @@ const Deferrals = (function () {
 		await effect.delete();
 	}
 
+	/* An effect destroyed with its parent fires no delete hook, and `pre` is where its flags are still readable. */
+	function _onPreDeleteToken(token) {
+		// A linked token leaves the actor and its clock behind, so that clock has to go explicitly.
+		_releasePending(token?.actor, { andEffects: !!token?.actorLink });
+	}
+
+	function _onPreDeleteActor(actor) {
+		_releasePending(actor, { andEffects: false });
+	}
+
+	function _releasePending(actor, { andEffects }) {
+		if (!game.users.activeGM?.isSelf || !actor) return;
+		for (const effect of _clockEffects(actor)) {
+			const clock = _readClock(effect);
+			if (clock?.templateUuids?.length) {
+				_deleteTemplates(clock.templateUuids).catch(e => console.warn("GMM | Deferral template cleanup failed", e));
+			}
+			if (andEffects) effect.delete().catch(e => console.warn("GMM | Deferral clock cleanup failed", e));
+		}
+	}
+
 	/* The canvas marker goes whenever the clock does, however it ended. */
 	function _onDeleteActiveEffect(effect, _options, _userId) {
 		if (!game.users.activeGM?.isSelf) return;
@@ -275,19 +300,46 @@ const Deferrals = (function () {
 		return Array.from(actor?.effects ?? []).filter(e => _readClock(e));
 	}
 
-	/* A template can be deleted between activation and zero, so a dangling uuid yields no targets. */
+	/* No area, an area that has gone, and an area that cannot be measured are three different answers to the GM. */
 	async function _templateTargets(clock) {
+		const uuids = clock?.templateUuids ?? [];
+		if (!uuids.length) return { tokens: [], unread: 0, hasArea: false };
+
+		// Resolved up front because both tiers below return no tokens for a template that has gone.
 		const found = [];
-		for (const uuid of clock?.templateUuids ?? []) {
+		let unread = 0;
+		for (const uuid of uuids) {
 			const template = await fromUuid(uuid);
-			if (!template?.object) continue;
-			for (const token of template.parent?.tokens ?? []) {
-				const object = token.object;
-				if (!object) continue;
-				if (template.object.testPoint?.(object.center) ?? false) found.push(token);
+			if (template) found.push({ uuid, template });
+			else unread += 1;
+		}
+		if (!found.length) return { tokens: [], unread, hasArea: true };
+
+		// Preferred, so the card cannot list a token midi will then refuse to target.
+		const viaMidi = globalThis.MidiQOL?.computeTargetsFromTemplates;
+		if (viaMidi) {
+			try {
+				// The stored strings, so midi is handed what GMMC recorded rather than a re-derived uuid.
+				const surviving = found.map(f => f.uuid);
+				return { tokens: (viaMidi(surviving) ?? []).map(t => t.document ?? t), unread, hasArea: true };
+			} catch (error) {
+				console.warn("GMM | midi template targeting failed; measuring the template directly", error);
 			}
 		}
-		return found;
+
+		const tokens = [];
+		for (const { template } of found) {
+			const area = template.object;
+			// `shape` is only populated by a render refresh, and is absent on any template not currently drawn.
+			if (area && !area.shape) {
+				try { area._refreshShape(); } catch (error) { /* leave shape unset and report it below */ }
+			}
+			if (!area?.shape) { unread += 1; continue; }
+			for (const token of template.parent?.tokens ?? []) {
+				if (token.object && area.testPoint(token.object.center)) tokens.push(token);
+			}
+		}
+		return { tokens, unread, hasArea: true };
 	}
 
 	async function _deleteTemplates(uuids) {

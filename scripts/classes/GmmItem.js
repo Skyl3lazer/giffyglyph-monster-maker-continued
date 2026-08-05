@@ -335,7 +335,8 @@ const GmmItem = (function () {
         const condition = activity?.activation?.condition ?? blueprint?.activation?.condition ?? "";
         labels.condition = gmmMonster ? Shortcoder.replaceShortcodes(condition, gmmMonster, false, this) : condition;
 
-        labels.duration = activity?.labels?.duration ?? this.labels?.duration ?? "";
+        // The payload's, not the primary's. Deferred announcements carry a placeholder duration.
+        labels.duration = payload?.labels?.duration ?? this.labels?.duration ?? "";
         labels.isHealing = isHealingAction || !!this.isHealing;
         labels.isConcentration = !!activity?.duration?.concentration;
 

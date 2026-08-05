@@ -16,6 +16,9 @@ const Activities = (function () {
 
     const GMM_ACTIVITY_IDS = new Set([GMM_ACTIVITY_ID, GMM_DEFERRED_ACTIVITY_ID]);
 
+    /* Neither `inst` nor a measured span: midi cleans up the templates of both, on timings GMMC does not own. */
+    const GMM_PLANT_DURATION_UNITS = "spec";
+
     function isGmmActivityId(id) {
         return typeof id === "string" && GMM_ACTIVITY_IDS.has(id);
     }
@@ -326,7 +329,10 @@ const Activities = (function () {
             uses: _buildUses(blueprintData)
         };
 
-        if (deferred) return data;
+        if (deferred) {
+            data.duration = { ...data.duration, value: null, units: GMM_PLANT_DURATION_UNITS };
+            return data;
+        }
 
         const damageParts = _collectDamageParts(blueprintData);
 
@@ -1068,7 +1074,10 @@ const Activities = (function () {
         if (wantsDeferred !== !!activities.has(GMM_DEFERRED_ACTIVITY_ID)) return true;
         const blueprintData = blueprint?.data ?? blueprint ?? {};
         const wantedType = wantsDeferred ? "utility" : activityTypeFor(blueprintData.attack?.type);
-        return activities.get(GMM_ACTIVITY_ID)?.type !== wantedType;
+        const primary = activities.get(GMM_ACTIVITY_ID);
+        if (primary?.type !== wantedType) return true;
+        // Compared explicitly because presence and type alone would let a stale announcement duration survive.
+        return wantsDeferred && (primary?.duration?.units !== GMM_PLANT_DURATION_UNITS);
     }
 
     function buildMigrationUpdate(item) {
