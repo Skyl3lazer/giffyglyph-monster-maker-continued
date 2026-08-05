@@ -10,6 +10,40 @@ const Activities = (function () {
         ? dnd5e.utils.staticID("gmmprimary")
         : "gmmprimary000000";
 
+    /* Carries the payload of a deferred action; the primary only announces it. */
+    const GMM_DEFERRED_ACTIVITY_ID = (typeof dnd5e !== "undefined" && dnd5e?.utils?.staticID)
+        ? dnd5e.utils.staticID("gmmdeferred")
+        : "gmmdeferred00000";
+
+    const GMM_ACTIVITY_IDS = new Set([GMM_ACTIVITY_ID, GMM_DEFERRED_ACTIVITY_ID]);
+
+    function isGmmActivityId(id) {
+        return typeof id === "string" && GMM_ACTIVITY_IDS.has(id);
+    }
+
+    /* The only reader of the legacy `respite` key, and the only place the timer is clamped. */
+    function readDeferral(blueprint) {
+        const data = blueprint?.data ?? blueprint ?? {};
+        const raw = data.deferral;
+        if (!raw?.type) return null;
+        const timer = Number(raw.timer);
+        return {
+            type: raw.type,
+            timer: Number.isFinite(timer) && timer > 0 ? Math.trunc(timer) : 1,
+            cancel: raw.cancel ?? raw.respite ?? ""
+        };
+    }
+
+    /* Only `delayed` is automated; a `dooming` blueprint still builds one combined activity. */
+    function isAutomatedDeferral(blueprint) {
+        return readDeferral(blueprint)?.type === "delayed";
+    }
+
+    /* Not the same question as "is this ours": on a deferred action the payload is the second activity. */
+    function payloadActivityId(blueprint) {
+        return isAutomatedDeferral(blueprint) ? GMM_DEFERRED_ACTIVITY_ID : GMM_ACTIVITY_ID;
+    }
+
     /* Map from GMM blueprint `attack.type` to the dnd5e attack-activity `attack.type` pair ({value, classification}). */
     const ATTACK_TYPES = {
         mwak: { value: "melee", classification: "weapon" },
@@ -63,8 +97,8 @@ const Activities = (function () {
     /* Replace shortcode-bearing FormulaField strings on the GMM activity source with `0` placeholders (mutates in place). */
     function sanitizeActivitySource(value) {
         if (!value || typeof value !== "object") return value;
-        // Only touch GMM's own activity — the swap would corrupt other modules' bracketed formulas (e.g. `1d6[fire]`).
-        if (value._id !== GMM_ACTIVITY_ID) return value;
+        // Other modules' bracketed formulas are legitimate (e.g. `1d6[fire]`) and must not be rewritten.
+        if (!isGmmActivityId(value._id)) return value;
         const replace = _sanitizeFormulaForActivity;
 
         if (value.attack && typeof value.attack === "object") {
@@ -175,8 +209,8 @@ const Activities = (function () {
 
         for (const [aid, raw] of Object.entries(activities)) {
             if (!raw || typeof raw !== "object" || aid.startsWith("-=")) continue;
-            // Only heal GMM's own activity
-            if (aid !== GMM_ACTIVITY_ID) continue;
+            // Only heal GMM's own activities
+            if (!isGmmActivityId(aid)) continue;
             const base = `system.activities.${aid}`;
 
             if (raw.attack && typeof raw.attack.bonus === "string") {
@@ -276,11 +310,12 @@ const Activities = (function () {
         return { formula, type: types[0] ?? "" };
     }
 
-    /* Build the dnd5e activity payload for a scaling action. Formulas stored sanitised; runtime substitution in resolveActivityFormulas. */
+    /* What the GM clicks. A deferred action leaves it a `utility` with nothing to roll. */
     function buildActivityData(blueprint) {
         const blueprintData = blueprint?.data ?? blueprint ?? {};
         const blueprintAttack = blueprintData.attack ?? {};
-        const type = activityTypeFor(blueprintAttack.type);
+        const deferred = isAutomatedDeferral(blueprint);
+        const type = deferred ? "utility" : activityTypeFor(blueprintAttack.type);
 
         const data = {
             _id: GMM_ACTIVITY_ID,
@@ -296,6 +331,17 @@ const Activities = (function () {
             uses: _buildUses(blueprintData)
         };
 
+        if (deferred) return data;
+
+        const damageParts = _collectDamageParts(blueprintData);
+
+        _applyPayloadFields(data, blueprintData, type);
+        return data;
+    }
+
+    /* Shared so the combined and deferred forms cannot disagree about what a type produces. */
+    function _applyPayloadFields(data, blueprintData, type) {
+        const blueprintAttack = blueprintData.attack ?? {};
         const damageParts = _collectDamageParts(blueprintData);
 
         if (type === "attack") {
@@ -335,7 +381,32 @@ const Activities = (function () {
             };
         }
         // utility activities carry no extra fields
+        return data;
+    }
 
+    function buildDeferredActivityData(blueprint) {
+        if (!isAutomatedDeferral(blueprint)) return null;
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+        const type = activityTypeFor(blueprintData.attack?.type);
+
+        const data = {
+            _id: GMM_DEFERRED_ACTIVITY_ID,
+            type,
+            name: blueprintData.description?.name || "",
+            sort: 1,
+            // The primary already charged all of these.
+            activation: { type: "", value: null, condition: "", override: false },
+            consumption: { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false },
+            description: { chatFlavor: "" },
+            duration: _buildDuration(blueprintData),
+            range: _buildRange(blueprintData),
+            // The primary already placed the template; a second would be planted here.
+            target: _buildTarget(blueprintData, { template: false }),
+            uses: { spent: 0, max: "", recovery: [] },
+            midiProperties: { automationOnly: true }
+        };
+
+        _applyPayloadFields(data, blueprintData, type);
         return data;
     }
 
@@ -371,7 +442,7 @@ const Activities = (function () {
         };
     }
 
-    function _buildTarget(blueprintData) {
+    function _buildTarget(blueprintData, { template = true } = {}) {
         const t = blueprintData.target ?? {};
         const data = {
             template: {
@@ -394,9 +465,11 @@ const Activities = (function () {
             override: false
         };
         if (t.type && CONFIG?.DND5E?.areaTargetTypes?.[t.type]) {
-            data.template.type = t.type;
-            if (t.value != null) data.template.size = String(t.value);
-            if (t.width != null) data.template.width = String(t.width);
+            if (template) {
+                data.template.type = t.type;
+                if (t.value != null) data.template.size = String(t.value);
+                if (t.width != null) data.template.width = String(t.width);
+            }
         } else if (t.type) {
             if (t.value != null) data.affects.count = String(t.value);
             data.affects.type = t.type;
@@ -485,14 +558,15 @@ const Activities = (function () {
         return entries.map(damagePartFromBlueprint);
     }
 
-    /* Mirror a dnd5e Activity's values onto a GMM blueprint object (mutates `blueprintData` in place). */
-    function readActivityIntoBlueprintData(activity, blueprintData) {
+    /* Mirror a dnd5e Activity's values onto a GMM blueprint object (mutates `blueprintData` in place).
+     * Scoped because a deferred activity carries no uses, activation or template to read back. */
+    function readActivityIntoBlueprintData(activity, blueprintData, { shared = true, payload = true } = {}) {
         if (!activity) return;
         const obj = (typeof activity.toObject === "function") ? activity.toObject() : activity;
         const type = obj.type;
 
         // Activation
-        if (obj.activation) {
+        if (shared && obj.activation) {
             blueprintData.activation ??= {};
             blueprintData.activation.type = obj.activation.type ?? null;
             blueprintData.activation.cost = obj.activation.value ?? null;
@@ -500,7 +574,7 @@ const Activities = (function () {
         }
 
         // Duration
-        if (obj.duration) {
+        if (shared && obj.duration) {
             blueprintData.duration ??= {};
             blueprintData.duration.value = obj.duration.value ?? "";
             blueprintData.duration.units = obj.duration.units ?? "";
@@ -510,14 +584,14 @@ const Activities = (function () {
         }
 
         // Range
-        if (obj.range) {
+        if (shared && obj.range) {
             blueprintData.range ??= {};
             blueprintData.range.value = obj.range.value ?? null;
             blueprintData.range.units = obj.range.units ?? null;
         }
 
         // Target
-        if (obj.target) {
+        if (shared && obj.target) {
             blueprintData.target ??= {};
             const tpl = obj.target.template ?? {};
             const aff = obj.target.affects ?? {};
@@ -535,7 +609,7 @@ const Activities = (function () {
         }
 
         // Uses
-        if (obj.uses) {
+        if (shared && obj.uses) {
             blueprintData.uses ??= {};
             blueprintData.uses.max = obj.uses.max ?? "";
             const max = parseInt(obj.uses.max);
@@ -557,7 +631,7 @@ const Activities = (function () {
         }
 
         // Consumption
-        if (obj.consumption?.targets?.length) {
+        if (shared && obj.consumption?.targets?.length) {
             const tgt = obj.consumption.targets[0];
             blueprintData.resource_consumption ??= {};
             const reverseTypeMap = {
@@ -572,6 +646,7 @@ const Activities = (function () {
         }
 
         // Type-specific
+        if (!payload) return;
         blueprintData.attack ??= {};
         if (type === "attack" && obj.attack) {
             const attackTypeKey = _findAttackTypeKey(obj.attack.type);
@@ -655,27 +730,64 @@ const Activities = (function () {
         "duration", "range", "target", "uses", "attack", "damage", "healing", "save"
     ]);
 
-    /* Build an Item5e#update payload for the GMM activity. ForcedReplacement so a type swap leaves no stale sub-fields. */
+    /* ForcedReplacement so a type swap leaves no stale sub-fields. */
     function buildActivityUpdate(item, blueprint) {
-        const newData = AutomationHelpers.preserveForeignActivityFields(
-            item, GMM_ACTIVITY_ID, buildActivityData(blueprint), GMM_OWNED_ACTIVITY_FIELDS
-        );
-        const ForcedReplacement = foundry.data?.operators?.ForcedReplacement;
         const update = {};
+        _wrapActivity(update, GMM_ACTIVITY_ID,
+            _mergeForeignFields(item, GMM_ACTIVITY_ID, buildActivityData(blueprint)));
+
+        const deferredData = buildDeferredActivityData(blueprint);
+        if (deferredData) {
+            const merged = _mergeForeignFields(item, GMM_DEFERRED_ACTIVITY_ID, deferredData);
+            // Declared in the builder it would suppress the preserve step and drop the GM's midi config.
+            merged.midiProperties = { ...(merged.midiProperties ?? {}), automationOnly: true };
+            _wrapActivity(update, GMM_DEFERRED_ACTIVITY_ID, merged);
+        } else {
+            Object.assign(update, _buildActivityDeletion(item, GMM_DEFERRED_ACTIVITY_ID));
+        }
+
+        return update;
+    }
+
+    function _mergeForeignFields(item, activityId, data) {
+        return AutomationHelpers.preserveForeignActivityFields(
+            item, activityId, data, GMM_OWNED_ACTIVITY_FIELDS
+        );
+    }
+
+    function _wrapActivity(update, activityId, newData) {
+        const ForcedReplacement = foundry.data?.operators?.ForcedReplacement;
         if (ForcedReplacement) {
-            update[`system.activities.${GMM_ACTIVITY_ID}`] = new ForcedReplacement(newData);
+            update[`system.activities.${activityId}`] = new ForcedReplacement(newData);
         } else {
             // Pre-v14 has no ForcedReplacement; a plain assign deep-merges and drops sub-field edits on 5.3.x.
             // The legacy "==" force-replace key replaces the whole activity, matching v14.
-            update[`system.activities.==${GMM_ACTIVITY_ID}`] = newData;
+            update[`system.activities.==${activityId}`] = newData;
         }
         return update;
     }
 
-    /* Substitute GMM shortcodes into the runtime values of the item's GMM activity, using the monster data. */
+    /* Flat deletion entry for one activity, or empty when the item does not carry it. */
+    function _buildActivityDeletion(item, activityId) {
+        const present = (item?.system?.activities?.has?.(activityId))
+            ?? !!(item?._source?.system?.activities?.[activityId]);
+        if (!present) return {};
+        const ForcedDeletion = foundry.data?.operators?.ForcedDeletion;
+        return ForcedDeletion
+            ? { [`system.activities.${activityId}`]: new ForcedDeletion() }
+            : { [`system.activities.-=${activityId}`]: null };
+    }
+
+    /* Substitute GMM shortcodes into the runtime values of every GMM activity on the item. */
     function resolveActivityFormulas(item, monsterData) {
         if (!monsterData) return;
-        const activity = item?.system?.activities?.get?.(GMM_ACTIVITY_ID);
+        for (const activityId of GMM_ACTIVITY_IDS) {
+            _resolveOneActivityFormulas(item, activityId, monsterData);
+        }
+    }
+
+    function _resolveOneActivityFormulas(item, activityId, monsterData) {
+        const activity = item?.system?.activities?.get?.(activityId);
         if (!activity) return;
 
         const blueprintData = item?.flags?.gmm?.blueprint?.data;
@@ -916,7 +1028,7 @@ const Activities = (function () {
         // ActivityCollection / Map: iterate its keys. Plain objects: use own keys.
         const keys = (typeof raw.keys === "function") ? Array.from(raw.keys()) : Object.keys(raw);
         for (const id of keys) {
-            if (id === GMM_ACTIVITY_ID) continue;
+            if (isGmmActivityId(id)) continue;
             if (typeof id !== "string" || id.startsWith("-=")) continue;
             if (ForcedDeletion) {
                 deletes[`system.activities.${id}`] = new ForcedDeletion();
@@ -938,7 +1050,7 @@ const Activities = (function () {
         if (!raw || typeof raw !== "object") return {};
         const snapshot = {};
         for (const [id, data] of Object.entries(raw)) {
-            if (typeof id !== "string" || id.startsWith("-=") || id === GMM_ACTIVITY_ID) continue;
+            if (typeof id !== "string" || id.startsWith("-=") || isGmmActivityId(id)) continue;
             if (!data || typeof data !== "object") continue;
             snapshot[id] = data;
         }
@@ -965,42 +1077,46 @@ const Activities = (function () {
      * originals from `flags.gmm.savedActivities`. The GMM flags are left intact so the item can toggle back. */
     function buildRestoreUpdate(item) {
         const update = {};
-        const ForcedDeletion = foundry.data?.operators?.ForcedDeletion;
         const ForcedReplacement = foundry.data?.operators?.ForcedReplacement;
 
-        // Remove the GMM-managed activity.
-        const hasGmm = (item?.system?.activities?.has?.(GMM_ACTIVITY_ID))
-            ?? !!(item?._source?.system?.activities?.[GMM_ACTIVITY_ID]);
-        if (hasGmm) {
-            if (ForcedDeletion) update[`system.activities.${GMM_ACTIVITY_ID}`] = new ForcedDeletion();
-            // Pre-v14 fallback: legacy dotted deletion syntax.
-            else update[`system.activities.-=${GMM_ACTIVITY_ID}`] = null;
+        for (const activityId of GMM_ACTIVITY_IDS) {
+            Object.assign(update, _buildActivityDeletion(item, activityId));
         }
 
         // Restore the saved activities; ForcedReplacement so each fully replaces any same-id remnant.
         const saved = _readSavedActivities(item);
         for (const [id, data] of Object.entries(saved)) {
-            if (typeof id !== "string" || id.startsWith("-=") || id === GMM_ACTIVITY_ID) continue;
+            if (typeof id !== "string" || id.startsWith("-=") || isGmmActivityId(id)) continue;
             if (!data || typeof data !== "object") continue;
             update[`system.activities.${id}`] = ForcedReplacement ? new ForcedReplacement(data) : data;
         }
         return update;
     }
 
+    /* True when the item's GMM activities do not match the shape its blueprint asks for. */
+    function needsActivityRebuild(item, blueprint) {
+        const activities = item?.system?.activities;
+        if (!activities?.has?.(GMM_ACTIVITY_ID)) return true;
+        const wantsDeferred = isAutomatedDeferral(blueprint);
+        if (wantsDeferred !== !!activities.has(GMM_DEFERRED_ACTIVITY_ID)) return true;
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+        const wantedType = wantsDeferred ? "utility" : activityTypeFor(blueprintData.attack?.type);
+        return activities.get(GMM_ACTIVITY_ID)?.type !== wantedType;
+    }
+
     /* Build the migration update payload for a single GMM scaling-action item, or `null` if no migration is needed. */
     function buildMigrationUpdate(item) {
         if (!isLegacyGmmActionItem(item)) return null;
         const purge = buildForeignActivityPurge(item);
-        const hasGmm = item.system?.activities?.has?.(GMM_ACTIVITY_ID) ?? false;
+        const blueprint = item.flags.gmm.blueprint;
+        const rebuild = needsActivityRebuild(item, blueprint);
         // Also heal legacy persisted shortcode formulas by writing corrected source data.
         const cleanup = buildSourceFormulaCleanup(item);
-        if (hasGmm && foundry.utils.isEmpty(purge) && !cleanup) return null;
+        if (!rebuild && foundry.utils.isEmpty(purge) && !cleanup) return null;
         const update = { ...purge };
         if (cleanup) Object.assign(update, cleanup);
-        if (!hasGmm) {
-            const blueprint = item.flags.gmm.blueprint;
-            Object.assign(update, buildActivityUpdate(null, blueprint));
-        }
+        // `item`, not null, so another module's config on the primary survives the rebuild.
+        if (rebuild) Object.assign(update, buildActivityUpdate(item, blueprint));
         return update;
     }
 
@@ -1011,13 +1127,16 @@ const Activities = (function () {
         const blueprint = data?.flags?.gmm?.blueprint;
         if (!blueprint) return null;
         const purge = buildForeignActivityPurge(item ?? data);
-        const hasGmm = !!(
-            item?._source?.system?.activities?.[GMM_ACTIVITY_ID]
-            ?? data?.system?.activities?.[GMM_ACTIVITY_ID]
-        );
-        if (hasGmm && foundry.utils.isEmpty(purge)) return null;
+        const source = item?._source?.system?.activities ?? data?.system?.activities ?? {};
+        const wantsDeferred = isAutomatedDeferral(blueprint);
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+        const wantedType = wantsDeferred ? "utility" : activityTypeFor(blueprintData.attack?.type);
+        const rebuild = !source[GMM_ACTIVITY_ID]
+            || (wantsDeferred !== !!source[GMM_DEFERRED_ACTIVITY_ID])
+            || (source[GMM_ACTIVITY_ID].type !== wantedType);
+        if (!rebuild && foundry.utils.isEmpty(purge)) return null;
         const update = { ...purge };
-        if (!hasGmm) Object.assign(update, buildActivityUpdate(null, blueprint));
+        if (rebuild) Object.assign(update, buildActivityUpdate(item, blueprint));
         return update;
     }
 
@@ -1122,7 +1241,7 @@ const Activities = (function () {
         const list = (typeof activities.values === "function")
             ? Array.from(activities.values())
             : (Array.isArray(activities) ? activities : Object.values(activities));
-        const candidates = list.filter(a => a && a.id !== GMM_ACTIVITY_ID);
+        const candidates = list.filter(a => a && !isGmmActivityId(a.id));
         if (!candidates.length) return null;
         const order = ["attack", "save", "heal", "damage", "utility"];
         for (const type of order) {
@@ -1176,9 +1295,14 @@ const Activities = (function () {
         }
     }
 
-    /* Read the GMM activity's applied-effects array as raw source entries; null when there's no GMM activity. */
+    /* The deferred activity, so an applied effect does not land a round before its payload. */
+    function effectHostActivityId(item) {
+        return payloadActivityId(item?.flags?.gmm?.blueprint);
+    }
+
+    /* Raw source entries, not prepared documents; null when the activity is absent. */
     function _gmmActivityEffectSource(item) {
-        const activity = item?.system?.activities?.get?.(GMM_ACTIVITY_ID);
+        const activity = item?.system?.activities?.get?.(effectHostActivityId(item));
         if (!activity) return null;
         const source = activity.toObject?.() ?? activity._source ?? {};
         return Array.isArray(source.effects) ? source.effects : [];
@@ -1208,7 +1332,7 @@ const Activities = (function () {
 
         const promises = [];
         if (nextEffects !== effects) {
-            promises.push(item.updateActivity(GMM_ACTIVITY_ID, { effects: nextEffects }));
+            promises.push(item.updateActivity(effectHostActivityId(item), { effects: nextEffects }));
         }
         const desiredTransfer = !!alwaysMode;
         if (effect.transfer !== desiredTransfer) {
@@ -1221,11 +1345,19 @@ const Activities = (function () {
 
     return {
         GMM_ACTIVITY_ID,
+        GMM_DEFERRED_ACTIVITY_ID,
+        isGmmActivityId,
+        readDeferral,
+        isAutomatedDeferral,
+        payloadActivityId,
+        effectHostActivityId,
+        needsActivityRebuild,
         ATTACK_TYPES,
         activityTypeFor,
         damagePartFromBlueprint,
         damagePartToBlueprint,
         buildActivityData,
+        buildDeferredActivityData,
         buildActivityUpdate,
         readActivityIntoBlueprintData,
         resolveActivityFormulas,

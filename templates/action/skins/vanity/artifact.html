@@ -63,7 +63,7 @@
                     {{/if}}
                     {{#if gmm.action.gmmLabels.damage_hit}}
                     <span class="item__damage" data-action="open-config" data-config="damage">
-                        <span class="attack__title"><i>{{#if gmm.action.gmmLabels.isHealing}}{{localize 'gmm.common.attack.heal'}}{{else}}{{localize 'gmm.common.attack.hit'}}{{/if}}:</i></span>
+                        <span class="attack__title"><i>{{#if gmm.action.gmmLabels.isHealing}}{{localize 'gmm.common.attack.heal'}}{{else if gmm.action.gmmLabels.deferral.isDelayed}}{{localize 'gmm.common.attack.delay'}}{{else}}{{localize 'gmm.common.attack.hit'}}{{/if}}:</i></span>
                         <span>{{gmm.action.gmmLabels.damage_hit}}</span>
                     </span>
                     {{/if}}
@@ -79,10 +79,10 @@
                         <span>{{gmm.action.gmmLabels.damage_miss}}</span>
                     </span>
                     {{/if}}
-                    {{#if gmm.action.gmmLabels.deferral.respite}}
+                    {{#if gmm.action.gmmLabels.deferral.cancel}}
                     <span class="item__damage" data-action="open-config" data-config="deferral">
-                        <span class="attack__title"><i>{{localize 'gmm.common.deferral.respite'}}:</i></span>
-                        <span>{{gmm.action.gmmLabels.deferral.respite}}</span>
+                        <span class="attack__title"><i>{{localize 'gmm.common.deferral.cancel'}}:</i></span>
+                        <span>{{gmm.action.gmmLabels.deferral.cancel}}</span>
                     </span>
                     {{/if}}
                     {{#if gmm.action.gmmLabels.description}}

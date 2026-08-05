@@ -45,11 +45,16 @@ const ActionBlueprint = (function () {
                 }
             });
 
-            // Pull activity-driven fields (attack/save/damage/range/target/duration/ uses/consumption/concentration)
-            // Activities are the source of truth post dnd5e v3.x
-            const gmmActivity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
-            if (gmmActivity) {
-                Activities.readActivityIntoBlueprintData(gmmActivity, blueprintData);
+            // Split activities are deferrals generally
+            const activities = item.system?.activities;
+            const primaryActivity = activities?.get?.(Activities.GMM_ACTIVITY_ID);
+            const payloadActivity = activities?.get?.(Activities.payloadActivityId(blueprint));
+            const split = !!payloadActivity && payloadActivity !== primaryActivity;
+            if (primaryActivity) {
+                Activities.readActivityIntoBlueprintData(primaryActivity, blueprintData, { payload: !split });
+            }
+            if (split) {
+                Activities.readActivityIntoBlueprintData(payloadActivity, blueprintData, { shared: false });
             }
 
             return blueprint;
@@ -77,9 +82,7 @@ const ActionBlueprint = (function () {
 
         // Mirror the blueprint onto the GMM-managed activity
         // `buildActivityUpdate` handles the type-swap deletion case when the activity's type changes
-        const activityUpdate = item
-            ? Activities.buildActivityUpdate(item, blueprint)
-            : { [`system.activities.${Activities.GMM_ACTIVITY_ID}`]: Activities.buildActivityData(blueprint) };
+        const activityUpdate = Activities.buildActivityUpdate(item, blueprint);
         //  On v13 `item.update` silently drops a dotted `system.*` key when a nested `system` object is present
         for (const [key, value] of Object.entries(activityUpdate)) {
             CompatibilityHelpers.setProperty(itemData, key, value);

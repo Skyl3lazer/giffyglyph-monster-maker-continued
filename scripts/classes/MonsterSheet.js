@@ -478,7 +478,9 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     static #actionRollItem(event, target) {
         const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
-        return item.use();
+        // `item.use()` would offer an activity chooser once a deferred action carries two.
+        const primary = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
+        return primary ? primary.use() : item.use();
     }
 
     /** @this {MonsterSheet} */

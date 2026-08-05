@@ -129,7 +129,7 @@ const GmmItem = (function () {
  * Ensure save chat cards are built with a resolved non-zero DC before button datasets are generated. */
     function _onPreUseActivity(activity, _usageConfig, _dialogConfig, _messageConfig) {
         try {
-            if (activity?.id !== Activities.GMM_ACTIVITY_ID) return;
+            if (!Activities.isGmmActivityId(activity?.id)) return;
             if (activity?.type !== "save") return;
             const item = activity.item;
             if (!_isGmmActionItem(item)) return;
@@ -142,7 +142,7 @@ const GmmItem = (function () {
     }
 
     function _gmmMonsterForActivity(activity) {
-        if (!activity || activity.id !== Activities.GMM_ACTIVITY_ID) return null;
+        if (!activity || !Activities.isGmmActivityId(activity.id)) return null;
         const item = activity.item;
         if (!_isGmmActionItem(item)) return null;
         return item.getOwningGmmMonster?.() ?? null;
@@ -201,7 +201,7 @@ const GmmItem = (function () {
         return finalDc;
     }
     function _isGmmAttackActivity(activity) {
-        if (activity?.id !== Activities.GMM_ACTIVITY_ID) return false;
+        if (!Activities.isGmmActivityId(activity?.id)) return false;
         if (activity?.type !== "attack") return false;
         return _isGmmActionItem(activity.item);
     }
@@ -290,6 +290,9 @@ const GmmItem = (function () {
         const blueprint = this.flags?.gmm?.blueprint?.data;
         const gmmMonster = this.getOwningGmmMonster();
         const activity = this.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
+        // Two activities on a deferred action: the primary is spent, the payload is rolled.
+        const payload = this.system?.activities?.get?.(Activities.payloadActivityId(this.flags?.gmm?.blueprint))
+            ?? activity;
 
         labels.icon = (this.getSheetId() == `${GMM_MODULE_TITLE}.ActionSheet`)
             ? "fas fa-arrow-alt-circle-right"
@@ -300,21 +303,21 @@ const GmmItem = (function () {
 
         // --- Damage / healing parts (resolved up-front so we can detect healing & build the line) ---
         // HealActivity stores a single `healing` DamageData instead of `damage.parts`.
-        const damageParts = activity?.damage?.parts ?? [];
-        const healingPart = activity?.healing ?? null;
+        const damageParts = payload?.damage?.parts ?? [];
+        const healingPart = payload?.healing ?? null;
         const blueprintAttackType = blueprint?.attack?.type ?? "";
         const isHealingAction = (blueprintAttackType === "heal") || !!healingPart || _hasHealingPart(damageParts);
 
         // --- Attack / Save line ---
-        if (activity?.type === "attack") {
+        if (payload?.type === "attack") {
             labels.attack = game.i18n.format(`gmm.action.labels.attack.${blueprintAttackType || "mwak"}`);
-            const toHit = _computeAttackToHit(activity, blueprint, gmmMonster, rollData);
+            const toHit = _computeAttackToHit(payload, blueprint, gmmMonster, rollData);
             if (toHit !== null) {
                 labels.to_hit = game.i18n.format(`gmm.action.labels.attack.to_hit`, { bonus: toHit });
             }
-        } else if (activity?.type === "save") {
-            labels.attack = _formatSaveLabel(activity);
-            const dc = activity.save?.dc?.value;
+        } else if (payload?.type === "save") {
+            labels.attack = _formatSaveLabel(payload);
+            const dc = payload.save?.dc?.value;
             if (dc) {
                 labels.to_hit = game.i18n.format(`gmm.action.labels.attack.dc`, { bonus: dc });
             }
@@ -417,12 +420,14 @@ const GmmItem = (function () {
         }
 
         // --- Deferral (GMM-only) ---
-        const gmmDeferral = blueprint?.deferral;
-        if (gmmDeferral?.type) {
+        const gmmDeferral = Activities.readDeferral(this.flags?.gmm?.blueprint);
+        if (gmmDeferral) {
             labels.deferral = {
                 type: game.i18n.format(`gmm.common.deferral_type.${gmmDeferral.type}`),
                 timer: gmmDeferral.timer,
-                respite: gmmDeferral.respite
+                cancel: gmmDeferral.cancel,
+                // The book prints a delayed payload under `Delay:` rather than `Hit:`.
+                isDelayed: gmmDeferral.type === "delayed"
             };
         }
 

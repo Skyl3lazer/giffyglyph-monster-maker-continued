@@ -35,7 +35,7 @@ export const GMM_ACTION_BLUEPRINT = {
 		deferral: {
 			type: null,
 			timer: null,
-			respite: null
+			cancel: null
 		},
 		effects: {
 			always_show: false
