@@ -6,10 +6,15 @@ description: >-
   <p><strong>Uncommon Condition</strong></p><ul><li><p>You gain vulnerability to
   a particular damage type or, if you have immunity, it is reduced to
   resistance.*</p></li></ul><p><em>* Core automation (add the damage
-  type)</em></p><p><em>To finish it, edit this effect and set the value of its
-  <strong>Damage Vulnerability</strong> change to the damage type - for example
-  <strong>fire</strong>. An immunity is not reduced automatically; remove the
-  type from Damage Immunity yourself.</em></p>
+  type)</em></p><p><em>To finish it, edit this effect. If the target is
+  <strong>not</strong> immune to the damage type, set the value of the existing
+  <strong>Damage Vulnerability</strong> change to that type - for example
+  <strong>fire</strong>. If the target <strong>is</strong> immune, delete that
+  change and add two instead: <strong>Damage Immunity</strong> with the
+  <strong>Subtract</strong> change type, and <strong>Damage Resistance</strong>
+  with <strong>Add</strong>, both set to that damage type. Do not use all three
+  - resistance and vulnerability are applied independently and cancel
+  out.</em></p>
 disabled: false
 transfer: false
 folder: gmmConditions000
