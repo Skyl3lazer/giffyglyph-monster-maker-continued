@@ -3,6 +3,7 @@ import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
 const GMM_PARAGON_DEFENSES_SETTING = "trackParagonDefenses";
 const GMM_PARAGON_DEFENSES_KEY = "flags.gmm.blueprint.data.paragon_defenses.current";
+const GMM_LEGENDARY_RESISTANCES_KEY = "system.resources.legres.value";
 const GMM_MIDI_OPTIONAL_KEY = "flags.midi-qol.optional.gmmParagonDefense";
 const GMM_MIDI_OPTIONALS_USED = "flags.midi-qol.optionalsUsed";
 const GMM_MIDI_OPTIONAL_NAME = "gmmParagonDefense";
@@ -157,6 +158,8 @@ const ParagonDefenses = (function () {
 		if (!_isEnabled() || (config?.type !== "long")) return;
 		if (!actor?.isGmmMonster?.()) return;
 
+		_dropReplacedLegendaryRecovery(actor, result);
+
 		const maximum = _getMaximum(actor);
 		if (!maximum || (_getRemaining(actor, maximum) === maximum)) return;
 
@@ -164,8 +167,13 @@ const ParagonDefenses = (function () {
 		result.updateData[GMM_PARAGON_DEFENSES_KEY] = maximum;
 	}
 
-	/* Mirroring dnd5e's legendary-resistance guards is what suppresses the button after a midi prompt
-	 * already succeeded: midi replaces the roll, so the card reports success. */
+	/* Prevent rest from double reporting legendary resistance recovery */
+	function _dropReplacedLegendaryRecovery(actor, result) {
+		if (actor?.flags?.gmm?.monster?.data?.legendary_resistances?.visible) return;
+		if (result?.updateData) delete result.updateData[GMM_LEGENDARY_RESISTANCES_KEY];
+	}
+
+	/* Mirroring dnd5e's legendary-resistance guard */
 	function _onRenderChatMessage(message, html) {
 		if (!_isEnabled()) return;
 

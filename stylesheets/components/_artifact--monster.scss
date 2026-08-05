@@ -63,7 +63,7 @@
 
 				.button--rest {
 					background: none;
-					border: 1px solid var(--color-primary-shade-4);
+					border: 1px solid currentColor;
 					border-radius: 0.25rem;
 					box-shadow: none;
 					color: inherit;
@@ -79,8 +79,7 @@
 					}
 
 					&:hover {
-						border-color: var(--color-secondary-base);
-						color: var(--color-secondary-shade-1);
+						color: var(--color-secondary-base);
 					}
 				}
 			}
