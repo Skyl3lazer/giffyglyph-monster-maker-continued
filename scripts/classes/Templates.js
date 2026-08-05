@@ -24,8 +24,7 @@ const Templates = (function() {
 
 	function registerTemplateHelpers() {
 
-		// The GMM forge templates use the legacy `{{#select VALUE}}...{{/select}}` block helper (~40 places) to mark the
-		// matching `<option>` selected.
+		// About 40 forge templates still use the legacy `{{#select VALUE}}` block, so the helper stays.
 		Handlebars.registerHelper('select', function(selected, options) {
 			const value = (selected === null || selected === undefined) ? "" : String(selected);
 			const escaped = Handlebars.Utils.escapeExpression(value)
@@ -35,10 +34,8 @@ const Templates = (function() {
 			return html.replace(rgx, "$& selected");
 		});
 
-		// Foundry v14 ships these helpers with semantics matching GMM's previous re-implementations:
-		// `concat`, `eq`/`ne`/`lt`/`gt`/`lte`/`gte`, `and`, `or` See `client/applications/handlebars.mjs`
+		// v14 ships `concat`, `eq`/`ne`/`lt`/`gt`/`lte`/`gte`, `and` and `or` with the semantics GMM reimplemented.
 
-		//This is basically just to be able to output test data
 		Handlebars.registerHelper('json', function (context) {
 			return JSON.stringify(context);
 		});
@@ -74,7 +71,6 @@ const Templates = (function() {
 		Handlebars.registerHelper('getSkillProficiency', function(skills, code, role) {
 			if (skills) {
 				let skill = skills.find((x) => x.code == code);
-				//if (!skill) skill = role.skill_prof.find((x) => x.code == code);
 				return (skill) ? skill.value : 0;
 			} else {
 				return 0;

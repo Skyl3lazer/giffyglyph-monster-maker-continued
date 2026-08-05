@@ -24,12 +24,11 @@ import Templates from "./Templates.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Activities from "./Activities.js";
 
-/* GMM monster sheet, built on the dnd5e v5.x ApplicationV2 NPC sheet. The custom "Forge" UI replaces the
- * stock parts, and _processFormData translates edits to the `gmm.blueprint.*` fields back into the blueprint flag. */
+/* The Forge UI replaces the stock NPC parts entirely, so much of this class undoes inherited behaviour. */
 export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet {
 
     constructor(options = {}) {
-        // Have to handle this a little differently so that aspect ratios don't get bonked
+        // Merged rather than replaced, so a caller passing one axis does not lose the other.
         options.position = { ...MonsterSheet.DEFAULT_OPTIONS.position, ...(options.position ?? {}) };
         super(options);
         this._gui = new Gui();
@@ -55,8 +54,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
     };
 
-    /* Replace the inherited NPC PARTS with a single custom `forge` part. PARTS is not merged across the
-     * inheritance chain, so this fully supplants the parent definition. @inheritDoc */
+    /* PARTS is not merged across the inheritance chain, so this supplants the parent outright. @inheritDoc */
     static PARTS = {
         forge: {
             template: "modules/giffyglyph-monster-maker-continued/templates/monster/forge.html",
@@ -67,8 +65,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     /* Clear the inherited `static TABS` so the framework doesn't try to render a `tabs` part we never declare. @inheritDoc */
     static TABS = [];
 
-    /* Class names inherited from the dnd5e NPC sheet chain that apply heavy visual styling. The GMM forge
-     * entirely replaces the dnd5e NPC PARTS markup, so none of these styles are wanted. */
+    /* Inherited dnd5e styling, kept out because the markup it targets is no longer rendered. */
     static #STRIPPED_CLASSES = new Set([
         "dnd5e2",
         "actor",
@@ -137,14 +134,12 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         };
 
         if (context.gmm.blueprint) {
-            // Set total number of spells.
             if (context.gmm.blueprint.spellbook?.spells) {
                 context.gmm.blueprint.spellbook.total = Object.entries(context.gmm.blueprint.spellbook.spells).reduce((a, b) => a + b[1].length, 0);
             }
         }
 
         if (context.gmm.monster) {
-            // Beautify monster item data.
             const actionTypes = ["bonus_actions.items", "actions.items", "reactions.items", "lair_actions.items", "legendary_actions.items", "traits.items", "inventory.items", "spellbook.spells.0", "spellbook.spells.1", "spellbook.spells.2", "spellbook.spells.3", "spellbook.spells.4", "spellbook.spells.5", "spellbook.spells.6", "spellbook.spells.7", "spellbook.spells.8", "spellbook.spells.9", "spellbook.spells.other"];
 
             for (const type of actionTypes) {
@@ -156,7 +151,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
                 }
             }
 
-            // Set maximum active spell level
             let maximum_spell_level = 0;
             for (let i = 1; i < 10; i++) {
                 if (context.gmm.monster.spellbook.spells[i].length > 0 || context.gmm.monster.spellbook.slots[i].maximum > 0) {
@@ -168,7 +162,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             }
             context.gmm.monster.spellbook.maximum_visible_spell_level = maximum_spell_level;
 
-            // Show/hide features panel
             ["bonus_actions", "actions", "reactions", "traits", "paragon_actions", "paragon_defenses", "legendary_actions", "lair_actions", "legendary_resistances"].forEach((x) => {
                 if (context.gmm.monster[x].visible) {
                     if (context.gmm.monster.features) {
@@ -182,8 +175,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             });
         }
 
-        // Populate `effects` (categorized) so the blueprint template's <dnd5e-effects> block can render.
-        // dnd5e only does this from _preparePartContext("effects"); we have a single "forge" part.
+        // dnd5e populates this from `_preparePartContext("effects")`, which the single forge part never hits.
         try {
             await this._prepareEffectsContext(context, options);
             this._gmmEnrichEffectModes(context);
@@ -194,9 +186,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return context;
     }
 
-    /* For each prepared effect entry that lives on a GMMC scaling-action item the actor carries,
-     * stamp the always/onUse flags consumed by `blueprint_effect.html`. Effects directly on the
-     * actor (no parentId) are skipped — they have no activity to attach to. */
+    /* Effects directly on the actor are skipped: they have no activity to attach to. */
     _gmmEnrichEffectModes(context) {
         const categories = context?.effects;
         if (!categories) return;
@@ -226,8 +216,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return mappedItems;
     }
 
-    /* The dnd5e NPC sheet's `_onRender` invokes these helpers to decorate the stock inventory, attunement, and spellbook
-     * parts. Our PARTS replaces all of those with the single custom `forge` part, so disable them to avoid errors. */
+    /* `_onRender` decorates stock parts the forge never renders, so these would throw. */
     _renderCreateInventory() {}
     _renderAttunement() {}
     _renderSpellbook() {}
@@ -238,8 +227,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         if (toggle) toggle.remove();
     }
 
-    /* Remove the dnd5e "create child" footer button (`.create-child`): the Forge UI provides its own per-section
-     * "Add" buttons, so dnd5e's button has no meaning here. */
+    /* The forge has its own per-section Add buttons, so dnd5e's footer button means nothing here. */
     async _onFirstRender(context, options) {
         await super._onFirstRender(context, options);
         this.element?.querySelector(".window-content > .create-child")?.remove();
@@ -249,8 +237,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     async _onRender(context, options) {
         await super._onRender(context, options);
 
-        // Our forge omits the `dnd5e2` class (its styles would fight the forge), but rendering still fires
-        // `renderNPCActorSheet`. Pre-v14 `this.element` is native DOM with no jQuery API
+        // `renderNPCActorSheet` still fires despite the omitted `dnd5e2` class, and pre-v14 gets native DOM.
         const generation = game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
         if (generation < 14 && this.element && typeof this.element.hasClass !== "function") {
             this.element.hasClass = (cls) => cls === "dnd5e2" || this.element.classList.contains(cls);
@@ -274,8 +261,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             $el.find('.monster__panels .accordion-section__title').click((e) => e.stopPropagation());
             $el.find('.item .item__title input').click((e) => e.stopPropagation());
             $el.find('.item .item__title').click(this._toggleItemDetails.bind(this));
-            // `update-item` inputs intentionally have no `name` attribute, so the V2 form
-            // auto-submit ignores them. Their value changes update the embedded item directly.
+            // These inputs carry no `name`, so the V2 auto-submit ignores them and they write directly.
             $el.find('[data-action="update-item"]').change((e) => this._updateItem(e));
 
             [ModalAbilityCheck, ModalBasicAttackAc, ModalBasicAttackSave, ModalBasicDamage, ModalSavingThrow].forEach((x) => {
@@ -286,18 +272,15 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
     }
 
-    /* Skip the auto-submit when an input inside a `.gmm-modal` changes: modal forms commit their own state via
-     * their roll buttons and should never trigger a sheet update by themselves. @inheritDoc */
+    /* Modal forms commit through their own roll buttons and must not submit the sheet. @inheritDoc */
     _onChangeForm(formConfig, event) {
         if (event?.target?.closest?.(".gmm-modal")) return;
         return super._onChangeForm(formConfig, event);
     }
 
-    /* @inheritDoc Replaces the V1 `_updateObject`
- * The form fields use dotted names like `gmm.blueprint.combat.rank.type` */
+    /* The form fields carry dotted names like `gmm.blueprint.combat.rank.type`. @inheritDoc */
     _processFormData(event, form, formData) {
-        // The forge template embeds GMM modals inside the sheet's root form. Drop their named radios/selects
-        // (`ability`, `mode`, `bonus`, …) so FormDataExtended doesn't submit them as actor updates.
+        // The embedded modals sit inside the root form, so their named fields would submit as actor updates.
         for (const name of Object.keys(formData.object)) {
             const input = form.querySelector(`[name="${CSS.escape(name)}"]`);
             if (input?.closest(".gmm-modal")) delete formData.object[name];
@@ -316,8 +299,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
 
         if (CompatibilityHelpers.hasProperty(expanded, "gmm.blueprint")) {
-            // `{{editor}}` writes to the target path under `flags.*`; mirror biography
-            // text back onto `gmm.blueprint` so the blueprint envelope captures it.
+            // `{{editor}}` writes under `flags.*`, so the blueprint envelope would otherwise miss it.
             const bioText = expanded.flags?.gmm?.blueprint?.data?.biography?.text;
             if (bioText !== undefined) {
                 CompatibilityHelpers.setProperty(expanded, "gmm.blueprint.biography.text", bioText);
@@ -344,8 +326,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return expanded;
     }
 
-    /* GMM effect rows name their owning item `data-parent-id`, but the core handler reads `data-item-id`, so an
-     * item-owned effect would be looked up against the actor's own effects and drag an empty payload. @inheritDoc */
+    /* The core handler reads `data-item-id`, so an item-owned effect would drag an empty payload. @inheritDoc */
     async _onDragStart(event) {
         const row = event.currentTarget?.closest?.(".effect[data-effect-id][data-parent-id]");
         const effect = row ? this.actor.items.get(row.dataset.parentId)?.effects?.get(row.dataset.effectId) : null;
@@ -360,8 +341,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         ["proficient", "attunement"].forEach(k => foundry.utils.deleteProperty(itemData.system, k));
     }
 
-    /* @inheritDoc GMM groups items by `getSortingCategory()` rather than by inventory section, so a sort within e.g
- * "actions" should never reorder a "trait" relative to it */
+    /* Sorting is scoped to `getSortingCategory()`, so a trait never reorders against an action. @inheritDoc */
     _onSortItem(event, item) {
         if (this.actor.isToken) return;
         const source = item;
@@ -383,13 +363,11 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return this.actor.updateEmbeddedDocuments("Item", updateData);
     }
 
-    /* Add a new item to the monster: loot and spell paths create vanilla dnd5e items, while any other type
-     * builds a GMM scaling-action item with a blueprint flag and the GMM activity. */
     static async #actionAddItem(event, target) {
         const type = target.dataset.type;
 
         if (type === "loot") {
-            // Loot items are not GMM scaling actions; create a vanilla loot item.
+            // Loot is never a scaling action.
             const itemData = {
                 name: game.i18n.format("DND5E.ItemNew", { type: game.i18n.localize(CONFIG.Item.typeLabels[type]) }),
                 type
@@ -398,7 +376,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
 
         if (type === "spell") {
-            // Spells use the standard dnd5e spell sheet; they are non-scaling and not part of the GMM scaling-action system.
+            // Spells keep the dnd5e sheet and never scale.
             const level = Number(target.dataset.level ?? 0) || 0;
             const preparationMode = target.dataset["preparation.mode"] || "prepared";
             let method = "spell";
@@ -421,8 +399,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
 
         const activationType = target.dataset["activation.type"] || "trait";
 
-        // Build a minimal blueprint for the new item; the rest of the blueprint defaults
-        // come from GMM_ACTION_BLUEPRINT during ActionBlueprint.createFromItem on prepare.
+        // Minimal on purpose: `GMM_ACTION_BLUEPRINT` supplies the rest on the next prepare.
         const blueprint = {
             vid: 1,
             type: "action",
@@ -450,8 +427,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             system: {
                 activities: { [Activities.GMM_ACTIVITY_ID]: activityData }
             },
-            // Nest the bound sheet under `flags.core.sheetClass`; a flat `"core.sheetClass"` key would not
-            // resolve, because Foundry reads the bound sheet from `document.flags.core.sheetClass`.
+            // Nested, because Foundry reads the bound sheet from `document.flags.core.sheetClass`.
             flags: {
                 core: { sheetClass: `${GMM_MODULE_TITLE}.ActionSheet` },
                 gmm: { blueprint }
@@ -499,7 +475,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
         if (!item) return;
-        // GMM scaling-action items put recharge on the GMM activity; fall back to item-level uses, then to the legacy Item method.
+        // Recharge sits on the GMM activity for actions, and on item-level uses for anything else.
         const activity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
         if (activity?.uses?.rollRecharge) return activity.uses.rollRecharge();
         if (item.system?.uses?.rollRecharge) return item.system.uses.rollRecharge();
@@ -520,10 +496,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }]);
     }
 
-    /* Toggle an item-effect between GMM "always" (transfers passively) and "onUse" (offered as
-     * an Apply Effect button on the GMM activity's chat card). Resolves the effect's parent item
-     * via the row's `data-parent-id` and delegates the storage update to Activities.setEffectMode.
-     * @this {MonsterSheet} */
+    /* The owning item comes from the row's `data-parent-id`, not from the effect. @this {MonsterSheet} */
     static async #actionToggleEffectMode(event, target) {
         event?.preventDefault?.();
         const row = target.closest(".effect[data-effect-id]");
@@ -541,8 +514,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
     }
 
-    /* Open a Foundry FilePicker to choose an image for the field named in `target.dataset.editImage`, then write
-     * the chosen path back to the document. Replaces the V1 sheet's inline `<img data-edit>` handling. */
+    /* Replaces the V1 sheet's inline `<img data-edit>` handling, which ApplicationV2 dropped. */
     static #actionEditImage(event, target) {
         const field = target.dataset.editImage;
         if (!field) return;
@@ -552,8 +524,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             current,
             callback: path => {
                 const update = { [field]: path };
-                // When writing into the GMM blueprint flag, also stamp the envelope's `vid` / `type`; without this
-                // a fresh actor's `_verifyBlueprint` would see a missing `vid` on the next render.
+                // Without the envelope's `vid`, `_verifyBlueprint` rejects the blueprint on the next render.
                 if (field.startsWith("flags.gmm.blueprint.")) {
                     update["flags.gmm.blueprint.vid"] = 1;
                     update["flags.gmm.blueprint.type"] = "monster";
@@ -604,8 +575,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const item = this.actor.items.get(target);
         if (!item) return;
 
-        // `system.uses.value` is derived in dnd5e 5.x (max - spent); translate the entered "remaining"
-        // count into the stored `spent`, on the GMM activity for actions or item-level uses for loot.
+        // `uses.value` is derived in dnd5e 5.x, so a typed remaining count has to become `spent`.
         if (field === "system.uses.value") {
             const activity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
             const uses = activity?.uses ?? item.system?.uses;
@@ -621,8 +591,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         return item.update({ [field]: value });
     }
 
-    /* Sync the ability ranking inputs back to the blueprint flag after a `.move-up` / `.move-down` reorder.
-     * Updates directly because Gui's reorder doesn't dispatch a `change` event to trigger the normal form submit. */
+    /* Written directly because Gui's reorder dispatches no `change` event to auto-submit. */
     _updateAbilityRanking(event) {
         const rankings = [];
         event.currentTarget.closest(".accordion-section__body")

@@ -63,7 +63,6 @@ Hooks.once("init", function() {
 		console.warn("GMM | dnd5e ActivityField not found at init; activity-source sanitisation patch was not installed.");
 	}
 
-	// Reprepare actor/item data when the default sheet is changed
 	Hooks.on("updateSetting", (setting, data, options, userId) => {
 		if ( setting.key === "core.sheetClasses" ) {
 			game.actors.forEach(x => x.prepareData());
@@ -84,7 +83,6 @@ Hooks.once("init", function() {
 			_hookItemDirectory(element);
 		}
 	});
-	// DAE Autocomplete
 	const daeFlags = _generateFlags();
 	Hooks.on('dae.setFieldData', (fieldData) => {
 		fieldData.GMM = daeFlags;
@@ -102,9 +100,7 @@ Hooks.once("init", function() {
 		}
 	});
 
-	// Sheet-swap conversion between vanilla and GMMC. Abort the in-flight update and re-issue a single
-	// combined update: convert to scaling (snapshotting originals), re-convert from a preserved blueprint,
-	// or revert to vanilla (restoring the snapshot). See the branch helpers below.
+	// One combined update, because re-issuing separately would re-trigger this hook.
 	Hooks.on("preUpdateItem", (item, change, options, _userId) => {
 		if (options?.gmmConvertingFromVanilla || options?.gmmRevertingToVanilla) return;
 		try {
@@ -115,7 +111,6 @@ Hooks.once("init", function() {
 				});
 				return false;
 			}
-			// Switching TO the GMMC ActionSheet.
 			if (_isSheetSwitchToGmm(item, change)) {
 				// A reverted item still has a blueprint; re-convert from it instead of re-deriving from vanilla.
 				if (item.flags?.gmm?.blueprint) {
@@ -188,7 +183,6 @@ Hooks.once('ready', async () => {
 		ui.notifications.error("Module Giffyglyph's Monster Maker Continued requires the 'libWrapper' module. Please install and activate it.");
 	}
 
-	// One-shot migration of legacy GMM scaling-action items onto the dnd5e v5.x activity model.
 	if (game.user.isGM) {
 		try {
 			await Activities.migrateWorld();
@@ -207,8 +201,7 @@ function _isSheetSwitchToGmm(item, change) {
 	return currentSheet !== target;
 }
 
-/* Inverse of _isSheetSwitchToGmm: true when a change moves the sheet away from the GMMC ActionSheet
- * (to another sheet, the default, or by deleting the flag). */
+/* Away means another sheet, the default, or the flag being deleted outright. */
 function _isSheetSwitchFromGmm(item, change) {
 	const target = `${GMM_MODULE_TITLE}.ActionSheet`;
 	if ((item?.flags?.core?.sheetClass) !== target) return false;
@@ -222,8 +215,7 @@ function _isSheetSwitchFromGmm(item, change) {
 	return newSheet !== target;
 }
 
-/* First-time conversion path: prompt, then commit the sheet flag, a blueprint derived from the item's
- * activities, the GMM activity, the originals snapshot, and the foreign-activity purge in one update. */
+/* First-time conversion: everything lands in one update so the hook is not re-entered. */
 async function _confirmAndConvertVanillaItem(item, originalChange, originalOptions, isDestructive = true) {
 	// Only prompt when there are activities to replace; trait items with none convert silently.
 	if (isDestructive) {
@@ -243,13 +235,11 @@ async function _confirmAndConvertVanillaItem(item, originalChange, originalOptio
 		if (!confirmed) return;
 	}
 
-	// Snapshot originals for a later restore. JSON string so a re-snapshot replaces it wholesale instead of
-	// deep-merging (which would resurrect activities deleted while in vanilla mode).
+	// A JSON string, not an object: a deep-merged re-snapshot would resurrect deleted activities.
 	const savedActivities = JSON.stringify(Activities.snapshotActivities(item));
 
 	const blueprint = ActionBlueprint.deriveFromVanillaItem(item);
-	// Full blueprint mirror (name/img/description + GMM activity). buildActivityUpdate alone would skip the
-	// description rewrite, leaving the original `[[lookup …]]` markup in the converted item.
+	// `buildActivityUpdate` alone would skip the description rewrite and leave vanilla enricher markup.
 	const update = foundry.utils.mergeObject(
 		foundry.utils.deepClone(originalChange ?? {}),
 		{
@@ -268,9 +258,7 @@ async function _confirmAndConvertVanillaItem(item, originalChange, originalOptio
 	console.log(`GMM | Converted item ${item.name} (${item.id}) from vanilla to scaling action.`);
 }
 
-/* Re-conversion path: rebuild the GMM activity from the preserved blueprint (keeping scaling edits) and
- * re-snapshot the current activities (keeping vanilla edits). Item-level fields are read live by the sheet,
- * so they're left as-is. */
+/* Re-conversion keeps both sets of edits: the preserved blueprint and the current activities. */
 async function _reconvertToScaling(item, originalChange, originalOptions) {
 	const blueprint = item.flags.gmm.blueprint;
 	const savedActivities = JSON.stringify(Activities.snapshotActivities(item));
@@ -292,8 +280,7 @@ async function _reconvertToScaling(item, originalChange, originalOptions) {
 	console.log(`GMM | Re-converted item ${item.name} (${item.id}) to scaling action from preserved blueprint.`);
 }
 
-/* Revert path: delete the GMM activity and restore the saved originals, keeping the GMM flags so the item
- * can toggle back. The sheet-class change rides along in the same update. */
+/* The GMM flags are kept, so the item can be toggled back. */
 async function _revertToVanilla(item, originalChange, originalOptions) {
 	const update = foundry.utils.mergeObject(
 		foundry.utils.deepClone(originalChange ?? {}),
@@ -309,14 +296,11 @@ async function _revertToVanilla(item, originalChange, originalOptions) {
 	console.log(`GMM | Reverted item ${item.name} (${item.id}) to vanilla; scaling data preserved in flags.`);
 }
 
-/* True when an actor is an NPC bound to the GMMC monster sheet (i.e. a scaling monster). */
 function _isGmmMonster(actor) {
 	return !!actor?.isGmmMonster?.();
 }
 
-/* Refill a scaling monster's current HP to its (blueprint-derived, unstored) max on creation/conversion or
- * when the max changes. `appliedMax` tracks the last-synced max; it uses the module flag scope because the
- * `flags.gmm` object is rebuilt each prepareData. */
+/* `appliedMax` lives in the module flag scope because `flags.gmm` is rebuilt each prepareData. */
 async function _syncScalingMonsterHp(actor, { force = false } = {}) {
 	if (!_isGmmMonster(actor)) return;
 	const hp = actor.system?.attributes?.hp;
@@ -357,14 +341,12 @@ async function _syncParagonDefenses(actor) {
 function _generateFlags() {
 	const moduleFlagScope = `flags.gmm`;
 	const moduleFlags = new Set([
-		//`${moduleFlagScope}.example`,
 	]);
 	return Array.from(moduleFlags).filter((key) => key.startsWith(`${moduleFlagScope}.`));
 }
 
 function _applyTokenCompatibilityShim() {
-	// FV13 shim: dnd5e SaveActivity uses the deprecated global `Token`; point it at the namespaced class
-	// so `instanceof Token` doesn't hit the deprecated getter.
+	// dnd5e SaveActivity still uses the global `Token`, whose getter is deprecated on v13.
 	try {
 		// Not needed on Foundry v14+ and can fail because global `Token` is non-configurable there.
 		if ((game.release?.generation ?? 0) >= 14) return;
