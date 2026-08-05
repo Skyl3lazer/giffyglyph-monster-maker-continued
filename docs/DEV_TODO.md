@@ -6,7 +6,6 @@
 ## Visual
 
 * Should proficiency show still under Attributes?
-* Several attributes don't display or function correctly when under the effects of a DAE
 
 ## Module Ecosystem
 

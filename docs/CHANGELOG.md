@@ -17,7 +17,9 @@
 	* Each condition now states its rarity the way the book does. This will be used later to try to estimate Scaler point values!
 	* This needs Foundry v14. On v13 the new compendium cannot exist at all, so the old **GMM Conditions (Legacy)** compendium is still there with the same conditions on its placeholder actor. It is frozen and won't get any updates, namely automation.
 	* If you use the **Side Effects** module, you can point its effect compendium setting at GMM Effects, or copy the conditions into your own effect compendium.
+	* Also in v14, there are basic automations for the conditions, utilizing both base effects, MidiQOL, and Automated Conditions 5e.
 * Dropped the DFreds Convenient Effects importable file and the leftover Convenient Effects data on the conditions.
+* More attributes are handled correctly now though effects and visually displayed as changed on the sheet when effects are active.
 
 ## v2.0.1.0
 
