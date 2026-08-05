@@ -8,7 +8,8 @@ description: >-
   unchanged.</p></li><li><p>Your form dictates the actions you can take. You
   can't speak, cast spells, or take actions that require
   hands.</p></li><li><p>Your gear melds into your new form. You can't activate,
-  use, wield, or benefit from your equipment.</p></li></ul>
+  use, wield, or benefit from your equipment.</p></li></ul><p><em>No
+  automation</em></p>
 disabled: false
 transfer: false
 folder: gmmConditions000

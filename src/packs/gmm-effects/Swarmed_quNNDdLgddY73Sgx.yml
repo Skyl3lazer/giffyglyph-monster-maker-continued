@@ -5,13 +5,20 @@ img: icons/creatures/invertebrates/spider-dotted-green.webp
 description: >-
   <p><strong>Uncommon Condition</strong></p><ul><li><p>You move as if in
   difficult terrain.</p></li><li><p>Attack rolls against you have advantage, and
-  your attack rolls have disadvantage.</p></li></ul>
+  your attack rolls have disadvantage.^</p></li></ul><p><em>^ AC5e
+  automation</em></p>
 disabled: false
 transfer: false
 folder: gmmConditions000
 sort: 0
 system:
-  changes: []
+  changes:
+    - key: flags.automated-conditions-5e.grants.attack.advantage
+      type: ac5e
+      value: '1'
+    - key: flags.automated-conditions-5e.attack.disadvantage
+      type: ac5e
+      value: '1'
 flags:
   dae:
     stackable: noneName

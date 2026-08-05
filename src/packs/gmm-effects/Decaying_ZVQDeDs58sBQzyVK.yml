@@ -4,13 +4,16 @@ _id: ZVQDeDs58sBQzyVK
 img: icons/svg/biohazard.svg
 description: >-
   <p><strong>Rare Condition</strong></p><ul><li><p>You can't regain hit points
-  through any means.</p></li></ul>
+  through any means.</p></li></ul><p><em>Core automation</em></p>
 disabled: false
 transfer: false
 folder: gmmConditions000
 sort: 0
 system:
-  changes: []
+  changes:
+    - key: system.traits.di.value
+      type: add
+      value: healing
 flags:
   dae:
     stackable: noneName

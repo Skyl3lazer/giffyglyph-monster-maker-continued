@@ -4,13 +4,17 @@ _id: tK8lciUDv0zrAxsa
 img: icons/skills/targeting/crosshair-mark-rough-pink.webp
 description: >-
   <p><strong>Common Condition</strong></p><ul><li><p>Monsters attacking you have
-  their critical threshold reduced by 1.</p></li></ul>
+  their critical threshold reduced by 1.</p></li></ul><p><em>AC5e
+  automation</em></p>
 disabled: false
 transfer: false
 folder: gmmConditions000
 sort: 0
 system:
-  changes: []
+  changes:
+    - key: flags.automated-conditions-5e.grants.attack.criticalThreshold
+      type: ac5e
+      value: threshold=-1
 flags:
   dae:
     stackable: noneName

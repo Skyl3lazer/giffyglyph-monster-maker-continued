@@ -4,13 +4,16 @@ _id: KOZyjWWkwTm21Q1d
 img: icons/magic/death/hand-withered-gray.webp
 description: >-
   <p><strong>Common Condition</strong></p><ul><li><p>Whenever you deal damage,
-  reduce it by half.</p></li></ul>
+  reduce it by half.</p></li></ul><p><em>AC5e automation</em></p>
 disabled: false
 transfer: false
 folder: gmmConditions000
 sort: 0
 system:
-  changes: []
+  changes:
+    - key: flags.automated-conditions-5e.damage.modifier
+      type: ac5e
+      value: modifier=/2; addTo=all
 flags:
   dae:
     stackable: noneName

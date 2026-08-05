@@ -6,7 +6,7 @@ description: >-
   <p><strong>Rare Condition</strong></p><ul><li><p>You are banished to a
   harmless plane of existence</p></li><li><p>When this condition ends, you
   reappear in either a) the space you left or b) the nearest unoccupied
-  space.</p></li></ul>
+  space.</p></li></ul><p><em>No automation</em></p>
 disabled: false
 transfer: false
 folder: gmmConditions000

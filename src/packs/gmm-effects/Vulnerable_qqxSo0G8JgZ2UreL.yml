@@ -5,13 +5,20 @@ img: icons/skills/targeting/crosshair-ringed-gray.webp
 description: >-
   <p><strong>Uncommon Condition</strong></p><ul><li><p>You gain vulnerability to
   a particular damage type or, if you have immunity, it is reduced to
-  resistance.</p></li></ul>
+  resistance.*</p></li></ul><p><em>* Core automation (add the damage
+  type)</em></p><p><em>To finish it, edit this effect and set the value of its
+  <strong>Damage Vulnerability</strong> change to the damage type - for example
+  <strong>fire</strong>. An immunity is not reduced automatically; remove the
+  type from Damage Immunity yourself.</em></p>
 disabled: false
 transfer: false
 folder: gmmConditions000
 sort: 0
 system:
-  changes: []
+  changes:
+    - key: system.traits.dv.value
+      type: add
+      value: ''
 flags:
   dae:
     stackable: noneName

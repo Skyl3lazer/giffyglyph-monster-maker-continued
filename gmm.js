@@ -7,6 +7,7 @@ import Activities from './scripts/classes/Activities.js';
 import ActionBlueprint from './scripts/classes/ActionBlueprint.js';
 import ParagonPower from './scripts/classes/ParagonPower.js';
 import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
+import Conditions from './scripts/classes/Conditions.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
@@ -52,6 +53,8 @@ Hooks.once("init", function() {
 		// midi reaches this by name through a `function.` optional-bonus flag, so it is API, not internal.
 		moduleRef.api.spendParagonDefense = ParagonDefenses.spendParagonDefense;
 	}
+
+	Conditions.registerApi();
 
 	// Patch ActivityField to sanitise legacy shortcode formulas pre-validation; persistent cleanup runs in migrateWorld().
 	if (!Activities.patchActivityField()) {

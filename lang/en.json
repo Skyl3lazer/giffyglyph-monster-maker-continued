@@ -645,6 +645,8 @@
   "gmm.monster.artifact.legendary_resistances.title": "Legendary Resistances",
   "gmm.monster.artifact.paragon_actions.blurb": "When another creature ends its turn, you can spend 1 paragon action to a) move or b) perform one action (attack, help, hide, etc). You regain spent paragon actions at the start of your turn.",
   "gmm.monster.artifact.paragon_actions.current": "Current",
+  "gmm.condition.bleeding.spent": "{name} loses a hit die to Bleeding.",
+  "gmm.condition.cursed.died": "{name} is Cursed and dies at 0 hit points.",
   "gmm.monster.artifact.paragon_actions.depleted": "{name} has no paragon actions remaining.",
   "gmm.monster.artifact.paragon_actions.maximum": "Maximum",
   "gmm.monster.artifact.paragon_actions.title": "Paragon Actions",

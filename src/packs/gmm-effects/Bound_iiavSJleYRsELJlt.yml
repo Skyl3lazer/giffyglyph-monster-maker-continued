@@ -6,7 +6,7 @@ description: >-
   <p><strong>Uncommon Condition</strong></p><ul><li><p>You can't use your
   hands.</p></li><li><p>You automatically fail any ability check that requires
   you to make precise movements with your hands.</p></li><li><p>You drop
-  anything you are carrying.</p></li></ul>
+  anything you are carrying.</p></li></ul><p><em>No automation</em></p>
 disabled: false
 transfer: false
 folder: gmmConditions000
