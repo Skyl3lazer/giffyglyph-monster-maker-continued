@@ -13,6 +13,11 @@
 * Short rest and long rest buttons on the Forge sheet. They run the same rest a vanilla NPC sheet does, so everything that recovers on a rest now actually recovers: paragon defenses refill on a long rest, and an action set to recharge on a short rest, long rest or day gets its uses back.
 * "Day" uses come back on a long rest that is a new day.
 * The long rest card now names the paragon defense pool it refilled instead of printing the internal flag path.
+* GMM conditions are now a real compendium of effects. Foundry v14 lets a module ship active effects directly, so the eighteen expanded conditions live in a new **GMM Effects** compendium, instead of being hidden on a placeholder actor you had to open first. You can browse, search, and drag them straight onto a token.
+	* Each condition now states its rarity the way the book does. This will be used later to try to estimate Scaler point values!
+	* This needs Foundry v14. On v13 the new compendium cannot exist at all, so the old **GMM Conditions (Legacy)** compendium is still there with the same conditions on its placeholder actor. It is frozen and won't get any updates, namely automation.
+	* If you use the **Side Effects** module, you can point its effect compendium setting at GMM Effects, or copy the conditions into your own effect compendium.
+* Dropped the DFreds Convenient Effects importable file and the leftover Convenient Effects data on the conditions.
 
 ## v2.0.1.0
 

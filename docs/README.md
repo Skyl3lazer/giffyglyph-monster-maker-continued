@@ -28,6 +28,7 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 * Premade attacks, traits and powers to easily create unique, thematic, and interesting monsters.
 * Easy-to-use shortcodes to make custom scaling features even easier.
 * Convert existing monsters in seconds by simply changing the active sheet.
+* The 18 expanded conditions as ready-to-drag active effects.
 * Includes full stats from the **[Giffyglyph's Monster Maker PDF](https://giffyglyph.com/#giffyglyphs-monster-maker)**.
 
 ![Scaling Adult Dragon](./img/scaling-monster-level.gif)
@@ -59,7 +60,7 @@ These modules are required for GMMC to function.
 These modules are optional, but may improve the experience of using GMMC.
 
 * [Midi QOL](https://foundryvtt.com/packages/midi-qol) - Provides automation, which some compendium items have built in already if Midi is active.
-* [Side Effects](https://foundryvtt.com/packages/side-effects) - Provides custom statuses, which the compendium will use.
+* [Side Effects](https://foundryvtt.com/packages/side-effects) - Adds a sidebar effect directory and lets you turn effects into token statuses. Works with GMM's conditions compendium - see [Conditions](#conditions). Needs Foundry v14.
 
 ---
 
@@ -111,6 +112,44 @@ All of these use the same module id, so only **one can be installed on a Foundry
 3. Customise the action with some scaling features and shortcodes.
 
 ![Scaling Action](./img/frightful-presence.png)
+
+## Conditions
+
+The **GMM Effects** compendium holds the eighteen expanded conditions from the Monster Maker PDF -
+Banished, Bleeding, Bound, Cursed, Dazed, Decaying, Dehydrated, Disoriented, Fatigued, Feeble,
+Silenced, Slowed, Starving, Stinking, Swarmed, Transformed, Vulnerable and Exposed - in a
+`Conditions` folder. Drag one onto a token to apply it.
+
+Each entry states its rarity, because that is what a condition costs when you are spending a
+feature's effect points on it: **1 point for a Common, 2 for an Uncommon, 4 for a Rare.**
+
+These conditions are **descriptive**. They carry the rules text and leave the adjudication to you -
+none of them change a creature's numbers on their own. Four of them overlap ids with markers dnd5e
+ships without any rules attached (`bleeding`, `cursed`, `silenced`, `transformed`), so GMM's
+versions are filling in text the system deliberately leaves blank.
+
+### With the Side Effects module
+
+[Side Effects](https://foundryvtt.com/packages/side-effects) adds an effect directory to the
+sidebar, built from **one** compendium of your choosing. Two ways to use it with GMM:
+
+* Point its **effect compendium** setting at `giffyglyph-monster-maker-continued.gmm-effects` to
+  browse the GMM conditions from the sidebar directly. Note that this replaces your own effect
+  compendium as the directory source, and GMM's pack is locked, so Side Effects features that write
+  to the compendium will not work against it.
+* Or leave the setting alone and copy the conditions you want into your own effect compendium. This
+  is the better option if you also keep custom effects of your own.
+
+Either way, right-clicking a condition and choosing **Add Status Effect** promotes it to a real
+status on the token HUD.
+
+### Foundry v13
+
+Active effect compendiums are a Foundry v14 feature. On v13 the GMM Effects compendium cannot load
+at all, and you will see a warning in the console saying the pack was skipped - this is harmless
+and the rest of the module works normally. The older **GMM Conditions (Legacy)** compendium holds
+the same eighteen conditions on a placeholder actor; open the actor and drag the effects off its
+Effects tab. That compendium is frozen, so new condition work only lands in GMM Effects.
 
 ## Roadmap
 

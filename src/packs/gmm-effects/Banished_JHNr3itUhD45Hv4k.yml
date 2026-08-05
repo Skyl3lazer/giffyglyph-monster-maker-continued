@@ -1,0 +1,19 @@
+name: Banished
+type: base
+_id: JHNr3itUhD45Hv4k
+img: icons/magic/movement/abstract-ribbons-red-orange.webp
+description: <p><strong>Rare Condition</strong></p><ul><li><p>You are banished to a harmless plane of
+  existence</p></li><li><p>When this condition ends, you reappear in either a) the space you left or b)
+  the nearest unoccupied space.</p></li></ul>
+disabled: false
+transfer: false
+folder: gmmConditions000
+sort: 0
+system:
+  changes: []
+flags:
+  dae:
+    stackable: noneName
+  gmm:
+    rarity: rare
+_key: '!effects!JHNr3itUhD45Hv4k'

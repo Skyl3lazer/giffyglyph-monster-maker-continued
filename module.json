@@ -57,8 +57,16 @@
 			"module": "giffyglyph-monster-maker-continued"
 		},
 		{
+			"name": "gmm-effects",
+			"label": "GMM Effects",
+			"path": "packs/gmm-effects",
+			"type": "ActiveEffect",
+			"system": "dnd5e",
+			"module": "giffyglyph-monster-maker-continued"
+		},
+		{
 			"name": "gmm-conditions",
-			"label": "GMM Conditions",
+			"label": "GMM Conditions (Legacy)",
 			"path": "packs/gmm-conditions",
 			"type": "Actor",
 			"system": "dnd5e",
@@ -70,7 +78,7 @@
 			"name": "Giffyglyph's Monster Maker",
 			"color": "#4e943d",
 			"sorting": "a",
-			"packs": [ "gmm-monster-traits", "gmm-monster-attacks", "gmm-monster-powers", "gmm-conditions" ]
+			"packs": [ "gmm-monster-traits", "gmm-monster-attacks", "gmm-monster-powers", "gmm-effects", "gmm-conditions" ]
 		}
 	],
 	"languages": [

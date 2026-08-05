@@ -12,4 +12,5 @@ docs/SOLVED_ISSUES.md
 docs/compendium-audit.md
 
 # Compiled LevelDB packs - built from src/packs via `npm run pack`; source of truth is the yml.
-packs/
+# Anchored: an unanchored `packs/` also swallows src/packs, hiding new pack sources from git.
+/packs/

@@ -1,0 +1,18 @@
+name: Cursed
+type: base
+_id: g7LyXcLjXceFvCBX
+img: icons/magic/death/weapon-scythe-rune-green.webp
+description: <p><strong>Rare Condition</strong></p><ul><li><p>If you are reduced to 0 hit points, you
+  die.</p></li></ul>
+disabled: false
+transfer: false
+folder: gmmConditions000
+sort: 0
+system:
+  changes: []
+flags:
+  dae:
+    stackable: noneName
+  gmm:
+    rarity: rare
+_key: '!effects!g7LyXcLjXceFvCBX'

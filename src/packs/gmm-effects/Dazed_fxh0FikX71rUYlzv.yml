@@ -1,0 +1,19 @@
+name: Dazed
+type: base
+_id: fxh0FikX71rUYlzv
+img: icons/svg/stoned.svg
+description: <p><strong>Uncommon Condition</strong></p><ul><li><p>During your turn, you can move <em>or</em>
+  take an action (not both).</p></li><li><p>You can't take reactions.</p></li><li><p>You have disadvantage
+  on concentration checks.</p></li></ul>
+disabled: false
+transfer: false
+folder: gmmConditions000
+sort: 0
+system:
+  changes: []
+flags:
+  dae:
+    stackable: noneName
+  gmm:
+    rarity: uncommon
+_key: '!effects!fxh0FikX71rUYlzv'
