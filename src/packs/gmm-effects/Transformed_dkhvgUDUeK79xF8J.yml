@@ -2,10 +2,13 @@ name: Transformed
 type: base
 _id: dkhvgUDUeK79xF8J
 img: icons/svg/paralysis.svg
-description: <p><strong>Rare Condition</strong></p><ul><li><p>You are physically changed into a new form.</p></li><li><p>Your
-  hit points and attributes are unchanged.</p></li><li><p>Your form dictates the actions you can take.
-  You can't speak, cast spells, or take actions that require hands.</p></li><li><p>Your gear melds into
-  your new form. You can't activate, use, wield, or benefit from your equipment.</p></li></ul>
+description: >-
+  <p><strong>Rare Condition</strong></p><ul><li><p>You are physically changed
+  into a new form.</p></li><li><p>Your hit points and attributes are
+  unchanged.</p></li><li><p>Your form dictates the actions you can take. You
+  can't speak, cast spells, or take actions that require
+  hands.</p></li><li><p>Your gear melds into your new form. You can't activate,
+  use, wield, or benefit from your equipment.</p></li></ul>
 disabled: false
 transfer: false
 folder: gmmConditions000

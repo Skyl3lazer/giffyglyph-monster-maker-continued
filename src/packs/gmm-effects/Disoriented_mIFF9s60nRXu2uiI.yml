@@ -2,8 +2,10 @@ name: Disoriented
 type: base
 _id: mIFF9s60nRXu2uiI
 img: icons/skills/trades/academics-astronomy-navigation-purple.webp
-description: <p><strong>Uncommon Condition</strong></p><ul><li><p>Whenever you make an attack roll, ability
-  check, or a saving throw, roll a d4 and subtract that number.</p></li></ul>
+description: >-
+  <p><strong>Uncommon Condition</strong></p><ul><li><p>Whenever you make an
+  attack roll, ability check, or a saving throw, roll a d4 and subtract that
+  number.</p></li></ul>
 disabled: false
 transfer: false
 folder: gmmConditions000

@@ -2,8 +2,10 @@ name: Swarmed
 type: base
 _id: quNNDdLgddY73Sgx
 img: icons/creatures/invertebrates/spider-dotted-green.webp
-description: <p><strong>Uncommon Condition</strong></p><ul><li><p>You move as if in difficult terrain.</p></li><li><p>Attack
-  rolls against you have advantage, and your attack rolls have disadvantage.</p></li></ul>
+description: >-
+  <p><strong>Uncommon Condition</strong></p><ul><li><p>You move as if in
+  difficult terrain.</p></li><li><p>Attack rolls against you have advantage, and
+  your attack rolls have disadvantage.</p></li></ul>
 disabled: false
 transfer: false
 folder: gmmConditions000

@@ -2,8 +2,9 @@ name: Feeble
 type: base
 _id: KOZyjWWkwTm21Q1d
 img: icons/magic/death/hand-withered-gray.webp
-description: <p><strong>Common Condition</strong></p><ul><li><p>Whenever you deal damage, reduce it by
-  half.</p></li></ul>
+description: >-
+  <p><strong>Common Condition</strong></p><ul><li><p>Whenever you deal damage,
+  reduce it by half.</p></li></ul>
 disabled: false
 transfer: false
 folder: gmmConditions000

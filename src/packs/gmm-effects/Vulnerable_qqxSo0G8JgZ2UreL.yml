@@ -2,8 +2,10 @@ name: Vulnerable
 type: base
 _id: qqxSo0G8JgZ2UreL
 img: icons/skills/targeting/crosshair-ringed-gray.webp
-description: <p><strong>Uncommon Condition</strong></p><ul><li><p>You gain vulnerability to a particular
-  damage type or, if you have immunity, it is reduced to resistance.</p></li></ul>
+description: >-
+  <p><strong>Uncommon Condition</strong></p><ul><li><p>You gain vulnerability to
+  a particular damage type or, if you have immunity, it is reduced to
+  resistance.</p></li></ul>
 disabled: false
 transfer: false
 folder: gmmConditions000

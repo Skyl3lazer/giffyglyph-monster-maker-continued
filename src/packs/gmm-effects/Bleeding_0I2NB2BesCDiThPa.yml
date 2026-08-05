@@ -2,9 +2,10 @@ name: Bleeding
 type: base
 _id: 0I2NB2BesCDiThPa
 img: icons/skills/wounds/blood-drip-droplet-red.webp
-description: <p><strong>Uncommon Condition</strong></p><ul><li><p>At the end of your turn, you lose 1
-  unspent hit die.</p></li><li><p>While you have no hit die, temporarily increase your level of exhaustion
-  by 1.</p></li></ul>
+description: >-
+  <p><strong>Uncommon Condition</strong></p><ul><li><p>At the end of your turn,
+  you lose 1 unspent hit die.</p></li><li><p>While you have no hit die,
+  temporarily increase your level of exhaustion by 1.</p></li></ul>
 disabled: false
 transfer: false
 folder: gmmConditions000

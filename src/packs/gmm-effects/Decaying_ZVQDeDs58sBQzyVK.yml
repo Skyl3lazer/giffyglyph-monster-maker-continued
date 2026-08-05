@@ -2,8 +2,9 @@ name: Decaying
 type: base
 _id: ZVQDeDs58sBQzyVK
 img: icons/svg/biohazard.svg
-description: <p><strong>Rare Condition</strong></p><ul><li><p>You can't regain hit points through any
-  means.</p></li></ul>
+description: >-
+  <p><strong>Rare Condition</strong></p><ul><li><p>You can't regain hit points
+  through any means.</p></li></ul>
 disabled: false
 transfer: false
 folder: gmmConditions000
