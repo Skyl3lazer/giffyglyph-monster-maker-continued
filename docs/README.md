@@ -28,7 +28,7 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 * Premade attacks, traits and powers to easily create unique, thematic, and interesting monsters.
 * Easy-to-use shortcodes to make custom scaling features even easier.
 * Convert existing monsters in seconds by simply changing the active sheet.
-* The 18 expanded conditions as ready-to-drag active effects.
+* 18 expanded conditions as ready-to-drag active effects for use on scaler or vanilla abilities.
 * Includes full stats from the **[Giffyglyph's Monster Maker PDF](https://giffyglyph.com/#giffyglyphs-monster-maker)**.
 
 ![Scaling Adult Dragon](./img/scaling-monster-level.gif)
