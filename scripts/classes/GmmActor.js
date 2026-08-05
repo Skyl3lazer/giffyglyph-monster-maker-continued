@@ -159,6 +159,21 @@ const GmmActor = (function () {
 		GMM_5E_ABILITIES.flatMap((x) => ["value", "mod"].map((f) => `system.abilities.${x}.${f}`))
 	);
 
+	/* The Forge sheet reads these off the artifact, so a replayed change is invisible until it is folded back.
+	 * Absent by design: a skill's mod is the ability's, and value/prof target a Proficiency object. */
+	const GMM_RECONCILED_NODES = new Map([
+		["system.attributes.init.mod", (x) => x.initiative],
+		["system.attributes.prof", (x) => x.proficiency_bonus],
+		["system.details.cr", (x) => x.challenge_rating],
+		["system.details.xp.value", (x) => x.xp],
+		["system.attributes.hp.effectiveMax", (x) => x.hit_points.maximum],
+		["system.attributes.spell.dc", (x) => x.spellbook.spellcasting.dc],
+		["system.attributes.encumbrance.max", (x) => x.inventory.capacity],
+		["system.attributes.encumbrance.value", (x) => x.inventory.weight],
+		[`system.skills.${GMM_5E_SKILLS.find((x) => x.name == "perception").foundry}.passive`, (x) => x.passive_perception],
+		...GMM_5E_SKILLS.map((x) => [`system.skills.${x.foundry}.total`, (y) => y.skills.find((z) => z.code == x.name)])
+	]);
+
 	/* The blueprint is read before effects apply, so an effect targeting it cannot be honored. */
 	const GMM_UNSUPPORTED_EFFECT_PREFIXES = ["flags.gmm.blueprint"];
 	const _reportedUnsupportedTargets = new Set();
@@ -206,6 +221,28 @@ const GmmActor = (function () {
 		return Object.keys(abilityDeltas).length
 			? MonsterForge.createArtifact(blueprint, { abilityDeltas: abilityDeltas, checkBonuses: checkBonuses })
 			: artifact;
+	}
+
+	/* Taken before the replay so the delta measures what it moved, not how the schema and artifact differ. */
+	function _snapshotReconciledNodes(actor, changes) {
+		const snapshot = new Map();
+		for (const change of changes) {
+			if (!GMM_RECONCILED_NODES.has(change.key)) continue;
+			const entry = snapshot.get(change.key);
+			if (entry) entry.changes.push(change);
+			else snapshot.set(change.key, { before: Number(foundry.utils.getProperty(actor, change.key)), changes: [change] });
+		}
+		return snapshot;
+	}
+
+	/* The forge's floors are deliberately not re-asserted: the sheet has to show the number the die uses. */
+	function _reconcileArtifactWithEffects(actor, monsterData, snapshot) {
+		for (const [key, entry] of snapshot) {
+			const node = GMM_RECONCILED_NODES.get(key)(monsterData);
+			const delta = Number(foundry.utils.getProperty(actor, key)) - entry.before;
+			if (!node || !Number.isFinite(delta)) continue;
+			node.add(delta, _effectSourceLabel(entry.changes));
+		}
 	}
 
 	/* Prepare actor-specific derived data (abilities, skills, CR, HP, initiative, encumbrance, spellcasting). */
@@ -305,7 +342,9 @@ const GmmActor = (function () {
 			actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
 			actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
 
+			const reconciledNodes = _snapshotReconciledNodes(actor, effectChanges.late);
 			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.late);
+			_reconcileArtifactWithEffects(actor, monsterData, reconciledNodes);
 
 			// Reads the finished artifact and current hit points, so it goes after the late replay.
 			ParagonDefenses.prepareDerivedData(actor);
