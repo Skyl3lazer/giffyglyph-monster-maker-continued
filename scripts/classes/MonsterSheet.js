@@ -93,7 +93,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const actorData = this.actor.flags;
         const moduleVersion = game.modules.get(GMM_MODULE_TITLE)?.version ?? "";
 
-        // The V1 sheet framework supplied `cssClass`; ApplicationV2 does not, so provide an equivalent for the templates.
+        // The forge templates read `cssClass`, which ApplicationV2 does not populate.
         context.cssClass = this.isEditable ? "editable" : "locked";
         context.editable = this.isEditable;
         // dnd5e sets this in `_prepareHeaderContext`, which never runs because the forge part replaces its header.
@@ -245,8 +245,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
 
         this.element?.querySelector(".header-elements .cr-xp")?.remove();
 
-        // Rich text editors are `<prose-mirror>` web components in the templates; they self-initialize.
-
         // Bridge the GMM Gui controller and modal helpers (which still use jQuery) to the V2 root element.
         const $el = $(this.element);
         try {
@@ -334,7 +332,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         event.dataTransfer.setData("text/plain", JSON.stringify(effect.toDragData()));
     }
 
-    /* Extend the dnd5e default drop reset with the GMM-specific fields (`proficient`, `attunement`) the V1 sheet stripped. @inheritDoc */
+    /** @inheritDoc */
     _onDropResetData(event, itemData) {
         super._onDropResetData(event, itemData);
         if (!itemData.system) return;
@@ -514,7 +512,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
     }
 
-    /* Replaces the V1 sheet's inline `<img data-edit>` handling, which ApplicationV2 dropped. */
+    /** @this {MonsterSheet} */
     static #actionEditImage(event, target) {
         const field = target.dataset.editImage;
         if (!field) return;

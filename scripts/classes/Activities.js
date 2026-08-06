@@ -725,9 +725,7 @@ const Activities = (function () {
             if (attackTypeKey) blueprintData.attack.type = attackTypeKey;
             // The activity holds only the sanitised copy, so an authored shortcode would be lost.
             const existingBonus = blueprintData.attack.bonus;
-            if (typeof existingBonus === "string" && existingBonus.includes("[")) {
-                // keep as-is
-            } else {
+            if (!(typeof existingBonus === "string" && existingBonus.includes("["))) {
                 blueprintData.attack.bonus = obj.attack.bonus ?? null;
             }
             blueprintData.attack.related_stat = obj.attack.ability ?? "str";
@@ -856,7 +854,6 @@ const Activities = (function () {
             : { [`system.activities.-=${activityId}`]: null };
     }
 
-    /* Substitute GMM shortcodes into the runtime values of every GMM activity on the item. */
     function resolveActivityFormulas(item, monsterData) {
         if (!monsterData) return;
         for (const activityId of GMM_ACTIVITY_IDS) {

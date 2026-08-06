@@ -44,7 +44,7 @@ const Shortcoder = (function () {
         {
             code: "target",
             type: "string",
-            // Item-scoped: blueprint target label. No item context → preserve literal token.
+            // Without an item there is no blueprint to read, so the literal token is left in place.
             resolver: (_monsterData, itemContext) => {
                 if (!itemContext) return undefined;
                 const blueprintData = itemContext?.flags?.gmm?.blueprint?.data;

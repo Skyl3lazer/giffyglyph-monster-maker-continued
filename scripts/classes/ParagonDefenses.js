@@ -149,7 +149,7 @@ const ParagonDefenses = (function () {
 		const hp = actor?.system?.attributes?.hp;
 		if (!hp) return;
 
-		// Don't spend temp hp for the cost
+		// The cost comes out of real hit points, so temp is pinned rather than left to the damage pipeline.
 		updates["system.attributes.hp.temp"] = hp.temp;
 		updates["system.attributes.hp.value"] = Math.max(0, hp.value - amount);
 	}
@@ -167,13 +167,11 @@ const ParagonDefenses = (function () {
 		result.updateData[GMM_PARAGON_DEFENSES_KEY] = maximum;
 	}
 
-	/* Prevent rest from double reporting legendary resistance recovery */
 	function _dropReplacedLegendaryRecovery(actor, result) {
 		if (actor?.flags?.gmm?.monster?.data?.legendary_resistances?.visible) return;
 		if (result?.updateData) delete result.updateData[GMM_LEGENDARY_RESISTANCES_KEY];
 	}
 
-	/* Mirroring dnd5e's legendary-resistance guard */
 	function _onRenderChatMessage(message, html) {
 		if (!_isEnabled()) return;
 

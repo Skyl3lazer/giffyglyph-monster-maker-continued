@@ -102,12 +102,10 @@ const MonsterForge = (function () {
     function _parseDescription(description) {
         const parts = [];
 
-        // Render creature size
         if (description.size) {
             parts.push(game.i18n.format(`gmm.common.size.${description.size}`));
         }
 
-        // Render creature category
         let category = "";
         if (!description.type.category) {
             if (description.type.custom?.trim().length > 0) {
@@ -117,13 +115,11 @@ const MonsterForge = (function () {
             category = game.i18n.format(`gmm.common.category.${description.type.swarm ? "multiple" : "single"}.${description.type.category}`).toLowerCase();
         }
 
-        // Render creature tags
         const tags = description.type.tags ? description.type.tags.split(";").map(x => x.trim()).filter(x => x.length > 0).sort() : "";
         if (tags.length > 0) {
             category += `${category.length == 0 ? '' : ' '}(${tags.join(", ")})`;
         }
 
-        // Render creature swarm
         if (description.type.swarm) {
             let swarmSize = game.i18n.format(`gmm.common.size.${description.type.swarm}`).toLowerCase();
             parts.push(game.i18n.format(`gmm.monster.artifact.description.swarm`, {
@@ -134,7 +130,6 @@ const MonsterForge = (function () {
             parts.push(category);
         }
 
-        // Render creature alignment
         let alignment = "";
         if (description.alignment.category) {
             alignment = game.i18n.format(`gmm.common.alignment.${description.alignment.category}`).toLowerCase();
@@ -241,7 +236,7 @@ const MonsterForge = (function () {
         const dice = Dice.getDiceRoll(damage.value, damagePerAction.die_size, damagePerAction.maximum_dice);
 
         return $.extend(damage, {
-            dice: dice ? dice : "—",
+            dice: dice ? dice : "-",
             type: damagePerAction.type,
             die_size: damagePerAction.die_size ? `d${damagePerAction.die_size}` : null,
             maximum_dice: damagePerAction.maximum_dice
@@ -709,7 +704,6 @@ const MonsterForge = (function () {
 
     function _getSpellSlots(classes, spellLevel, slotModifiers) {
 
-        // Tabulate the total spell-casting progression
         const progression = {
             total: 0,
             slot: 0,
@@ -719,7 +713,6 @@ const MonsterForge = (function () {
             const levels = x.class.level;
             const prog = x.class.spellcasting;
 
-            // Accumulate levels
             if (prog !== "pact") {
                 progression.total++;
             }
@@ -742,7 +735,6 @@ const MonsterForge = (function () {
             }
         });
 
-        // Look up the number of slots per level from the progression table
         let levels, pactLevel;
         levels = CompatibilityHelpers.clamped(spellLevel ? spellLevel : progression.slot, 0, 20);
         pactLevel = CompatibilityHelpers.clamped(slotModifiers.pact.level ? slotModifiers.pact.level : progression.pact, 0, 20);

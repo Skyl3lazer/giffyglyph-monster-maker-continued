@@ -41,8 +41,7 @@ const Conditions = (function () {
 	}
 
 	/* Cursed: if you are reduced to 0 hit points, you die.
-	 * midi fires isDamaged once per target, so reading the target set would act on the wrong one
-	 * when two targets are both Cursed. */
+	 * midi fires isDamaged once per target, so the target set would name the wrong one of two Cursed victims. */
 	async function cursed(macroData = {}) {
 		const actor = _getBearer("cursed", [macroData?.token, macroData?.actor]);
 		if (!actor || (Number(actor.system?.attributes?.hp?.value) || 0) > 0) return;

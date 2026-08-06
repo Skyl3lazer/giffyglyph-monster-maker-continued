@@ -85,8 +85,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         const itemData = this.item.flags;
         const moduleVersion = game.modules.get(GMM_MODULE_TITLE)?.version ?? "";
 
-        // Templates rendered via the V1 sheet expected `cssClass` from the framework; ApplicationV2
-        // doesn't populate it automatically, so provide an equivalent for the existing forge template.
+        // The forge template reads `cssClass`, which ApplicationV2 does not populate.
         context.cssClass = this.isEditable ? "editable" : "locked";
         context.editable = this.isEditable;
 
@@ -147,11 +146,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return context;
     }
 
-    /* Stamp the always/onUse flags consumed by `blueprint_effect.html` onto every effect entry.
-     * Effects rendered here belong to `this.item` directly, so we deliberately leave `parentId`
-     * unset — populating it would make dnd5e's `<dnd5e-effects>` element resolve the effect via
-     * `this.document.items.get(parentId)` (items have no `.items` collection) and throw on every
-     * built-in toggle/edit/delete click. Our own toggle handler reads `this.item` directly. */
+    /* `parentId` is left unset: `<dnd5e-effects>` resolves it through a `.items` collection an item has not got. */
     _gmmEnrichEffectModes(context) {
         const categories = context?.effects;
         if (!categories) return;
@@ -191,8 +186,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }
     }
 
-    /* Ammo consumption: list every consumable item on the actor whose `system.type.value === "ammo"`,
-     * plus the item itself when it is ammo. */
     _gmmAmmoTargets(actor, currentItem) {
         const targets = {};
         const isAmmo = (i) => (i.type === "consumable") && (i.system?.type?.value === "ammo");
@@ -206,8 +199,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return targets;
     }
 
-    /* Attribute consumption:
- * surface the actor-data attribute paths dnd5e considers consumable */
     _gmmAttributeTargets(actor) {
         const targets = {};
         let attrs;
@@ -231,24 +222,19 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return targets;
     }
 
-    /* Charges consumption:
- * any actor-side item with a `uses.max` */
     _gmmChargesTargets(actor, currentItem) {
         const targets = {};
         const fmt = (name, uses) => {
             if (!uses?.max) return name;
             const recovery = uses.recovery?.[0];
-            // Periodic recoverAll (lr/sr/day/etc., excluding recharge) → "max per period".
             if (recovery && (recovery.type === "recoverAll") && (recovery.period !== "recharge")
                 && (uses.recovery.length === 1)) {
                 const per = CONFIG.DND5E.limitedUsePeriods?.[recovery.period]?.abbreviation ?? recovery.period;
                 return `${name} (${game.i18n.format("DND5E.AbilityUseConsumableLabel", { max: uses.max, per })})`;
             }
-            // Recharge → "(Recharge)".
             if (recovery?.period === "recharge") {
                 return `${name} (${game.i18n.localize("DND5E.Recharge")})`;
             }
-            // Plain charges → "(value charges)".
             return `${name} (${game.i18n.format("DND5E.AbilityUseChargesLabel", { value: uses.value ?? uses.max })})`;
         };
 
@@ -269,19 +255,16 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         if (toggle) toggle.remove();
     }
 
-    /* Remove the dnd5e "create child" footer button (gold "+" appended to `.window-content`);
-     * the Forge UI provides its own controls and dnd5e's button has no meaning here. */
+    /* The Forge UI provides its own controls, so dnd5e's create-child footer button means nothing here. */
     async _onFirstRender(context, options) {
         await super._onFirstRender(context, options);
         this.element?.querySelector(".window-content > .create-child")?.remove();
     }
 
-    /* No-op: rich text editors are now `<prose-mirror>` web components in the templates,
- * which self-initialize. Override the V1 activator dnd5e still calls so it doesn't crash. */
+    /* dnd5e still calls this activator, and the templates' `<prose-mirror>` elements self-initialize. */
     _activateEditor(_div) {}
 
-    /* Force the dnd5e PLAY/EDIT mode to EDIT on every render;
-     * the Forge UI has no read-only variant to swap into. */
+    /* The Forge UI has no read-only variant to swap into. */
     _configureRenderOptions(options) {
         super._configureRenderOptions(options);
         this._mode = this.constructor.MODES.EDIT;
@@ -309,8 +292,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return super._onChangeForm(formConfig, event);
     }
 
-    /* @inheritDoc Replaces the V1 `_updateObject`.
-     * Translates the `gmm.blueprint.*` form fields into a `flags.gmm.blueprint` payload plus its item-side mirror. */
+    /** @inheritDoc */
     _processFormData(event, form, formData) {
         // The forge template embeds GMM modals inside the root form, so their inputs would otherwise
         // be submitted; drop any form field whose input lives inside a `.gmm-modal`.
@@ -425,9 +407,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         const effectType = li.dataset.effectType;
         const isEnchantment = effectType.startsWith("enchantment");
 
-        // Default-by-section: temporary effects start in onUse mode (the activity's chat card
-        // will offer an "Apply Effect" button); passive/inactive effects start in always mode
-        // (transferred to the owning actor when the item is added).
+        // A temporary effect wants the chat card's Apply Effect button; a passive one wants to transfer.
         const defaultOnUse = effectType === "temporary";
         const created = await this.document.createEmbeddedDocuments("ActiveEffect", [{
             name: game.i18n.localize("DND5E.EffectNew"),
@@ -452,10 +432,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return created;
     }
 
-    /* Toggle this item's effect between GMM "always" (transfers passively) and "onUse" (offered as
-     * an Apply Effect button on the GMM activity's chat card). Resolves the effect from
-     * `data-effect-id` on the row and delegates the storage update to Activities.setEffectMode.
-     * @this {ActionSheet} */
+    /** @this {ActionSheet} */
     static async #actionToggleEffectMode(event, target) {
         event?.preventDefault?.();
         const row = target.closest(".effect[data-effect-id]");
@@ -472,8 +449,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }
     }
 
-    /* Open a Foundry FilePicker to choose an image for the field named in `target.dataset.editImage`,
-     * then write the picked path back to the document. Replaces the V1 `<img data-edit>` wiring. */
+    /** @this {ActionSheet} */
     static #actionEditImage(event, target) {
         const field = target.dataset.editImage;
         if (!field) return;

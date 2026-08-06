@@ -34,8 +34,6 @@ const Templates = (function() {
 			return html.replace(rgx, "$& selected");
 		});
 
-		// v14 ships `concat`, `eq`/`ne`/`lt`/`gt`/`lte`/`gte`, `and` and `or` with the semantics GMM reimplemented.
-
 		Handlebars.registerHelper('json', function (context) {
 			return JSON.stringify(context);
 		});

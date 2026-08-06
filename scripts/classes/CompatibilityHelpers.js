@@ -63,8 +63,7 @@ const CompatibilityHelpers = (function () {
 		}
 	}
 
-	/* Build a FormData object from the named form controls inside a container, for callers that no
-	 * longer receive a FormData automatically under Foundry V14's ApplicationV2. */
+	/* ApplicationV2 hands no FormData to callers outside its own submit path. */
 	function readInputs(container) {
 		const fd = new FormData();
 		if (!container) return fd;
@@ -77,9 +76,7 @@ const CompatibilityHelpers = (function () {
 		});
 		return fd;
 	}
-	/* Roll#toMessage visibility options differ by generation: v13 reads the legacy `rollMode`
-	 * (publicroll/gmroll/blindroll/selfroll/roll); v14+ reads `messageMode` (CONFIG.ChatMessage.modes:
-	 * public/gm/blind/self). GMM's modal mode-select emits the legacy values, so return the right option. */
+	/* GMM's modal mode-select emits v13's `rollMode` values, which v14's `messageMode` does not accept. */
 	function rollMessageOptions(mode) {
 		const generation = game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
 		if (generation < 14) return { rollMode: mode };

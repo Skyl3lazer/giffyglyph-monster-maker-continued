@@ -1,13 +1,11 @@
-/* Shared label formatters for GmmItem and the Shortcoder pipeline. Kept dependency-free
- * to avoid a module cycle between those callers. */
+/* Dependency-free, because GmmItem and Shortcoder would otherwise form a module cycle through it. */
 
-/* Format a blueprint target as a localised label ("" if unsupported); an empty type falls back to `range`. */
 export function formatTargetLabel(target, range) {
 	if (!target) return "";
 	switch (target.type ?? "") {
 		case "":
 		case "none":
-			// Typeless target has no count/units of its own — read them off the action's range.
+			// Typeless target has no count/units of its own, so read them off the action's range.
 			switch (range?.units) {
 				case "self":
 					return game.i18n.format(`gmm.action.labels.target.self`);
@@ -55,7 +53,6 @@ export function formatTargetLabel(target, range) {
 	}
 }
 
-/* Format `{ value, long, units }` blueprint range; `attackType` of mwak/msak triggers reach wording. */
 export function formatRangeLabel(range, attackType) {
 	if (!range?.units) return "";
 	switch (range.units) {

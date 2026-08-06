@@ -16,14 +16,14 @@ class DerivedAttribute {
 	multiply(value, source) {
 		if (value != 1) {
 			this.value *= value;
-			this.sources.push({ value: `×${value}`, source: source});
+			this.sources.push({ value: `x${value}`, source: source});
 		}
 	}
 
 	divide(value, source) {
 		if (value != 1) {
 			this.value /= value;
-			this.sources.push({ value: `÷${value}`, source: source});
+			this.sources.push({ value: `/${value}`, source: source});
 		}
 	}
 

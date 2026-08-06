@@ -21,7 +21,6 @@ const GmmItem = (function () {
         }
     }
 
-    /* Patch the Foundry Item5e entity to track GMM scaling-action state and wire the activity-aware roll hooks. */
     function patchItem5e() {
         // Rebuilt from the document every prepare, so it can never be stale.
         _safeWrap('game.dnd5e.documents.Item5e.prototype.prepareData', function (wrapped, ...args) {
@@ -173,8 +172,6 @@ const GmmItem = (function () {
         if (!activity.save.dc.formula || activity.save.dc.formula === "0") {
             activity.save.dc.formula = String(finalDc);
         }
-
-        // Deliberately not written to `_source`: `resolveActivityFormulas` rebuilds it every prepare.
 
         if (rollConfig) {
             rollConfig.target = finalDc;

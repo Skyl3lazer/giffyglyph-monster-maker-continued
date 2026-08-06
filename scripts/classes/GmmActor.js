@@ -6,9 +6,7 @@ import { GMM_5E_ABILITIES } from "../consts/Gmm5eAbilities.js";
 import { GMM_5E_SKILLS } from '../consts/Gmm5eSkills.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
-/* A patcher which controls actor data based on the selected sheet */
 const GmmActor = (function () {
-	//import Proficiency from '../../../../systems/dnd5e/module/actor/proficiency.js';
 	function Proficiency(...args) {
 		return new dnd5e.documents.Proficiency(...args);
 	}
@@ -20,13 +18,12 @@ const GmmActor = (function () {
 			return true;
 		} catch (error) {
 			// Missing lib-wrapper is expected (the ready hook warns the user); any other failure means
-			// a wrap target changed in this dnd5e version — surface that loudly rather than silently.
+			// a wrap target changed in this dnd5e version, which has to surface loudly.
 			console[game.modules.get('lib-wrapper')?.active ? "error" : "warn"](`GMM | libWrapper hook for "${target}" was not registered: ${error.message}`);
 			return false;
 		}
 	}
 
-	/* Patch the Foundry Actor5e entity to control how data is prepared based on the active sheet. */
 	function patchActor5e() {
 		_safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareBaseData', function (wrapped, ...args) {
 			if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
@@ -46,7 +43,6 @@ const GmmActor = (function () {
 			}
 		}, 'WRAPPER');
 
-		// Cache references to the original prototype methods only when they actually exist.
 		const Actor5eProto = game.dnd5e.documents.Actor5e.prototype;
 		if (typeof Actor5eProto.prepareBaseData === "function") Actor5eProto.prepare5eBaseData = Actor5eProto.prepareBaseData;
 		if (typeof Actor5eProto.prepareDerivedData === "function") Actor5eProto.prepare5eDerivedData = Actor5eProto.prepareDerivedData;
@@ -54,7 +50,6 @@ const GmmActor = (function () {
 		Actor5eProto.isGmmMonster = _isGmmMonster;
 	}
 
-	/* Prepare actor-specific base data that does not depend on Items or Active Effects. */
 	function _prepareMonsterBaseData(actor) {
 		const actorData = actor.system;
 		const monsterBlueprint = MonsterBlueprint.createBaseFromActor(actor);
@@ -270,7 +265,6 @@ const GmmActor = (function () {
 		return (monsterData.hit_points.use_formula && rolled) ? rolled : monsterData.hit_points.maximum.value;
 	}
 
-	/* Prepare actor-specific derived data (abilities, skills, CR, HP, initiative, encumbrance, spellcasting). */
 	function _prepareMonsterDerivedData(actor) {
 		try {
 			const actorData = actor.system;
@@ -300,7 +294,6 @@ const GmmActor = (function () {
                 if (!scoreTargeted.has(x)) actorData.abilities[x].value = monsterData.ability_modifiers[x].score;
                 actorData.abilities[x].mod = monsterData.ability_modifiers[x].value;
                 actorData.abilities[x].proficient = false;
-                //actorData.abilities[x].prof = 0;
 				actorData.abilities[x].saveProf = new Proficiency(monsterData.proficiency_bonus.value, monsterBlueprint.data.trained_saves[x].trained ? 1 : 0);
 				actorData.abilities[x].checkProf = new Proficiency(0, 1);
 				// Replace only save.value - the save object carries the .mode and .roll #rollD20Test needs.
@@ -337,8 +330,7 @@ const GmmActor = (function () {
 			// Both HP modes: the replay below is unconditional, so a mode that skipped this would count an effect twice.
 			actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, monsterData);
 
-			// Mutate fields on the existing init RollConfigField object instead of replacing it wholesale;
-			// replacing it would clobber `init.roll` (which carries advantage/disadvantage state) and other dnd5e v5+ fields.
+			// Field-wise, because replacing the init object would overwrite the `roll` mode dnd5e keeps beside these.
 			actorData.attributes.init.prof = new Proficiency(0, 1);
 			actorData.attributes.init.ability = monsterData.initiative.ability;
 			actorData.attributes.init.mod = monsterData.initiative.value;
@@ -382,8 +374,6 @@ const GmmActor = (function () {
 			// Reads the finished artifact and current hit points, so it goes after the late replay.
 			ParagonDefenses.prepareDerivedData(actor);
 
-			// Compute owned item attributes which depend on prepared Actor data
-			// The V1 `getSaveDC` / `getAttackToHit` calls were replaced by Activity-driven roll hooks (see GmmItem.patchItem5e)
 			actor.items.contents.forEach((item) => {
 				try {
 					item.prepareShortcodes?.();
@@ -396,7 +386,6 @@ const GmmActor = (function () {
 		}
 	}
 
-	/* Get the active sheet id for this actor, falling back to the core default NPC sheet. */
 	function _getActorSheetId() {
 		try {
 			return this.getFlag("core", "sheetClass") || game.settings.get("core", "sheetClasses").Actor.npc;
