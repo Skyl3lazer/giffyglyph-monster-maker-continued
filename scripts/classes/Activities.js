@@ -1421,6 +1421,7 @@ const Activities = (function () {
         damagePartToBlueprint,
         buildActivityData,
         buildDeferredActivityData,
+        buildDoomClockEffectData,
         buildActivityUpdate,
         readActivityIntoBlueprintData,
         resolveActivityFormulas,
