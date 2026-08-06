@@ -6,6 +6,11 @@ system:
     value: >-
       <p>You ready your hammer to deal a powerful blow to a fallen foe.</p>
 
+      <p><strong>Hit:</strong> the target is doomed 1 as the blow lands but the
+      bones have yet to give.</p>
+
+      <p><strong>Doom:</strong> the damage catches up with the target.</p>
+
       <p><em>Adding a condition and a deferral allows this feature to deal more
       damage. (See GMM pdf p.45)</em></p>
     chat: ''
@@ -85,6 +90,11 @@ flags:
             <p>You ready your hammer to deal a powerful blow to a fallen
             foe.</p>
 
+            <p><strong>Hit:</strong> the target is doomed 1 as the blow lands
+            but the bones have yet to give.</p>
+
+            <p><strong>Doom:</strong> the damage catches up with the target.</p>
+
             <p><em>Adding a condition and a deferral allows this feature to deal
             more damage. (See GMM pdf p.45)</em></p>
         activation:
@@ -146,7 +156,7 @@ flags:
         deferral:
           type: dooming
           timer: 1
-          respite: The target moves away
+          cancel: The target moves away
         properties:
           concentration:
             checked: false

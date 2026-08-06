@@ -4,10 +4,13 @@ img: icons/magic/death/hand-undead-skeleton-fire-pink.webp
 system:
   description:
     value: >-
-      <p>You begin draining the life out of a nearby foe. If they take damage
-      from this attack, they become &amp;reference[Frightened] of you. They make
-      make a DC [dcPrimaryBonus + maxMod] Wisdom save at the end of each of
-      their turns to end this effect.</p>
+      <p>You begin draining the life out of a nearby foe.</p>
+
+      <p><strong>Hit:</strong> the target is doomed 1.</p>
+
+      <p><strong>Doom:</strong> the target becomes &amp;reference[Frightened] of
+      you, and makes a DC [dcPrimaryBonus + maxMod] Wisdom save at the end of
+      each of their turns to end that fright.</p>
 
       <p><em>Adding a deferral allows this feature to deal more damage and apply
       a condition. (See GMM pdf p.45)</em></p>
@@ -85,10 +88,14 @@ flags:
           name: (Rare) Melee Dooming Attack
           image: icons/magic/death/hand-undead-skeleton-fire-pink.webp
           text: >-
-            <p>You begin draining the life out of a nearby foe. If they take
-            damage from this attack, they become &amp;reference[Frightened] of
-            you. They make a DC [dcPrimaryBonus + maxMod] Wisdom save at the end
-            of each of their turns to end this effect.</p>
+            <p>You begin draining the life out of a nearby foe.</p>
+
+            <p><strong>Hit:</strong> the target is doomed 1.</p>
+
+            <p><strong>Doom:</strong> the target becomes
+            &amp;reference[Frightened] of you, and makes a DC [dcPrimaryBonus +
+            maxMod] Wisdom save at the end of each of their turns to end that
+            fright.</p>
 
             <p><em>Adding a deferral allows this feature to deal more damage and
             apply a condition. (See GMM pdf p.45)</em></p>
@@ -151,7 +158,7 @@ flags:
         deferral:
           type: dooming
           timer: 1
-          respite: The target moves farther than 10 feet from you
+          cancel: The target moves farther than 10 feet from you
         properties:
           concentration:
             checked: false

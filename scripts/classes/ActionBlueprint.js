@@ -42,16 +42,25 @@ const ActionBlueprint = (function () {
                 }
             });
 
-            // Split activities are deferrals generally
+            // A deferral splits these across two activities; falling back to the primary covers an unmigrated item.
             const activities = item.system?.activities;
             const primaryActivity = activities?.get?.(Activities.GMM_ACTIVITY_ID);
-            const payloadActivity = activities?.get?.(Activities.payloadActivityId(blueprint));
-            const split = !!payloadActivity && payloadActivity !== primaryActivity;
+            const gateActivity = activities?.get?.(Activities.gateActivityId(blueprint)) ?? primaryActivity;
+            const damageActivity = activities?.get?.(Activities.payloadActivityId(blueprint)) ?? primaryActivity;
             if (primaryActivity) {
-                Activities.readActivityIntoBlueprintData(primaryActivity, blueprintData, { payload: !split });
+                Activities.readActivityIntoBlueprintData(primaryActivity, blueprintData, {
+                    gate: gateActivity === primaryActivity,
+                    damage: damageActivity === primaryActivity
+                });
             }
-            if (split) {
-                Activities.readActivityIntoBlueprintData(payloadActivity, blueprintData, { shared: false });
+            if (gateActivity && gateActivity !== primaryActivity) {
+                Activities.readActivityIntoBlueprintData(gateActivity, blueprintData, {
+                    shared: false,
+                    damage: damageActivity === gateActivity
+                });
+            }
+            if (damageActivity && damageActivity !== primaryActivity && damageActivity !== gateActivity) {
+                Activities.readActivityIntoBlueprintData(damageActivity, blueprintData, { shared: false, gate: false });
             }
 
             return blueprint;

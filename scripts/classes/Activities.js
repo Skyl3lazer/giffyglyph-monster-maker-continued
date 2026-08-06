@@ -1,5 +1,6 @@
 import AutomationHelpers from "./AutomationHelpers.js";
 import Shortcoder from "./Shortcoder.js";
+import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
 
 /* The blueprint is the authored source of truth; every activity here is a generated mirror of it. */
 const Activities = (function () {
@@ -15,6 +16,13 @@ const Activities = (function () {
         : "gmmdeferred00000";
 
     const GMM_ACTIVITY_IDS = new Set([GMM_ACTIVITY_ID, GMM_DEFERRED_ACTIVITY_ID]);
+
+    /* Fixed, so a re-save finds the forged clock again rather than adding a second one. */
+    const GMM_DOOM_CLOCK_EFFECT_ID = (typeof dnd5e !== "undefined" && dnd5e?.utils?.staticID)
+        ? dnd5e.utils.staticID("gmmdoomclock")
+        : "gmmdoomclock0000";
+
+    const GMM_DOOM_CLOCK_IMG = "icons/magic/death/hand-dirt-undead-zombie.webp";
 
     /* Neither `inst` nor a measured span: midi cleans up the templates of both, on timings GMMC does not own. */
     const GMM_PLANT_DURATION_UNITS = "spec";
@@ -36,9 +44,27 @@ const Activities = (function () {
         };
     }
 
-    /* Only `delayed` is automated; a `dooming` blueprint still builds one combined activity. */
+    function deferralType(blueprint) {
+        return readDeferral(blueprint)?.type ?? null;
+    }
+
+    /* Both types build two activities; they differ in which one carries the roll. */
     function isAutomatedDeferral(blueprint) {
-        return readDeferral(blueprint)?.type === "delayed";
+        const type = deferralType(blueprint);
+        return type === "delayed" || type === "dooming";
+    }
+
+    function isDelayedDeferral(blueprint) {
+        return deferralType(blueprint) === "delayed";
+    }
+
+    function isDoomingDeferral(blueprint) {
+        return deferralType(blueprint) === "dooming";
+    }
+
+    /* Where the attack roll or save lives: delayed has none until it resolves, dooming rolls up front. */
+    function gateActivityId(blueprint) {
+        return isDelayedDeferral(blueprint) ? GMM_DEFERRED_ACTIVITY_ID : GMM_ACTIVITY_ID;
     }
 
     /* Not the same question as "is this ours": on a deferred action the payload is the second activity. */
@@ -308,12 +334,27 @@ const Activities = (function () {
         return { formula, type: types[0] ?? "" };
     }
 
-    /* What the GM clicks. A deferred action leaves it a `utility` with nothing to roll. */
+    /* Only an attack roll or a save can gate a doom; anything else lands the clock without a roll. */
+    function gateTypeFor(blueprintAttackType) {
+        const type = activityTypeFor(blueprintAttackType);
+        return (type === "attack" || type === "save") ? type : "utility";
+    }
+
+    /* The delivery re-rolls nothing: the book's `Doom:` clause carries no to-hit and no save of its own. */
+    function deliveryTypeFor(blueprintData) {
+        if (activityTypeFor(blueprintData?.attack?.type) === "heal") return "heal";
+        return _collectDamageParts(blueprintData).length ? "damage" : "utility";
+    }
+
+    /* What the GM clicks. Delayed leaves it a `utility`; dooming leaves it the roll without the payload. */
     function buildActivityData(blueprint) {
         const blueprintData = blueprint?.data ?? blueprint ?? {};
         const blueprintAttack = blueprintData.attack ?? {};
-        const deferred = isAutomatedDeferral(blueprint);
-        const type = deferred ? "utility" : activityTypeFor(blueprintAttack.type);
+        const delayed = isDelayedDeferral(blueprint);
+        const dooming = isDoomingDeferral(blueprint);
+        const type = delayed ? "utility"
+            : dooming ? gateTypeFor(blueprintAttack.type)
+                : activityTypeFor(blueprintAttack.type);
 
         const data = {
             _id: GMM_ACTIVITY_ID,
@@ -329,21 +370,26 @@ const Activities = (function () {
             uses: _buildUses(blueprintData)
         };
 
-        if (deferred) {
+        if (delayed) {
             data.duration = { ...data.duration, value: null, units: GMM_PLANT_DURATION_UNITS };
             return data;
         }
 
-        const damageParts = _collectDamageParts(blueprintData);
+        if (dooming) {
+            _applyPayloadFields(data, blueprintData, type, { damage: false });
+            // Declared, so the preserve step cannot leave an authored effect applying a turn early.
+            data.effects = [{ _id: GMM_DOOM_CLOCK_EFFECT_ID }];
+            return data;
+        }
 
         _applyPayloadFields(data, blueprintData, type);
         return data;
     }
 
-    /* Shared so the combined and deferred forms cannot disagree about what a type produces. */
-    function _applyPayloadFields(data, blueprintData, type) {
+    /* Shared so the combined, gate and delivery forms cannot disagree about what a type produces. */
+    function _applyPayloadFields(data, blueprintData, type, { damage = true } = {}) {
         const blueprintAttack = blueprintData.attack ?? {};
-        const damageParts = _collectDamageParts(blueprintData);
+        const damageParts = damage ? _collectDamageParts(blueprintData) : [];
 
         if (type === "attack") {
             data.attack = {
@@ -386,7 +432,9 @@ const Activities = (function () {
     function buildDeferredActivityData(blueprint) {
         if (!isAutomatedDeferral(blueprint)) return null;
         const blueprintData = blueprint?.data ?? blueprint ?? {};
-        const type = activityTypeFor(blueprintData.attack?.type);
+        const type = isDelayedDeferral(blueprint)
+            ? activityTypeFor(blueprintData.attack?.type)
+            : deliveryTypeFor(blueprintData);
 
         const data = {
             _id: GMM_DEFERRED_ACTIVITY_ID,
@@ -407,6 +455,38 @@ const Activities = (function () {
 
         _applyPayloadFields(data, blueprintData, type);
         return data;
+    }
+
+    /* Forged, not authored: the GM never edits it, and the gate references it by that fixed id. */
+    function buildDoomClockEffectData(blueprint) {
+        const deferral = readDeferral(blueprint);
+        if (deferral?.type !== "dooming") return null;
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+
+        return {
+            _id: GMM_DOOM_CLOCK_EFFECT_ID,
+            name: game.i18n.format("gmm.deferral.clock.doomed", {
+                name: blueprintData.description?.name || "",
+                rounds: deferral.timer
+            }),
+            img: blueprintData.description?.image || GMM_DOOM_CLOCK_IMG,
+            description: deferral.cancel
+                ? `<p>${game.i18n.format("gmm.deferral.clock.dispel", { cancel: deferral.cancel })}</p>`
+                : "",
+            // The gate applies it to whoever it landed on, so it must not also ride the scaler.
+            transfer: false,
+            flags: {
+                [GMM_MODULE_TITLE]: {
+                    deferral: {
+                        kind: "dooming",
+                        name: blueprintData.description?.name || "",
+                        timer: deferral.timer,
+                        remaining: deferral.timer,
+                        cancel: deferral.cancel ?? ""
+                    }
+                }
+            }
+        };
     }
 
     function _buildActivation(blueprintData) {
@@ -557,9 +637,8 @@ const Activities = (function () {
         return entries.map(damagePartFromBlueprint);
     }
 
-    /* Mirror a dnd5e Activity's values onto a GMM blueprint object (mutates `blueprintData` in place).
-     * Scoped because a deferred activity carries no uses, activation or template to read back. */
-    function readActivityIntoBlueprintData(activity, blueprintData, { shared = true, payload = true } = {}) {
+    /* Three scopes because a deferral splits them across two activities; exactly one supplies each. */
+    function readActivityIntoBlueprintData(activity, blueprintData, { shared = true, gate = true, damage = true } = {}) {
         if (!activity) return;
         const obj = (typeof activity.toObject === "function") ? activity.toObject() : activity;
         const type = obj.type;
@@ -638,8 +717,9 @@ const Activities = (function () {
             blueprintData.resource_consumption.amount = tgt.value ? Number(tgt.value) : null;
         }
 
-        if (!payload) return;
+        if (!gate && !damage) return;
         blueprintData.attack ??= {};
+        if (!gate) return void _readDamageIntoBlueprintData(obj, type, blueprintData);
         if (type === "attack" && obj.attack) {
             const attackTypeKey = _findAttackTypeKey(obj.attack.type);
             if (attackTypeKey) blueprintData.attack.type = attackTypeKey;
@@ -663,6 +743,10 @@ const Activities = (function () {
             blueprintData.attack.type = "other";
         }
 
+        if (damage) _readDamageIntoBlueprintData(obj, type, blueprintData);
+    }
+
+    function _readDamageIntoBlueprintData(obj, type, blueprintData) {
         // The activity holds only `0` placeholders, so the raw blueprint formula is the real one.
         if (obj.damage?.parts?.length) {
             blueprintData.attack.hit ??= {};
@@ -736,6 +820,10 @@ const Activities = (function () {
         } else {
             Object.assign(update, _buildActivityDeletion(item, GMM_DEFERRED_ACTIVITY_ID));
         }
+
+        // An embedded-collection array upserts by `_id`, so this creates the clock once and updates it after.
+        const clock = buildDoomClockEffectData(blueprint);
+        if (clock) update.effects = [clock];
 
         return update;
     }
@@ -1072,12 +1160,22 @@ const Activities = (function () {
         if (!activities?.has?.(GMM_ACTIVITY_ID)) return true;
         const wantsDeferred = isAutomatedDeferral(blueprint);
         if (wantsDeferred !== !!activities.has(GMM_DEFERRED_ACTIVITY_ID)) return true;
-        const blueprintData = blueprint?.data ?? blueprint ?? {};
-        const wantedType = wantsDeferred ? "utility" : activityTypeFor(blueprintData.attack?.type);
         const primary = activities.get(GMM_ACTIVITY_ID);
-        if (primary?.type !== wantedType) return true;
+        if (primary?.type !== _wantedPrimaryType(blueprint)) return true;
+        if (isDoomingDeferral(blueprint)) {
+            // A dooming primary that still carries damage predates the gate/delivery split.
+            if (primary?.damage?.parts?.length) return true;
+            return !primary?.effects?.some?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID);
+        }
         // Compared explicitly because presence and type alone would let a stale announcement duration survive.
         return wantsDeferred && (primary?.duration?.units !== GMM_PLANT_DURATION_UNITS);
+    }
+
+    function _wantedPrimaryType(blueprint) {
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+        if (isDelayedDeferral(blueprint)) return "utility";
+        if (isDoomingDeferral(blueprint)) return gateTypeFor(blueprintData.attack?.type);
+        return activityTypeFor(blueprintData.attack?.type);
     }
 
     function buildMigrationUpdate(item) {
@@ -1103,11 +1201,9 @@ const Activities = (function () {
         const purge = buildForeignActivityPurge(item ?? data);
         const source = item?._source?.system?.activities ?? data?.system?.activities ?? {};
         const wantsDeferred = isAutomatedDeferral(blueprint);
-        const blueprintData = blueprint?.data ?? blueprint ?? {};
-        const wantedType = wantsDeferred ? "utility" : activityTypeFor(blueprintData.attack?.type);
         const rebuild = !source[GMM_ACTIVITY_ID]
             || (wantsDeferred !== !!source[GMM_DEFERRED_ACTIVITY_ID])
-            || (source[GMM_ACTIVITY_ID].type !== wantedType);
+            || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint));
         if (!rebuild && foundry.utils.isEmpty(purge)) return null;
         const update = { ...purge };
         if (rebuild) Object.assign(update, buildActivityUpdate(item, blueprint));
@@ -1309,9 +1405,13 @@ const Activities = (function () {
     return {
         GMM_ACTIVITY_ID,
         GMM_DEFERRED_ACTIVITY_ID,
+        GMM_DOOM_CLOCK_EFFECT_ID,
         isGmmActivityId,
         readDeferral,
         isAutomatedDeferral,
+        isDelayedDeferral,
+        isDoomingDeferral,
+        gateActivityId,
         payloadActivityId,
         effectHostActivityId,
         needsActivityRebuild,

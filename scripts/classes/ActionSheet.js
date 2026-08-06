@@ -159,6 +159,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         if (!item?.system?.activities?.has?.(Activities.GMM_ACTIVITY_ID)) return;
         for (const category of Object.values(categories)) {
             if (!Array.isArray(category?.effects)) continue;
+            // GMMC forges the doom clock and rewrites it on every save, so offering it for editing would mislead.
+            category.effects = category.effects.filter(e => e?.id !== Activities.GMM_DOOM_CLOCK_EFFECT_ID);
             for (const entry of category.effects) {
                 if (!entry) continue;
                 entry.gmmCanToggleMode = true;

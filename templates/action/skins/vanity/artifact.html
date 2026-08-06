@@ -63,7 +63,7 @@
                     {{/if}}
                     {{#if gmm.action.gmmLabels.damage_hit}}
                     <span class="item__damage" data-action="open-config" data-config="damage">
-                        <span class="attack__title"><i>{{#if gmm.action.gmmLabels.isHealing}}{{localize 'gmm.common.attack.heal'}}{{else if gmm.action.gmmLabels.deferral.isDelayed}}{{localize 'gmm.common.attack.delay'}}{{else}}{{localize 'gmm.common.attack.hit'}}{{/if}}:</i></span>
+                        <span class="attack__title"><i>{{localize (concat 'gmm.common.attack.' gmm.action.gmmLabels.hitClause)}}:</i></span>
                         <span>{{gmm.action.gmmLabels.damage_hit}}</span>
                     </span>
                     {{/if}}

@@ -10,6 +10,7 @@ const Deferrals = (function () {
 
 	function init() {
 		Hooks.on("dnd5e.postUseActivity", _onPostUseActivity);
+		Hooks.on("createActiveEffect", _onCreateActiveEffect);
 		Hooks.on("deleteActiveEffect", _onDeleteActiveEffect);
 		Hooks.on("combatTurnChange", _onCombatTurnChange);
 		Hooks.on("deleteCombat", _onDeleteCombat);
@@ -27,7 +28,7 @@ const Deferrals = (function () {
 		}
 	}
 
-	/* Policy, not capability: nothing here needs v14, but new automation is not shipped to v13. */
+	/* Nothing here needs v14 yet, but new automation is not shipped to v13. */
 	function _isSupported() {
 		return (game.release?.generation ?? 0) >= 14;
 	}
@@ -63,6 +64,56 @@ const Deferrals = (function () {
 		}
 	}
 
+	/* The gate applied the clock, so this is where GMMC first sees it and the only place its source is resolvable. */
+	async function _onCreateActiveEffect(effect, _options, _userId) {
+		// Not the creating user: DAE applies to an owned target on that player's client, so only the GM can act.
+		if (!game.users.activeGM?.isSelf) return;
+		const clock = _readClock(effect);
+		if (_clockKind(clock) !== "dooming") return;
+
+		try {
+			const item = _resolveSourceItem(effect.origin);
+			if (item) await effect.setFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG, { ...clock, sourceUuid: item.uuid });
+
+			// A countdown in the bearer's turns is meaningless without turns, so resolve rather than leave it sitting.
+			if (_isEnabled() && _isSupported() && _combatantFor(effect.parent)) return;
+			await effect.delete();
+			if (item) await _useDeferredActivity(item, { targets: _bearerTokens(effect) });
+		} catch (error) {
+			console.error("GMM | Doom clock setup failed", error);
+		}
+	}
+
+	/* Core stamps the source effect's uuid and midi the activity's, so neither shape can be assumed. */
+	function _resolveSourceItem(origin) {
+		if (typeof origin !== "string" || !origin) return null;
+		const viaMidi = globalThis.MidiQOL?.getItemFromEffectOrigin;
+		if (viaMidi) {
+			try {
+				const found = viaMidi(origin);
+				if (found) return found;
+			} catch (error) {
+				console.warn("GMM | midi origin resolution failed; cutting the uuid instead", error);
+			}
+		}
+		const doc = fromUuidSync(origin.split(".Activity.")[0].split(".ActiveEffect.")[0]);
+		return (doc instanceof Item) ? doc : null;
+	}
+
+	/* A delayed clock rides the item's own actor; a doom clock rides someone else's. */
+	function _sourceItem(effect, clock) {
+		if (clock?.sourceUuid) return fromUuidSync(clock.sourceUuid) ?? null;
+		return effect?.parent?.items?.get?.(clock?.itemId) ?? null;
+	}
+
+	function _clockKind(clock) {
+		return clock?.kind ?? (clock ? "delayed" : null);
+	}
+
+	function _bearerTokens(effect) {
+		return effect?.parent?.getActiveTokens?.(false, true) ?? [];
+	}
+
 	async function _plantClock(item, deferral, templateUuids, { combat, combatant }) {
 		const effectData = {
 			name: game.i18n.format("gmm.deferral.clock.name", { name: item.name }),
@@ -83,6 +134,8 @@ const Deferrals = (function () {
 			flags: {
 				[GMM_MODULE_TITLE]: {
 					[GMM_CLOCK_FLAG]: {
+						kind: "delayed",
+						name: item.name,
 						itemId: item.id,
 						timer: deferral.timer,
 						remaining: deferral.timer,
@@ -135,9 +188,12 @@ const Deferrals = (function () {
 				if (clock.lastTick === tick) continue;
 
 				const remaining = current - 1;
-				await effect.setFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG, { ...clock, remaining, lastTick: tick });
+				const update = { flags: { [GMM_MODULE_TITLE]: { [GMM_CLOCK_FLAG]: { ...clock, remaining, lastTick: tick } } } };
+				// The doom clock's own name is the only number a player can trust, so it moves in the same write.
+				if (_clockKind(clock) === "dooming") update.name = _doomClockName(effect, clock, remaining);
+				await effect.update(update);
 
-				if (remaining > 0) _postCountdown(actor, effect, clock.itemId, remaining);
+				if (remaining > 0) _postCountdown(actor, effect, clock, remaining);
 				else await _postResolutionCard(effect);
 			} catch (error) {
 				console.error("GMM | Deferral countdown failed", error);
@@ -145,12 +201,25 @@ const Deferrals = (function () {
 		}
 	}
 
-	function _postCountdown(actor, effect, itemId, remaining) {
-		const item = actor.items.get(itemId);
+	/* Not `effect.name`: a renamed clock already carries its count, so reusing it would nest one qualifier in another. */
+	function _featureName(effect, clock) {
+		return clock?.name || _sourceItem(effect, clock)?.name || effect.name;
+	}
+
+	function _doomClockName(effect, clock, remaining) {
+		return game.i18n.format("gmm.deferral.clock.doomed", {
+			name: _featureName(effect, clock),
+			rounds: remaining
+		});
+	}
+
+	function _postCountdown(actor, effect, clock, remaining) {
+		const key = _clockKind(clock) === "dooming" ? "gmm.deferral.doom_countdown" : "gmm.deferral.countdown";
 		return ChatMessage.create({
 			speaker: ChatMessage.getSpeaker({ actor }),
-			content: `<p><em>${game.i18n.format("gmm.deferral.countdown", {
-				name: item?.name ?? effect.name,
+			content: `<p><em>${game.i18n.format(key, {
+				name: _featureName(effect, clock),
+				target: actor.name,
 				rounds: remaining
 			})}</em></p>`
 		});
@@ -159,11 +228,12 @@ const Deferrals = (function () {
 	async function _postResolutionCard(effect) {
 		const actor = effect.parent;
 		const clock = _readClock(effect);
-		const item = actor?.items?.get(clock?.itemId);
+		const item = _sourceItem(effect, clock);
 		if (!item) return void await _cancel(effect, { silent: true });
 
-		const { tokens, unread, hasArea } = await _templateTargets(clock);
-		const targetNames = tokens.map(t => t.name);
+		const dooming = _clockKind(clock) === "dooming";
+		const area = dooming ? { tokens: [], unread: 0, hasArea: false } : await _templateTargets(clock);
+		const targetNames = dooming ? [actor.name] : area.tokens.map(t => t.name);
 
 		const content = await foundry.applications.handlebars.renderTemplate(
 			`modules/${GMM_MODULE_TITLE}/templates/chat/deferral-resolution.html`,
@@ -172,8 +242,9 @@ const Deferrals = (function () {
 				cancel: clock.cancel,
 				targets: targetNames,
 				hasTargets: !!targetNames.length,
-				unread: unread > 0,
-				hasArea: hasArea,
+				unread: area.unread > 0,
+				hasArea: area.hasArea,
+				dooming: dooming,
 				effectUuid: effect.uuid
 			}
 		);
@@ -203,15 +274,16 @@ const Deferrals = (function () {
 	}
 
 	async function _resolve(effect) {
-		const actor = effect.parent;
 		const clock = _readClock(effect);
-		const item = actor?.items?.get(clock?.itemId);
+		const item = _sourceItem(effect, clock);
 		if (!item) return void await _cancel(effect, { silent: true });
 
 		// Targets first: deleting the clock takes the template with it.
-		const { tokens } = await _templateTargets(clock);
+		const targets = _clockKind(clock) === "dooming"
+			? _bearerTokens(effect)
+			: (await _templateTargets(clock)).tokens;
 		await _cancel(effect, { silent: true });
-		await _useDeferredActivity(item, { targets: tokens });
+		await _useDeferredActivity(item, { targets });
 	}
 
 	/* midi drives its whole workflow from `completeActivityUse`; core dnd5e has no equivalent entry point. */
@@ -238,11 +310,10 @@ const Deferrals = (function () {
 		const clock = _readClock(effect);
 		const actor = effect.parent;
 		if (!silent) {
-			const item = actor?.items?.get(clock?.itemId);
 			await ChatMessage.create({
 				speaker: ChatMessage.getSpeaker({ actor }),
 				content: `<p><em>${game.i18n.format("gmm.deferral.cancelled", {
-					name: item?.name ?? effect.name
+					name: _featureName(effect, clock)
 				})}</em></p>`
 			});
 		}

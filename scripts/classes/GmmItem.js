@@ -274,8 +274,10 @@ const GmmItem = (function () {
         const blueprint = this.flags?.gmm?.blueprint?.data;
         const gmmMonster = this.getOwningGmmMonster();
         const activity = this.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
-        // Two activities on a deferred action: the primary is spent, the payload is rolled.
+        // Two activities on a deferred action: the primary is spent, the gate rolls, the payload lands.
         const payload = this.system?.activities?.get?.(Activities.payloadActivityId(this.flags?.gmm?.blueprint))
+            ?? activity;
+        const gate = this.system?.activities?.get?.(Activities.gateActivityId(this.flags?.gmm?.blueprint))
             ?? activity;
 
         labels.icon = (this.getSheetId() == `${GMM_MODULE_TITLE}.ActionSheet`)
@@ -290,15 +292,15 @@ const GmmItem = (function () {
         const blueprintAttackType = blueprint?.attack?.type ?? "";
         const isHealingAction = (blueprintAttackType === "heal") || !!healingPart || _hasHealingPart(damageParts);
 
-        if (payload?.type === "attack") {
+        if (gate?.type === "attack") {
             labels.attack = game.i18n.format(`gmm.action.labels.attack.${blueprintAttackType || "mwak"}`);
-            const toHit = _computeAttackToHit(payload, blueprint, gmmMonster, rollData);
+            const toHit = _computeAttackToHit(gate, blueprint, gmmMonster, rollData);
             if (toHit !== null) {
                 labels.to_hit = game.i18n.format(`gmm.action.labels.attack.to_hit`, { bonus: toHit });
             }
-        } else if (payload?.type === "save") {
-            labels.attack = _formatSaveLabel(payload);
-            const dc = payload.save?.dc?.value;
+        } else if (gate?.type === "save") {
+            labels.attack = _formatSaveLabel(gate);
+            const dc = gate.save?.dc?.value;
             if (dc) {
                 labels.to_hit = game.i18n.format(`gmm.action.labels.attack.dc`, { bonus: dc });
             }
@@ -397,10 +399,16 @@ const GmmItem = (function () {
                 type: game.i18n.format(`gmm.common.deferral_type.${gmmDeferral.type}`),
                 timer: gmmDeferral.timer,
                 cancel: gmmDeferral.cancel,
-                // The book prints a delayed payload under `Delay:` rather than `Hit:`.
-                isDelayed: gmmDeferral.type === "delayed"
+                isDelayed: gmmDeferral.type === "delayed",
+                isDooming: gmmDeferral.type === "dooming"
             };
         }
+
+        // The book prints a deferred payload under `Delay:` or `Doom:` rather than `Hit:`.
+        labels.hitClause = isHealingAction ? "heal"
+            : gmmDeferral?.type === "delayed" ? "delay"
+                : gmmDeferral?.type === "dooming" ? "doom"
+                    : "hit";
 
         const recharge = uses?.recovery?.find?.(r => r.period === "recharge");
         if (recharge) {

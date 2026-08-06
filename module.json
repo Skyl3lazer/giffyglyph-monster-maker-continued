@@ -25,7 +25,7 @@
 
 	"compatibility": {
 		"minimum": "13.347",
-		"verified": "14.360"
+		"verified": "14.365"
 	},
 	"esmodules": [ "gmm.js" ],
 	"scripts": [ "scripts/vendors/math.min.js" ],

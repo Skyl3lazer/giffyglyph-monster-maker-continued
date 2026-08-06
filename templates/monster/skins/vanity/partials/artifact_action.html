@@ -61,7 +61,7 @@
                 {{/if}}
                 {{#if item.gmmLabels.damage_hit}}
                 <span class="item__damage">
-                    <span class="attack__title"><i>{{#if item.gmmLabels.isHealing}}{{localize 'gmm.common.attack.heal'}}{{else if item.gmmLabels.deferral.isDelayed}}{{localize 'gmm.common.attack.delay'}}{{else}}{{localize 'gmm.common.attack.hit'}}{{/if}}:</i></span>
+                    <span class="attack__title"><i>{{localize (concat 'gmm.common.attack.' item.gmmLabels.hitClause)}}:</i></span>
                     <span>{{item.gmmLabels.damage_hit}}</span>
                 </span>
                 {{/if}}
