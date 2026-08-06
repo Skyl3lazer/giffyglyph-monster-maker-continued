@@ -812,8 +812,13 @@ const Activities = (function () {
         const deferredData = buildDeferredActivityData(blueprint);
         if (deferredData) {
             const merged = _mergeForeignFields(item, GMM_DEFERRED_ACTIVITY_ID, deferredData);
-            // Declared in the builder it would suppress the preserve step and drop the GM's midi config.
-            merged.midiProperties = { ...(merged.midiProperties ?? {}), automationOnly: true };
+            // Declared in the builder they would suppress the preserve step and drop the GM's midi config.
+            merged.midiProperties = {
+                ...(merged.midiProperties ?? {}),
+                automationOnly: true,
+                // Left true, midi adopts this as the gate's other activity and suspends waiting for its damage.
+                otherActivityCompatible: false
+            };
             _wrapActivity(update, GMM_DEFERRED_ACTIVITY_ID, merged);
         } else {
             Object.assign(update, _buildActivityDeletion(item, GMM_DEFERRED_ACTIVITY_ID));
@@ -1162,10 +1167,19 @@ const Activities = (function () {
         if (isDoomingDeferral(blueprint)) {
             // A dooming primary that still carries damage predates the gate/delivery split.
             if (primary?.damage?.parts?.length) return true;
-            return !primary?.effects?.some?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID);
+            if (!primary?.effects?.some?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID)) return true;
+            return _deliveryNeedsMidiFlags(activities.get(GMM_DEFERRED_ACTIVITY_ID));
         }
         // Compared explicitly because presence and type alone would let a stale announcement duration survive.
         return wantsDeferred && (primary?.duration?.units !== GMM_PLANT_DURATION_UNITS);
+    }
+
+    /* Guarded on midi being active: without it the schema drops `midiProperties`, and an unguarded
+       check would rebuild the item on every load forever. */
+    function _deliveryNeedsMidiFlags(delivery) {
+        if (!delivery || !game.modules?.get?.("midi-qol")?.active) return false;
+        const p = delivery.midiProperties;
+        return !p || p.automationOnly !== true || p.otherActivityCompatible !== false;
     }
 
     function _wantedPrimaryType(blueprint) {
