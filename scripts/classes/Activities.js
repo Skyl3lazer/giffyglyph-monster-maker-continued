@@ -1233,6 +1233,25 @@ const Activities = (function () {
         return updates.length;
     }
 
+    /* A synthetic token actor is in neither `game.actors` nor `game.items`, so its own copy of an item would keep
+       stale activities forever. Ordered after the sidebar pass, so a token that never diverged is left untouched. */
+    async function _migrateUnlinkedTokens() {
+        let total = 0;
+        for (const scene of (game.scenes ?? [])) {
+            for (const token of (scene.tokens ?? [])) {
+                if (token.actorLink) continue;
+                const actor = token.actor;
+                if (!actor?.isOwner) continue;
+                try {
+                    total += await migrateActor(actor);
+                } catch (e) {
+                    console.warn(`GMM | Activity migration failed for token ${token.name} on scene ${scene.name}`, e);
+                }
+            }
+        }
+        return total;
+    }
+
     async function migrateWorld() {
         let total = 0;
 
@@ -1244,6 +1263,8 @@ const Activities = (function () {
                 console.warn(`GMM | Activity migration failed for actor ${actor.name} (${actor.id})`, e);
             }
         }
+
+        total += await _migrateUnlinkedTokens();
 
         // Unowned scaling actions in the items sidebar.
         const itemUpdates = [];
