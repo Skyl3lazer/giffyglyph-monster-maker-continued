@@ -1,7 +1,7 @@
 # Node Modules
 node_modules/
 /.vs
-CLAUDE.local.md
+CLAUDE.md
 .cursor/
 .claude/
 CONTEXT.md
@@ -15,6 +15,7 @@ tools/issues-index.mjs
 docs/testing/
 docs/playwright/
 docs/compendium-audit.md
+docs/.gitignore
 
 # Compiled LevelDB packs - built from src/packs via `npm run pack`; source of truth is the yml.
 # Anchored: an unanchored `packs/` also swallows src/packs, hiding new pack sources from git.
