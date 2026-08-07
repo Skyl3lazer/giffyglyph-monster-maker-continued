@@ -8,6 +8,9 @@ const GMM_MESSAGE_FLAG = "deferralResolution";
 /* GMMC counts the turns itself: an effect's duration measures elapsed rounds, not turns its bearer has taken. */
 const Deferrals = (function () {
 
+	/* Templates placed before their clock exists, keyed by the activity uuid stamped on them. */
+	const _pendingTemplates = new Map();
+
 	function init() {
 		Hooks.on("dnd5e.postUseActivity", _onPostUseActivity);
 		Hooks.on("createActiveEffect", _onCreateActiveEffect);
@@ -17,7 +20,7 @@ const Deferrals = (function () {
 		Hooks.on("preDeleteToken", _onPreDeleteToken);
 		Hooks.on("preDeleteActor", _onPreDeleteActor);
 		Hooks.on("dnd5e.renderChatMessage", _onRenderChatMessage);
-		Hooks.on("createMeasuredTemplate", _onCreateMeasuredTemplate);
+		Hooks.on("createRegion", _onCreateRegionTemplate);
 	}
 
 	function _isEnabled() {
@@ -44,6 +47,8 @@ const Deferrals = (function () {
 	async function _onPostUseActivity(activity, _usageConfig, results) {
 		try {
 			if (activity?.id !== Activities.GMM_ACTIVITY_ID) return;
+			const captured = _drainTemplates(activity.uuid);
+
 			const item = activity.item;
 			const deferral = Activities.readDeferral(item?.flags?.gmm?.blueprint);
 			if (deferral?.type !== "delayed") return;
@@ -57,11 +62,23 @@ const Deferrals = (function () {
 				return void await _useDeferredActivity(item);
 			}
 
-			const templateUuids = (results?.templates ?? []).flat().map(t => t?.uuid).filter(_ => _);
-			await _plantClock(item, deferral, templateUuids, inCombat);
+			const placed = (results?.templates ?? []).flat().map(_regionUuid).filter(_ => _);
+			await _plantClock(item, deferral, Array.from(new Set([...placed, ...captured])), inCombat);
 		} catch (error) {
 			console.error("GMM | Deferral activation failed", error);
 		}
+	}
+
+	/* dnd5e hands back the deprecated MeasuredTemplate facade. The document that exists is the Region. */
+	function _regionUuid(template) {
+		if (!template?.id) return null;
+		return template.parent?.regions?.get(template.id)?.uuid ?? template.uuid ?? null;
+	}
+
+	function _drainTemplates(origin) {
+		const uuids = _pendingTemplates.get(origin) ?? [];
+		_pendingTemplates.delete(origin);
+		return uuids;
 	}
 
 	/* The gate applied the clock, so this is where GMMC first sees it and the only place its source is resolvable. */
@@ -151,24 +168,35 @@ const Deferrals = (function () {
 		await item.actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
 	}
 
-	/* midi's auto-create-template places its template after the clock already exists. */
-	function _onCreateMeasuredTemplate(template, _options, _userId) {
-		if (!game.users.activeGM?.isSelf || !_isEnabled()) return;
-		const origin = template.getFlag("dnd5e", "origin");
+	/* A template can land before its clock or after it. midi auto-places inside `use()`. A GM draws one later. */
+	function _onCreateRegionTemplate(region, _options, userId) {
+		if (!_isEnabled()) return;
+		const origin = region.getFlag("dnd5e", "origin");
 		if (typeof origin !== "string" || !origin.endsWith(`.Activity.${Activities.GMM_ACTIVITY_ID}`)) return;
 
-		const item = fromUuidSync(origin)?.item;
-		const actor = item?.actor;
-		if (!actor) return;
+		const effect = _clockFor(origin);
+		if (!effect) {
+			// Whoever placed it is whoever will drain it: `postUseActivity` fires only on that client.
+			if (userId === game.user.id) {
+				_pendingTemplates.set(origin, [...(_pendingTemplates.get(origin) ?? []), region.uuid]);
+			}
+			return;
+		}
 
-		const effect = _clockEffects(actor).find(e => _readClock(e)?.itemId === item.id);
-		if (!effect) return;
+		if (!game.users.activeGM?.isSelf) return;
 		const clock = _readClock(effect);
-		if (clock.templateUuids?.includes(template.uuid)) return;
+		if (clock.templateUuids?.includes(region.uuid)) return;
 		effect.setFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG, {
 			...clock,
-			templateUuids: [...(clock.templateUuids ?? []), template.uuid]
+			templateUuids: [...(clock.templateUuids ?? []), region.uuid]
 		}).catch(e => console.warn("GMM | Attaching a late template to a deferral clock failed", e));
+	}
+
+	function _clockFor(origin) {
+		const item = fromUuidSync(origin)?.item;
+		const actor = item?.actor;
+		if (!actor) return null;
+		return _clockEffects(actor).find(e => _readClock(e)?.itemId === item.id) ?? null;
 	}
 
 	/* `lastTick` guards against `combatTurnChange` firing more than once for one turn. */
@@ -381,7 +409,7 @@ const Deferrals = (function () {
 		let unread = 0;
 		for (const uuid of uuids) {
 			const template = await fromUuid(uuid);
-			if (template) found.push({ uuid, template });
+			if (_isMeasurableHere(template)) found.push({ uuid, template });
 			else unread += 1;
 		}
 		if (!found.length) return { tokens: [], unread, hasArea: true };
@@ -400,17 +428,17 @@ const Deferrals = (function () {
 
 		const tokens = [];
 		for (const { template } of found) {
-			const area = template.object;
-			// `shape` is only populated by a render refresh, and is absent on any template not currently drawn.
-			if (area && !area.shape) {
-				try { area._refreshShape(); } catch (error) { /* leave shape unset and report it below */ }
-			}
-			if (!area?.shape) { unread += 1; continue; }
 			for (const token of template.parent?.tokens ?? []) {
-				if (token.object && area.testPoint(token.object.center)) tokens.push(token);
+				if (template.testPoint(token.getCenterPoint())) tokens.push(token);
 			}
 		}
 		return { tokens, unread, hasArea: true };
+	}
+
+	/* Both tiers measure the viewed scene's tokens. A template on another scene would be measured against the
+	   wrong ones. A facade uuid, stored by a clock planted before this shape changed, has no `testPoint`. */
+	function _isMeasurableHere(template) {
+		return typeof template?.testPoint === "function" && template.parent?.id === canvas.scene?.id;
 	}
 
 	async function _deleteTemplates(uuids) {
