@@ -9,6 +9,7 @@ import ParagonPower from './scripts/classes/ParagonPower.js';
 import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
 import Conditions from './scripts/classes/Conditions.js';
 import Deferrals from './scripts/classes/Deferrals.js';
+import Durations from './scripts/classes/Durations.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
@@ -42,6 +43,7 @@ Hooks.once("init", function() {
 	ParagonPower.init();
 	ParagonDefenses.init();
 	Deferrals.init();
+	Durations.registerApi();
 
 	// Backward-compatible API used by legacy migration scripts/macros.
 	const moduleRef = game.modules.get(GMM_MODULE_TITLE);
@@ -463,6 +465,15 @@ function _registerSettings() {
 	game.settings.register(GMM_MODULE_TITLE, "automateDeferrals", {
 		name: "gmm.settings.automate_deferrals.name",
 		hint: "gmm.settings.automate_deferrals.hint",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+
+	game.settings.register(GMM_MODULE_TITLE, "automateDurations", {
+		name: "gmm.settings.automate_durations.name",
+		hint: "gmm.settings.automate_durations.hint",
 		scope: "world",
 		config: true,
 		default: true,

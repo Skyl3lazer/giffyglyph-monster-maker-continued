@@ -53,8 +53,14 @@ export const GMM_ACTION_BLUEPRINT = {
 		},
 		rarity: "common",
 		duration: {
+			type: "instant",
 			value: "",
-			units: ""
+			units: "",
+			save: {
+				ability: ""
+			},
+			reapplies: "",
+			cancel: ""
 		},
 		uses: {
 			value: "",

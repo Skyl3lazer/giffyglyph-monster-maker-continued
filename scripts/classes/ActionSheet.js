@@ -10,6 +10,8 @@ import { GMM_ACTION_RARITIES } from "../consts/GmmActionRarities.js";
 import { GMM_ACTION_TARGET_TYPES } from "../consts/GmmActionTargetTypes.js";
 import { GMM_ACTION_ATTACK_TYPES } from "../consts/GmmActionAttackTypes.js";
 import { GMM_DEFERRAL_TYPES } from "../consts/GmmDeferralTypes.js";
+import { GMM_ACTION_DURATION_TYPES } from "../consts/GmmActionDurationTypes.js";
+import { GMM_ACTION_REAPPLY_MODES } from "../consts/GmmActionReapplyModes.js";
 import { GMM_ACTION_ATTACK_DAMAGE_TYPES } from "../consts/GmmActionAttackDamageTypes.js";
 import { GMM_MONSTER_RANKS } from "../consts/GmmMonsterRanks.js";
 import { GMM_MONSTER_ROLES } from "../consts/GmmMonsterRoles.js";
@@ -21,6 +23,7 @@ import ActionForge from "./ActionForge.js";
 import Templates from "./Templates.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Activities from "./Activities.js";
+import Durations from "./Durations.js";
 
 /* GMM scaling-action item sheet, rebuilt on the dnd5e v5.x ApplicationV2 ItemSheet5e base.
  * Form submission is intercepted in _processFormData to translate `gmm.blueprint.*` fields into flags. */
@@ -122,8 +125,16 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
                 attack_types: GMM_ACTION_ATTACK_TYPES,
                 attack_damage_types: GMM_ACTION_ATTACK_DAMAGE_TYPES,
                 deferral_types: GMM_DEFERRAL_TYPES,
+                duration_types: GMM_ACTION_DURATION_TYPES,
+                reapply_modes: GMM_ACTION_REAPPLY_MODES,
                 abilities: GMM_5E_ABILITIES
             }
+        };
+
+        const duration = Durations.describe(context.gmm.blueprint);
+        context.gmm.duration = {
+            ...duration,
+            missingLabel: duration.missing.map(id => game.modules.get(id)?.title ?? id).join(", ")
         };
 
         if (context.gmm.action) {
@@ -154,8 +165,9 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         if (!item?.system?.activities?.has?.(Activities.GMM_ACTIVITY_ID)) return;
         for (const category of Object.values(categories)) {
             if (!Array.isArray(category?.effects)) continue;
-            // GMMC forges the doom clock and rewrites it on every save, so offering it for editing would mislead.
-            category.effects = category.effects.filter(e => e?.id !== Activities.GMM_DOOM_CLOCK_EFFECT_ID);
+            // GMMC forges these and rewrites them on every save. Offering them for editing would mislead.
+            category.effects = category.effects.filter(e =>
+                e?.id !== Activities.GMM_DOOM_CLOCK_EFFECT_ID && e?.id !== Durations.GMM_DURATION_EFFECT_ID);
             for (const entry of category.effects) {
                 if (!entry) continue;
                 entry.gmmCanToggleMode = true;

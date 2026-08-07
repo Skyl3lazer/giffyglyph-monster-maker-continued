@@ -1,4 +1,5 @@
 import AutomationHelpers from "./AutomationHelpers.js";
+import Durations from "./Durations.js";
 import Shortcoder from "./Shortcoder.js";
 import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
 
@@ -371,11 +372,12 @@ const Activities = (function () {
         };
 
         if (delayed) {
-            data.duration = { ...data.duration, value: null, units: GMM_PLANT_DURATION_UNITS };
+            data.duration = _gateDuration(data.duration);
             return data;
         }
 
         if (dooming) {
+            data.duration = _gateDuration(data.duration);
             _applyPayloadFields(data, blueprintData, type, { damage: false });
             // Declared, so the preserve step cannot leave an authored effect applying a turn early.
             data.effects = [{ _id: GMM_DOOM_CLOCK_EFFECT_ID }];
@@ -384,6 +386,12 @@ const Activities = (function () {
 
         _applyPayloadFields(data, blueprintData, type);
         return data;
+    }
+
+    /* The duration belongs to the payload. Concentration stays here so that breaking it cancels a
+     * pending doom. An expiry measured from here would run out mid-countdown. */
+    function _gateDuration(duration) {
+        return { ...duration, value: null, units: GMM_PLANT_DURATION_UNITS };
     }
 
     /* Shared so the combined, gate and delivery forms cannot disagree about what a type produces. */
@@ -489,6 +497,16 @@ const Activities = (function () {
         };
     }
 
+    function buildDurationEffectData(blueprint) {
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+        const first = _normalizeBlueprintDamage(blueprintData.attack?.hit?.damage)[0];
+        return Durations.buildEffectData(blueprintData, {
+            name: blueprintData.description?.name || "",
+            img: blueprintData.description?.image,
+            damage: first ? { formula: first.formula, type: first.type, saveDc: _buildSaveDcFormula(blueprintData) } : null
+        });
+    }
+
     function _buildActivation(blueprintData) {
         const a = blueprintData.activation ?? {};
         return {
@@ -500,15 +518,7 @@ const Activities = (function () {
     }
 
     function _buildDuration(blueprintData) {
-        const d = blueprintData.duration ?? {};
-        const concentration = !!blueprintData.properties?.concentration?.checked;
-        return {
-            value: d.value ?? null,
-            units: d.units || "inst",
-            concentration,
-            special: "",
-            override: false
-        };
+        return Durations.buildActivityDuration(blueprintData, blueprintData.properties?.concentration?.checked);
     }
 
     function _buildRange(blueprintData) {
@@ -652,8 +662,7 @@ const Activities = (function () {
 
         if (shared && obj.duration) {
             blueprintData.duration ??= {};
-            blueprintData.duration.value = obj.duration.value ?? "";
-            blueprintData.duration.units = obj.duration.units ?? "";
+            Object.assign(blueprintData.duration, Durations.fromUnits(obj.duration.units, obj.duration.value));
             blueprintData.properties ??= { concentration: { checked: false } };
             blueprintData.properties.concentration ??= { checked: false };
             blueprintData.properties.concentration.checked = !!obj.duration.concentration;
@@ -806,8 +815,12 @@ const Activities = (function () {
     /* ForcedReplacement so a type swap leaves no stale sub-fields. */
     function buildActivityUpdate(item, blueprint) {
         const update = {};
-        _wrapActivity(update, GMM_ACTIVITY_ID,
-            _mergeForeignFields(item, GMM_ACTIVITY_ID, buildActivityData(blueprint)));
+        const duration = buildDurationEffectData(blueprint);
+        const hostId = payloadActivityId(blueprint);
+
+        const primary = _mergeForeignFields(item, GMM_ACTIVITY_ID, buildActivityData(blueprint));
+        _setDurationEffectMembership(primary, !!duration && hostId === GMM_ACTIVITY_ID);
+        _wrapActivity(update, GMM_ACTIVITY_ID, primary);
 
         const deferredData = buildDeferredActivityData(blueprint);
         if (deferredData) {
@@ -819,16 +832,28 @@ const Activities = (function () {
                 // Left true, midi adopts this as the gate's other activity and suspends waiting for its damage.
                 otherActivityCompatible: false
             };
+            _setDurationEffectMembership(merged, !!duration && hostId === GMM_DEFERRED_ACTIVITY_ID);
             _wrapActivity(update, GMM_DEFERRED_ACTIVITY_ID, merged);
         } else {
             Object.assign(update, _buildActivityDeletion(item, GMM_DEFERRED_ACTIVITY_ID));
         }
 
-        // An embedded-collection array upserts by `_id`, so this creates the clock once and updates it after.
+        // An embedded-collection array upserts by `_id`. This creates them once and updates them after.
+        const effects = [];
         const clock = buildDoomClockEffectData(blueprint);
-        if (clock) update.effects = [clock];
+        if (clock) effects.push(clock);
+        if (duration) effects.push(duration);
+        if (effects.length) update.effects = effects;
 
         return update;
+    }
+
+    /* The duration must not start a round before the effect it measures, which is why membership rides
+     * the payload activity. The preserve step has already restored the GM's own entries. */
+    function _setDurationEffectMembership(data, present) {
+        const existing = Array.isArray(data.effects) ? data.effects : [];
+        const filtered = existing.filter(e => e?._id !== Durations.GMM_DURATION_EFFECT_ID);
+        data.effects = present ? [...filtered, { _id: Durations.GMM_DURATION_EFFECT_ID }] : filtered;
     }
 
     function _mergeForeignFields(item, activityId, data) {
@@ -1189,15 +1214,35 @@ const Activities = (function () {
         return activityTypeFor(blueprintData.attack?.type);
     }
 
+    /* The pre-type shape carried no `type` key at all. Its absence is the signal. */
+    function _buildDurationBlueprintMigration(blueprint) {
+        const duration = blueprint?.data?.duration;
+        if (!duration || duration.type) return null;
+        return {
+            ...duration,
+            ...Durations.fromUnits(duration.units, duration.value),
+            save: { ability: "" },
+            cancel: ""
+        };
+    }
+
     function buildMigrationUpdate(item) {
         if (!isLegacyGmmActionItem(item)) return null;
         const purge = buildForeignActivityPurge(item);
-        const blueprint = item.flags.gmm.blueprint;
-        const rebuild = needsActivityRebuild(item, blueprint);
+        let blueprint = item.flags.gmm.blueprint;
+
+        const duration = _buildDurationBlueprintMigration(blueprint);
+        if (duration) {
+            blueprint = foundry.utils.deepClone(blueprint);
+            blueprint.data.duration = duration;
+        }
+
+        const rebuild = !!duration || needsActivityRebuild(item, blueprint);
         const cleanup = buildSourceFormulaCleanup(item);
         if (!rebuild && foundry.utils.isEmpty(purge) && !cleanup) return null;
         const update = { ...purge };
         if (cleanup) Object.assign(update, cleanup);
+        if (duration) update["flags.gmm.blueprint.data.duration"] = duration;
         // `item`, not null, so another module's config on the primary survives the rebuild.
         if (rebuild) Object.assign(update, buildActivityUpdate(item, blueprint));
         return update;
@@ -1455,6 +1500,7 @@ const Activities = (function () {
         buildDeferredActivityData,
         buildDoomClockEffectData,
         buildActivityUpdate,
+        buildDurationEffectData,
         readActivityIntoBlueprintData,
         resolveActivityFormulas,
         buildAttackToHitTerms,

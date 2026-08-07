@@ -1,5 +1,6 @@
 import ActionBlueprint from './ActionBlueprint.js';
 import Activities from './Activities.js';
+import Durations from './Durations.js';
 import Shortcoder from './Shortcoder.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
@@ -93,6 +94,7 @@ const GmmItem = (function () {
             this.system.description.value = Shortcoder.replaceShortcodes(this.system.description.value, gmmMonster, false, this);
         }
         Activities.resolveActivityFormulas(this, gmmMonster);
+        Durations.resolveEffectFormulas(this, gmmMonster);
     }
 
     function _onPreRollAttack(rollConfig, dialogConfig, _messageConfig) {

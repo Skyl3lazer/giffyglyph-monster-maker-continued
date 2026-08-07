@@ -13,6 +13,7 @@ docs/ISSUES_INDEX.md
 docs/issues/
 tools/issues-index.mjs
 docs/testing/
+docs/playwright/
 docs/compendium-audit.md
 
 # Compiled LevelDB packs - built from src/packs via `npm run pack`; source of truth is the yml.

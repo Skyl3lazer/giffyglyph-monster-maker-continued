@@ -410,6 +410,22 @@
                                     <span class="form-group__title">{{localize 'gmm.action.blueprint.duration.type'}}</span>
                                 </div>
                                 <div class="form-group__body">
+                                    <select name="gmm.blueprint.duration.type">
+                                        {{#select gmm.blueprint.duration.type}}
+                                        {{#each gmm.enums.duration_types}}
+                                        <option value="{{.}}">{{localize (concat 'gmm.common.duration_type.' .)}}</option>
+                                        {{/each}}
+                                        {{/select}}
+                                    </select>
+                                </div>
+                            </div>
+                            {{#if gmm.duration.rows.period}}
+                            <div class="form-group form-group--duration">
+                                <div class="form-group__header">
+                                    <span class="form-group__title">{{localize 'gmm.action.blueprint.duration.length'}}</span>
+                                </div>
+                                <div class="form-group__body">
+                                    <input name="gmm.blueprint.duration.value" value="{{gmm.blueprint.duration.value}}" type="number" min="0" placeholder="{{#unless gmm.duration.rows.periodRequired}}{{localize 'gmm.action.blueprint.duration.uncapped'}}{{/unless}}" />
                                     <select name="gmm.blueprint.duration.units">
                                         {{#select gmm.blueprint.duration.units}}
                                         <option value=""></option>
@@ -420,24 +436,77 @@
                                     </select>
                                 </div>
                             </div>
+                            {{else}}
+                            <input type="hidden" name="gmm.blueprint.duration.value" value="{{gmm.blueprint.duration.value}}" />
+                            <input type="hidden" name="gmm.blueprint.duration.units" value="{{gmm.blueprint.duration.units}}" />
+                            {{/if}}
+                            {{#if gmm.duration.rows.save}}
                             <div class="form-group">
                                 <div class="form-group__header">
-                                    <span class="form-group__title">{{localize 'gmm.action.blueprint.duration.quantity'}}</span>
+                                    <span class="form-group__title">{{localize 'gmm.action.blueprint.duration.save'}}</span>
                                 </div>
                                 <div class="form-group__body">
-                                    <input name="gmm.blueprint.duration.value" value="{{gmm.blueprint.duration.value}}" type="number" />
+                                    <select name="gmm.blueprint.duration.save.ability">
+                                        {{#select gmm.blueprint.duration.save.ability}}
+                                        <option value=""></option>
+                                        {{#each gmm.enums.abilities}}
+                                        <option value="{{.}}">{{localize (concat 'gmm.common.ability.' . '.name')}}</option>
+                                        {{/each}}
+                                        {{/select}}
+                                    </select>
                                 </div>
                             </div>
+                            {{else}}
+                            <input type="hidden" name="gmm.blueprint.duration.save.ability" value="{{gmm.blueprint.duration.save.ability}}" />
+                            {{/if}}
+                            {{#if gmm.duration.rows.reapplies}}
                             <div class="form-group">
-                                {{#each gmm.blueprint.properties}}
+                                <div class="form-group__header">
+                                    <span class="form-group__title">{{localize 'gmm.action.blueprint.duration.reapplies'}}</span>
+                                </div>
+                                <div class="form-group__body">
+                                    <select name="gmm.blueprint.duration.reapplies">
+                                        {{#select gmm.blueprint.duration.reapplies}}
+                                        <option value="">{{localize 'gmm.common.reapply_mode.never'}}</option>
+                                        {{#each gmm.enums.reapply_modes}}
+                                        <option value="{{.}}">{{localize (concat 'gmm.common.reapply_mode.' .)}}</option>
+                                        {{/each}}
+                                        {{/select}}
+                                    </select>
+                                </div>
+                            </div>
+                            {{else}}
+                            <input type="hidden" name="gmm.blueprint.duration.reapplies" value="{{gmm.blueprint.duration.reapplies}}" />
+                            {{/if}}
+                            {{#if gmm.duration.rows.cancel}}
+                            <div class="form-group">
+                                <div class="form-group__header">
+                                    <span class="form-group__title">{{localize 'gmm.action.blueprint.duration.cancel'}}</span>
+                                </div>
+                                <div class="form-group__body">
+                                    <input name="gmm.blueprint.duration.cancel" value="{{gmm.blueprint.duration.cancel}}" />
+                                </div>
+                            </div>
+                            {{else}}
+                            <input type="hidden" name="gmm.blueprint.duration.cancel" value="{{gmm.blueprint.duration.cancel}}" />
+                            {{/if}}
+                            {{#if gmm.duration.rows.concentration}}
+                            <div class="form-group">
                                 <div class="form-group__header">
                                     <span class="form-group__title">{{localize 'gmm.action.blueprint.properties.concentration'}}</span>
                                 </div>
                                 <div class="form-group__body">
-                                    <input type="checkbox" name="gmm.blueprint.properties.{{@key}}.checked" {{checked checked}} />
+                                    <input type="checkbox" name="gmm.blueprint.properties.concentration.checked" {{checked gmm.blueprint.properties.concentration.checked}} />
                                 </div>
-                                {{/each}}
                             </div>
+                            {{/if}}
+                            {{#if gmm.duration.missing.length}}
+                            <div class="form-group form-group--note">
+                                <div class="form-group__body">
+                                    <span>{{localize 'gmm.action.blueprint.duration.inert'}} {{gmm.duration.missingLabel}}</span>
+                                </div>
+                            </div>
+                            {{/if}}
                         </div>
                     </div>
                     <div class="accordion-section" data-section="effects">
