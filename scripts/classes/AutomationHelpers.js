@@ -85,10 +85,32 @@ const AutomationHelpers = (function () {
 		return merged;
 	}
 
+	/* Core stamps the source effect's uuid, midi the activity's, and dnd5e's tray the concentration
+	 * effect's whenever the action concentrates. None of the three can be assumed. */
+	function resolveSourceItem(origin) {
+		if (typeof origin !== "string" || !origin) return null;
+		const viaMidi = globalThis.MidiQOL?.getItemFromEffectOrigin;
+		if (viaMidi) {
+			try {
+				const found = viaMidi(origin);
+				if (found) return found;
+			} catch (error) {
+				console.warn("GMM | midi origin resolution failed; cutting the uuid instead", error);
+			}
+		}
+		const doc = fromUuidSync(origin.split(".Activity.")[0].split(".ActiveEffect.")[0]);
+		if (doc?.documentName === "Item") return doc;
+		// A concentration effect rides the actor, so cutting its uuid lands on the actor and not the item.
+		const carrier = fromUuidSync(origin);
+		const itemId = carrier?.getFlag?.("dnd5e", "item")?.id;
+		return itemId ? (carrier.parent?.items?.get?.(itemId) ?? null) : null;
+	}
+
 	return {
 		collectOverwrittenEffects: collectOverwrittenEffects,
 		applyOverwrittenEffects: applyOverwrittenEffects,
-		preserveForeignActivityFields: preserveForeignActivityFields
+		preserveForeignActivityFields: preserveForeignActivityFields,
+		resolveSourceItem: resolveSourceItem
 	};
 })();
 

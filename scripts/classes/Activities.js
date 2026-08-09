@@ -647,8 +647,9 @@ const Activities = (function () {
         return entries.map(damagePartFromBlueprint);
     }
 
-    /* Three scopes because a deferral splits them across two activities; exactly one supplies each. */
-    function readActivityIntoBlueprintData(activity, blueprintData, { shared = true, gate = true, damage = true } = {}) {
+    /* Three scopes because a deferral splits them across two activities; exactly one supplies each.
+       `authoredType` is the _source duration type, absent on the pre-type shape. */
+    function readActivityIntoBlueprintData(activity, blueprintData, { shared = true, gate = true, damage = true, authoredType = null } = {}) {
         if (!activity) return;
         const obj = (typeof activity.toObject === "function") ? activity.toObject() : activity;
         const type = obj.type;
@@ -662,7 +663,14 @@ const Activities = (function () {
 
         if (shared && obj.duration) {
             blueprintData.duration ??= {};
-            Object.assign(blueprintData.duration, Durations.fromUnits(obj.duration.units, obj.duration.value));
+            /* `fromUnits` cannot express ongoing, save_ends or either end-of-turn, and blanks
+               `reapplies`. Run against an authored blueprint it degrades one to timed. */
+            if (!authoredType) {
+                Object.assign(blueprintData.duration, Durations.fromUnits(obj.duration.units, obj.duration.value));
+            } else if (Durations.TYPES[authoredType]?.hasPeriod) {
+                blueprintData.duration.value = obj.duration.value ?? "";
+                blueprintData.duration.units = obj.duration.units ?? "";
+            }
             blueprintData.properties ??= { concentration: { checked: false } };
             blueprintData.properties.concentration ??= { checked: false };
             blueprintData.properties.concentration.checked = !!obj.duration.concentration;
@@ -1214,9 +1222,10 @@ const Activities = (function () {
         return activityTypeFor(blueprintData.attack?.type);
     }
 
-    /* The pre-type shape carried no `type` key at all. Its absence is the signal. */
-    function _buildDurationBlueprintMigration(blueprint) {
-        const duration = blueprint?.data?.duration;
+    /* The pre-type shape carried no `type` key at all. Only _source still shows that absence, because
+       the prepared blueprint is default-filled. */
+    function _buildDurationBlueprintMigration(item) {
+        const duration = item?._source?.flags?.gmm?.blueprint?.data?.duration;
         if (!duration || duration.type) return null;
         return {
             ...duration,
@@ -1231,7 +1240,7 @@ const Activities = (function () {
         const purge = buildForeignActivityPurge(item);
         let blueprint = item.flags.gmm.blueprint;
 
-        const duration = _buildDurationBlueprintMigration(blueprint);
+        const duration = _buildDurationBlueprintMigration(item);
         if (duration) {
             blueprint = foundry.utils.deepClone(blueprint);
             blueprint.data.duration = duration;

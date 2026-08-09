@@ -1,4 +1,5 @@
 import Shortcoder from "./Shortcoder.js";
+import AutomationHelpers from "./AutomationHelpers.js";
 import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
 
 /* GMMC runs none of this itself. An absent module degrades a type to a plain lifetime rather than
@@ -234,6 +235,31 @@ const Durations = (function () {
 		}
 	}
 
+	/* The tray applies `effect.toObject()`, a clone of _source that the resolution above never touched.
+	 * This is the last point at which the scaler is still reachable. */
+	function _onPreCreateActiveEffect(effect, data) {
+		if (!isDurationEffect(effect)) return;
+		const item = AutomationHelpers.resolveSourceItem(effect.origin);
+		const monsterData = item?.getOwningGmmMonster?.();
+		if (!monsterData) return;
+
+		const resolve = (value) => (typeof value === "string" && value.includes("["))
+			? Shortcoder.replaceShortcodes(value, monsterData, false, item)
+			: value;
+
+		const update = {};
+		const changes = data.system?.changes ?? data.changes;
+		if (Array.isArray(changes)) {
+			const key = Array.isArray(data.system?.changes) ? "system.changes" : "changes";
+			update[key] = changes.map(c => ({ ...c, value: resolve(c.value) }));
+		}
+
+		const formula = data.flags?.[GMM_MODULE_TITLE]?.[GMM_DURATION_FLAG]?.formula;
+		if (formula) update[`flags.${GMM_MODULE_TITLE}.${GMM_DURATION_FLAG}.formula`] = resolve(formula);
+
+		if (!foundry.utils.isEmpty(update)) effect.updateSource(update);
+	}
+
 	function _sourceActorOf(effect) {
 		const origin = effect?.origin;
 		if (!origin) return null;
@@ -308,7 +334,7 @@ const Durations = (function () {
 		const deferral = effect?.flags?.[GMM_MODULE_TITLE]?.deferral;
 		if (!isDurationEffect(effect) && !deferral) return;
 		const source = _sourceActorOf(effect);
-		const itemId = effect.origin ? fromUuidSync(effect.origin)?.id : null;
+		const itemId = AutomationHelpers.resolveSourceItem(effect.origin)?.id ?? null;
 		await _concentrationFor(source, itemId)?.addDependent(effect);
 	}
 
@@ -317,7 +343,7 @@ const Durations = (function () {
 	async function _onDeleteActiveEffect(effect) {
 		if (!game.users.activeGM?.isSelf || !isDurationEffect(effect)) return;
 		const source = _sourceActorOf(effect);
-		const itemId = effect.origin ? fromUuidSync(effect.origin)?.id : null;
+		const itemId = AutomationHelpers.resolveSourceItem(effect.origin)?.id ?? null;
 		const concentration = _concentrationFor(source, itemId);
 		if (!concentration || concentration.duration?.units) return;
 		if (concentration.getDependents().some(d => d.id !== effect.id)) return;
@@ -327,6 +353,7 @@ const Durations = (function () {
 	function registerApi() {
 		globalThis.gmmc ??= {};
 		globalThis.gmmc.durations = { reapplyOnSourceTurn };
+		Hooks.on("preCreateActiveEffect", _onPreCreateActiveEffect);
 		Hooks.on("createActiveEffect", _onCreateActiveEffect);
 		Hooks.on("deleteActiveEffect", _onDeleteActiveEffect);
 	}

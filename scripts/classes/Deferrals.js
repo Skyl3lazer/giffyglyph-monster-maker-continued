@@ -1,4 +1,5 @@
 import Activities from './Activities.js';
+import AutomationHelpers from './AutomationHelpers.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
 const GMM_DEFERRALS_SETTING = "automateDeferrals";
@@ -89,7 +90,7 @@ const Deferrals = (function () {
 		if (_clockKind(clock) !== "dooming") return;
 
 		try {
-			const item = _resolveSourceItem(effect.origin);
+			const item = AutomationHelpers.resolveSourceItem(effect.origin);
 			if (item) await effect.setFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG, { ...clock, sourceUuid: item.uuid });
 
 			// A countdown in the bearer's turns is meaningless without turns, so resolve rather than leave it sitting.
@@ -101,21 +102,6 @@ const Deferrals = (function () {
 		}
 	}
 
-	/* Core stamps the source effect's uuid and midi the activity's, so neither shape can be assumed. */
-	function _resolveSourceItem(origin) {
-		if (typeof origin !== "string" || !origin) return null;
-		const viaMidi = globalThis.MidiQOL?.getItemFromEffectOrigin;
-		if (viaMidi) {
-			try {
-				const found = viaMidi(origin);
-				if (found) return found;
-			} catch (error) {
-				console.warn("GMM | midi origin resolution failed; cutting the uuid instead", error);
-			}
-		}
-		const doc = fromUuidSync(origin.split(".Activity.")[0].split(".ActiveEffect.")[0]);
-		return (doc instanceof Item) ? doc : null;
-	}
 
 	/* A delayed clock rides the item's own actor; a doom clock rides someone else's. */
 	function _sourceItem(effect, clock) {

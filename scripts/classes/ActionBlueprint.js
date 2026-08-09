@@ -50,7 +50,8 @@ const ActionBlueprint = (function () {
             if (primaryActivity) {
                 Activities.readActivityIntoBlueprintData(primaryActivity, blueprintData, {
                     gate: gateActivity === primaryActivity,
-                    damage: damageActivity === primaryActivity
+                    damage: damageActivity === primaryActivity,
+                    authoredType: item._source?.flags?.gmm?.blueprint?.data?.duration?.type ?? null
                 });
             }
             if (gateActivity && gateActivity !== primaryActivity) {
