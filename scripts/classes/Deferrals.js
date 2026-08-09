@@ -122,9 +122,8 @@ const Deferrals = (function () {
 			name: game.i18n.format("gmm.deferral.clock.name", { name: item.name }),
 			img: item.img,
 			origin: item.uuid,
-			// Cosmetic; the flag's count is authoritative.
-			duration: { value: deferral.timer, units: "rounds", expiry: "turnStart" },
-			// getEffectStart would record whoever's turn it currently is, which is wrong for a reaction.
+			/* No duration, matching the doom clock. One that carries a duration can expire on its own,
+			   which under `expiryAction: delete` removes it in the turn its last tick resolves. */
 			start: {
 				time: game.time.worldTime,
 				combat: combat.id,

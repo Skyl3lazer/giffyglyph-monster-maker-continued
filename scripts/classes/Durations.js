@@ -338,6 +338,10 @@ const Durations = (function () {
 		await _concentrationFor(source, itemId)?.addDependent(effect);
 	}
 
+	function _isPayload(document) {
+		return isDurationEffect(document) || !!document?.flags?.[GMM_MODULE_TITLE]?.deferral;
+	}
+
 	/* Only a deferred feature's concentration lacks an expiry. Only it needs ending by hand. The
 	 * dependents check keeps a multi-target feature concentrating until the last carrier is gone. */
 	async function _onDeleteActiveEffect(effect) {
@@ -345,8 +349,10 @@ const Durations = (function () {
 		const source = _sourceActorOf(effect);
 		const itemId = AutomationHelpers.resolveSourceItem(effect.origin)?.id ?? null;
 		const concentration = _concentrationFor(source, itemId);
-		if (!concentration || concentration.duration?.units) return;
-		if (concentration.getDependents().some(d => d.id !== effect.id)) return;
+		// v14 prepares a blank value to Infinity, so only a finite one is a real expiry.
+		if (!concentration || Number.isFinite(concentration.duration?.value)) return;
+		// A measured template is a dependent too, and it never leaves while the concentration holds.
+		if (concentration.getDependents().some(d => d.id !== effect.id && _isPayload(d))) return;
 		await concentration.delete();
 	}
 
