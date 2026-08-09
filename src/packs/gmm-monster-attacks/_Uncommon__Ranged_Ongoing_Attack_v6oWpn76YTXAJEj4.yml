@@ -49,8 +49,13 @@ flags:
                 formula: '[round(damage * 1.25), damageDie]'
                 type: acid
         duration:
+          type: ongoing
           units: ''
           value: ''
+          save:
+            ability: con
+          reapplies: ''
+          cancel: ''
         properties:
           concentration:
             checked: false

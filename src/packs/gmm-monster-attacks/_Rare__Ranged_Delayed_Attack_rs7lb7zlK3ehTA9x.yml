@@ -222,7 +222,7 @@ flags:
         deferral:
           type: delayed
           timer: 2
-          respite: ''
+          cancel: ''
         properties:
           concentration:
             checked: false

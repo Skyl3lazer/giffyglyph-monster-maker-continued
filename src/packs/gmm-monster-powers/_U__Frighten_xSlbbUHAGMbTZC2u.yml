@@ -100,8 +100,13 @@ flags:
           versatile:
             damage: ''
         duration:
+          type: save_ends
           units: ''
           value: ''
+          save:
+            ability: wis
+          reapplies: ''
+          cancel: ''
         range:
           units: ''
           value: null

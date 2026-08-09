@@ -141,7 +141,7 @@ flags:
         deferral:
           type: delayed
           timer: 1
-          respite: ''
+          cancel: The target breaks free of your grapple
         properties:
           concentration:
             checked: false

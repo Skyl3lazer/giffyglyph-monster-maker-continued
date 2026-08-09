@@ -114,8 +114,13 @@ flags:
                 formula: '[level*2]'
                 type: healing
         duration:
+          type: timed
           units: minute
           value: '10'
+          save:
+            ability: ''
+          reapplies: target
+          cancel: ''
         range:
           units: ft
           value: 60

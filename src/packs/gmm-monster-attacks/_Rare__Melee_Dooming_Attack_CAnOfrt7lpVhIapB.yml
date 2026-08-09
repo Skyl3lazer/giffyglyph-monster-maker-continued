@@ -128,8 +128,13 @@ flags:
                 formula: '[round(damage*1.75), damageDie]'
                 type: necrotic
         duration:
+          type: save_ends
           units: ''
           value: ''
+          save:
+            ability: wis
+          reapplies: ''
+          cancel: ''
         range:
           units: ft
           value: 10

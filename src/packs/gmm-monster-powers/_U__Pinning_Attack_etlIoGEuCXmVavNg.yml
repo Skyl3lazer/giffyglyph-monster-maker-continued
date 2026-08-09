@@ -104,8 +104,13 @@ flags:
           versatile:
             damage: ''
         duration:
+          type: save_ends
           units: ''
           value: ''
+          save:
+            ability: str
+          reapplies: ''
+          cancel: ''
         range:
           units: ft
           value: 5

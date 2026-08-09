@@ -107,8 +107,13 @@ flags:
           versatile:
             damage: ''
         duration:
+          type: ongoing
           units: ''
           value: ''
+          save:
+            ability: con
+          reapplies: ''
+          cancel: ''
         range:
           units: ''
           value: null

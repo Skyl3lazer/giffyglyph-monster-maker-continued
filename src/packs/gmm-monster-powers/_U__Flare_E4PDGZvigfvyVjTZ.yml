@@ -106,8 +106,13 @@ flags:
           versatile:
             damage: ''
         duration:
+          type: end_of_your_turn
           units: ''
           value: ''
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         range:
           units: ft
           value: 60

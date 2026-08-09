@@ -149,7 +149,7 @@ flags:
         deferral:
           type: delayed
           timer: 1
-          respite: ''
+          cancel: ''
         properties:
           concentration:
             checked: false

@@ -100,8 +100,13 @@ flags:
           versatile:
             damage: ''
         duration:
-          units: round
-          value: '1'
+          type: end_of_your_turn
+          units: ''
+          value: ''
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         range:
           units: ''
           value: null

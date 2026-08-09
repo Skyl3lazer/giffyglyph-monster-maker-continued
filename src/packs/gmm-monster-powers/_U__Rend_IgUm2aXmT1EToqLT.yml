@@ -113,8 +113,13 @@ flags:
                 formula: '[round(damage*1.25), damageDie]'
                 type: ''
         duration:
+          type: ongoing
           units: ''
           value: ''
+          save:
+            ability: con
+          reapplies: ''
+          cancel: ''
         range:
           units: ft
           value: 5

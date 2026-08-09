@@ -140,7 +140,7 @@ flags:
         deferral:
           type: delayed
           timer: 1
-          respite: ''
+          cancel: The target is no longer stunned or within your reach
         properties:
           concentration:
             checked: false
