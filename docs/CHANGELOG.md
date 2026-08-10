@@ -25,6 +25,7 @@
 	* A global attack bonus from an effect now shows in that block, and in the basic attack roll dialog.
 * Deferral automation! Deferred abilities will now properly wait before rolling attacks or applying effects where appropriate. This is compatible with *MidiQOL*, but some amount of the automation works without it.
 * Updated compendiums to include proper appropriate effects, etc, to let them function with as much automation as has been built. The entries will indicate in their description how they're automated.
+* Shortcodes are now available in the effects editor (including with *Dyamic Active Effects*). They can be accessed with `@gmm.*`, where * is the shortcode. This does not support roll formula shortcodes (things like `[damage, damageDie]`) since you can just either alter the outgoing damage with an effect, or alter `@gmm.damageDie` for the scaling ability. 
 
 ## v2.0.1.0
 

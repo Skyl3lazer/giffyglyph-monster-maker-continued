@@ -10,6 +10,7 @@ import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
 import Conditions from './scripts/classes/Conditions.js';
 import Deferrals from './scripts/classes/Deferrals.js';
 import Durations from './scripts/classes/Durations.js';
+import Shortcoder from './scripts/classes/Shortcoder.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
@@ -151,6 +152,34 @@ Hooks.once("init", function() {
 	Hooks.on("createActiveEffect", _rerenderForEffect);
 	Hooks.on("updateActiveEffect", _rerenderForEffect);
 	Hooks.on("deleteActiveEffect", _rerenderForEffect);
+
+	// Anywhere but the forge's own duration carrier, a shortcode reaches the target verbatim.
+	const _warnAboutShortcodes = (effect, data) => {
+		try {
+			if (Durations.isDurationEffect(effect)) return;
+			const parent = effect?.parent;
+			const authoredOnScaler = (parent?.documentName === "Actor")
+				? _isGmmMonster(parent)
+				: (_isGmmMonster(parent?.actor) || parent?.getSheetId?.() === `${GMM_MODULE_TITLE}.ActionSheet`);
+			if (!authoredOnScaler) return;
+
+			for (const change of (data?.system?.changes ?? data?.changes ?? [])) {
+				for (const code of Shortcoder.findShortcodes(change?.value)) {
+					const suggestion = Shortcoder.suggestRollData(code);
+					const message = game.i18n.format(
+						suggestion ? "gmm.effect.shortcode_not_resolved" : "gmm.effect.shortcode_no_equivalent",
+						{ name: effect.name, key: change.key, code: code, suggestion: suggestion }
+					);
+					ui.notifications?.warn(message);
+					console.warn(`GMM | ${message}`);
+				}
+			}
+		} catch (e) {
+			console.warn("GMM | shortcode check on effect failed", e);
+		}
+	};
+	Hooks.on("preCreateActiveEffect", _warnAboutShortcodes);
+	Hooks.on("preUpdateActiveEffect", _warnAboutShortcodes);
 
 	Hooks.on("createActor", (actor, _options, userId) => {
 		if (game.userId !== userId) return;

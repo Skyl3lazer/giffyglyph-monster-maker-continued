@@ -65,6 +65,45 @@ const Shortcoder = (function () {
         }
     ];
 
+    /* What to write instead when a shortcode turns up in an effect change value. `@gmm.*` covers the
+     * concepts dnd5e has no field for. The rest already have one, reconciled after effects. */
+    const ROLL_DATA_EQUIVALENTS = Object.assign({
+        level: "@gmm.level",
+        attackBonus: "@gmm.attackBonus",
+        saveDc: "@gmm.saveDc",
+        dcPrimaryBonus: "@gmm.saveDc",
+        maxMod: "@gmm.saveDc",
+        damage: "@gmm.damage",
+        naturalMax: "@gmm.naturalMax",
+        proficiency: "@attributes.prof",
+        cr: "@details.cr",
+        xp: "@details.xp.value",
+        hpMax: "@attributes.hp.max",
+        ac: "@attributes.ac.value",
+        name: "@name"
+    }, ...["str", "dex", "con", "int", "wis", "cha"].map((x) => ({
+        [`${x}Mod`]: `@abilities.${x}.mod`,
+        [`${x}Save`]: `@abilities.${x}.save`
+    })));
+
+    /* Matches on the bracket's contents, never on the bracket itself. `[isDamaged]` and `2d6[fire]`
+     * both ship in GMMC content without being shortcodes. */
+    function findShortcodes(text) {
+        if (typeof text !== "string" || !text.includes("[")) return [];
+        const found = new Set();
+        for (const token of text.match(/\[.*?\]/g) ?? []) {
+            if (/^\[\s*\//.test(token) || /^\[\[/.test(token)) continue;
+            SHORTCODES.forEach((x) => {
+                if (new RegExp(`\\b${x.code}\\b`, "i").test(token)) found.add(x.code);
+            });
+        }
+        return [...found];
+    }
+
+    function suggestRollData(code) {
+        return ROLL_DATA_EQUIVALENTS[code] ?? null;
+    }
+
     function _resolveShortcodeValue(entry, monsterData, itemContext) {
         if (typeof entry.resolver === "function") {
             try { return entry.resolver(monsterData, itemContext); }
@@ -147,6 +186,8 @@ const Shortcoder = (function () {
     }
 
     return {
+        findShortcodes: findShortcodes,
+        suggestRollData: suggestRollData,
         replaceShortcodes: replaceShortcodes,
         replaceShortcodesAndAddDamageType: replaceShortcodesAndAddDamageType,
         replaceShortcodesAndAddDamageTypeDamageObject: replaceShortcodesAndAddDamageTypeDamageObject

@@ -333,6 +333,8 @@
   "gmm.deferral.resolution.unread": "The area could not be measured - choose targets yourself.",
   "gmm.deferral.resolution.resolve": "Resolve",
   "gmm.deferral.resolution.cancel": "Cancel",
+  "gmm.effect.shortcode_not_resolved": "\"{name}\" uses the shortcode [{code}] in the change \"{key}\". Shortcodes are not resolved in an effect. Write {suggestion} instead.",
+  "gmm.effect.shortcode_no_equivalent": "\"{name}\" uses the shortcode [{code}] in the change \"{key}\". Shortcodes are not resolved in an effect, and [{code}] has no equivalent that is.",
   "gmm.common.derived_source.ability_modifier": "ability modifier",
   "gmm.common.derived_source.ability_score": "ability score",
   "gmm.common.derived_source.active_effects": "{count} active effects",

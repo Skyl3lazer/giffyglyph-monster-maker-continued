@@ -95,6 +95,50 @@ const MonsterForge = (function () {
         };
     }
 
+    /* Only the concepts dnd5e has no field of its own for. Everything else a formula needs is already
+     * on the actor, under its dnd5e name. */
+    function _rollDataSurface(blueprint, { level, attackBonus, saveDc, damage, naturalMax }) {
+        return {
+            level: level,
+            rank: blueprint.data.combat.rank?.type ?? "",
+            role: blueprint.data.combat.role?.type ?? "",
+            attackBonus: attackBonus,
+            saveDc: saveDc,
+            damage: damage,
+            naturalMax: naturalMax
+        };
+    }
+
+    /* The base pass runs before any artifact exists. A reference read there sees pre-effect numbers. */
+    function createBaseRollData(blueprint) {
+        const derivedAttributes = MonsterHelpers.getDerivedAttributes(
+            blueprint.data.combat.level,
+            blueprint.data.combat.rank,
+            blueprint.data.combat.role
+        );
+        const hitPoints = _parseHitPoints(derivedAttributes, blueprint.data.hit_points);
+        const rolled = Number(blueprint.data.hit_points.rolled_max) || 0;
+
+        return _rollDataSurface(blueprint, {
+            level: derivedAttributes.level,
+            attackBonus: _parseAttackBonus(derivedAttributes, blueprint.data.attack_bonus).value,
+            saveDc: _parseAttackDcs(derivedAttributes, blueprint.data.attack_dcs).primary.value
+                + _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers).max.value,
+            damage: _parseDamagePerAction(derivedAttributes, blueprint.data.damage_per_action).value,
+            naturalMax: (hitPoints.use_formula && rolled) ? rolled : hitPoints.natural_maximum
+        });
+    }
+
+    function createRollData(blueprint, monsterData) {
+        return _rollDataSurface(blueprint, {
+            level: monsterData.level.value,
+            attackBonus: monsterData.attack_bonus.value,
+            saveDc: monsterData.attack_dcs.primary.value + monsterData.ability_modifiers.max.value,
+            damage: monsterData.damage_per_action.value,
+            naturalMax: monsterData.hit_points.natural_maximum
+        });
+    }
+
     function _parseName(name) {
         return (name && name.trim().length > 0) ? name.trim() : "???";
     }
@@ -779,7 +823,9 @@ const MonsterForge = (function () {
 
     return {
         createArtifact: createArtifact,
-        createBaseAttributes: createBaseAttributes
+        createBaseAttributes: createBaseAttributes,
+        createBaseRollData: createBaseRollData,
+        createRollData: createRollData
     };
 })();
 

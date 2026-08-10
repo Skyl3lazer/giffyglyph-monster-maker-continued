@@ -31,6 +31,8 @@ const GmmActor = (function () {
 				_prepareMonsterBaseData(this);
 			} else {
 				wrapped(...args);
+				// A sheet switch away from the forge would otherwise leave the surface behind until a reload.
+				delete this._gmmRollData;
 			}
 		}, 'WRAPPER');
 		_safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
@@ -41,6 +43,13 @@ const GmmActor = (function () {
 			} else {
 				wrapped(...args);
 			}
+		}, 'WRAPPER');
+
+		// DAE wraps this too, through libWrapper. The two interleave by priority.
+		_safeWrap('game.dnd5e.documents.Actor5e.prototype.getRollData', function (wrapped, ...args) {
+			const data = wrapped(...args);
+			if (this._gmmRollData) data.gmm = this._gmmRollData;
+			return data;
 		}, 'WRAPPER');
 
 		const Actor5eProto = game.dnd5e.documents.Actor5e.prototype;
@@ -54,6 +63,8 @@ const GmmActor = (function () {
 		const actorData = actor.system;
 		const monsterBlueprint = MonsterBlueprint.createBaseFromActor(actor);
 		const baseAttributes = MonsterForge.createBaseAttributes(monsterBlueprint);
+		// Seeded here because an initial-phase effect change is substituted before the derived pass runs.
+		actor._gmmRollData = MonsterForge.createBaseRollData(monsterBlueprint);
 		actorData.attributes.ac.calc = "natural";
 		actorData.attributes.ac.flat = baseAttributes.armor_class.value;
 		actorData.attributes.ac.base = baseAttributes.armor_class.value;
@@ -370,6 +381,9 @@ const GmmActor = (function () {
 			monsterData.hit_points.natural_maximum = actorData.attributes.hp.max;
 			monsterData.hit_points.effective_maximum = actorData.attributes.hp.effectiveMax;
 			monsterData.hit_points.temporary_maximum = actorData.attributes.hp.tempmax;
+
+				// Replaces the pre-effect seed from the base pass. A roll-time reference must read reconciled numbers.
+				actor._gmmRollData = MonsterForge.createRollData(monsterBlueprint, monsterData);
 
 			// Reads the finished artifact and current hit points, so it goes after the late replay.
 			ParagonDefenses.prepareDerivedData(actor);
