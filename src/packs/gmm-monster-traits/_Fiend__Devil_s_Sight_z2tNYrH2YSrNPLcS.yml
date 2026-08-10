@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/perception/eye-ringed-glow-angry-large-red.webp
 system:
   description:
-    value: <p>Magical darkness doesn't impede your darkvision.</p>
+    value: >-
+      <p>Magical darkness doesn't impede your darkvision.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (Fiend) Devil's Sight
           image: icons/magic/perception/eye-ringed-glow-angry-large-red.webp
-          text: <p>Magical darkness doesn't impede your darkvision.</p>
+          text: >-
+            <p>Magical darkness doesn't impede your darkvision.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

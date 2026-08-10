@@ -7,7 +7,7 @@ system:
       <p>You are incapacitated while in the area of an antimagic field. If
       targeted by a "dispel magic" effect, you must succeed on a Constitution
       saving throw against the caster's spell save DC or fall unconscious for 1
-      minute.</p>
+      minute.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -83,7 +83,7 @@ flags:
             <p>You are incapacitated while in the area of an antimagic field. If
             targeted by a "dispel magic" effect, you must succeed on a
             Constitution saving throw against the caster's spell save DC or fall
-            unconscious for 1 minute.</p>
+            unconscious for 1 minute.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

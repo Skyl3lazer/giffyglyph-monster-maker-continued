@@ -4,9 +4,10 @@ img: icons/creatures/abilities/dragon-breath-purple.webp
 system:
   description:
     value: >-
-      <p>You ignore difficult terrain and magical effects can’t reduce your
-      speed or cause you to be restrained. You can spend 5 feet of movement to
-      escape from nonmagical restraints or being grappled.</p>
+      <p>You ignore difficult terrain and magical effects can&rsquo;t reduce
+      your speed or cause you to be restrained. You can spend 5 feet of movement
+      to escape from nonmagical restraints or being grappled.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -82,7 +83,7 @@ flags:
             <p>You ignore difficult terrain and magical effects can&rsquo;t
             reduce your speed or cause you to be restrained. You can spend 5
             feet of movement to escape from nonmagical restraints or being
-            grappled.</p>
+            grappled.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>While you remain motionless, you are indistinguishable from a normal
-      inanimate object.</p>
+      inanimate object.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/symbols/mask-metal-silver-white.webp
           text: >-
             <p>While you remain motionless, you are indistinguishable from a
-            normal inanimate object.</p>
+            normal inanimate object.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

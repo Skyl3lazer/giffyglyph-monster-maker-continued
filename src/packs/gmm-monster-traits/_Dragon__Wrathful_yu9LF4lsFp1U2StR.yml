@@ -6,7 +6,7 @@ system:
     value: >-
       <p>When you are attacked by a creature or the subject of a spell, increase
       your critical hit range against the source by +1 until the end of your
-      next turn.</p>
+      next turn.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +81,7 @@ flags:
           text: >-
             <p>When you are attacked by a creature or the subject of a spell,
             increase your critical hit range against the source by +1 until the
-            end of your next turn.</p>
+            end of your next turn.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

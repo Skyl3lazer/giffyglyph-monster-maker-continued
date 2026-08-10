@@ -3,7 +3,7 @@ type: feat
 img: icons/magic/holy/projectiles-blades-salvo-yellow.webp
 system:
   description:
-    value: <p>Your weapon attacks are magical.</p>
+    value: <p>Your weapon attacks are magical.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +75,7 @@ flags:
         description:
           name: (Celestial) Divine Weapons
           image: icons/magic/holy/projectiles-blades-salvo-yellow.webp
-          text: <p>Your weapon attacks are magical.</p>
+          text: <p>Your weapon attacks are magical.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

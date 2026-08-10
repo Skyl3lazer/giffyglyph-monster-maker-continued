@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>You can see through illusions and perceive the original form of a
-      shapechanger or creature that is transformed by magic.</p>
+      shapechanger or creature that is transformed by magic.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/perception/orb-crystal-ball-scrying.webp
           text: >-
             <p>You can see through illusions and perceive the original form of a
-            shapechanger or creature that is transformed by magic.</p>
+            shapechanger or creature that is transformed by magic.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

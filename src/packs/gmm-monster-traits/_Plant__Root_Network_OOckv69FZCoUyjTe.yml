@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>You have an extensive network of roots, and you know the exact location
-      of any creature in contact with those roots.</p>
+      of any creature in contact with those roots.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/nature/tree-spirit-glow-black-yellow.webp
           text: >-
             <p>You have an extensive network of roots, and you know the exact
-            location of any creature in contact with those roots.</p>
+            location of any creature in contact with those roots.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

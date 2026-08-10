@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/nature/instrument-recorder-leaves.webp
 system:
   description:
-    value: <p>You can communicate with plants as if you shared a language.</p>
+    value: >-
+      <p>You can communicate with plants as if you shared a
+      language.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (Humanoid) Speak with Plants
           image: icons/magic/nature/instrument-recorder-leaves.webp
-          text: <p>You can communicate with plants as if you shared a language.</p>
+          text: >-
+            <p>You can communicate with plants as if you shared a
+            language.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

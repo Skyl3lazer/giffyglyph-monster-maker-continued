@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>At the start of your turn, each creature that is grappled by you loses
-      one unspent hit die.</p>
+      one unspent hit die.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/skills/melee/unarmed-punch-fist.webp
           text: >-
             <p>At the start of your turn, each creature that is grappled by you
-            loses one unspent hit die.</p>
+            loses one unspent hit die.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

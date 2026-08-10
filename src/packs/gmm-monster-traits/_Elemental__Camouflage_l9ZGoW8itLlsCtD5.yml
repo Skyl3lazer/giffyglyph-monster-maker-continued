@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You are invisible while fully immersed in your element (air, earth,
-      fire, or water).</p>
+      fire, or water).</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/fire/flame-burning-tree-stump.webp
           text: >-
             <p>You are invisible while fully immersed in your element (air,
-            earth, fire, or water).</p>
+            earth, fire, or water).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

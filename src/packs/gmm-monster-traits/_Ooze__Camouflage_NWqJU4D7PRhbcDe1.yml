@@ -3,7 +3,9 @@ type: feat
 img: icons/creatures/slimes/slime-face-teeth-purple.webp
 system:
   description:
-    value: <p>You are invisible when fully immersed in water.</p>
+    value: >-
+      <p>You are invisible when fully immersed in water.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (Ooze) Camouflage
           image: icons/creatures/slimes/slime-face-teeth-purple.webp
-          text: <p>You are invisible when fully immersed in water.</p>
+          text: >-
+            <p>You are invisible when fully immersed in water.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Your body disintegrates into dust when you die, including anything you
-      were carrying or wearing that had a fiendish origin.</p>
+      were carrying or wearing that had a fiendish origin.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>Your body disintegrates into dust when you die, including
             anything you were carrying or wearing that had a fiendish
-            origin.</p>
+            origin.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

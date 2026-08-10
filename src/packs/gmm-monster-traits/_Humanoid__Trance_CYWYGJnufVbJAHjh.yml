@@ -4,9 +4,9 @@ img: icons/magic/defensive/shield-barrier-glowing-triangle-blue.webp
 system:
   description:
     value: >-
-      <p>You don’t need to sleep. Instead, you meditate deeply, remaining
+      <p>You don&rsquo;t need to sleep. Instead, you meditate deeply, remaining
       semiconscious, for 4 hours a day. After resting in this way, you gain the
-      same benefit as from 8 hours of sleep.</p>
+      same benefit as from 8 hours of sleep.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +81,8 @@ flags:
           text: >-
             <p>You don&rsquo;t need to sleep. Instead, you meditate deeply,
             remaining semiconscious, for 4 hours a day. After resting in this
-            way, you gain the same benefit as from 8 hours of sleep.</p>
+            way, you gain the same benefit as from 8 hours of
+            sleep.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

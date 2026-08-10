@@ -5,7 +5,12 @@ system:
   description:
     value: >-
       <p>You have advantage on Strength and Dexterity saving throws made against
-      effects that would knock you prone.</p>
+      effects that would knock you prone.+</p><p><em>+ Midi
+      automation</em></p><p><em>To finish it, edit this effect and set both
+      change values to a midi condition that is true only for saves against
+      being knocked prone. Left blank they do nothing. Setting them to
+      <strong>1</strong> would grant advantage on every Strength and Dexterity
+      save.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +69,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: WkpkLWm96bItfg2a
+    name: Sure-footed
+    img: icons/creatures/abilities/paw-print-tan.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.str
+          type: custom
+          value: ''
+        - key: flags.midi-qol.advantage.save.dex
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!fg2aWkpkLWm96bIt.WkpkLWm96bItfg2a'
 folder: ULF0u3oEC8EufxRm
 flags:
   core:
@@ -79,7 +104,12 @@ flags:
           image: icons/creatures/abilities/paw-print-tan.webp
           text: >-
             <p>You have advantage on Strength and Dexterity saving throws made
-            against effects that would knock you prone.</p>
+            against effects that would knock you prone.+</p><p><em>+ Midi
+            automation</em></p><p><em>To finish it, edit this effect and set
+            both change values to a midi condition that is true only for saves
+            against being knocked prone. Left blank they do nothing. Setting
+            them to <strong>1</strong> would grant advantage on every Strength
+            and Dexterity save.</em></p>
         activation:
           type: ''
           cost: null

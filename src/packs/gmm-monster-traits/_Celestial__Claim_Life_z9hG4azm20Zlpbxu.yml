@@ -6,7 +6,8 @@ system:
     value: >-
       <p>When you reduce a creature to 0 hit points, you regain hit points equal
       to twice your combat level ([level*2]). If the creature is evil, this
-      increases to four times your combat level ([level*4]).</p>
+      increases to four times your combat level ([level*4]).</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -82,7 +83,7 @@ flags:
             <p>When you reduce a creature to 0 hit points, you regain hit points
             equal to twice your combat level ([level*2]). If the creature is
             evil, this increases to four times your combat level
-            ([level*4]).</p>
+            ([level*4]).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

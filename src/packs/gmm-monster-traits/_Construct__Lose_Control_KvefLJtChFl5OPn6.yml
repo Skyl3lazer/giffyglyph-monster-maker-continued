@@ -8,7 +8,7 @@ system:
       otherwise incapacitated, you lose control and must either a) attack the
       nearest creature you can see or b) if no creature is near enough to move
       to and attack, attack an object (with preference for an object smaller
-      than yourself).</p>
+      than yourself).</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -85,7 +85,7 @@ flags:
             or otherwise incapacitated, you lose control and must either a)
             attack the nearest creature you can see or b) if no creature is near
             enough to move to and attack, attack an object (with preference for
-            an object smaller than yourself).</p>
+            an object smaller than yourself).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

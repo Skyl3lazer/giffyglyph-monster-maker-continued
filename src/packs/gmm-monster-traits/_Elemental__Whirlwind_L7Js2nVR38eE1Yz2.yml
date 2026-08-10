@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>When you start your turn, you can move each creature within your reach
-      up to 10 ft.</p>
+      up to 10 ft.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/air/wind-tornado-cyclone-white.webp
           text: >-
             <p>When you start your turn, you can move each creature within your
-            reach up to 10 ft.</p>
+            reach up to 10 ft.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

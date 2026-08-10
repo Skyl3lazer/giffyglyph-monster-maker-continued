@@ -8,7 +8,7 @@ system:
       spell that requires a ranged attack roll, roll a d6. On a 1 to 5, you are
       unaffected. On a 6, you are unaffected and the effect is reflected back at
       the caster as though it originated from you, turning the caster into the
-      target.</p>
+      target.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -85,7 +85,7 @@ flags:
             or a spell that requires a ranged attack roll, roll a d6. On a 1 to
             5, you are unaffected. On a 6, you are unaffected and the effect is
             reflected back at the caster as though it originated from you,
-            turning the caster into the target.</p>
+            turning the caster into the target.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

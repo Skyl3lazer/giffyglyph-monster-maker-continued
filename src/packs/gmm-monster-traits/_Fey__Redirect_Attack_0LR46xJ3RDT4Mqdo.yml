@@ -6,11 +6,12 @@ system:
     value: >-
       <p>When an enemy you can see targets you with an attack, you can spend
       your reaction to pick an allied creature within 5 ft. of you and swap
-      places. The allied creature takes the damage instead.</p>
+      places. The allied creature takes the damage instead.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: reaction
     cost: null
     condition: ''
   duration:
@@ -81,9 +82,10 @@ flags:
           text: >-
             <p>When an enemy you can see targets you with an attack, you can
             spend your reaction to pick an allied creature within 5 ft. of you
-            and swap places. The allied creature takes the damage instead.</p>
+            and swap places. The allied creature takes the damage
+            instead.</p><p><em>No automation</em></p>
         activation:
-          type: ''
+          type: reaction
           cost: null
           condition: ''
         requirements:

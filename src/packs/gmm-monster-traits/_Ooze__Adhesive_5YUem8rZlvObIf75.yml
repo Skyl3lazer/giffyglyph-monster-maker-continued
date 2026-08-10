@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>If a creature or object of equal or smaller size touches you, it is
-      grappled by you.</p>
+      grappled by you.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/creatures/abilities/tail-swipe-green.webp
           text: >-
             <p>If a creature or object of equal or smaller size touches you, it
-            is grappled by you.</p>
+            is grappled by you.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

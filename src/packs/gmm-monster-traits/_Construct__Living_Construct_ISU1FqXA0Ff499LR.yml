@@ -6,7 +6,8 @@ system:
     value: >-
       <p>You are immune to disease. You don't need to eat, drink, or breathe.
       You don't need to sleep or suffer the effects of exhaustion due to lack of
-      rest. Magic effects can't put you to sleep.</p>
+      rest. Magic effects can't put you to sleep.*</p><p><em>* Core
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -65,7 +66,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: FqXA0Ff499LRISU1
+    name: Living Construct
+    img: icons/commodities/tech/tube-chamber-lightning.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: system.traits.ci.value
+          type: add
+          value: diseased
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!ISU1FqXA0Ff499LR.FqXA0Ff499LRISU1'
 folder: pxm2WHPkmmMEun1n
 flags:
   core:
@@ -81,7 +99,8 @@ flags:
           text: >-
             <p>You are immune to disease. You don't need to eat, drink, or
             breathe. You don't need to sleep or suffer the effects of exhaustion
-            due to lack of rest. Magic effects can't put you to sleep.</p>
+            due to lack of rest. Magic effects can't put you to
+            sleep.*</p><p><em>* Core automation</em></p>
         activation:
           type: ''
           cost: null

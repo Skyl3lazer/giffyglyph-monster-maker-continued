@@ -7,7 +7,8 @@ system:
       <p>When you would reduce a creature to 0 hit points, you can offer it a
       fiendish contract. If the creature accepts your contract, it is instead
       reduced to 1 hit point. If the creature breaks the terms of your contract,
-      it immediately dies (unless negotiated otherwise).</p>
+      it immediately dies (unless negotiated otherwise).</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -84,7 +85,7 @@ flags:
             it a fiendish contract. If the creature accepts your contract, it is
             instead reduced to 1 hit point. If the creature breaks the terms of
             your contract, it immediately dies (unless negotiated
-            otherwise).</p>
+            otherwise).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

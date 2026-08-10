@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you critically hit a target with a melee weapon attack, you deal
-      additional variant damage equal to your combat level ([level]).</p>
+      additional variant damage equal to your combat level
+      ([level]).</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>When you critically hit a target with a melee weapon attack, you
             deal additional variant damage equal to your combat level
-            ([level]).</p>
+            ([level]).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

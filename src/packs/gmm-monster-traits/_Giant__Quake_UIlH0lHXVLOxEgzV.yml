@@ -3,11 +3,15 @@ type: feat
 img: icons/skills/melee/spear-tips-triple-orange.webp
 system:
   description:
-    value: "<p>When you land on the ground from a height of 20 ft. or more, each creature within 20 ft. of you must succeed on a DC [dcPrimaryBonus + maxMod]\_Strength saving throw or fall prone.</p>"
+    value: >-
+      <p>When you land on the ground from a height of 20 ft. or more, each
+      creature within 20 ft. of you must succeed on a DC [dcPrimaryBonus +
+      maxMod]&nbsp;Strength saving throw or fall prone.*</p><p><em>* Core
+      automation (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -16,15 +20,15 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 20
     width: null
-    units: ''
-    type: ''
+    units: ft
+    type: radius
     prompt: true
   range:
     value: null
     long: null
-    units: ''
+    units: self
   uses:
     value: null
     max: ''
@@ -37,7 +41,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: save
   attack:
     bonus: ''
     flat: false
@@ -50,7 +54,7 @@ system:
     versatile: ''
   formula: ''
   save:
-    ability: ''
+    ability: str
     dc: null
     scaling: spell
   summons: null
@@ -78,9 +82,10 @@ flags:
           text: >-
             <p>When you land on the ground from a height of 20 ft. or more, each
             creature within 20 ft. of you must succeed on a DC [dcPrimaryBonus +
-            maxMod]&nbsp;Strength saving throw or fall prone.</p>
+            maxMod]&nbsp;Strength saving throw or fall prone.*</p><p><em>* Core
+            automation (roll it when the trigger fires)</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -94,10 +99,10 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
-          related_stat: str
+          type: save
+          related_stat: max
           bonus: ''
-          defense: ''
+          defense: str
           miss:
             damage: ''
           versatile:
@@ -106,17 +111,17 @@ flags:
           units: ''
           value: ''
         range:
-          units: ''
+          units: self
           value: null
           long: null
         recharge:
           value: null
           is_charged: false
         target:
-          type: ''
-          units: ''
-          value: null
-          width: null
+          type: radius
+          units: ft
+          value: 20
+          width: 0
         uses:
           value: null
           max: ''

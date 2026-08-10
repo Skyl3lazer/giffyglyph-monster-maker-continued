@@ -5,11 +5,11 @@ system:
   description:
     value: >-
       <p>Any nonmagical weapon made of metal or wood that hits you is corroded.
-      After dealing damage, the weapon takes a permanent and cumulative −1
-      penalty to damage rolls. If the penalty drops to −5, the weapon is
+      After dealing damage, the weapon takes a permanent and cumulative &minus;1
+      penalty to damage rolls. If the penalty drops to &minus;5, the weapon is
       destroyed. Any nonmagical ammunition made of metal or wood that hits you
       is destroyed after dealing damage. You can eat through 2-inch- thick,
-      nonmagical wood or metal in 1 round.</p>
+      nonmagical wood or metal in 1 round.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -88,7 +88,7 @@ flags:
             &minus;5, the weapon is destroyed. Any nonmagical ammunition made of
             metal or wood that hits you is destroyed after dealing damage. You
             can eat through 2-inch- thick, nonmagical wood or metal in 1
-            round.</p>
+            round.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

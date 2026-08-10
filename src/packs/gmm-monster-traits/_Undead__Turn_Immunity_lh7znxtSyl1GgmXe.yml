@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/death/undead-skeleton-energy-green.webp
 system:
   description:
-    value: <p>You are immune to effects that turn undead.</p>
+    value: >-
+      <p>You are immune to effects that turn undead.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (Undead) Turn Immunity
           image: icons/magic/death/undead-skeleton-energy-green.webp
-          text: <p>You are immune to effects that turn undead.</p>
+          text: >-
+            <p>You are immune to effects that turn undead.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

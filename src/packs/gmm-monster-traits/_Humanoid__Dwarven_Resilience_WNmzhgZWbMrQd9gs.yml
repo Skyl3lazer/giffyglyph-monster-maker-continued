@@ -3,7 +3,13 @@ type: feat
 img: icons/consumables/drinks/alcohol-beer-stein-wooden-metal-brown.webp
 system:
   description:
-    value: <p>You have advantage on saving throws against poison.</p>
+    value: >-
+      <p>You have advantage on saving throws against poison.+</p><p><em>+ Midi
+      automation</em></p><p><em>To finish it, edit this effect and set the value
+      of the <strong>advantage.save.all</strong> change to a midi condition that
+      is true only for saves against poison. Left blank the change does nothing.
+      Setting it to <strong>1</strong> would grant advantage on every saving
+      throw.</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +68,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: hgZWbMrQd9gsWNmz
+    name: Dwarven Resilience
+    img: icons/consumables/drinks/alcohol-beer-stein-wooden-metal-brown.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.all
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!WNmzhgZWbMrQd9gs.hgZWbMrQd9gsWNmz'
 folder: BQJTpujMa90FQDGd
 flags:
   core:
@@ -75,7 +98,13 @@ flags:
         description:
           name: (Humanoid) Dwarven Resilience
           image: icons/consumables/drinks/alcohol-beer-stein-wooden-metal-brown.webp
-          text: <p>You have advantage on saving throws against poison.</p>
+          text: >-
+            <p>You have advantage on saving throws against poison.+</p><p><em>+
+            Midi automation</em></p><p><em>To finish it, edit this effect and
+            set the value of the <strong>advantage.save.all</strong> change to a
+            midi condition that is true only for saves against poison. Left
+            blank the change does nothing. Setting it to <strong>1</strong>
+            would grant advantage on every saving throw.</em></p>
         activation:
           type: ''
           cost: null

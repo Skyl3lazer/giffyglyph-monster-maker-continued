@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You are immune to divination spells and any effect that would sense
-      your emotions or read your thoughts.</p>
+      your emotions or read your thoughts.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,8 @@ flags:
           image: icons/magic/symbols/question-stone-yellow.webp
           text: >-
             <p>You are immune to divination spells and any effect that would
-            sense your emotions or read your thoughts.</p>
+            sense your emotions or read your thoughts.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Enemies within 30 ft. of you have disadvantage on saving throws against
-      being frightened.</p>
+      being frightened.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/unholy/barrier-fire-pink.webp
           text: >-
             <p>Enemies within 30 ft. of you have disadvantage on saving throws
-            against being frightened.</p>
+            against being frightened.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

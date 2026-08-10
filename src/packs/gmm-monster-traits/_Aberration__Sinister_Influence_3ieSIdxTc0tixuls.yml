@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You can magically command any specified creature within 120 feet of you
-      using a limited telepathy.</p>
+      using a limited telepathy.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/unholy/silhouette-evil-horned-giant.webp
           text: >-
             <p>You can magically command any specified creature within 120 feet
-            of you using a limited telepathy.</p>
+            of you using a limited telepathy.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

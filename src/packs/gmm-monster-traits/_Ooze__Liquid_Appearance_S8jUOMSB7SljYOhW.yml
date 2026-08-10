@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>While you remain motionless, you are indistinguishable from a pool of
-      water.</p>
+      water.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/creatures/slimes/slime-movement-swirling-green.webp
           text: >-
             <p>While you remain motionless, you are indistinguishable from a
-            pool of water.</p>
+            pool of water.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

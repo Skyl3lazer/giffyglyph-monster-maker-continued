@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You count as one size category larger when a creature tries to pull,
-      push, or drag you.</p>
+      push, or drag you.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/consumables/food/plate-pasta-noodles-white-red.webp
           text: >-
             <p>You count as one size category larger when a creature tries to
-            pull, push, or drag you.</p>
+            pull, push, or drag you.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

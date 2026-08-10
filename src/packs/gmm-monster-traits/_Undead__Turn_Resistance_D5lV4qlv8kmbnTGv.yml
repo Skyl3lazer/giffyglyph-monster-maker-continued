@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against any effect that turns
-      undead.</p>
+      undead.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/death/undead-skeleton-deformed-red.webp
           text: >-
             <p>You have advantage on saving throws against any effect that turns
-            undead.</p>
+            undead.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

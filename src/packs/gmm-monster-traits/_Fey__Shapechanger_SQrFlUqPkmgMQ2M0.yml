@@ -7,12 +7,12 @@ system:
       <p>You can use your action to polymorph into a specified humanoid, or a
       subject-humanoid hybrid, or back into your true form. Other than your
       size, your statistics are the same in each form. Any equipment you are
-      wearing or carrying isn’t transformed. You revert to your true form if you
-      die.</p>
+      wearing or carrying isn&rsquo;t transformed. You revert to your true form
+      if you die.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: action
     cost: null
     condition: ''
   duration:
@@ -85,9 +85,10 @@ flags:
             or a subject-humanoid hybrid, or back into your true form. Other
             than your size, your statistics are the same in each form. Any
             equipment you are wearing or carrying isn&rsquo;t transformed. You
-            revert to your true form if you die.</p>
+            revert to your true form if you die.</p><p><em>No
+            automation</em></p>
         activation:
-          type: ''
+          type: action
           cost: null
           condition: ''
         requirements:

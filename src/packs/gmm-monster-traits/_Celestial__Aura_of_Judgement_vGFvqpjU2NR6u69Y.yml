@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Any evil creature that starts their turn within 10 ft. of you takes
-      radiant damage equal to your combat level ([level]).</p>
+      radiant damage equal to your combat level ([level]).</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/holy/yin-yang-balance-symbol.webp
           text: >-
             <p>Any evil creature that starts their turn within 10 ft. of you
-            takes radiant damage equal to your combat level ([level]).</p>
+            takes radiant damage equal to your combat level
+            ([level]).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

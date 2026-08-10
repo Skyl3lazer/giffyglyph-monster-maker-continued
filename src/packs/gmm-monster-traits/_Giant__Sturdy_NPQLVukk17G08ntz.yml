@@ -3,7 +3,13 @@ type: feat
 img: icons/skills/wounds/injury-body-pain-gray.webp
 system:
   description:
-    value: <p>You have advantage on saving throws against being knocked prone.</p>
+    value: >-
+      <p>You have advantage on saving throws against being knocked
+      prone.+</p><p><em>+ Midi automation</em></p><p><em>To finish it, edit this
+      effect and set the value of the <strong>advantage.save.all</strong> change
+      to a midi condition that is true only for saves against being knocked
+      prone. Left blank the change does nothing. Setting it to
+      <strong>1</strong> would grant advantage on every saving throw.</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +68,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: Vukk17G08ntzNPQL
+    name: Sturdy
+    img: icons/skills/wounds/injury-body-pain-gray.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.all
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!NPQLVukk17G08ntz.Vukk17G08ntzNPQL'
 folder: xPY1v6QbenBje2wG
 flags:
   core:
@@ -77,7 +100,12 @@ flags:
           image: icons/skills/wounds/injury-body-pain-gray.webp
           text: >-
             <p>You have advantage on saving throws against being knocked
-            prone.</p>
+            prone.+</p><p><em>+ Midi automation</em></p><p><em>To finish it,
+            edit this effect and set the value of the
+            <strong>advantage.save.all</strong> change to a midi condition that
+            is true only for saves against being knocked prone. Left blank the
+            change does nothing. Setting it to <strong>1</strong> would grant
+            advantage on every saving throw.</em></p>
         activation:
           type: ''
           cost: null

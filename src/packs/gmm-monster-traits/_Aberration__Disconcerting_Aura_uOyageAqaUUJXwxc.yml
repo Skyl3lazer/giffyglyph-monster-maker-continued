@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>All creatures within 10 ft. of you have disadvantage on Concentration
-      saving throws.</p>
+      saving throws.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/unholy/orb-stone-pink.webp
           text: >-
             <p>All creatures within 10 ft. of you have disadvantage on
-            Concentration saving throws.</p>
+            Concentration saving throws.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

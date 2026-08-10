@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>When you take damage, all other creatures of the same type within 240
-      feet of it can sense your pain.</p>
+      feet of it can sense your pain.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/nature/mushrooms-fire-glow-blue.webp
           text: >-
             <p>When you take damage, all other creatures of the same type within
-            240 feet of it can sense your pain.</p>
+            240 feet of it can sense your pain.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

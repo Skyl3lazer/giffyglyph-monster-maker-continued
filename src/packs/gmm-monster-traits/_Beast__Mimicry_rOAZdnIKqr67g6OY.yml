@@ -7,7 +7,8 @@ system:
       <p>You can mimic simple sounds you have heard (such as a person
       whispering, a baby crying, or an animal chattering). A creature that hears
       the sounds can tell they are imitations with a successful DC
-      [dcPrimaryBonus + maxMod] Wisdom (Insight) check.</p>
+      [dcPrimaryBonus + maxMod] Wisdom (Insight) check.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -83,7 +84,8 @@ flags:
             <p>You can mimic simple sounds you have heard (such as a person
             whispering, a baby crying, or an animal chattering). A creature that
             hears the sounds can tell they are imitations with a successful DC
-            [dcPrimaryBonus + maxMod] Wisdom (Insight) check.</p>
+            [dcPrimaryBonus + maxMod] Wisdom (Insight) check.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

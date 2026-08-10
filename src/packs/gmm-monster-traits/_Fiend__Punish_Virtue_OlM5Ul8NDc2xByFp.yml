@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you hit a good creature with an attack, you deal additional fire
-      damage equal to your combat level ([level]).</p>
+      damage equal to your combat level ([level]).</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/unholy/strike-body-life-soul-purple.webp
           text: >-
             <p>When you hit a good creature with an attack, you deal additional
-            fire damage equal to your combat level ([level]).</p>
+            fire damage equal to your combat level ([level]).</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

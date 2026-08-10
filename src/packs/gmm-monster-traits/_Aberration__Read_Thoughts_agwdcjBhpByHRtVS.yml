@@ -6,7 +6,8 @@ system:
     value: >-
       <p>You can magically read the surface thoughts of any creature within 60
       ft. of you. The effect is blocked by 3 ft. of wood or dirt, 2 ft. of
-      stone, 2 inches of metal, or a thin sheet of lead.</p>
+      stone, 2 inches of metal, or a thin sheet of lead.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -82,7 +83,7 @@ flags:
             <p>You can magically read the surface thoughts of any creature
             within 60 ft. of you. The effect is blocked by 3 ft. of wood or
             dirt, 2 ft. of stone, 2 inches of metal, or a thin sheet of
-            lead.</p>
+            lead.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

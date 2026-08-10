@@ -6,7 +6,7 @@ system:
     value: >-
       <p>You can enter the space of any creature equal to your size or larger.
       While you are in a creature's space, it can't take the disengage
-      action.</p>
+      action.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +81,7 @@ flags:
           text: >-
             <p>You can enter the space of any creature equal to your size or
             larger. While you are in a creature's space, it can't take the
-            disengage action.</p>
+            disengage action.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/holy/prayer-hands-glowing-yellow-green.webp
 system:
   description:
-    value: <p>Allied creatures within 30 ft. of you can't be frightened.</p>
+    value: >-
+      <p>Allied creatures within 30 ft. of you can't be frightened.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (Celestial) Rallying Spirit
           image: icons/magic/holy/prayer-hands-glowing-yellow-green.webp
-          text: <p>Allied creatures within 30 ft. of you can't be frightened.</p>
+          text: >-
+            <p>Allied creatures within 30 ft. of you can't be
+            frightened.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

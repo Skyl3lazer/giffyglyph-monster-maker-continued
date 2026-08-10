@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you are bloodied, you split into two separate oozes. Each ooze has
-      50% of your current hit points and is one size category smaller.</p>
+      50% of your current hit points and is one size category
+      smaller.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>When you are bloodied, you split into two separate oozes. Each
             ooze has 50% of your current hit points and is one size category
-            smaller.</p>
+            smaller.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

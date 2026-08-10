@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>For every 5 ft. you move in water, or for every gallon of water
-      splashed on you, you take 1 cold damage.</p>
+      splashed on you, you take 1 cold damage.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,8 @@ flags:
           image: icons/magic/water/orb-water-ice-pink.webp
           text: >-
             <p>For every 5 ft. you move in water, or for every gallon of water
-            splashed on you, you take 1 cold damage.</p>
+            splashed on you, you take 1 cold damage.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>When you would take variable damage, you instead regain that many hit
-      points.</p>
+      points.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/fire/projectile-fireball-orange-green.webp
           text: >-
             <p>When you would take variable damage, you instead regain that many
-            hit points.</p>
+            hit points.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

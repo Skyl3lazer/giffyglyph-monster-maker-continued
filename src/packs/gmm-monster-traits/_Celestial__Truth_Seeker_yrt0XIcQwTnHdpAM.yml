@@ -3,7 +3,7 @@ type: feat
 img: icons/magic/light/light-lantern-lit-white.webp
 system:
   description:
-    value: <p>You know if you hear a lie.</p>
+    value: <p>You know if you hear a lie.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +75,7 @@ flags:
         description:
           name: (Celestial) Truth Seeker
           image: icons/magic/light/light-lantern-lit-white.webp
-          text: <p>You know if you hear a lie.</p>
+          text: <p>You know if you hear a lie.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

@@ -3,7 +3,9 @@ type: feat
 img: icons/creatures/claws/claw-talons-yellow-red.webp
 system:
   description:
-    value: <p>You have advantage on Strength saving throws.</p>
+    value: >-
+      <p>You have advantage on Strength saving throws.</p><p><em>Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: x7IIHl2mEXt0PsXn
+    name: Strong
+    img: icons/creatures/claws/claw-talons-yellow-red.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.str
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!PsXnx7IIHl2mEXt0.x7IIHl2mEXt0PsXn'
 folder: xPY1v6QbenBje2wG
 flags:
   core:
@@ -75,7 +94,9 @@ flags:
         description:
           name: (Giant) Strong
           image: icons/creatures/claws/claw-talons-yellow-red.webp
-          text: <p>You have advantage on Strength saving throws.</p>
+          text: >-
+            <p>You have advantage on Strength saving throws.</p><p><em>Midi
+            automation</em></p>
         activation:
           type: ''
           cost: null

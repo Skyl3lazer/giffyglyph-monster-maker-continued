@@ -5,7 +5,12 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against effects that charm,
-      frighten, or dominate.</p>
+      frighten, or dominate.+</p><p><em>+ Midi automation</em></p><p><em>To
+      finish it, edit this effect and set the value of the
+      <strong>advantage.save.all</strong> change to a midi condition that is
+      true only for saves against charm, fright and domination. Left blank the
+      change does nothing. Setting it to <strong>1</strong> would grant
+      advantage on every saving throw.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +69,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 4T3nEMJeu63MhGqM
+    name: Proud
+    img: icons/magic/control/mouth-smile-deception-purple.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.all
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!hGqM4T3nEMJeu63M.4T3nEMJeu63MhGqM'
 folder: 2LPDPz4IMyoc7wHb
 flags:
   core:
@@ -79,7 +101,13 @@ flags:
           image: icons/magic/control/mouth-smile-deception-purple.webp
           text: >-
             <p>You have advantage on saving throws against effects that charm,
-            frighten, or dominate.</p>
+            frighten, or dominate.+</p><p><em>+ Midi
+            automation</em></p><p><em>To finish it, edit this effect and set the
+            value of the <strong>advantage.save.all</strong> change to a midi
+            condition that is true only for saves against charm, fright and
+            domination. Left blank the change does nothing. Setting it to
+            <strong>1</strong> would grant advantage on every saving
+            throw.</em></p>
         activation:
           type: ''
           cost: null

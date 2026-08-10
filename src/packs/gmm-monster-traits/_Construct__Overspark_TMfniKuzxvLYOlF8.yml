@@ -6,11 +6,12 @@ system:
     value: >-
       <p>When you critically hit a creature with an attack, it must succeed on a
       DC [dcPrimaryBonus + maxMod] Constitution saving throw or take force
-      damage equal to your combat level ([level]).</p>
+      damage equal to your combat level ([level]).*</p><p><em>* Core automation
+      (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -19,10 +20,10 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 1
     width: null
     units: ''
-    type: ''
+    type: creature
     prompt: true
   range:
     value: null
@@ -40,7 +41,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: save
   attack:
     bonus: ''
     flat: false
@@ -53,7 +54,7 @@ system:
     versatile: ''
   formula: ''
   save:
-    ability: ''
+    ability: con
     dc: null
     scaling: spell
   summons: null
@@ -81,9 +82,11 @@ flags:
           text: >-
             <p>When you critically hit a creature with an attack, it must
             succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving throw
-            or take force damage equal to your combat level ([level]).</p>
+            or take force damage equal to your combat level
+            ([level]).*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -97,14 +100,19 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
-          related_stat: str
+          type: save
+          related_stat: max
           bonus: ''
-          defense: ''
+          defense: con
           miss:
             damage: ''
           versatile:
             damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[level]'
+                type: force
         duration:
           units: ''
           value: ''
@@ -116,10 +124,10 @@ flags:
           value: null
           is_charged: false
         target:
-          type: ''
+          type: creature
           units: ''
-          value: null
-          width: null
+          value: 1
+          width: 0
         uses:
           value: null
           max: ''

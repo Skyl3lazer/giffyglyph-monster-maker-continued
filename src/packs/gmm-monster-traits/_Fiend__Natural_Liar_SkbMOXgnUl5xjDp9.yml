@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>You have advantage on all Charisma (Deception) checks and any Wisdom
-      (Insight) check made to spot deception.</p>
+      (Insight) check made to spot deception.+</p><p><em>+ Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +65,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: OXgnUl5xjDp9SkbM
+    name: Natural Liar
+    img: icons/magic/control/mouth-smile-deception-purple.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.skill.dec
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!SkbMOXgnUl5xjDp9.OXgnUl5xjDp9SkbM'
 folder: hgnohyDtSml3Virp
 flags:
   core:
@@ -79,7 +97,8 @@ flags:
           image: icons/magic/control/mouth-smile-deception-purple.webp
           text: >-
             <p>You have advantage on all Charisma (Deception) checks and any
-            Wisdom (Insight) check made to spot deception.</p>
+            Wisdom (Insight) check made to spot deception.+</p><p><em>+ Midi
+            automation</em></p>
         activation:
           type: ''
           cost: null

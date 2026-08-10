@@ -5,7 +5,11 @@ system:
   description:
     value: >-
       <p>You have advantage on ability checks and saving throws made to escape a
-      grapple.</p>
+      grapple.+</p><p><em>+ Midi automation</em></p><p><em>To finish it, edit
+      this effect and set the change values to a midi condition that is true
+      only for grapple escapes. Left blank they do nothing. Setting them to
+      <strong>1</strong> would grant advantage on every Strength save and every
+      Strength and Dexterity check.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +68,30 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: nbEKrnOr0newJKxs
+    name: Nimble Escape
+    img: icons/skills/movement/feet-winged-boots-glowing-yellow.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.str
+          type: custom
+          value: ''
+        - key: flags.midi-qol.advantage.check.str
+          type: custom
+          value: ''
+        - key: flags.midi-qol.advantage.check.dex
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!JKxsnbEKrnOr0new.nbEKrnOr0newJKxs'
 folder: l09SlhsvlSKdmc08
 flags:
   core:
@@ -79,7 +106,11 @@ flags:
           image: icons/skills/movement/feet-winged-boots-glowing-yellow.webp
           text: >-
             <p>You have advantage on ability checks and saving throws made to
-            escape a grapple.</p>
+            escape a grapple.+</p><p><em>+ Midi automation</em></p><p><em>To
+            finish it, edit this effect and set the change values to a midi
+            condition that is true only for grapple escapes. Left blank they do
+            nothing. Setting them to <strong>1</strong> would grant advantage on
+            every Strength save and every Strength and Dexterity check.</em></p>
         activation:
           type: ''
           cost: null

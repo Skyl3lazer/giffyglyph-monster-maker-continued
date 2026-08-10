@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against spells and other magic
-      effects.</p>
+      effects.</p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: cqon5kjutaHff9mi
+    name: Ancestral Armor
+    img: icons/equipment/chest/breastplate-helmet-metal.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.magicResistance.all
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!f9micqon5kjutaHf.cqon5kjutaHff9mi'
 folder: BQJTpujMa90FQDGd
 flags:
   core:
@@ -79,7 +96,7 @@ flags:
           image: icons/equipment/chest/breastplate-helmet-metal.webp
           text: >-
             <p>You have advantage on saving throws against spells and other
-            magic effects.</p>
+            magic effects.</p><p><em>Midi automation</em></p>
         activation:
           type: ''
           cost: null

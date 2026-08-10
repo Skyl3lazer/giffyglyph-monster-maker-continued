@@ -3,11 +3,18 @@ type: feat
 img: icons/magic/acid/dissolve-bone-ribs-skull.webp
 system:
   description:
-    value: "<p>When a creature enters your space (or you enter a creature's space), it must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or be engulfed. While engulfed, the creature can't breathe, is restrained, and takes 100%\_([round(damage), damageDie]) acid damage at the start of each of your turns. The creature can try to escape on its turn by making a Strength check.</p>"
+    value: >-
+      <p>When a creature enters your space (or you enter a creature's space), it
+      must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or
+      be engulfed. While engulfed, the creature can't breathe, is restrained,
+      and takes 100%&nbsp;([round(damage), damageDie]) acid damage at the start
+      of each of your turns. The creature can try to escape on its turn by
+      making a Strength check.*</p><p><em>* Core automation (roll it when the
+      trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -16,10 +23,10 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 1
     width: null
     units: ''
-    type: ''
+    type: creature
     prompt: true
   range:
     value: null
@@ -37,7 +44,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: save
   attack:
     bonus: ''
     flat: false
@@ -50,7 +57,7 @@ system:
     versatile: ''
   formula: ''
   save:
-    ability: ''
+    ability: dex
     dc: null
     scaling: spell
   summons: null
@@ -82,9 +89,10 @@ flags:
             breathe, is restrained, and takes 100%&nbsp;([round(damage),
             damageDie]) acid damage at the start of each of your turns. The
             creature can try to escape on its turn by making a Strength
-            check.</p>
+            check.*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -98,10 +106,10 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
-          related_stat: str
+          type: save
+          related_stat: max
           bonus: ''
-          defense: ''
+          defense: dex
           miss:
             damage: ''
           versatile:
@@ -117,10 +125,10 @@ flags:
           value: null
           is_charged: false
         target:
-          type: ''
+          type: creature
           units: ''
-          value: null
-          width: null
+          value: 1
+          width: 0
         uses:
           value: null
           max: ''

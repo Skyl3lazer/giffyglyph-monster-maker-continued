@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you would take damage, you can inflict that damage instead on any
-      one creature within 60 ft. of you that is currently charmed by you.</p>
+      one creature within 60 ft. of you that is currently charmed by
+      you.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>When you would take damage, you can inflict that damage instead
             on any one creature within 60 ft. of you that is currently charmed
-            by you.</p>
+            by you.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

@@ -6,7 +6,8 @@ system:
     value: >-
       <p>If damage would reduce you to 0 hit points, make a Constitution saving
       throw with a DC of 5 + the damage taken (unless the damage is radiant or
-      from a critical hit). On a success, you drop to 1 hit point instead.</p>
+      from a critical hit). On a success, you drop to 1 hit point
+      instead.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -82,7 +83,7 @@ flags:
             <p>If damage would reduce you to 0 hit points, make a Constitution
             saving throw with a DC of 5 + the damage taken (unless the damage is
             radiant or from a critical hit). On a success, you drop to 1 hit
-            point instead.</p>
+            point instead.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

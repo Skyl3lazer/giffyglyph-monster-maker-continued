@@ -4,7 +4,9 @@ _id: WRZ9WIuFq0fRu9nM
 img: icons/creatures/magical/humanoid-silhouette-aliens-green.webp
 system:
   description:
-    value: <p>You have advantage on Intelligence saving throws.</p>
+    value: >-
+      <p>You have advantage on Intelligence saving throws.</p><p><em>Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -63,7 +65,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: WIuFq0fRu9nMWRZ9
+    name: Alien Mind
+    img: icons/creatures/magical/humanoid-silhouette-aliens-green.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.int
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!WRZ9WIuFq0fRu9nM.WIuFq0fRu9nMWRZ9'
 folder: ovdj4g064I0mjIWa
 sort: 100000
 ownership:
@@ -80,7 +99,9 @@ flags:
         description:
           name: (Aberration) Alien Mind
           image: icons/creatures/magical/humanoid-silhouette-aliens-green.webp
-          text: <p>You have advantage on Intelligence saving throws.</p>
+          text: >-
+            <p>You have advantage on Intelligence saving throws.</p><p><em>Midi
+            automation</em></p>
         activation:
           type: ''
           cost: null

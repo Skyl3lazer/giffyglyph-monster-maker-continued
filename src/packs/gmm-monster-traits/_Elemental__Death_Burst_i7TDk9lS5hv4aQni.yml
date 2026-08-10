@@ -6,11 +6,14 @@ system:
     value: >-
       <p>When you die, each creature within 10 ft. of you must succeed on a DC
       [dcPrimaryBonus + maxMod] Dexterity saving throw or take 75%
-      ([round(damage*0.75), damageDie]) variant damage.</p>
+      ([round(damage*0.75), damageDie]) variant damage.*</p><p><em>* Core
+      automation (roll it when the trigger fires)</em></p><p><em>To finish it,
+      edit this action and set the damage type on the DAMAGE row to the
+      elemental's own type.</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -19,15 +22,15 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 10
     width: null
-    units: ''
-    type: ''
+    units: ft
+    type: radius
     prompt: true
   range:
     value: null
     long: null
-    units: ''
+    units: self
   uses:
     value: null
     max: ''
@@ -40,7 +43,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: save
   attack:
     bonus: ''
     flat: false
@@ -53,7 +56,7 @@ system:
     versatile: ''
   formula: ''
   save:
-    ability: ''
+    ability: dex
     dc: null
     scaling: spell
   summons: null
@@ -81,9 +84,12 @@ flags:
           text: >-
             <p>When you die, each creature within 10 ft. of you must succeed on
             a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or take 75%
-            ([round(damage*0.75), damageDie]) variant damage.</p>
+            ([round(damage*0.75), damageDie]) variant damage.*</p><p><em>* Core
+            automation (roll it when the trigger fires)</em></p><p><em>To finish
+            it, edit this action and set the damage type on the DAMAGE row to
+            the elemental's own type.</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -97,29 +103,34 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
-          related_stat: str
+          type: save
+          related_stat: max
           bonus: ''
-          defense: ''
+          defense: dex
           miss:
             damage: ''
           versatile:
             damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage*0.75), damageDie]'
+                type: ''
         duration:
           units: ''
           value: ''
         range:
-          units: ''
+          units: self
           value: null
           long: null
         recharge:
           value: null
           is_charged: false
         target:
-          type: ''
-          units: ''
-          value: null
-          width: null
+          type: radius
+          units: ft
+          value: 10
+          width: 0
         uses:
           value: null
           max: ''

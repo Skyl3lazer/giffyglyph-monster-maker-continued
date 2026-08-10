@@ -3,7 +3,7 @@ type: feat
 img: icons/weapons/swords/sword-gold-holy.webp
 system:
   description:
-    value: <p>Your weapon attacks are magical.</p>
+    value: <p>Your weapon attacks are magical.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +75,7 @@ flags:
         description:
           name: (Humanoid) Ancestral Weapons
           image: icons/weapons/swords/sword-gold-holy.webp
-          text: <p>Your weapon attacks are magical.</p>
+          text: <p>Your weapon attacks are magical.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

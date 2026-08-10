@@ -7,11 +7,12 @@ system:
       <p>The ground in a 10-foot radius around you is difficult terrain. Each
       creature that starts its turn in that area must succeed on a DC
       [dcPrimaryBonus + maxMod] Strength saving throw or have its speed reduced
-      to 0 until the start of its next turn.</p>
+      to 0 until the start of its next turn.*</p><p><em>* Core automation (roll
+      it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -20,15 +21,15 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 10
     width: null
-    units: ''
-    type: ''
+    units: ft
+    type: radius
     prompt: true
   range:
     value: null
     long: null
-    units: ''
+    units: self
   uses:
     value: null
     max: ''
@@ -41,7 +42,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: save
   attack:
     bonus: ''
     flat: false
@@ -54,7 +55,7 @@ system:
     versatile: ''
   formula: ''
   save:
-    ability: ''
+    ability: str
     dc: null
     scaling: spell
   summons: null
@@ -83,9 +84,10 @@ flags:
             <p>The ground in a 10-foot radius around you is difficult terrain.
             Each creature that starts its turn in that area must succeed on a DC
             [dcPrimaryBonus + maxMod] Strength saving throw or have its speed
-            reduced to 0 until the start of its next turn.</p>
+            reduced to 0 until the start of its next turn.*</p><p><em>* Core
+            automation (roll it when the trigger fires)</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -99,10 +101,10 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
-          related_stat: str
+          type: save
+          related_stat: max
           bonus: ''
-          defense: ''
+          defense: str
           miss:
             damage: ''
           versatile:
@@ -111,17 +113,17 @@ flags:
           units: ''
           value: ''
         range:
-          units: ''
+          units: self
           value: null
           long: null
         recharge:
           value: null
           is_charged: false
         target:
-          type: ''
-          units: ''
-          value: null
-          width: null
+          type: radius
+          units: ft
+          value: 10
+          width: 0
         uses:
           value: null
           max: ''

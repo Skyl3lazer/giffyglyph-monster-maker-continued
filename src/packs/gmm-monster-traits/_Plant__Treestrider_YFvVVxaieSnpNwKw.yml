@@ -8,7 +8,7 @@ system:
       into one living tree within reach and emerge from a second living tree
       within 60 ft. of the first tree. You appear in an unoccupied space within
       5 ft. of the second tree. Both trees must be at least one size category
-      larger than you.</p>
+      larger than you.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -85,7 +85,8 @@ flags:
             magically into one living tree within reach and emerge from a second
             living tree within 60 ft. of the first tree. You appear in an
             unoccupied space within 5 ft. of the second tree. Both trees must be
-            at least one size category larger than you.</p>
+            at least one size category larger than you.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

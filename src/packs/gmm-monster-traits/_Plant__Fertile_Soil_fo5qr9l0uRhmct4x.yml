@@ -7,11 +7,11 @@ system:
       <p>When you reduce a creature to 0 hit points, you can spend your reaction
       to seed it. While seeded, the creature loses one death saving throw at the
       start of each of its turns. A creature can spend an action to remove the
-      seeds.</p>
+      seeds.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: reaction
     cost: null
     condition: ''
   duration:
@@ -83,9 +83,9 @@ flags:
             <p>When you reduce a creature to 0 hit points, you can spend your
             reaction to seed it. While seeded, the creature loses one death
             saving throw at the start of each of its turns. A creature can spend
-            an action to remove the seeds.</p>
+            an action to remove the seeds.</p><p><em>No automation</em></p>
         activation:
-          type: ''
+          type: reaction
           cost: null
           condition: ''
         requirements:

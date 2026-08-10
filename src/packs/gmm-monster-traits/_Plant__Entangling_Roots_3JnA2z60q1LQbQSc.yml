@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Enemies standing on the ground within 10 ft. of you have disadvantage
-      on DC [dcPrimaryBonus + maxMod] Dexterity saving throws.</p>
+      on DC [dcPrimaryBonus + maxMod] Dexterity saving throws.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>Enemies standing on the ground within 10 ft. of you have
             disadvantage on DC [dcPrimaryBonus + maxMod] Dexterity saving
-            throws.</p>
+            throws.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

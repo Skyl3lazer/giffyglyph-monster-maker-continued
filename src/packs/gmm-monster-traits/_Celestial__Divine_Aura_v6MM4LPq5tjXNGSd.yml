@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Any creature within 10 ft. of you that has a good alignment has
-      advantage on saving throws.</p>
+      advantage on saving throws.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/holy/angel-wings-gray.webp
           text: >-
             <p>Any creature within 10 ft. of you that has a good alignment has
-            advantage on saving throws.</p>
+            advantage on saving throws.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

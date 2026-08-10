@@ -5,7 +5,12 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against spells and other magical
-      effects cast by a chaotic creature.</p>
+      effects cast by a chaotic creature.+</p><p><em>+ Midi
+      automation</em></p><p><em>To finish it, edit this effect and set the value
+      of the <strong>advantage.save.all</strong> change to a midi condition that
+      is true only against a chaotic caster. Left blank the change does nothing.
+      Setting it to <strong>1</strong> would grant advantage on every saving
+      throw.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +69,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: VkXV9Sy8I8jJjV3M
+    name: Protection from Chaos
+    img: icons/magic/defensive/shield-barrier-flaming-diamond-acid.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.all
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!jV3MVkXV9Sy8I8jJ.VkXV9Sy8I8jJjV3M'
 folder: pxm2WHPkmmMEun1n
 flags:
   core:
@@ -79,7 +101,12 @@ flags:
           image: icons/magic/defensive/shield-barrier-flaming-diamond-acid.webp
           text: >-
             <p>You have advantage on saving throws against spells and other
-            magical effects cast by a chaotic creature.</p>
+            magical effects cast by a chaotic creature.+</p><p><em>+ Midi
+            automation</em></p><p><em>To finish it, edit this effect and set the
+            value of the <strong>advantage.save.all</strong> change to a midi
+            condition that is true only against a chaotic caster. Left blank the
+            change does nothing. Setting it to <strong>1</strong> would grant
+            advantage on every saving throw.</em></p>
         activation:
           type: ''
           cost: null

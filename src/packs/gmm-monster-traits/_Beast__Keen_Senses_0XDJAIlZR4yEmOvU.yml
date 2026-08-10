@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/perception/eye-slit-orange.webp
 system:
   description:
-    value: <p>You have advantage on Wisdom (Perception) checks.</p>
+    value: >-
+      <p>You have advantage on Wisdom (Perception) checks.</p><p><em>Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: AIlZR4yEmOvU0XDJ
+    name: Keen Senses
+    img: icons/magic/perception/eye-slit-orange.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.skill.prc
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!0XDJAIlZR4yEmOvU.AIlZR4yEmOvU0XDJ'
 folder: ULF0u3oEC8EufxRm
 flags:
   core:
@@ -75,7 +94,9 @@ flags:
         description:
           name: (Beast) Keen Senses
           image: icons/magic/perception/eye-slit-orange.webp
-          text: <p>You have advantage on Wisdom (Perception) checks.</p>
+          text: >-
+            <p>You have advantage on Wisdom (Perception) checks.</p><p><em>Midi
+            automation</em></p>
         activation:
           type: ''
           cost: null

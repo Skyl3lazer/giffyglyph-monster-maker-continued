@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/perception/silhouette-stealth-shadow.webp
 system:
   description:
-    value: <p>You have advantage on Dexterity (Stealth) checks.</p>
+    value: >-
+      <p>You have advantage on Dexterity (Stealth) checks.</p><p><em>Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 6DcTSjNJwUcXHxN2
+    name: Sneaky
+    img: icons/magic/perception/silhouette-stealth-shadow.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.skill.ste
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!HxN26DcTSjNJwUcX.6DcTSjNJwUcXHxN2'
 folder: l09SlhsvlSKdmc08
 flags:
   core:
@@ -75,7 +94,9 @@ flags:
         description:
           name: (Fey) Sneaky
           image: icons/magic/perception/silhouette-stealth-shadow.webp
-          text: <p>You have advantage on Dexterity (Stealth) checks.</p>
+          text: >-
+            <p>You have advantage on Dexterity (Stealth) checks.</p><p><em>Midi
+            automation</em></p>
         activation:
           type: ''
           cost: null

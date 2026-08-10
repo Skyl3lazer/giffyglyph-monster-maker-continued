@@ -6,11 +6,12 @@ system:
     value: >-
       <p>When you move through a smaller creature's space, the creature must
       succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or take
-      bludgeoning damage equal to your combat level ([level]).</p>
+      bludgeoning damage equal to your combat level ([level]).*</p><p><em>* Core
+      automation (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -19,10 +20,10 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 1
     width: null
     units: ''
-    type: ''
+    type: creature
     prompt: true
   range:
     value: null
@@ -40,7 +41,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: save
   attack:
     bonus: ''
     flat: false
@@ -53,7 +54,7 @@ system:
     versatile: ''
   formula: ''
   save:
-    ability: ''
+    ability: dex
     dc: null
     scaling: spell
   summons: null
@@ -82,9 +83,10 @@ flags:
             <p>When you move through a smaller creature's space, the creature
             must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving
             throw or take bludgeoning damage equal to your combat level
-            ([level]).</p>
+            ([level]).*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -98,14 +100,19 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
-          related_stat: str
+          type: save
+          related_stat: max
           bonus: ''
-          defense: ''
+          defense: dex
           miss:
             damage: ''
           versatile:
             damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[level]'
+                type: bludgeoning
         duration:
           units: ''
           value: ''
@@ -117,10 +124,10 @@ flags:
           value: null
           is_charged: false
         target:
-          type: ''
+          type: creature
           units: ''
-          value: null
-          width: null
+          value: 1
+          width: 0
         uses:
           value: null
           max: ''

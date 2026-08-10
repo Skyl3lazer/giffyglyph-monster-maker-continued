@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You must consume twice as much food and water as normal for your size
-      category.</p>
+      category.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/consumables/food/cooked-hock-glowing-orange.webp
           text: >-
             <p>You must consume twice as much food and water as normal for your
-            size category.</p>
+            size category.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

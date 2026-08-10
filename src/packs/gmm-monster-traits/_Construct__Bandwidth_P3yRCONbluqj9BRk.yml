@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Divide any damage you would take evenly across all constructs of the
-      same type within 30 ft.</p>
+      same type within 30 ft.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/symbols/triangle-glowing-green.webp
           text: >-
             <p>Divide any damage you would take evenly across all constructs of
-            the same type within 30 ft.</p>
+            the same type within 30 ft.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

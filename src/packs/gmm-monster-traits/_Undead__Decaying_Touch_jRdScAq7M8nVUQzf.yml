@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you hit a creature with a weapon attack, you deal additional
-      necrotic damage equal to your combat level ([level]).</p>
+      necrotic damage equal to your combat level ([level]).</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/death/hand-undead-skeleton-fire-green.webp
           text: >-
             <p>When you hit a creature with a weapon attack, you deal additional
-            necrotic damage equal to your combat level ([level]).</p>
+            necrotic damage equal to your combat level ([level]).</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

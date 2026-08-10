@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You share a telepathic bond with one or more creatures within 120 ft.
-      of you.</p>
+      of you.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/unholy/energy-smoke-pink.webp
           text: >-
             <p>You share a telepathic bond with one or more creatures within 120
-            ft. of you.</p>
+            ft. of you.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

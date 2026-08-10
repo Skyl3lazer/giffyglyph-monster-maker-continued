@@ -3,11 +3,19 @@ type: feat
 img: icons/magic/fire/barrier-shield-explosion-yellow.webp
 system:
   description:
-    value: "<p>When you die, each creature within 10 ft. of you must make a DC [dcPrimaryBonus + maxMod] Dexterity saving throw. If the creature fails, it takes 50% ([round(damage*0.50), damageDie])\_ variant damage. If it succeeds, it takes half damage instead.</p>"
+    value: >-
+      <p>When you die, each creature within 10 ft. of you must make a DC
+      [dcPrimaryBonus + maxMod] Dexterity saving throw. If the creature fails,
+      it takes 50% ([round(damage*0.50), damageDie])&nbsp; variant damage. If it
+      succeeds, it takes half damage instead.*</p><p><em>* Core automation (roll
+      it when the trigger fires)</em></p><p><em>To finish it, edit this action
+      and set the damage type on the DAMAGE row to the elemental's own type.
+      Half damage on a successful save is already the behaviour of a scaling
+      save action.</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -16,15 +24,15 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 10
     width: null
-    units: ''
-    type: ''
+    units: ft
+    type: radius
     prompt: true
   range:
     value: null
     long: null
-    units: ''
+    units: self
   uses:
     value: null
     max: ''
@@ -37,7 +45,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: save
   attack:
     bonus: ''
     flat: false
@@ -50,7 +58,7 @@ system:
     versatile: ''
   formula: ''
   save:
-    ability: ''
+    ability: dex
     dc: null
     scaling: spell
   summons: null
@@ -79,9 +87,13 @@ flags:
             <p>When you die, each creature within 10 ft. of you must make a DC
             [dcPrimaryBonus + maxMod] Dexterity saving throw. If the creature
             fails, it takes 50% ([round(damage*0.50), damageDie])&nbsp; variant
-            damage. If it succeeds, it takes half damage instead.</p>
+            damage. If it succeeds, it takes half damage instead.*</p><p><em>*
+            Core automation (roll it when the trigger fires)</em></p><p><em>To
+            finish it, edit this action and set the damage type on the DAMAGE
+            row to the elemental's own type. Half damage on a successful save is
+            already the behaviour of a scaling save action.</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -95,29 +107,34 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
-          related_stat: str
+          type: save
+          related_stat: max
           bonus: ''
-          defense: ''
+          defense: dex
           miss:
             damage: ''
           versatile:
             damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[round(damage*0.50), damageDie]'
+                type: ''
         duration:
           units: ''
           value: ''
         range:
-          units: ''
+          units: self
           value: null
           long: null
         recharge:
           value: null
           is_charged: false
         target:
-          type: ''
-          units: ''
-          value: null
-          width: null
+          type: radius
+          units: ft
+          value: 10
+          width: 0
         uses:
           value: null
           max: ''

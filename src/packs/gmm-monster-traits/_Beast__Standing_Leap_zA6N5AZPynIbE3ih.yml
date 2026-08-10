@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Your long jump is up to 20 ft, and your high jump is up to 10 ft. with
-      or without a running start.</p>
+      or without a running start.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/creatures/mammals/deer-movement-leap-green.webp
           text: >-
             <p>Your long jump is up to 20 ft, and your high jump is up to 10 ft.
-            with or without a running start.</p>
+            with or without a running start.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

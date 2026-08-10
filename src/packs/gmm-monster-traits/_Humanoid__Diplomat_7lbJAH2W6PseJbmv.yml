@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You have advantage on Charisma (Persuasion) and Wisdom (Insight)
-      checks.</p>
+      checks.</p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: AH2W6PseJbmv7lbJ
+    name: Diplomat
+    img: icons/skills/social/diplomacy-handshake-yellow.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.skill.per
+          type: custom
+          value: '1'
+        - key: flags.midi-qol.advantage.skill.ins
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!7lbJAH2W6PseJbmv.AH2W6PseJbmv7lbJ'
 folder: BQJTpujMa90FQDGd
 flags:
   core:
@@ -79,7 +99,7 @@ flags:
           image: icons/skills/social/diplomacy-handshake-yellow.webp
           text: >-
             <p>You have advantage on Charisma (Persuasion) and Wisdom (Insight)
-            checks.</p>
+            checks.</p><p><em>Midi automation</em></p>
         activation:
           type: ''
           cost: null

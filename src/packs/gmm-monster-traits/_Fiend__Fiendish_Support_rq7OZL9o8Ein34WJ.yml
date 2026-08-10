@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Any creature within 10 ft. of you that has an evil alignment has
-      advantage on saving throws.</p>
+      advantage on saving throws.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/unholy/silhouette-robe-evil-glow.webp
           text: >-
             <p>Any creature within 10 ft. of you that has an evil alignment has
-            advantage on saving throws.</p>
+            advantage on saving throws.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

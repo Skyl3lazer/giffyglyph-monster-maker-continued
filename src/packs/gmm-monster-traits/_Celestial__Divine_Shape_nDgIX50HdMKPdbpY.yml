@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You are immune to any spell or spell effect that would alter your
-      form.</p>
+      form.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/holy/angel-winged-humanoid-blue.webp
           text: >-
             <p>You are immune to any spell or spell effect that would alter your
-            form.</p>
+            form.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

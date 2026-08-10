@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>When you remain motionless, you are indistinguishable from a piece of
-      the local landscape.</p>
+      the local landscape.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/environment/people/commoner.webp
           text: >-
             <p>When you remain motionless, you are indistinguishable from a
-            piece of the local landscape.</p>
+            piece of the local landscape.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

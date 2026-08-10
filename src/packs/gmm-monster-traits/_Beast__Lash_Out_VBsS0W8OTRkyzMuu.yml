@@ -5,11 +5,12 @@ system:
   description:
     value: >-
       <p>When you are reduced to 0 hit points, you can spend your reaction to
-      make a basic melee weapon attack against a creature within reach.</p>
+      make a basic melee weapon attack against a creature within
+      reach.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: reaction
     cost: null
     condition: ''
   duration:
@@ -80,9 +81,9 @@ flags:
           text: >-
             <p>When you are reduced to 0 hit points, you can spend your reaction
             to make a basic melee weapon attack against a creature within
-            reach.</p>
+            reach.</p><p><em>No automation</em></p>
         activation:
-          type: ''
+          type: reaction
           cost: null
           condition: ''
         requirements:

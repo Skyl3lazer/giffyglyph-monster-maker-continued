@@ -6,7 +6,8 @@ system:
     value: >-
       <p>At the start of your turn, you can gain advantage on all melee weapon
       attack rolls you make until the end of your turn. Attack rolls made
-      against you then have advantage until the start of your next turn.</p>
+      against you then have advantage until the start of your next
+      turn.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -82,7 +83,7 @@ flags:
             <p>At the start of your turn, you can gain advantage on all melee
             weapon attack rolls you make until the end of your turn. Attack
             rolls made against you then have advantage until the start of your
-            next turn.</p>
+            next turn.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

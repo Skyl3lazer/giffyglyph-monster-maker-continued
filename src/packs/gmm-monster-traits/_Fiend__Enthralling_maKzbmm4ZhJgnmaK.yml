@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Creatures within 10 ft. of you have disadvantage on saving throws
-      against charmed.</p>
+      against charmed.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/perception/eye-slit-red-orange.webp
           text: >-
             <p>Creatures within 10 ft. of you have disadvantage on saving throws
-            against charmed.</p>
+            against charmed.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

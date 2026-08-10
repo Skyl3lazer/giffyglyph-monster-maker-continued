@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Each creature within 10 ft. of you is vulnerable to variant damage (or,
-      if they have immunity, it is reduced to resistance).</p>
+      if they have immunity, it is reduced to resistance).</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/earth/explosion-lava-orange.webp
           text: >-
             <p>Each creature within 10 ft. of you is vulnerable to variant
-            damage (or, if they have immunity, it is reduced to resistance).</p>
+            damage (or, if they have immunity, it is reduced to
+            resistance).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

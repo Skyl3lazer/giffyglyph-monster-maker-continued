@@ -6,7 +6,7 @@ system:
     value: >-
       <p>If you are destroyed outside of your home plane, your soul returns
       there. In 1d10 days, you can reconstitute yourself with a new, fully
-      healed body.</p>
+      healed body.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +81,7 @@ flags:
           text: >-
             <p>If you are destroyed outside of your home plane, your soul
             returns there. In 1d10 days, you can reconstitute yourself with a
-            new, fully healed body.</p>
+            new, fully healed body.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

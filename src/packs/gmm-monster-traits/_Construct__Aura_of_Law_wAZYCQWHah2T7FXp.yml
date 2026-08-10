@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Any lawful creature within 10 ft. of you has advantage on saving
-      throws.</p>
+      throws.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/skills/social/trading-justice-scale-yellow.webp
           text: >-
             <p>Any lawful creature within 10 ft. of you has advantage on saving
-            throws.</p>
+            throws.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

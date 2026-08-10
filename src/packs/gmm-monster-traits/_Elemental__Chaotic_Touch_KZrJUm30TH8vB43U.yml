@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you hit a lawful creature with an attack, you deal additional
-      variant damage equal to your combat level ([level]).</p>
+      variant damage equal to your combat level ([level]).</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/fire/beam-jet-stream-spiral-yellow.webp
           text: >-
             <p>When you hit a lawful creature with an attack, you deal
-            additional variant damage equal to your combat level ([level]).</p>
+            additional variant damage equal to your combat level
+            ([level]).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

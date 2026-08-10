@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Creatures have disadvantage on ability checks and saving throws made to
-      escape your grapples.</p>
+      escape your grapples.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/skills/melee/unarmed-punch-fist-yellow-red.webp
           text: >-
             <p>Creatures have disadvantage on ability checks and saving throws
-            made to escape your grapples.</p>
+            made to escape your grapples.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/perception/orb-crystal-ball-scrying-blue.webp
 system:
   description:
-    value: <p>You know the alignment of any creature within 10 ft. of you.</p>
+    value: >-
+      <p>You know the alignment of any creature within 10 ft. of
+      you.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (Celestial) Detect Alignment
           image: icons/magic/perception/orb-crystal-ball-scrying-blue.webp
-          text: <p>You know the alignment of any creature within 10 ft. of you.</p>
+          text: >-
+            <p>You know the alignment of any creature within 10 ft. of
+            you.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

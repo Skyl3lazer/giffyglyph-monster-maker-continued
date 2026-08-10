@@ -6,7 +6,12 @@ system:
     value: >-
       <p>While in sunlight, you have disadvantage on ability checks, attack
       rolls, and saving throws. You die if you spend more than 1 hour in direct
-      sunlight.</p>
+      sunlight.+</p><p><em>+ Midi automation</em></p><p><em>To finish it, edit
+      this effect and set the value of the <strong>disadvantage.all</strong>
+      change to <strong>1</strong> while the creature stands in sunlight, or
+      leave it blank and apply the effect by hand only when it does. Nothing
+      here reads the light level, and the one-hour death clause is not
+      automated.</em></p>
     chat: ''
   source: {}
   activation:
@@ -65,7 +70,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: koSeTNBqi7okD2zh
+    name: Sun Sickness
+    img: icons/magic/death/skeleton-glow-yellow-black.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.disadvantage.all
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!D2zhkoSeTNBqi7ok.koSeTNBqi7okD2zh'
 folder: eIquczNX8Uw4LNGE
 flags:
   core:
@@ -81,7 +103,13 @@ flags:
           text: >-
             <p>While in sunlight, you have disadvantage on ability checks,
             attack rolls, and saving throws. You die if you spend more than 1
-            hour in direct sunlight.</p>
+            hour in direct sunlight.+</p><p><em>+ Midi
+            automation</em></p><p><em>To finish it, edit this effect and set the
+            value of the <strong>disadvantage.all</strong> change to
+            <strong>1</strong> while the creature stands in sunlight, or leave
+            it blank and apply the effect by hand only when it does. Nothing
+            here reads the light level, and the one-hour death clause is not
+            automated.</em></p>
         activation:
           type: ''
           cost: null

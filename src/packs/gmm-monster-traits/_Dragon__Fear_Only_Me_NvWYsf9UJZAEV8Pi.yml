@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Allies within 30 ft. of you are immune to being frightened by sources
-      other than you.</p>
+      other than you.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/creatures/magical/spirit-fear-energy-pink.webp
           text: >-
             <p>Allies within 30 ft. of you are immune to being frightened by
-            sources other than you.</p>
+            sources other than you.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

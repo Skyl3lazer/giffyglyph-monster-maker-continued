@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You shed bright light for 30 ft. and dim light for an additional 30
-      ft.</p>
+      ft.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/holy/saint-glass-portrait-halo.webp
           text: >-
             <p>You shed bright light for 30 ft. and dim light for an additional
-            30 ft.</p>
+            30 ft.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

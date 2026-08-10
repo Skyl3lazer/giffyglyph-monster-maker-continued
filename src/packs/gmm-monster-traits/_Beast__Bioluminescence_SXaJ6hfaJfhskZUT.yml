@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You shed bright light for 15 ft. and dim light for an additional 15
-      ft.</p>
+      ft.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/creatures/eyes/slime-cluster-green.webp
           text: >-
             <p>You shed bright light for 15 ft. and dim light for an additional
-            15 ft.</p>
+            15 ft.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

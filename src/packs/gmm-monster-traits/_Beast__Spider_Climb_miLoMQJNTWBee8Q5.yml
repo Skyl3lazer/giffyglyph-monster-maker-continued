@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You can climb difficult surfaces, including upside down on ceilings,
-      without needing to make an ability check.</p>
+      without needing to make an ability check.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,8 @@ flags:
           image: icons/creatures/webs/web-spider-glowing-pink.webp
           text: >-
             <p>You can climb difficult surfaces, including upside down on
-            ceilings, without needing to make an ability check.</p>
+            ceilings, without needing to make an ability check.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

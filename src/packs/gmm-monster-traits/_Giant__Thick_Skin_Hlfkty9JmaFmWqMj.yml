@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>When you are critically hit by an attack, roll a d6. On a roll of 5 or
-      6, the attack is reduced to a normal hit.</p>
+      6, the attack is reduced to a normal hit.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,8 @@ flags:
           image: icons/magic/defensive/armor-stone-skin.webp
           text: >-
             <p>When you are critically hit by an attack, roll a d6. On a roll of
-            5 or 6, the attack is reduced to a normal hit.</p>
+            5 or 6, the attack is reduced to a normal hit.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

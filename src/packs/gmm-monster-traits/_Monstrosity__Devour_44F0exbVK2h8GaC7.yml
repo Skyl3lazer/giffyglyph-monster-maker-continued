@@ -10,11 +10,11 @@ system:
       failed death saving throw. If you take damage, you must succeed on a
       Constitution saving throw with a DC of 5 + the damage taken or regurgitate
       the creature into an unoccupied adjacent space. If you die, you
-      automatically regurgitate the creature.</p>
+      automatically regurgitate the creature.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: reaction
     cost: null
     condition: ''
   duration:
@@ -89,9 +89,10 @@ flags:
             creature gains one failed death saving throw. If you take damage,
             you must succeed on a Constitution saving throw with a DC of 5 + the
             damage taken or regurgitate the creature into an unoccupied adjacent
-            space. If you die, you automatically regurgitate the creature.</p>
+            space. If you die, you automatically regurgitate the
+            creature.</p><p><em>No automation</em></p>
         activation:
-          type: ''
+          type: reaction
           cost: null
           condition: ''
         requirements:

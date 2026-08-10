@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>If you are in contact with a web, you know the exact location of any
-      other creature in contact with the same web.</p>
+      other creature in contact with the same web.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/creatures/webs/web-spider-caught-hand-purple.webp
           text: >-
             <p>If you are in contact with a web, you know the exact location of
-            any other creature in contact with the same web.</p>
+            any other creature in contact with the same web.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

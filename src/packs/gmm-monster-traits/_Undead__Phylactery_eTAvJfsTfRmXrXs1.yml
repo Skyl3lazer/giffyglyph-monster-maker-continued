@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>If you are destroyed, you reappear within 5 ft. of your phylactery in
-      1d10 days with a new, fully healed body.</p>
+      1d10 days with a new, fully healed body.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,8 @@ flags:
           image: icons/magic/death/undead-skeleton-lich-armor.webp
           text: >-
             <p>If you are destroyed, you reappear within 5 ft. of your
-            phylactery in 1d10 days with a new, fully healed body.</p>
+            phylactery in 1d10 days with a new, fully healed body.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

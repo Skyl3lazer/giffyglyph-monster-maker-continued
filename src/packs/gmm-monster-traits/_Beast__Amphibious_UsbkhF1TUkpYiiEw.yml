@@ -3,7 +3,7 @@ type: feat
 img: icons/creatures/amphibians/treefrog-underneath-teal.webp
 system:
   description:
-    value: <p>You can breathe air and water.</p>
+    value: <p>You can breathe air and water.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +75,7 @@ flags:
         description:
           name: (Beast) Amphibious
           image: icons/creatures/amphibians/treefrog-underneath-teal.webp
-          text: <p>You can breathe air and water.</p>
+          text: <p>You can breathe air and water.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

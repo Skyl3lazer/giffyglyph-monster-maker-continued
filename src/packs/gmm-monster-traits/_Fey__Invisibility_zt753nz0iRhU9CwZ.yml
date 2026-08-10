@@ -3,7 +3,9 @@ type: feat
 img: icons/creatures/magical/spirit-undead-ghost-purple.webp
 system:
   description:
-    value: <p>You are invisible. If you take damage, you lose this invisibility.</p>
+    value: >-
+      <p>You are invisible. If you take damage, you lose this
+      invisibility.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -77,7 +79,7 @@ flags:
           image: icons/creatures/magical/spirit-undead-ghost-purple.webp
           text: >-
             <p>You are invisible. If you take damage, you lose this
-            invisibility.</p>
+            invisibility.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

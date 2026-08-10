@@ -3,7 +3,9 @@ type: feat
 img: icons/environment/creatures/fish-smooth-orange-red.webp
 system:
   description:
-    value: <p>You can hold your breath for a prolonged time.</p>
+    value: >-
+      <p>You can hold your breath for a prolonged time.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (Beast) Hold Breath
           image: icons/environment/creatures/fish-smooth-orange-red.webp
-          text: <p>You can hold your breath for a prolonged time.</p>
+          text: >-
+            <p>You can hold your breath for a prolonged time.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

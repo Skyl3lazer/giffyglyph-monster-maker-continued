@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>At the start of your turn, each creature within 10 ft. of you takes
-      variant damage equal to your combat level ([level]).</p>
+      variant damage equal to your combat level ([level]).</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/earth/explosion-lava-stone-yellow-orange.webp
           text: >-
             <p>At the start of your turn, each creature within 10 ft. of you
-            takes variant damage equal to your combat level ([level]).</p>
+            takes variant damage equal to your combat level
+            ([level]).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

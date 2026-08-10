@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You can't be disarmed against your will unless you are
-      incapacitated.</p>
+      incapacitated.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/weapons/fist/claw-hooked-grey.webp
           text: >-
             <p>You can't be disarmed against your will unless you are
-            incapacitated.</p>
+            incapacitated.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

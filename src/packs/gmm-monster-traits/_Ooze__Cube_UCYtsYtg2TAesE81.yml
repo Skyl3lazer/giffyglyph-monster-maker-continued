@@ -3,7 +3,7 @@ type: feat
 img: icons/svg/d6-grey.svg
 system:
   description:
-    value: <p>You take up your entire space.</p>
+    value: <p>You take up your entire space.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +75,7 @@ flags:
         description:
           name: (Ooze) Cube
           image: icons/svg/d6-grey.svg
-          text: <p>You take up your entire space.</p>
+          text: <p>You take up your entire space.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

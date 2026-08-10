@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You have advantage on Strength, Dexterity, and Constitution saving
-      throws against magic.</p>
+      throws against magic.</p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,30 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: A5Qnok2qm0NvGPcr
+    name: Hardy
+    img: icons/skills/wounds/injury-body-pain-gray.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.magicResistance.str
+          type: custom
+          value: '1'
+        - key: flags.midi-qol.magicResistance.dex
+          type: custom
+          value: '1'
+        - key: flags.midi-qol.magicResistance.con
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!GPcrA5Qnok2qm0Nv.A5Qnok2qm0NvGPcr'
 folder: BQJTpujMa90FQDGd
 flags:
   core:
@@ -79,7 +102,7 @@ flags:
           image: icons/skills/wounds/injury-body-pain-gray.webp
           text: >-
             <p>You have advantage on Strength, Dexterity, and Constitution
-            saving throws against magic.</p>
+            saving throws against magic.</p><p><em>Midi automation</em></p>
         activation:
           type: ''
           cost: null

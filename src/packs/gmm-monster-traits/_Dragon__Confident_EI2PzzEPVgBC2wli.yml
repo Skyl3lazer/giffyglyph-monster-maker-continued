@@ -3,7 +3,9 @@ type: feat
 img: icons/consumables/drinks/alcohol-beer-mug-yellow.webp
 system:
   description:
-    value: <p>You have advantage on Charisma saving throws.</p>
+    value: >-
+      <p>You have advantage on Charisma saving throws.</p><p><em>Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: zzEPVgBC2wliEI2P
+    name: Confident
+    img: icons/consumables/drinks/alcohol-beer-mug-yellow.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.cha
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!EI2PzzEPVgBC2wli.zzEPVgBC2wliEI2P'
 folder: 2LPDPz4IMyoc7wHb
 flags:
   core:
@@ -75,7 +94,9 @@ flags:
         description:
           name: (Dragon) Confident
           image: icons/consumables/drinks/alcohol-beer-mug-yellow.webp
-          text: <p>You have advantage on Charisma saving throws.</p>
+          text: >-
+            <p>You have advantage on Charisma saving throws.</p><p><em>Midi
+            automation</em></p>
         activation:
           type: ''
           cost: null

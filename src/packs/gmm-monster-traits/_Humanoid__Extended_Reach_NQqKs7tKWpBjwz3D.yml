@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>During your turn, you can extend the natural reach of your weapons by 5
-      ft.</p>
+      ft.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/skills/melee/maneuver-greatsword-yellow.webp
           text: >-
             <p>During your turn, you can extend the natural reach of your
-            weapons by 5 ft.</p>
+            weapons by 5 ft.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

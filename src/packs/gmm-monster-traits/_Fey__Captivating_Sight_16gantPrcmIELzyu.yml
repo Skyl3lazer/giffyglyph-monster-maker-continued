@@ -3,11 +3,17 @@ type: feat
 img: icons/skills/social/intimidation-impressing.webp
 system:
   description:
-    value: "<p>At the start of your turn, each creature within 30 ft. of you that can see you must succeed on a DC [dcPrimaryBonus + maxMod]\_Wisdom saving throw or be charmed until the end of its next turn. If the saving throw succeeds by 5 or more, the creature is immune to your sight until it finishes a long rest.</p>"
+    value: >-
+      <p>At the start of your turn, each creature within 30 ft. of you that can
+      see you must succeed on a DC [dcPrimaryBonus + maxMod]&nbsp;Wisdom saving
+      throw or be charmed until the end of its next turn. If the saving throw
+      succeeds by 5 or more, the creature is immune to your sight until it
+      finishes a long rest.*</p><p><em>* Core automation (roll it when the
+      trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -16,15 +22,15 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 30
     width: null
-    units: ''
-    type: ''
+    units: ft
+    type: radius
     prompt: true
   range:
     value: null
     long: null
-    units: ''
+    units: self
   uses:
     value: null
     max: ''
@@ -37,7 +43,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: save
   attack:
     bonus: ''
     flat: false
@@ -50,7 +56,7 @@ system:
     versatile: ''
   formula: ''
   save:
-    ability: ''
+    ability: wis
     dc: null
     scaling: spell
   summons: null
@@ -80,9 +86,10 @@ flags:
             that can see you must succeed on a DC [dcPrimaryBonus +
             maxMod]&nbsp;Wisdom saving throw or be charmed until the end of its
             next turn. If the saving throw succeeds by 5 or more, the creature
-            is immune to your sight until it finishes a long rest.</p>
+            is immune to your sight until it finishes a long rest.*</p><p><em>*
+            Core automation (roll it when the trigger fires)</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -96,29 +103,34 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
-          related_stat: str
+          type: save
+          related_stat: max
           bonus: ''
-          defense: ''
+          defense: wis
           miss:
             damage: ''
           versatile:
             damage: ''
         duration:
+          type: end_of_target_turn
           units: ''
           value: ''
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         range:
-          units: ''
+          units: self
           value: null
           long: null
         recharge:
           value: null
           is_charged: false
         target:
-          type: ''
-          units: ''
-          value: null
-          width: null
+          type: radius
+          units: ft
+          value: 30
+          width: 0
         uses:
           value: null
           max: ''

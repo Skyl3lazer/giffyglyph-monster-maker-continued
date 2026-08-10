@@ -6,7 +6,7 @@ system:
     value: >-
       <p>If you fly at least 20 ft. towards a target and hit it with a melee
       weapon attack, you deal additional variant damage equal to your combat
-      level ([level]).</p>
+      level ([level]).</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +81,7 @@ flags:
           text: >-
             <p>If you fly at least 20 ft. towards a target and hit it with a
             melee weapon attack, you deal additional variant damage equal to
-            your combat level ([level]).</p>
+            your combat level ([level]).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

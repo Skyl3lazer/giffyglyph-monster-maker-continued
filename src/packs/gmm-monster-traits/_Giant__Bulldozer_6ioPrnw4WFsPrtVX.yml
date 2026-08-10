@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/earth/strike-fist-stone-gray.webp
 system:
   description:
-    value: <p>You deal double damage to objects and structures.</p>
+    value: >-
+      <p>You deal double damage to objects and structures.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (Giant) Bulldozer
           image: icons/magic/earth/strike-fist-stone-gray.webp
-          text: <p>You deal double damage to objects and structures.</p>
+          text: >-
+            <p>You deal double damage to objects and structures.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

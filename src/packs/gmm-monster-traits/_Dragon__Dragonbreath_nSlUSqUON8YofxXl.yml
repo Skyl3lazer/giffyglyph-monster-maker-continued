@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you are bloodied or enraged, you may immediately recharge one
-      breath attack and spend your reaction to use it immediately.</p>
+      breath attack and spend your reaction to use it immediately.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/creatures/abilities/dragon-fire-breath-orange.webp
           text: >-
             <p>When you are bloodied or enraged, you may immediately recharge
-            one breath attack and spend your reaction to use it immediately.</p>
+            one breath attack and spend your reaction to use it
+            immediately.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

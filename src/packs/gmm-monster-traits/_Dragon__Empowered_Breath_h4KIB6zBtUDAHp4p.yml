@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>If you reduce a creature to 0 hit points with a breath attack, it is
-      disintegrated.</p>
+      disintegrated.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/creatures/abilities/dragon-ice-breath-blue.webp
           text: >-
             <p>If you reduce a creature to 0 hit points with a breath attack, it
-            is disintegrated.</p>
+            is disintegrated.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

@@ -5,7 +5,12 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against spells and other magical
-      effects cast by a good creature.</p>
+      effects cast by a good creature.+</p><p><em>+ Midi
+      automation</em></p><p><em>To finish it, edit this effect and set the value
+      of the <strong>advantage.save.all</strong> change to a midi condition that
+      is true only against a good caster. Left blank the change does nothing.
+      Setting it to <strong>1</strong> would grant advantage on every saving
+      throw.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +69,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: a49vTVrPHj8s7wlU
+    name: Protection from Good
+    img: icons/magic/unholy/projectiles-binary-pink.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.all
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!7wlUa49vTVrPHj8s.a49vTVrPHj8s7wlU'
 folder: hgnohyDtSml3Virp
 flags:
   core:
@@ -79,7 +101,12 @@ flags:
           image: icons/magic/unholy/projectiles-binary-pink.webp
           text: >-
             <p>You have advantage on saving throws against spells and other
-            magical effects cast by a good creature.</p>
+            magical effects cast by a good creature.+</p><p><em>+ Midi
+            automation</em></p><p><em>To finish it, edit this effect and set the
+            value of the <strong>advantage.save.all</strong> change to a midi
+            condition that is true only against a good caster. Left blank the
+            change does nothing. Setting it to <strong>1</strong> would grant
+            advantage on every saving throw.</em></p>
         activation:
           type: ''
           cost: null

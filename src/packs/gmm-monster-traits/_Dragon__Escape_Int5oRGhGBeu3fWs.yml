@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You don't provoke opportunity attacks when you fly out of an enemy's
-      reach.</p>
+      reach.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/creatures/abilities/wing-batlike-purple-blue.webp
           text: >-
             <p>You don't provoke opportunity attacks when you fly out of an
-            enemy's reach.</p>
+            enemy's reach.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

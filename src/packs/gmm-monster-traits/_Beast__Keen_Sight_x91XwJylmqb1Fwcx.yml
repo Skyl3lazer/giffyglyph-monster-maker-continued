@@ -5,7 +5,11 @@ system:
   description:
     value: >-
       <p>You have advantage on Wisdom (Perception) checks that rely on
-      sight.</p>
+      sight.+</p><p><em>+ Midi automation</em></p><p><em>To finish it, edit this
+      effect and set the value of the <strong>advantage.skill.prc</strong>
+      change to a midi condition that is true only for sight-based Perception,
+      or set it to <strong>1</strong> and accept advantage on every Perception
+      check. Left blank the change does nothing.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +68,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: wJylmqb1Fwcxx91X
+    name: Keen Sight
+    img: icons/magic/perception/eye-slit-red-orange.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.skill.prc
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!x91XwJylmqb1Fwcx.wJylmqb1Fwcxx91X'
 folder: ULF0u3oEC8EufxRm
 flags:
   core:
@@ -79,7 +100,12 @@ flags:
           image: icons/magic/perception/eye-slit-red-orange.webp
           text: >-
             <p>You have advantage on Wisdom (Perception) checks that rely on
-            sight.</p>
+            sight.+</p><p><em>+ Midi automation</em></p><p><em>To finish it,
+            edit this effect and set the value of the
+            <strong>advantage.skill.prc</strong> change to a midi condition that
+            is true only for sight-based Perception, or set it to
+            <strong>1</strong> and accept advantage on every Perception check.
+            Left blank the change does nothing.</em></p>
         activation:
           type: ''
           cost: null

@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Any creature that is grappled by you takes bludgeoning damage equal to
-      your combat level ([level]) at the start of its turn.</p>
+      your combat level ([level]) at the start of its turn.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/earth/strike-fist-stone-light.webp
           text: >-
             <p>Any creature that is grappled by you takes bludgeoning damage
-            equal to your combat level ([level]) at the start of its turn.</p>
+            equal to your combat level ([level]) at the start of its
+            turn.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

@@ -7,7 +7,7 @@ system:
       <p>A creature must make a Wisdom (Perception) check to spot you, even if
       you are in plain sight, so long as you have neither moved nor attacked. A
       creature that tries to enter your space while unaware of you is
-      surprised.</p>
+      surprised.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -83,7 +83,7 @@ flags:
             <p>A creature must make a Wisdom (Perception) check to spot you,
             even if you are in plain sight, so long as you have neither moved
             nor attacked. A creature that tries to enter your space while
-            unaware of you is surprised.</p>
+            unaware of you is surprised.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

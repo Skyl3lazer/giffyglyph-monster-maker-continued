@@ -3,7 +3,9 @@ type: feat
 img: icons/creatures/slimes/slime-movement-pseudopods-green.webp
 system:
   description:
-    value: <p>You have advantage on Constitution saving throws.</p>
+    value: >-
+      <p>You have advantage on Constitution saving throws.</p><p><em>Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: Zs71OLXojSLJATWy
+    name: Shockproof
+    img: icons/creatures/slimes/slime-movement-pseudopods-green.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.con
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!ATWyZs71OLXojSLJ.Zs71OLXojSLJATWy'
 folder: Ufs5zJIug1CEB6LB
 flags:
   core:
@@ -75,7 +94,9 @@ flags:
         description:
           name: (Ooze) Shockproof
           image: icons/creatures/slimes/slime-movement-pseudopods-green.webp
-          text: <p>You have advantage on Constitution saving throws.</p>
+          text: >-
+            <p>You have advantage on Constitution saving throws.</p><p><em>Midi
+            automation</em></p>
         activation:
           type: ''
           cost: null

@@ -4,8 +4,8 @@ img: icons/skills/trades/smithing-anvil-brown.webp
 system:
   description:
     value: >-
-      <p>You can’t be compelled to act in a manner contrary to your nature or
-      instructions.</p>
+      <p>You can&rsquo;t be compelled to act in a manner contrary to your nature
+      or instructions.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/skills/trades/smithing-anvil-brown.webp
           text: >-
             <p>You can&rsquo;t be compelled to act in a manner contrary to your
-            nature or instructions.</p>
+            nature or instructions.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

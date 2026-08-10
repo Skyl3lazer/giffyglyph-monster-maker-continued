@@ -7,7 +7,7 @@ system:
       <p>You can sense the presence and location of any other creature within
       300 ft. of you that has an Intelligence of 3 or higher (regardless of
       interposing barriers) unless the creature is protected by a mind blank
-      spell.</p>
+      spell.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -83,7 +83,7 @@ flags:
             <p>You can sense the presence and location of any other creature
             within 300 ft. of you that has an Intelligence of 3 or higher
             (regardless of interposing barriers) unless the creature is
-            protected by a mind blank spell.</p>
+            protected by a mind blank spell.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

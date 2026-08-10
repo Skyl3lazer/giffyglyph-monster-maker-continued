@@ -3,7 +3,9 @@ type: feat
 img: icons/creatures/mammals/rabbit-movement-glowing-green.webp
 system:
   description:
-    value: <p>You have advantage on Dexterity saving throws.</p>
+    value: >-
+      <p>You have advantage on Dexterity saving throws.</p><p><em>Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 4ocZRhJdADA5tiRw
+    name: Dexterous
+    img: icons/creatures/mammals/rabbit-movement-glowing-green.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.dex
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!tiRw4ocZRhJdADA5.4ocZRhJdADA5tiRw'
 folder: ULF0u3oEC8EufxRm
 flags:
   core:
@@ -75,7 +94,9 @@ flags:
         description:
           name: (Beast) Dexterous
           image: icons/creatures/mammals/rabbit-movement-glowing-green.webp
-          text: <p>You have advantage on Dexterity saving throws.</p>
+          text: >-
+            <p>You have advantage on Dexterity saving throws.</p><p><em>Midi
+            automation</em></p>
         activation:
           type: ''
           cost: null

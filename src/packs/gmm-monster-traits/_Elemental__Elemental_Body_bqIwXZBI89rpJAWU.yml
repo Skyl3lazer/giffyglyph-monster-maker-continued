@@ -6,7 +6,7 @@ system:
     value: >-
       <p>Any creature that touches you or hits you with a melee attack while
       within your reach takes variant damage equal to your combat level
-      ([level]).</p>
+      ([level]).</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +81,7 @@ flags:
           text: >-
             <p>Any creature that touches you or hits you with a melee attack
             while within your reach takes variant damage equal to your combat
-            level ([level]).</p>
+            level ([level]).</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

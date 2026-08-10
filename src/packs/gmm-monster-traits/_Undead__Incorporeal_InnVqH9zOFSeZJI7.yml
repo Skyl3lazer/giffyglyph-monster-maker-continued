@@ -6,7 +6,8 @@ system:
     value: >-
       <p>You can move through other creatures and objects as if they were
       difficult terrain. You take force damage equal to your combat level
-      ([level]) if you end your turn inside an object.</p>
+      ([level]) if you end your turn inside an object.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +82,8 @@ flags:
           text: >-
             <p>You can move through other creatures and objects as if they were
             difficult terrain. You take force damage equal to your combat level
-            ([level]) if you end your turn inside an object.</p>
+            ([level]) if you end your turn inside an object.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

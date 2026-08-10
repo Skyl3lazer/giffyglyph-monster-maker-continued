@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>When you would take variant damage, you instead recharge an exhausted
-      uncommon feature.</p>
+      uncommon feature.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/commodities/tech/conduit-transmission-red.webp
           text: >-
             <p>When you would take variant damage, you instead recharge an
-            exhausted uncommon feature.</p>
+            exhausted uncommon feature.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>At the start of your turn, you deal variant damage equal to your combat
-      level ([level]) to any creature grappling you.</p>
+      level ([level]) to any creature grappling you.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/creatures/abilities/stinger-spine-horn-blood.webp
           text: >-
             <p>At the start of your turn, you deal variant damage equal to your
-            combat level ([level]) to any creature grappling you.</p>
+            combat level ([level]) to any creature grappling you.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

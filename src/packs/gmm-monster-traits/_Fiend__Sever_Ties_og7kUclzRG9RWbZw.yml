@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/unholy/hand-marked-pink.webp
 system:
   description:
-    value: <p>If you are not incapacitated, you can return to your home plane.</p>
+    value: >-
+      <p>If you are not incapacitated, you can return to your home
+      plane.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -77,7 +79,7 @@ flags:
           image: icons/magic/unholy/hand-marked-pink.webp
           text: >-
             <p>If you are not incapacitated, you can return to your home
-            plane.</p>
+            plane.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

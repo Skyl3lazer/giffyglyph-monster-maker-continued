@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Creatures within 30 ft. of you have disadvantage on death saving
-      throws.</p>
+      throws.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/death/grave-tombstone-glow-teal.webp
           text: >-
             <p>Creatures within 30 ft. of you have disadvantage on death saving
-            throws.</p>
+            throws.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>While you remain motionless, you are indistinguishable from the
-      surrounding plantlife.</p>
+      surrounding plantlife.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/nature/tree-animated-strike.webp
           text: >-
             <p>While you remain motionless, you are indistinguishable from the
-            surrounding plantlife.</p>
+            surrounding plantlife.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

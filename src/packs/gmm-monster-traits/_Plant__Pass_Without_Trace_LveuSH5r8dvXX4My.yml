@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>In your natural environment, you can't be tracked except by magical
-      means. You leave behind no tracks or other traces of your passage.</p>
+      means. You leave behind no tracks or other traces of your
+      passage.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>In your natural environment, you can't be tracked except by
             magical means. You leave behind no tracks or other traces of your
-            passage.</p>
+            passage.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

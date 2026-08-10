@@ -5,11 +5,12 @@ system:
   description:
     value: >-
       <p>When you are reduced to 0 hit points, you can spend your reaction to
-      make a breath attack one or more creatures within range.</p>
+      make a breath attack one or more creatures within range.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: reaction
     cost: null
     condition: ''
   duration:
@@ -79,9 +80,10 @@ flags:
           image: icons/magic/death/hand-dirt-undead-zombie.webp
           text: >-
             <p>When you are reduced to 0 hit points, you can spend your reaction
-            to make a breath attack one or more creatures within range.</p>
+            to make a breath attack one or more creatures within
+            range.</p><p><em>No automation</em></p>
         activation:
-          type: ''
+          type: reaction
           cost: null
           condition: ''
         requirements:

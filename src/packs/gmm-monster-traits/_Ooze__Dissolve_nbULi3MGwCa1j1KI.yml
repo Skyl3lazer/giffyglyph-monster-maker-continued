@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>At the start of your turn, you deal acid damage equal to your combat
-      level ([level]) to any creature or object you are grappling.</p>
+      level ([level]) to any creature or object you are grappling.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>At the start of your turn, you deal acid damage equal to your
             combat level ([level]) to any creature or object you are
-            grappling.</p>
+            grappling.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

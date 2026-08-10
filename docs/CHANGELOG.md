@@ -24,6 +24,7 @@
 * The Proficiency block on the artifact is now "To-Hit Bonus". By default that matches proficiency, but modifiers will now make sense.
 	* A global attack bonus from an effect now shows in that block, and in the basic attack roll dialog.
 * Deferral automation! Deferred abilities will now properly wait before rolling attacks or applying effects where appropriate. This is compatible with MidiQOL, but some amount of the automation works without it.
+* Updated compendiums to include proper appropriate effects, etc, to let them function with as much automation as has been built. The entries will indicate in their description how they're automated.
 
 ## v2.0.1.0
 
