@@ -16,14 +16,14 @@
 * GMM conditions are now a real compendium of effects. Foundry v14 lets a module ship active effects directly, so the eighteen expanded conditions live in a new **GMM Effects** compendium, instead of being hidden on a placeholder actor you had to open first. You can browse, search, and drag them straight onto a token.
 	* Each condition now states its rarity the way the book does. This will be used later to try to estimate Scaler point values!
 	* This needs Foundry v14. On v13 the new compendium cannot exist at all, so the old **GMM Conditions (Legacy)** compendium is still there with the same conditions on its placeholder actor. It is frozen and won't get any updates, namely automation.
-	* If you use the **Side Effects** module, you can point its effect compendium setting at GMM Effects, or copy the conditions into your own effect compendium.
-	* Also in v14, there are basic automations for the conditions, utilizing both base effects, MidiQOL, and Automated Conditions 5e.
-* Dropped the DFreds Convenient Effects importable file and the leftover Convenient Effects data on the conditions.
+	* If you use the *Side Effects* module, you can point its effect compendium setting at GMM Effects, or copy the conditions into your own effect compendium.
+	* Also in v14, there are basic automations for the conditions, utilizing both base effects, *MidiQOL*, and *Automated Conditions 5e*.
+* Dropped the *DFreds Convenient Effects* importable file and the leftover Convenient Effects data on the conditions.
 * More attributes are handled correctly now though effects and visually displayed as changed on the sheet when effects are active. This includes (temp)max HP, initiative, skill modifiers, attribute modifiers, global mods (i.e. +2 to all checks), and proficiency.
 * [hpMax] now targets `effective_maximum`, so is modified by temporary max HP, and effects like 2014's exhaustion. A new [naturalMax] shortcode has been added to reference the monster's max hp ignoring temp max.
 * The Proficiency block on the artifact is now "To-Hit Bonus". By default that matches proficiency, but modifiers will now make sense.
 	* A global attack bonus from an effect now shows in that block, and in the basic attack roll dialog.
-* Deferral automation! Deferred abilities will now properly wait before rolling attacks or applying effects where appropriate. This is compatible with MidiQOL, but some amount of the automation works without it.
+* Deferral automation! Deferred abilities will now properly wait before rolling attacks or applying effects where appropriate. This is compatible with *MidiQOL*, but some amount of the automation works without it.
 * Updated compendiums to include proper appropriate effects, etc, to let them function with as much automation as has been built. The entries will indicate in their description how they're automated.
 
 ## v2.0.1.0
