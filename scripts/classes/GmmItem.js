@@ -153,12 +153,8 @@ const GmmItem = (function () {
         let finalDc = Number(activity.save.dc.value);
 
         if (!Number.isFinite(finalDc) || finalDc <= 0) {
-            const bp = item?.flags?.gmm?.blueprint?.data;
-            const a = bp?.attack ?? {};
-            const parts = ["[dcPrimaryBonus]"];
-            if (a.bonus) parts.push(String(a.bonus));
-            if (a.related_stat) parts.push(`[${a.related_stat}Mod]`);
-            const resolved = Shortcoder.replaceShortcodes(parts.join(" + "), monsterData);
+            const formula = Activities.buildSaveDcFormula(item?.flags?.gmm?.blueprint?.data ?? {});
+            const resolved = Shortcoder.replaceShortcodes(formula, monsterData);
             try {
                 const dcRoll = new Roll(String(resolved || "0"));
                 if (dcRoll.isDeterministic) {

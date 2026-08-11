@@ -90,7 +90,7 @@ export const GMM_ACTION_BLUEPRINT = {
 				type: null
 			},
 			message: null,
-			related_stat: "str"
+			related_stat: "max"
 		}
 	}
 };

@@ -142,7 +142,7 @@ const Durations = (function () {
 
 	/* Separated with `#` because a damage formula may legally contain a comma. The `,` separator applies
 	 * only when no `#` is present. */
-	function _overTimeChanges(duration, rules, damage) {
+	function _overTimeChanges(duration, rules, damage, saveDc) {
 		const changes = [];
 
 		if (rules.hasSave) {
@@ -150,7 +150,8 @@ const Durations = (function () {
 				`turn=${rules.saveTurn}`,
 				"rollType=save",
 				`saveAbility=${duration.saveAbility}`,
-				`saveDC=${damage?.saveDc ?? 10}`,
+				// A DC nobody can derive is left unsaid. midi then builds no save, rather than a wrong one.
+				...(saveDc ? [`saveDC=${saveDc}`] : []),
 				"saveCount=1-"
 			];
 			// Ongoing's damage is the failure branch of its own save, not a separate tick.
@@ -184,7 +185,7 @@ const Durations = (function () {
 
 	/* Forged even when the action inflicts no condition, because a purely recurring damage effect would
 	 * otherwise have no document to hang its flags on. */
-	function buildEffectData(blueprint, { name, img, damage } = {}) {
+	function buildEffectData(blueprint, { name, img, damage, saveDc } = {}) {
 		const duration = read(blueprint);
 		const rules = _rules(duration.type);
 		if (!rules.applies || !isSupported() || !isEnabled()) return null;
@@ -196,7 +197,7 @@ const Durations = (function () {
 			// v14 moved effect changes off the document and into its type data.
 			system: {
 				changes: [
-					..._overTimeChanges(duration, rules, damage),
+					..._overTimeChanges(duration, rules, damage, saveDc),
 					...(duration.reapplies === "source" ? _reapplySourceChanges() : [])
 				]
 			},

@@ -426,7 +426,7 @@ const Activities = (function () {
                 ability: [blueprintAttack.defense || "str"],
                 dc: {
                     calculation: "",
-                    formula: _sanitizeFormulaForActivity(_buildSaveDcFormula(blueprintData))
+                    formula: _sanitizeFormulaForActivity(buildSaveDcFormula(blueprintData))
                 }
             };
             data.damage = {
@@ -510,7 +510,8 @@ const Activities = (function () {
         return Durations.buildEffectData(blueprintData, {
             name: blueprintData.description?.name || "",
             img: blueprintData.description?.image,
-            damage: first ? { formula: first.formula, type: first.type, saveDc: _buildSaveDcFormula(blueprintData) } : null
+            saveDc: buildSaveDcFormula(blueprintData),
+            damage: first ? { formula: first.formula, type: first.type } : null
         });
     }
 
@@ -660,7 +661,7 @@ const Activities = (function () {
         return { targets, scaling: { allowed: false, max: "" }, spellSlot: false };
     }
 
-    function _buildSaveDcFormula(blueprintData) {
+    function buildSaveDcFormula(blueprintData) {
         const a = blueprintData.attack ?? {};
         const parts = ["[dcPrimaryBonus]"];
         // `attack.bonus` is a DC modifier on a save action and an attack-roll modifier otherwise.
@@ -1007,7 +1008,7 @@ const Activities = (function () {
         if (activity.save?.dc) {
             let formula = activity.save.dc.formula ?? "";
             if (blueprintData) {
-                const rebuilt = _buildSaveDcFormula(blueprintData);
+                const rebuilt = buildSaveDcFormula(blueprintData);
                 if (typeof rebuilt === "string" && rebuilt.includes("[")) {
                     formula = Shortcoder.replaceShortcodes(rebuilt, monsterData);
                 }
@@ -1286,6 +1287,27 @@ const Activities = (function () {
         return wantsPool !== hasTarget;
     }
 
+    function _sameChanges(a, b) {
+        const x = Array.isArray(a) ? a : [];
+        const y = Array.isArray(b) ? b : [];
+        if (x.length !== y.length) return false;
+        return x.every((c, i) => c?.key === y[i]?.key
+            && c?.value === y[i]?.value
+            && c?.type === y[i]?.type
+            && c?.priority === y[i]?.priority);
+    }
+
+    /* Read from `_source`, because `Durations.resolveEffectFormulas` substitutes shortcodes into the
+       prepared copy in place. Comparing that copy would rebuild the item on every load forever. */
+    function _durationEffectStale(item, blueprint) {
+        const fresh = buildDurationEffectData(blueprint);
+        // A null build already leaves the orphan inert, so there is nothing to rebuild for.
+        if (!fresh) return false;
+        const stored = item?._source?.effects?.find?.(e => e?._id === Durations.GMM_DURATION_EFFECT_ID);
+        if (!stored) return true;
+        return !_sameChanges(stored.system?.changes ?? stored.changes, fresh.system.changes);
+    }
+
     /* True when the item's GMM activities do not match the shape its blueprint asks for. */
     function needsActivityRebuild(item, blueprint) {
         const activities = item?.system?.activities;
@@ -1295,6 +1317,7 @@ const Activities = (function () {
         const primary = activities.get(GMM_ACTIVITY_ID);
         if (primary?.type !== _wantedPrimaryType(blueprint)) return true;
         if (_poolTargetMismatch(blueprint, primary)) return true;
+        if (_durationEffectStale(item, blueprint)) return true;
         if (isDoomingDeferral(blueprint)) {
             // A dooming primary that still carries damage predates the gate/delivery split.
             if (primary?.damage?.parts?.length) return true;
@@ -1611,6 +1634,7 @@ const Activities = (function () {
         buildDoomClockEffectData,
         buildActivityUpdate,
         buildDurationEffectData,
+        buildSaveDcFormula,
         readActivityIntoBlueprintData,
         readItemUsesIntoBlueprintData,
         chargesWithoutPool,

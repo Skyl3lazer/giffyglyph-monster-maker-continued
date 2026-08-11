@@ -99,7 +99,7 @@ flags:
           amount: null
         attack:
           type: ''
-          related_stat: str
+          related_stat: max
           bonus: ''
           defense: ''
           miss:

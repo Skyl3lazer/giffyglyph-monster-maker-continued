@@ -414,7 +414,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
                     type: null,
                     defense: "str",
                     bonus: null,
-                    related_stat: "str"
+                    related_stat: "max"
                 }
             }
         };
