@@ -28,6 +28,12 @@ const Activities = (function () {
     /* Neither `inst` nor a measured span: midi cleans up the templates of both, on timings GMMC does not own. */
     const GMM_PLANT_DURATION_UNITS = "spec";
 
+    /* The book's Charges with a Charge Event: no `limitedUsePeriods` entry expresses it, so it recovers by no rule. */
+    const GMM_UNRECOVERED_PERIOD = "charges";
+
+    /* Empty on both GMM activities: the pool they consume is the item's. */
+    const GMM_EMPTY_ACTIVITY_USES = { spent: 0, max: "", recovery: [] };
+
     function isGmmActivityId(id) {
         return typeof id === "string" && GMM_ACTIVITY_IDS.has(id);
     }
@@ -368,7 +374,7 @@ const Activities = (function () {
             duration: _buildDuration(blueprintData),
             range: _buildRange(blueprintData),
             target: _buildTarget(blueprintData),
-            uses: _buildUses(blueprintData)
+            uses: { ...GMM_EMPTY_ACTIVITY_USES }
         };
 
         if (delayed) {
@@ -457,7 +463,7 @@ const Activities = (function () {
             range: _buildRange(blueprintData),
             // The primary already placed the template; a second would be planted here.
             target: _buildTarget(blueprintData, { template: false }),
-            uses: { spent: 0, max: "", recovery: [] },
+            uses: { ...GMM_EMPTY_ACTIVITY_USES },
             midiProperties: { automationOnly: true }
         };
 
@@ -566,6 +572,7 @@ const Activities = (function () {
         return data;
     }
 
+    /* The pool is the item's: only `system.uses` reaches `hasLimitedUses`, the vanilla sheet and foreign targets. */
     function _buildUses(blueprintData) {
         const recovery = [];
         const recharge = blueprintData.recharge ?? {};
@@ -576,7 +583,7 @@ const Activities = (function () {
                 type: "recoverAll",
                 formula: String(recharge.value)
             });
-        } else if (uses.per) {
+        } else if (uses.per && uses.per !== GMM_UNRECOVERED_PERIOD) {
             recovery.push({
                 period: uses.per,
                 type: "recoverAll",
@@ -601,34 +608,62 @@ const Activities = (function () {
         return { spent, max, recovery };
     }
 
-    function _buildConsumption(blueprintData) {
+    function _chargesOwnPool(blueprintData) {
         const rc = blueprintData.resource_consumption ?? {};
-        const empty = { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false };
-        if (!rc.type) return empty;
-        // Ammo already decrements through the AttackActivity pipeline; a target here would double it.
-        if (rc.type === "ammo") return empty;
+        return (rc.type === "charges") && !rc.target;
+    }
+
+    /* A hand-typed maximum of 0 is not a limitation, and a target against it would refuse every use. */
+    function _hasPool(blueprintData) {
+        const max = _buildUses(blueprintData).max;
+        return !!max && (parseInt(max) !== 0);
+    }
+
+    /* A cost against a pool that was never authored. Emitting a target for it would refuse the action. */
+    function chargesWithoutPool(blueprint) {
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+        return _chargesOwnPool(blueprintData) && !_hasPool(blueprintData);
+    }
+
+    /* One target for the own pool: a `charges` cost against it as well would spend that pool twice per use. */
+    function _buildConsumption(blueprintData) {
+        const targets = [];
+        const rc = blueprintData.resource_consumption ?? {};
+        const ownPool = _chargesOwnPool(blueprintData);
+
+        if (_hasPool(blueprintData)) {
+            targets.push({
+                type: "itemUses",
+                target: "",
+                value: String((ownPool ? rc.amount : null) ?? 1),
+                scaling: { mode: "", formula: "" }
+            });
+        }
+
         const typeMap = {
             attribute: "attribute",
             material: "material",
             charges: "itemUses",
             hitDice: "hitDice"
         };
-        return {
-            targets: [{
+        // Ammo already decrements through the AttackActivity pipeline; a target here would double it.
+        if (rc.type && (rc.type !== "ammo") && !ownPool) {
+            targets.push({
                 type: typeMap[rc.type] ?? "itemUses",
                 target: rc.target ?? "",
                 value: String(rc.amount ?? 1),
                 scaling: { mode: "", formula: "" }
-            }],
-            scaling: { allowed: false, max: "" },
-            spellSlot: false
-        };
+            });
+        }
+
+        return { targets, scaling: { allowed: false, max: "" }, spellSlot: false };
     }
 
     function _buildSaveDcFormula(blueprintData) {
         const a = blueprintData.attack ?? {};
         const parts = ["[dcPrimaryBonus]"];
-        if (a.bonus) parts.push(String(a.bonus));
+        // `attack.bonus` is a DC modifier on a save action and an attack-roll modifier otherwise.
+        if (a.bonus && a.type === "save") parts.push(String(a.bonus));
         if (a.related_stat) parts.push(`[${a.related_stat}Mod]`);
         return parts.join(" + ");
     }
@@ -699,39 +734,20 @@ const Activities = (function () {
             }
         }
 
-        if (shared && obj.uses) {
-            blueprintData.uses ??= {};
-            blueprintData.uses.max = obj.uses.max ?? "";
-            const max = parseInt(obj.uses.max);
-            const spent = parseInt(obj.uses.spent ?? 0);
-            blueprintData.uses.value = (Number.isFinite(max) && Number.isFinite(spent)) ? Math.max(0, max - spent) : "";
-            const rechargeRecovery = obj.uses.recovery?.find?.(r => r.period === "recharge");
-            if (rechargeRecovery) {
-                blueprintData.recharge ??= { value: null, is_charged: false };
-                const v = parseInt(rechargeRecovery.formula);
-                blueprintData.recharge.value = Number.isFinite(v) ? v : null;
-                blueprintData.recharge.is_charged = (spent === 0);
-                blueprintData.uses.per = "";
-            } else {
-                blueprintData.recharge ??= { value: null, is_charged: false };
-                blueprintData.recharge.value = null;
-                const otherRecovery = obj.uses.recovery?.[0];
-                blueprintData.uses.per = otherRecovery?.period ?? "";
+        if (shared) {
+            const foreign = obj.consumption?.targets?.find?.(t => t.type !== "itemUses" || t.target);
+            if (foreign) {
+                blueprintData.resource_consumption ??= {};
+                const reverseTypeMap = {
+                    attribute: "attribute",
+                    material: "material",
+                    itemUses: "charges",
+                    hitDice: "hitDice"
+                };
+                blueprintData.resource_consumption.type = reverseTypeMap[foreign.type] ?? foreign.type ?? null;
+                blueprintData.resource_consumption.target = foreign.target ?? null;
+                blueprintData.resource_consumption.amount = foreign.value ? Number(foreign.value) : null;
             }
-        }
-
-        if (shared && obj.consumption?.targets?.length) {
-            const tgt = obj.consumption.targets[0];
-            blueprintData.resource_consumption ??= {};
-            const reverseTypeMap = {
-                attribute: "attribute",
-                material: "material",
-                itemUses: "charges",
-                hitDice: "hitDice"
-            };
-            blueprintData.resource_consumption.type = reverseTypeMap[tgt.type] ?? tgt.type ?? null;
-            blueprintData.resource_consumption.target = tgt.target ?? null;
-            blueprintData.resource_consumption.amount = tgt.value ? Number(tgt.value) : null;
         }
 
         if (!gate && !damage) return;
@@ -759,6 +775,38 @@ const Activities = (function () {
         }
 
         if (damage) _readDamageIntoBlueprintData(obj, type, blueprintData);
+    }
+
+    /* Falls back to the activity, where both an unmigrated GMMC item and a vanilla `activityUses` feature keep it. */
+    function readItemUsesIntoBlueprintData(item, blueprintData) {
+        if (!item || !blueprintData) return;
+        let uses = item.system?.uses;
+        if (!uses?.max) {
+            const activity = item.system?.activities?.get?.(GMM_ACTIVITY_ID) ?? pickPrimaryActivity(item);
+            if (activity?.uses?.max) uses = activity.uses;
+        }
+        if (!uses) return;
+
+        blueprintData.uses ??= {};
+        blueprintData.uses.max = uses.max ?? "";
+        const max = parseInt(uses.max);
+        const spent = parseInt(uses.spent ?? 0);
+        blueprintData.uses.value = (Number.isFinite(max) && Number.isFinite(spent)) ? Math.max(0, max - spent) : "";
+
+        blueprintData.recharge ??= { value: null, is_charged: false };
+        const recharge = uses.recovery?.find?.(r => r.period === "recharge");
+        if (recharge) {
+            const v = parseInt(recharge.formula);
+            blueprintData.recharge.value = Number.isFinite(v) ? v : null;
+            blueprintData.recharge.is_charged = (spent === 0);
+            blueprintData.uses.per = "";
+            return;
+        }
+        blueprintData.recharge.value = null;
+        // An unrecovered pool writes no recovery rule, so the authored period is all that names it.
+        const period = uses.recovery?.[0]?.period ?? "";
+        blueprintData.uses.per = period
+            || (blueprintData.uses.per === GMM_UNRECOVERED_PERIOD ? GMM_UNRECOVERED_PERIOD : "");
     }
 
     function _readDamageIntoBlueprintData(obj, type, blueprintData) {
@@ -822,7 +870,7 @@ const Activities = (function () {
 
     /* ForcedReplacement so a type swap leaves no stale sub-fields. */
     function buildActivityUpdate(item, blueprint) {
-        const update = {};
+        const update = { "system.uses": _buildUses(blueprint?.data ?? blueprint ?? {}) };
         const duration = buildDurationEffectData(blueprint);
         const hostId = payloadActivityId(blueprint);
 
@@ -1189,6 +1237,14 @@ const Activities = (function () {
         return update;
     }
 
+    /* An unmigrated item has the pool on the activity, where nothing spends it.
+       Idempotent: the rebuild writes the target this looks for. */
+    function _poolTargetMismatch(blueprint, primary) {
+        const wantsPool = _hasPool(blueprint?.data ?? blueprint ?? {});
+        const hasTarget = !!primary?.consumption?.targets?.some?.(t => (t.type === "itemUses") && !t.target);
+        return wantsPool !== hasTarget;
+    }
+
     /* True when the item's GMM activities do not match the shape its blueprint asks for. */
     function needsActivityRebuild(item, blueprint) {
         const activities = item?.system?.activities;
@@ -1197,6 +1253,7 @@ const Activities = (function () {
         if (wantsDeferred !== !!activities.has(GMM_DEFERRED_ACTIVITY_ID)) return true;
         const primary = activities.get(GMM_ACTIVITY_ID);
         if (primary?.type !== _wantedPrimaryType(blueprint)) return true;
+        if (_poolTargetMismatch(blueprint, primary)) return true;
         if (isDoomingDeferral(blueprint)) {
             // A dooming primary that still carries damage predates the gate/delivery split.
             if (primary?.damage?.parts?.length) return true;
@@ -1268,7 +1325,8 @@ const Activities = (function () {
         const wantsDeferred = isAutomatedDeferral(blueprint);
         const rebuild = !source[GMM_ACTIVITY_ID]
             || (wantsDeferred !== !!source[GMM_DEFERRED_ACTIVITY_ID])
-            || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint));
+            || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint))
+            || _poolTargetMismatch(blueprint, source[GMM_ACTIVITY_ID]);
         if (!rebuild && foundry.utils.isEmpty(purge)) return null;
         const update = { ...purge };
         if (rebuild) Object.assign(update, buildActivityUpdate(item, blueprint));
@@ -1511,6 +1569,8 @@ const Activities = (function () {
         buildActivityUpdate,
         buildDurationEffectData,
         readActivityIntoBlueprintData,
+        readItemUsesIntoBlueprintData,
+        chargesWithoutPool,
         resolveActivityFormulas,
         buildAttackToHitTerms,
         injectAttackBonusParts,

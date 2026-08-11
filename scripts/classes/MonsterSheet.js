@@ -336,7 +336,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     _onDropResetData(event, itemData) {
         super._onDropResetData(event, itemData);
         if (!itemData.system) return;
-        ["proficient", "attunement"].forEach(k => foundry.utils.deleteProperty(itemData.system, k));
+        ["proficient"].forEach(k => foundry.utils.deleteProperty(itemData.system, k));
     }
 
     /* Sorting is scoped to `getSortingCategory()`, so a trait never reorders against an action. @inheritDoc */
@@ -473,9 +473,6 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
         if (!item) return;
-        // Recharge sits on the GMM activity for actions, and on item-level uses for anything else.
-        const activity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
-        if (activity?.uses?.rollRecharge) return activity.uses.rollRecharge();
         if (item.system?.uses?.rollRecharge) return item.system.uses.rollRecharge();
         return item.rollRecharge?.();
     }
@@ -575,15 +572,10 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
 
         // `uses.value` is derived in dnd5e 5.x, so a typed remaining count has to become `spent`.
         if (field === "system.uses.value") {
-            const activity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
-            const uses = activity?.uses ?? item.system?.uses;
-            const max = parseInt(uses?.max);
+            const max = parseInt(item.system?.uses?.max);
             const remaining = Math.max(0, parseInt(value) || 0);
             const spent = Number.isFinite(max) ? Math.max(0, max - remaining) : 0;
-            const path = activity
-                ? `system.activities.${Activities.GMM_ACTIVITY_ID}.uses.spent`
-                : "system.uses.spent";
-            return item.update({ [path]: spent });
+            return item.update({ "system.uses.spent": spent });
         }
 
         return item.update({ [field]: value });

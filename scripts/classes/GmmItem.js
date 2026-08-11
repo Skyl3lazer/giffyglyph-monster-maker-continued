@@ -382,14 +382,16 @@ const GmmItem = (function () {
             labels.description = "";
         }
 
-        const uses = activity?.uses ?? this.system?.uses;
+        const uses = this.system?.uses;
+        const rechargeRecovery = uses?.recovery?.find?.(r => r.period === "recharge");
         if (uses && (uses.max || uses.spent !== undefined)) {
             const max = parseInt(uses.max);
             const spent = parseInt(uses.spent ?? 0);
             const value = (Number.isFinite(max) && Number.isFinite(spent)) ? Math.max(0, max - spent) : null;
-            const recovery = uses.recovery?.find?.(r => r.period && r.period !== "recharge");
-            if (max && recovery) {
-                labels.uses = { current: value, maximum: max, per: recovery.period };
+            // An unrecovered pool writes no recovery rule, so the authored period is all that names it.
+            const per = rechargeRecovery ? "" : (uses.recovery?.[0]?.period || blueprint?.uses?.per || "");
+            if (max && per) {
+                labels.uses = { current: value, maximum: max, per };
             }
         }
 
@@ -410,11 +412,11 @@ const GmmItem = (function () {
                 : gmmDeferral?.type === "dooming" ? "doom"
                     : "hit";
 
-        const recharge = uses?.recovery?.find?.(r => r.period === "recharge");
-        if (recharge) {
-            const v = parseInt(recharge.formula);
+        if (rechargeRecovery) {
+            const formula = rechargeRecovery.formula;
+            const v = parseInt(formula);
             labels.recharge = {
-                value: Number.isFinite(v) && v < 6 ? `${v}-6` : (Number.isFinite(v) ? `${v}` : recharge.formula),
+                value: Number.isFinite(v) && v < 6 ? `${v}-6` : (Number.isFinite(v) ? `${v}` : formula),
                 charged: (parseInt(uses.spent ?? 0) === 0)
             };
         } else {

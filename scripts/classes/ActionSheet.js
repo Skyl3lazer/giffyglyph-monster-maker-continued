@@ -250,8 +250,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             return `${name} (${game.i18n.format("DND5E.AbilityUseChargesLabel", { value: uses.value ?? uses.max })})`;
         };
 
-        const thisUses = currentItem.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID)?.uses ?? currentItem.system?.uses;
-        targets[""] = fmt(game.i18n.localize("DND5E.CONSUMPTION.Target.ThisItem") || currentItem.name, thisUses);
+        targets[""] = fmt(game.i18n.localize("DND5E.CONSUMPTION.Target.ThisItem") || currentItem.name,
+            currentItem.system?.uses);
         for (const i of actor.items ?? []) {
             if (i === currentItem) continue;
             if (!i.system?.uses?.max) continue;
@@ -349,6 +349,10 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
                 data: CompatibilityHelpers.getProperty(expanded, "gmm.blueprint")
             });
             delete expanded.gmm;
+
+            if (Activities.chargesWithoutPool(expanded.flags.gmm.blueprint)) {
+                ui.notifications?.warn(game.i18n.localize("gmm.action.blueprint.activation_cost.charges_no_pool"));
+            }
 
             // Pass `this.item` so ActionBlueprint can emit a paired `-=<id>` activity
             // deletion when the user changes attack.type (and the activity type swaps).

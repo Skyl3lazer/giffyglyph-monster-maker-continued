@@ -95,8 +95,7 @@ const MonsterForge = (function () {
         };
     }
 
-    /* Only the concepts dnd5e has no field of its own for. Everything else a formula needs is already
-     * on the actor, under its dnd5e name. */
+    /* Only the concepts dnd5e has no field of its own for. Everything else is already on the actor. */
     function _rollDataSurface(blueprint, { level, attackBonus, saveDc, damage, naturalMax }) {
         return {
             level: level,

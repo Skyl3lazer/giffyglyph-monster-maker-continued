@@ -25,7 +25,7 @@ const ModalBasicDamage = (function() {
 		const action = event.currentTarget.closest("button").dataset.action;
 		const modal = event.currentTarget.closest(".gmm-modal");
 		const form = CompatibilityHelpers.readInputs(modal.querySelector(".modal__form"));
-		const bonus = (form.get("bonus") == "static") ? form.get("static") : (form.get("random") == "—") ? 0 : form.get("random");
+		const bonus = (form.get("bonus") == "static") ? form.get("static") : Roll.validate(form.get("random")) ? form.get("random") : 0;
 
 		const rollParts = [];
 		const messageParts = [];

@@ -363,10 +363,8 @@ const GmmActor = (function () {
 				}
 			};
 			actorData.attributes.spellcasting = monsterData.spellbook.spellcasting.ability;
-			// This already ran, before the scaled spellcasting ability and attack bonus existed.
 			dnd5e.dataModels?.actor?.AttributesFields?.prepareSpellcastingAbility?.call(actorData);
-			// `system.details.spellLevel` was migrated to `system.attributes.spell.level`
-			// and `system.attributes.spelldc` to `system.attributes.spell.dc` in dnd5e v5.x.
+
 			actorData.attributes.spell ??= {};
 			actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
 			actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
@@ -382,8 +380,8 @@ const GmmActor = (function () {
 			monsterData.hit_points.effective_maximum = actorData.attributes.hp.effectiveMax;
 			monsterData.hit_points.temporary_maximum = actorData.attributes.hp.tempmax;
 
-				// Replaces the pre-effect seed from the base pass. A roll-time reference must read reconciled numbers.
-				actor._gmmRollData = MonsterForge.createRollData(monsterBlueprint, monsterData);
+			// Replaces the pre-effect seed from the base pass. A roll-time reference must read reconciled numbers.
+			actor._gmmRollData = MonsterForge.createRollData(monsterBlueprint, monsterData);
 
 			// Reads the finished artifact and current hit points, so it goes after the late replay.
 			ParagonDefenses.prepareDerivedData(actor);

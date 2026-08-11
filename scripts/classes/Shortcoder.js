@@ -65,8 +65,7 @@ const Shortcoder = (function () {
         }
     ];
 
-    /* What to write instead when a shortcode turns up in an effect change value. `@gmm.*` covers the
-     * concepts dnd5e has no field for. The rest already have one, reconciled after effects. */
+    /* What to write instead when a shortcode turns up in an effect change value. */
     const ROLL_DATA_EQUIVALENTS = Object.assign({
         level: "@gmm.level",
         attackBonus: "@gmm.attackBonus",
@@ -86,8 +85,7 @@ const Shortcoder = (function () {
         [`${x}Save`]: `@abilities.${x}.save`
     })));
 
-    /* Matches on the bracket's contents, never on the bracket itself. `[isDamaged]` and `2d6[fire]`
-     * both ship in GMMC content without being shortcodes. */
+    /* `[isDamaged]` and `2d6[fire]` both ship in GMMC content without being shortcodes. */
     function findShortcodes(text) {
         if (typeof text !== "string" || !text.includes("[")) return [];
         const found = new Set();

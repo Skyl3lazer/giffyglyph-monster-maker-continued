@@ -82,7 +82,7 @@ export const GMM_MONSTER_RANKS = {
 	custom: {
 		armor_class: 0,
 		hit_points: 1,
-		attack_bonus: 0,
+		ability_bonus: 0,
 		damage_per_action: 1,
 		saving_throws: 0,
 		attack_dcs: 0,

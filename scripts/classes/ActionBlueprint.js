@@ -64,6 +64,8 @@ const ActionBlueprint = (function () {
                 Activities.readActivityIntoBlueprintData(damageActivity, blueprintData, { shared: false, gate: false });
             }
 
+            Activities.readItemUsesIntoBlueprintData(item, blueprintData);
+
             return blueprint;
         } catch (error) {
             console.error("Failed to load blueprint data from the current item", error);
@@ -119,6 +121,12 @@ const ActionBlueprint = (function () {
             } catch (e) {
                 console.warn("GMM | deriveFromVanillaItem: readActivityIntoBlueprintData failed", e);
             }
+        }
+
+        try {
+            Activities.readItemUsesIntoBlueprintData(item, blueprintData);
+        } catch (e) {
+            console.warn("GMM | deriveFromVanillaItem: readItemUsesIntoBlueprintData failed", e);
         }
 
         try {
