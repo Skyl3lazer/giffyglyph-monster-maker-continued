@@ -863,10 +863,11 @@ const Activities = (function () {
         return null;
     }
 
-    /* Fields not listed here belong to dnd5e or another module; ForcedReplacement would reset them. */
+    /* Fields not listed here belong to dnd5e or another module; ForcedReplacement would reset them.
+     * `effects` is owned by `_setEffectMembership` */
     const GMM_OWNED_ACTIVITY_FIELDS = new Set([
         "_id", "type", "name", "sort", "activation", "consumption", "description",
-        "duration", "range", "target", "uses", "attack", "damage", "healing", "save"
+        "duration", "range", "target", "uses", "attack", "damage", "healing", "save", "effects"
     ]);
 
     /* ForcedReplacement so a type swap leaves no stale sub-fields. */

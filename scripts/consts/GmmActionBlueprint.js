@@ -43,7 +43,7 @@ export const GMM_ACTION_BLUEPRINT = {
 		target: {
 			value: null,
 			units: null,
-			type: null,
+			type: "creature",
 			width: null
 		},
 		range: {
