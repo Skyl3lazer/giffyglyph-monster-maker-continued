@@ -10,15 +10,21 @@
 ## v2.0.1.1
 
 * Removed optional dependencies - foundry was breaking and making them all required.
+* Using a limited action now actually spends a use. An action authored `1/day` or `recharge 5-6` used to print the number and never touch it, so the count on the stat block was decoration and a GM who trusted it was tracking a resource nothing enforced. That number is now real.
+	* You get dnd5e's usual "use this" prompt on a limited action, the same one a vanilla monster feature gets. Untick the box in it to fire the action without paying for it.
+	* An action with nothing left refuses to fire and says why. Recharge it, rest, untick the box, or type a new remaining count on the sheet.
+	* A `recharge 5-6` action is spent when you use it, and the d6 button brings it back. The charged marker follows what actually happened instead of waiting to be ticked by hand.
+	* The count now lives on the action itself rather than inside its generated activity, which is where the rest of Foundry looks for it. A scaler switched to the vanilla NPC sheet shows its uses and its recharge button there too. Existing monsters are converted for you when the world loads.
+	* Setting an action's cost to "charges" against itself used to refuse the action outright. It works now, and it takes the quantity you asked for.
 * Short rest and long rest buttons on the Forge sheet. They run the same rest a vanilla NPC sheet does, so everything that recovers on a rest now actually recovers: paragon defenses refill on a long rest, and an action set to recharge on a short rest, long rest or day gets its uses back.
-* "Day" uses come back on a long rest that is a new day.
-* The long rest card now names the paragon defense pool it refilled instead of printing the internal flag path.
+	* "Day" uses come back on a long rest that is a new day.
+	* The long rest card now names the paragon defense pool it refilled instead of printing the internal flag path.
 * GMM conditions are now a real compendium of effects. Foundry v14 lets a module ship active effects directly, so the eighteen expanded conditions live in a new **GMM Effects** compendium, instead of being hidden on a placeholder actor you had to open first. You can browse, search, and drag them straight onto a token.
 	* Each condition now states its rarity the way the book does. This will be used later to try to estimate Scaler point values!
 	* This needs Foundry v14. On v13 the new compendium cannot exist at all, so the old **GMM Conditions (Legacy)** compendium is still there with the same conditions on its placeholder actor. It is frozen and won't get any updates, namely automation.
 	* If you use the *Side Effects* module, you can point its effect compendium setting at GMM Effects, or copy the conditions into your own effect compendium.
 	* Also in v14, there are basic automations for the conditions, utilizing both base effects, *MidiQOL*, and *Automated Conditions 5e*.
-* Dropped the *DFreds Convenient Effects* importable file and the leftover Convenient Effects data on the conditions.
+	* Dropped the *DFreds Convenient Effects* importable file and the leftover Convenient Effects data on the conditions.
 * More attributes are handled correctly now though effects and visually displayed as changed on the sheet when effects are active. This includes (temp)max HP, initiative, skill modifiers, attribute modifiers, global mods (i.e. +2 to all checks), and proficiency.
 * [hpMax] now targets `effective_maximum`, so is modified by temporary max HP, and effects like 2014's exhaustion. A new [naturalMax] shortcode has been added to reference the monster's max hp ignoring temp max.
 * The Proficiency block on the artifact is now "To-Hit Bonus". By default that matches proficiency, but modifiers will now make sense.
@@ -26,12 +32,12 @@
 * Deferral automation! Deferred abilities will now properly wait before rolling attacks or applying effects where appropriate. This is compatible with *MidiQOL*, but some amount of the automation works without it.
 * Updated compendiums to include proper appropriate effects, etc, to let them function with as much automation as has been built. The entries will indicate in their description how they're automated.
 * Shortcodes are now available in the effects editor (including with *Dyamic Active Effects*). They can be accessed with `@gmm.*`, where * is the shortcode. This does not support roll formula shortcodes (things like `[damage, damageDie]`) since you can just either alter the outgoing damage with an effect, or alter `@gmm.damageDie` for the scaling ability. 
-
-## v2.0.1.0
-
+* Items with uses/charges track correctly again, broken since the v14 update.
+* The "Custom" rank's "Attack Bonus" field is now "Ability Bonus", which is the modifier the real ranks actually carry (elite +1, paragon +2).
+* Dropping an item onto a scaling monster no longer strips its attunement requirement. 
 * The sheet-converted level now reads the challenge rating directly instead of the experience value dnd5e works out from it. This lets stuff like the +1 CR "in lair" change matter. It also means that GMM's level/rank calculation can matter, so a CR14 isn't always a level 14 scaler if it's also an elite or paragon.
 	* This does leave a weird edge case I'm thinking about - a CR14 monster that doesn't have legendary or lair actions becomes a level 22 grunt. Is that OK? I'm not sure yet.
-* A converted monster with no challenge rating at all now starts at level 1 rather than level -5.
+	* A converted monster with no challenge rating at all now starts at level 1 rather than level -5.
 * Paragon defenses are now offered on a failed saving throw. With MidiQOL installed you get a prompt before damage is applied. Without Midi the failed-save card gets a button similar to the Legendary Resistance button. Either way it spends the hit point cost and one defense, never spends hit points it cannot survive, and never eats temporary hit points. The pool refills on a long rest.
 * The Legendary Resistance button now follows the stat block: if paragon defenses have replaced the legendary resistances section on the sheet, the button stops appearing too. Tick "always show" on legendary resistances to see both if you really want to.
 * Paragon actions are now tracked in combat: taking a full action outside its own turn spends one, and the pool refills at the start of its turn and at the start of a fight. You'll get a warning if you take an action with no paragon actions available.
