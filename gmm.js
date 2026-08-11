@@ -136,6 +136,18 @@ Hooks.once("init", function() {
 		}
 	});
 
+	/* No builder can delete an embedded document, so a clock whose deferral is gone is disposed of here.
+	   Gated on the acting client, so two owners do not race the same deletion. */
+	Hooks.on("updateItem", (item, _change, _options, userId) => {
+		if (game.user.id !== userId) return;
+		try {
+			const clock = Activities.strandedDoomClock(item);
+			if (clock) clock.delete().catch(e => console.warn("GMM | stranded doom-clock cleanup failed", e));
+		} catch (e) {
+			console.warn("GMM | stranded doom-clock check failed", e);
+		}
+	});
+
 	// Re-render the owning monster sheet when an embedded ActiveEffect changes, keeping the forge's effect lists in sync.
 	const _rerenderForEffect = (effect) => {
 		try {

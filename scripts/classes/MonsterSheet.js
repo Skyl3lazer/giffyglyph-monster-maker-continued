@@ -192,6 +192,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         if (!categories) return;
         for (const category of Object.values(categories)) {
             if (!Array.isArray(category?.effects)) continue;
+            // GMMC forges these and rewrites them on every save. A mode toggle would misapply the doom.
+            category.effects = category.effects.filter(e => !Activities.GMM_FORGED_EFFECT_IDS.has(e?.id));
             for (const entry of category.effects) {
                 if (!entry?.parentId) continue;
                 const item = this.actor.items.get(entry.parentId);

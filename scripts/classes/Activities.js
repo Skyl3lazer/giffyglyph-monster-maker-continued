@@ -25,6 +25,9 @@ const Activities = (function () {
 
     const GMM_DOOM_CLOCK_IMG = "icons/magic/death/hand-dirt-undead-zombie.webp";
 
+    /* Rewritten from the blueprint on every save, so nothing may mistake one for an effect the GM attached. */
+    const GMM_FORGED_EFFECT_IDS = new Set([GMM_DOOM_CLOCK_EFFECT_ID, Durations.GMM_DURATION_EFFECT_ID]);
+
     /* Neither `inst` nor a measured span: midi cleans up the templates of both, on timings GMMC does not own. */
     const GMM_PLANT_DURATION_UNITS = "spec";
 
@@ -385,8 +388,6 @@ const Activities = (function () {
         if (dooming) {
             data.duration = _gateDuration(data.duration);
             _applyPayloadFields(data, blueprintData, type, { damage: false });
-            // Declared, so the preserve step cannot leave an authored effect applying a turn early.
-            data.effects = [{ _id: GMM_DOOM_CLOCK_EFFECT_ID }];
             return data;
         }
 
@@ -872,27 +873,27 @@ const Activities = (function () {
     function buildActivityUpdate(item, blueprint) {
         const update = { "system.uses": _buildUses(blueprint?.data ?? blueprint ?? {}) };
         const duration = buildDurationEffectData(blueprint);
-        const hostId = payloadActivityId(blueprint);
 
         const primary = _mergeForeignFields(item, GMM_ACTIVITY_ID, buildActivityData(blueprint));
-        _setDurationEffectMembership(primary, !!duration && hostId === GMM_ACTIVITY_ID);
-        _wrapActivity(update, GMM_ACTIVITY_ID, primary);
-
         const deferredData = buildDeferredActivityData(blueprint);
-        if (deferredData) {
-            const merged = _mergeForeignFields(item, GMM_DEFERRED_ACTIVITY_ID, deferredData);
+        const deferred = deferredData
+            ? _mergeForeignFields(item, GMM_DEFERRED_ACTIVITY_ID, deferredData)
+            : null;
+        if (deferred) {
             // Declared in the builder they would suppress the preserve step and drop the GM's midi config.
-            merged.midiProperties = {
-                ...(merged.midiProperties ?? {}),
+            deferred.midiProperties = {
+                ...(deferred.midiProperties ?? {}),
                 automationOnly: true,
                 // Left true, midi adopts this as the gate's other activity and suspends waiting for its damage.
                 otherActivityCompatible: false
             };
-            _setDurationEffectMembership(merged, !!duration && hostId === GMM_DEFERRED_ACTIVITY_ID);
-            _wrapActivity(update, GMM_DEFERRED_ACTIVITY_ID, merged);
-        } else {
-            Object.assign(update, _buildActivityDeletion(item, GMM_DEFERRED_ACTIVITY_ID));
         }
+
+        _setEffectMembership(item, blueprint, { primary, deferred, duration: !!duration });
+
+        _wrapActivity(update, GMM_ACTIVITY_ID, primary);
+        if (deferred) _wrapActivity(update, GMM_DEFERRED_ACTIVITY_ID, deferred);
+        else Object.assign(update, _buildActivityDeletion(item, GMM_DEFERRED_ACTIVITY_ID));
 
         // An embedded-collection array upserts by `_id`. This creates them once and updates them after.
         const effects = [];
@@ -904,12 +905,51 @@ const Activities = (function () {
         return update;
     }
 
-    /* The duration must not start a round before the effect it measures, which is why membership rides
-     * the payload activity. The preserve step has already restored the GM's own entries. */
-    function _setDurationEffectMembership(data, present) {
-        const existing = Array.isArray(data.effects) ? data.effects : [];
-        const filtered = existing.filter(e => e?._id !== Durations.GMM_DURATION_EFFECT_ID);
-        data.effects = present ? [...filtered, { _id: Durations.GMM_DURATION_EFFECT_ID }] : filtered;
+    /* Placed, not carried: membership rides the host so nothing applies a turn before its payload, and
+     * moving the host cannot strand an entry behind. The only writer of either `effects` array. */
+    function _setEffectMembership(item, blueprint, { primary, deferred, duration }) {
+        const hostId = payloadActivityId(blueprint);
+        const gateId = isDoomingDeferral(blueprint) ? gateActivityId(blueprint) : null;
+        const authored = _authoredEffectEntries(item);
+
+        for (const [activityId, data] of [[GMM_ACTIVITY_ID, primary], [GMM_DEFERRED_ACTIVITY_ID, deferred]]) {
+            if (!data) continue;
+            const entries = [];
+            if (activityId === gateId) entries.push({ _id: GMM_DOOM_CLOCK_EFFECT_ID });
+            if (activityId === hostId) {
+                if (duration) entries.push({ _id: Durations.GMM_DURATION_EFFECT_ID });
+                entries.push(...authored);
+            }
+            data.effects = entries;
+        }
+    }
+
+    /* Read from the item, not from the objects being built, so an entry on an activity this save is
+     * about to delete is still found. Whole entries: `AppliedEffectField` also carries a level range. */
+    function _authoredEffectEntries(item) {
+        const seen = new Set();
+        const entries = [];
+        for (const activityId of GMM_ACTIVITY_IDS) {
+            const existing = AutomationHelpers.activitySource(item, activityId);
+            for (const entry of (Array.isArray(existing?.effects) ? existing.effects : [])) {
+                const id = entry?._id;
+                if (!id || seen.has(id) || GMM_FORGED_EFFECT_IDS.has(id)) continue;
+                const effect = item?.effects?.get?.(id)
+                    ?? item?._source?.effects?.find?.(e => e?._id === id);
+                // Always mode is the GM's choice and carrying the entry anyway would undo it.
+                if (effect?.transfer !== false) continue;
+                seen.add(id);
+                entries.push(entry);
+            }
+        }
+        return entries;
+    }
+
+    /* The clock document outlives the deferral that forged it: no builder can delete an embedded
+     * document, so the caller does it once the update has landed. */
+    function strandedDoomClock(item) {
+        if (isDoomingDeferral(item?.flags?.gmm?.blueprint)) return null;
+        return item?.effects?.get?.(GMM_DOOM_CLOCK_EFFECT_ID) ?? null;
     }
 
     function _mergeForeignFields(item, activityId, data) {
@@ -1550,7 +1590,9 @@ const Activities = (function () {
         GMM_ACTIVITY_ID,
         GMM_DEFERRED_ACTIVITY_ID,
         GMM_DOOM_CLOCK_EFFECT_ID,
+        GMM_FORGED_EFFECT_IDS,
         isGmmActivityId,
+        strandedDoomClock,
         readDeferral,
         isAutomatedDeferral,
         isDelayedDeferral,

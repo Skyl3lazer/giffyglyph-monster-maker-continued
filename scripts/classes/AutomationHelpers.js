@@ -69,13 +69,19 @@ const AutomationHelpers = (function () {
 		actor.overrides = foundry.utils.mergeObject(actor.overrides ?? {}, foundry.utils.expandObject(overrides));
 	}
 
-	/* Anything outside `ownedFields` was written by another module and a forced replacement would reset it. */
-	function preserveForeignActivityFields(item, activityId, newData, ownedFields) {
+	/* Raw data for one activity, from a prepared item or from creation data; neither shape can be assumed. */
+	function activitySource(item, activityId) {
 		const activity = item?.system?.activities?.get?.(activityId);
 		const existing = activity
 			? (activity.toObject?.() ?? activity._source)
 			: item?._source?.system?.activities?.[activityId];
-		if (!existing || typeof existing !== "object") return newData;
+		return (existing && typeof existing === "object") ? existing : null;
+	}
+
+	/* Anything outside `ownedFields` was written by another module and a forced replacement would reset it. */
+	function preserveForeignActivityFields(item, activityId, newData, ownedFields) {
+		const existing = activitySource(item, activityId);
+		if (!existing) return newData;
 
 		const merged = { ...newData };
 		for (const [key, value] of Object.entries(existing)) {
@@ -109,6 +115,7 @@ const AutomationHelpers = (function () {
 	return {
 		collectOverwrittenEffects: collectOverwrittenEffects,
 		applyOverwrittenEffects: applyOverwrittenEffects,
+		activitySource: activitySource,
 		preserveForeignActivityFields: preserveForeignActivityFields,
 		resolveSourceItem: resolveSourceItem
 	};

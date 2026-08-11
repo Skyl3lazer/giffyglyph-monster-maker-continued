@@ -166,8 +166,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         for (const category of Object.values(categories)) {
             if (!Array.isArray(category?.effects)) continue;
             // GMMC forges these and rewrites them on every save. Offering them for editing would mislead.
-            category.effects = category.effects.filter(e =>
-                e?.id !== Activities.GMM_DOOM_CLOCK_EFFECT_ID && e?.id !== Durations.GMM_DURATION_EFFECT_ID);
+            category.effects = category.effects.filter(e => !Activities.GMM_FORGED_EFFECT_IDS.has(e?.id));
             for (const entry of category.effects) {
                 if (!entry) continue;
                 entry.gmmCanToggleMode = true;
