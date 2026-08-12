@@ -457,24 +457,36 @@ const MonsterBlueprint = (function () {
 	}
 
 	function _getActorAlignment(alignment) {
-		if (alignment?.trim().length == 0) {
+		const trimmed = alignment?.trim();
+		if (!trimmed?.length) {
 			return {
 				category: "",
 				custom: null
 			}
-		} else {
-			let actorAlignment = alignment?.replace(/ /g, '_').trim().toLowerCase();
-			if (GMM_5E_ALIGNMENTS.includes(actorAlignment)) {
-				return {
-					category: actorAlignment,
-					custom: null
-				}
-			} else {
-				return {
-					category: "",
-					custom: alignment.trim()
-				}
+		}
+
+		const actorAlignment = trimmed.replace(/ /g, '_').toLowerCase();
+		if (GMM_5E_ALIGNMENTS.includes(actorAlignment)) {
+			return {
+				category: actorAlignment,
+				custom: null
 			}
+		}
+
+		/* getActorDataFromBlueprint writes a localized label out, so the read back has to invert it. */
+		const localized = GMM_5E_ALIGNMENTS.find(
+			(x) => game.i18n.format(`gmm.common.alignment.${x}`).trim().toLowerCase() === trimmed.toLowerCase()
+		);
+		if (localized) {
+			return {
+				category: localized,
+				custom: null
+			}
+		}
+
+		return {
+			category: "",
+			custom: trimmed
 		}
 	}
 

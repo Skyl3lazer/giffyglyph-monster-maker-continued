@@ -5,8 +5,7 @@ system:
   description:
     value: >-
       <p>Any lawful creature within 10 ft. of you has advantage on saving
-      throws.</p><p><em>Midi and Aura Effects automation. Set the aura's Script
-      to a test for a lawful alignment.</em></p>
+      throws.</p><p><em>Midi and Aura Effects automation.</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,6 +80,7 @@ effects:
       applyToSelf: false
       combatOnly: true
       distanceFormula: '10'
+      script: '(rollData.gmm?.alignment || rollData.details?.alignment || "").toLowerCase().includes("lawful")'
     flags:
       dae:
         stackable: noneName
@@ -100,8 +100,7 @@ flags:
           image: icons/skills/social/trading-justice-scale-yellow.webp
           text: >-
             <p>Any lawful creature within 10 ft. of you has advantage on saving
-            throws.</p><p><em>Midi and Aura Effects automation. Set the aura's
-            Script to a test for a lawful alignment.</em></p>
+            throws.</p><p><em>Midi and Aura Effects automation.</em></p>
         activation:
           type: ''
           cost: null

@@ -5,9 +5,7 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against spells and other magical
-      effects cast by a chaotic creature.+</p><p><em>+ Midi automation,
-      unfinished. Set advantage.save.all to a condition that is true only
-      against a chaotic caster.</em></p>
+      effects cast by a chaotic creature.</p><p><em>Midi automation.</em></p>
     chat: ''
   source: {}
   activation:
@@ -78,7 +76,7 @@ effects:
       changes:
         - key: flags.midi-qol.advantage.save.all
           type: custom
-          value: ''
+          value: '(activity?.item?.type === "spell" || !!activity?.item?.system?.properties?.has?.("mgc")) && (target.gmm?.alignment || target.details?.alignment || "").toLowerCase().includes("chaotic")'
     flags:
       dae:
         stackable: noneName
@@ -98,9 +96,8 @@ flags:
           image: icons/magic/defensive/shield-barrier-flaming-diamond-acid.webp
           text: >-
             <p>You have advantage on saving throws against spells and other
-            magical effects cast by a chaotic creature.+</p><p><em>+ Midi
-            automation, unfinished. Set advantage.save.all to a condition that
-            is true only against a chaotic caster.</em></p>
+            magical effects cast by a chaotic creature.</p><p><em>Midi
+            automation.</em></p>
         activation:
           type: ''
           cost: null

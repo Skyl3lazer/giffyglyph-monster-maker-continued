@@ -95,12 +95,14 @@ const MonsterForge = (function () {
         };
     }
 
-    /* Only the concepts dnd5e has no field of its own for. Everything else is already on the actor. */
+    /* Only concepts dnd5e exposes in no canonical, language-independent form. The rest is already on the actor. */
     function _rollDataSurface(blueprint, { level, attackBonus, saveDc, damage, naturalMax }) {
         return {
             level: level,
             rank: blueprint.data.combat.rank?.type ?? "",
             role: blueprint.data.combat.role?.type ?? "",
+            /* The label written to system.details.alignment is localized, so a gate cannot read it. */
+            alignment: blueprint.data.description?.alignment?.category ?? "",
             attackBonus: attackBonus,
             saveDc: saveDc,
             damage: damage,
