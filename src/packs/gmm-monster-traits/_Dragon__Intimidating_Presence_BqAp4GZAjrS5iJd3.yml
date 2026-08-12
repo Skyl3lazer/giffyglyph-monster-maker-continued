@@ -5,12 +5,11 @@ system:
   description:
     value: >-
       <p>At the start of your turn, each enemy within 30 ft. of you that can
-      hear or see you must succeed on an DC [dcPrimaryBonus +
-      maxMod]&nbsp;Charisma saving throw or be frightened of you until the end
-      of its next turn. If the saving throw succeeds by 5 or more, the creature
-      is immune to your intimidating presence until it finishes a long
-      rest.*</p><p><em>* Core automation (roll it when the trigger
-      fires)</em></p>
+      hear or see you must succeed on an DC [featureDc]&nbsp;Charisma saving
+      throw or be frightened of you until the end of its next turn. If the
+      saving throw succeeds by 5 or more, the creature is immune to your
+      intimidating presence until it finishes a long rest.*</p><p><em>* Core
+      automation (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -84,11 +83,11 @@ flags:
           image: icons/magic/control/fear-fright-monster-grin-red-orange.webp
           text: >-
             <p>At the start of your turn, each enemy within 30 ft. of you that
-            can hear or see you must succeed on an DC [dcPrimaryBonus +
-            maxMod]&nbsp;Charisma saving throw or be frightened of you until the
-            end of its next turn. If the saving throw succeeds by 5 or more, the
-            creature is immune to your intimidating presence until it finishes a
-            long rest.*</p><p><em>* Core automation (roll it when the trigger
+            can hear or see you must succeed on an DC [featureDc]&nbsp;Charisma
+            saving throw or be frightened of you until the end of its next turn.
+            If the saving throw succeeds by 5 or more, the creature is immune to
+            your intimidating presence until it finishes a long
+            rest.*</p><p><em>* Core automation (roll it when the trigger
             fires)</em></p>
         activation:
           type: special

@@ -1,5 +1,6 @@
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import { formatTargetLabel, formatRangeLabel } from "./Labels.js";
+import { buildSaveDcFormula, buildDurationSaveDcFormula } from "./SaveDc.js";
 const Shortcoder = (function () {
     /* `{ code, data?, type?, resolver? }`. `data` = dotted path on monsterData; `resolver(monsterData, itemContext)`
      * overrides `data` (return `undefined` to leave token intact); `type: "string"` strips the brackets after sub. */
@@ -19,6 +20,23 @@ const Shortcoder = (function () {
                 const sum = Number(dc) + Number(mod);
                 return Number.isFinite(sum) ? sum : undefined;
             }
+        },
+        {
+            code: "featureDc",
+            // The value the card already prints, so authored text and card cannot disagree.
+            resolver: (monsterData, itemContext) => {
+                if (!itemContext) return undefined;
+                for (const activity of itemContext.system?.activities ?? []) {
+                    const value = Number(activity?.save?.dc?.value);
+                    if (Number.isFinite(value) && value > 0) return value;
+                }
+                return _resolveDcFormula(buildSaveDcFormula, monsterData, itemContext);
+            }
+        },
+        {
+            code: "durationSaveDc",
+            // No activity to read: an attack-type feature's recurring save lives only in the OverTime string.
+            resolver: (monsterData, itemContext) => _resolveDcFormula(buildDurationSaveDcFormula, monsterData, itemContext)
         },
         { code: "strMod", data: "ability_modifiers.str.value" },
         { code: "dexMod", data: "ability_modifiers.dex.value" },
@@ -100,6 +118,19 @@ const Shortcoder = (function () {
 
     function suggestRollData(code) {
         return ROLL_DATA_EQUIVALENTS[code] ?? null;
+    }
+
+    /* Guarded because a DC shortcode typed into the Modifier field would otherwise recurse forever. */
+    let _resolvingDc = false;
+    function _resolveDcFormula(build, monsterData, itemContext) {
+        const blueprintData = itemContext?.flags?.gmm?.blueprint?.data;
+        if (!blueprintData || !monsterData || _resolvingDc) return undefined;
+        _resolvingDc = true;
+        try {
+            return replaceShortcodes(build(blueprintData), monsterData, false, itemContext);
+        } finally {
+            _resolvingDc = false;
+        }
     }
 
     function _resolveShortcodeValue(entry, monsterData, itemContext) {

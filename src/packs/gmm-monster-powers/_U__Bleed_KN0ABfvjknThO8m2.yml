@@ -5,8 +5,8 @@ system:
   description:
     value: >-
       <p>The target loses one unspent hit die. At the start of each of the
-      creature's turns, the target makes a saving throw (DC [dcPrimaryBonus +
-      maxMod]). On a failed save, the target loses another hit die.</p>
+      creature's turns, the target makes a saving throw (DC [durationSaveDc]).
+      On a failed save, the target loses another hit die.</p>
     chat: ''
   source: {}
   activation:
@@ -81,8 +81,8 @@ flags:
           text: >-
             <p>The target loses one unspent hit die. At the start of each of the
             creature's turns, the target makes a saving throw (DC
-            [dcPrimaryBonus + maxMod]). On a failed save, the target loses
-            another hit die.</p>
+            [durationSaveDc]). On a failed save, the target loses another hit
+            die.</p>
         activation:
           type: action
           cost: null

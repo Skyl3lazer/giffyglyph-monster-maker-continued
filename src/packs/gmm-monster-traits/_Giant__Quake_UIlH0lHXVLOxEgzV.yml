@@ -5,8 +5,8 @@ system:
   description:
     value: >-
       <p>When you land on the ground from a height of 20 ft. or more, each
-      creature within 20 ft. of you must succeed on a DC [dcPrimaryBonus +
-      maxMod]&nbsp;Strength saving throw or fall prone.*</p><p><em>* Core
+      creature within 20 ft. of you must succeed on a DC
+      [featureDc]&nbsp;Strength saving throw or fall prone.*</p><p><em>* Core
       automation (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
@@ -97,9 +97,9 @@ flags:
           image: icons/skills/melee/spear-tips-triple-orange.webp
           text: >-
             <p>When you land on the ground from a height of 20 ft. or more, each
-            creature within 20 ft. of you must succeed on a DC [dcPrimaryBonus +
-            maxMod]&nbsp;Strength saving throw or fall prone.*</p><p><em>* Core
-            automation (roll it when the trigger fires)</em></p>
+            creature within 20 ft. of you must succeed on a DC
+            [featureDc]&nbsp;Strength saving throw or fall prone.*</p><p><em>*
+            Core automation (roll it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>When you critically hit a creature with an attack, the creature must
-      succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving throw or be
-      poisoned until the end of its next turn.*</p><p><em>* Core automation
-      (roll it when the trigger fires)</em></p>
+      succeed on a DC [featureDc] Constitution saving throw or be poisoned until
+      the end of its next turn.*</p><p><em>* Core automation (roll it when the
+      trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -101,9 +101,9 @@ flags:
           image: icons/magic/nature/leaf-drip-light-green.webp
           text: >-
             <p>When you critically hit a creature with an attack, the creature
-            must succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving
-            throw or be poisoned until the end of its next turn.*</p><p><em>*
-            Core automation (roll it when the trigger fires)</em></p>
+            must succeed on a DC [featureDc] Constitution saving throw or be
+            poisoned until the end of its next turn.*</p><p><em>* Core
+            automation (roll it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

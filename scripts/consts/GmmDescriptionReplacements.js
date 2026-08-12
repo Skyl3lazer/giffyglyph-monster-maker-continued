@@ -8,9 +8,9 @@ export const GMM_DESCRIPTION_REPLACEMENTS = [
 		replacement: "[name]"
 	},
 	{
-		// `[[lookup @save.dc.value [activity=<id>]]]` -> save DC formula
+		// `[[lookup @save.dc.value [activity=<id>]]]` -> the same activity DC, as a shortcode
 		pattern: /\[\[lookup\s+@save\.dc\.value(?:\s+activity=[^\s\]]+)?\]\]/gi,
-		replacement: "[dcPrimaryBonus+maxMod]"
+		replacement: "[featureDc]"
 	},
 	{
 		// `[[lookup @target.template.size [activity=<id>]]]` -> `[target]`

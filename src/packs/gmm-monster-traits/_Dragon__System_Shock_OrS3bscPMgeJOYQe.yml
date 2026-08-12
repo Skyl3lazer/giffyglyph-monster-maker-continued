@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>When you reduce a creature to 0 hit points, it must succeed on a DC
-      [dcPrimaryBonus + maxMod]&nbsp;Charisma saving throw or be frightened of
-      you until it finishes a long rest.*</p><p><em>* Core automation (roll it
-      when the trigger fires)</em></p>
+      [featureDc]&nbsp;Charisma saving throw or be frightened of you until it
+      finishes a long rest.*</p><p><em>* Core automation (roll it when the
+      trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,9 +81,9 @@ flags:
           image: icons/magic/lightning/fist-unarmed-strike-blue-green.webp
           text: >-
             <p>When you reduce a creature to 0 hit points, it must succeed on a
-            DC [dcPrimaryBonus + maxMod]&nbsp;Charisma saving throw or be
-            frightened of you until it finishes a long rest.*</p><p><em>* Core
-            automation (roll it when the trigger fires)</em></p>
+            DC [featureDc]&nbsp;Charisma saving throw or be frightened of you
+            until it finishes a long rest.*</p><p><em>* Core automation (roll it
+            when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

@@ -89,12 +89,13 @@ const GmmItem = (function () {
         if (!_isGmmActionItem(this)) return;
         const gmmMonster = this.getOwningGmmMonster();
         if (!gmmMonster) return;
+        // Ahead of the description, because `[featureDc]` reads the activity's resolved DC.
+        Activities.resolveActivityFormulas(this, gmmMonster);
+        Durations.resolveEffectFormulas(this, gmmMonster);
         if (this.system?.description?.value) {
             // `this` is passed so item-scoped shortcodes like `[target]` can reach the owning blueprint.
             this.system.description.value = Shortcoder.replaceShortcodes(this.system.description.value, gmmMonster, false, this);
         }
-        Activities.resolveActivityFormulas(this, gmmMonster);
-        Durations.resolveEffectFormulas(this, gmmMonster);
     }
 
     function _onPreRollAttack(rollConfig, dialogConfig, _messageConfig) {

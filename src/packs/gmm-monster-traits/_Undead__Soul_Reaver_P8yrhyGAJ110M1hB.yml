@@ -5,8 +5,8 @@ system:
   description:
     value: >-
       <p>When you reduce a creature to 0 hit points, that creature must succeed
-      on a DC [dcPrimaryBonus + maxMod] Charisma saving throw or have its soul
-      reaved. A reaved creature can't be revived by any means short of a Wish
+      on a DC [featureDc] Charisma saving throw or have its soul reaved. A
+      reaved creature can't be revived by any means short of a Wish
       spell.*</p><p><em>* Core automation (roll it when the trigger
       fires)</em></p>
     chat: ''
@@ -82,10 +82,10 @@ flags:
           image: icons/magic/death/weapon-scythe-rune-green.webp
           text: >-
             <p>When you reduce a creature to 0 hit points, that creature must
-            succeed on a DC [dcPrimaryBonus + maxMod] Charisma saving throw or
-            have its soul reaved. A reaved creature can't be revived by any
-            means short of a Wish spell.*</p><p><em>* Core automation (roll it
-            when the trigger fires)</em></p>
+            succeed on a DC [featureDc] Charisma saving throw or have its soul
+            reaved. A reaved creature can't be revived by any means short of a
+            Wish spell.*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
           type: special
           cost: null

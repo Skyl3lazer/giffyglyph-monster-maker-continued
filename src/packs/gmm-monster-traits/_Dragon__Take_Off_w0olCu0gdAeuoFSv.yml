@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>When you leave the ground to fly, each creature within 20 ft. of you
-      must succeed on a DC [dcPrimaryBonus + maxMod]&nbsp;Strength saving throw
-      or be pushed back up to 10 ft.*</p><p><em>* Core automation (roll it when
-      the trigger fires)</em></p>
+      must succeed on a DC [featureDc]&nbsp;Strength saving throw or be pushed
+      back up to 10 ft.*</p><p><em>* Core automation (roll it when the trigger
+      fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,9 +81,9 @@ flags:
           image: icons/magic/air/wind-tornado-funnel-damage-blue.webp
           text: >-
             <p>When you leave the ground to fly, each creature within 20 ft. of
-            you must succeed on a DC [dcPrimaryBonus + maxMod]&nbsp;Strength
-            saving throw or be pushed back up to 10 ft.*</p><p><em>* Core
-            automation (roll it when the trigger fires)</em></p>
+            you must succeed on a DC [featureDc]&nbsp;Strength saving throw or
+            be pushed back up to 10 ft.*</p><p><em>* Core automation (roll it
+            when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

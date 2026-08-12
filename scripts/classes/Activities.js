@@ -1,6 +1,7 @@
 import AutomationHelpers from "./AutomationHelpers.js";
 import Durations from "./Durations.js";
 import Shortcoder from "./Shortcoder.js";
+import { buildSaveDcFormula, buildDurationSaveDcFormula } from "./SaveDc.js";
 import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
 
 /* The blueprint is the authored source of truth; every activity here is a generated mirror of it. */
@@ -510,7 +511,7 @@ const Activities = (function () {
         return Durations.buildEffectData(blueprintData, {
             name: blueprintData.description?.name || "",
             img: blueprintData.description?.image,
-            saveDc: buildSaveDcFormula(blueprintData),
+            saveDc: buildDurationSaveDcFormula(blueprintData),
             damage: first ? { formula: first.formula, type: first.type } : null
         });
     }
@@ -659,15 +660,6 @@ const Activities = (function () {
         }
 
         return { targets, scaling: { allowed: false, max: "" }, spellSlot: false };
-    }
-
-    function buildSaveDcFormula(blueprintData) {
-        const a = blueprintData.attack ?? {};
-        const parts = ["[dcPrimaryBonus]"];
-        // `attack.bonus` is a DC modifier on a save action and an attack-roll modifier otherwise.
-        if (a.bonus && a.type === "save") parts.push(String(a.bonus));
-        if (a.related_stat) parts.push(`[${a.related_stat}Mod]`);
-        return parts.join(" + ");
     }
 
     function _collectDamageParts(blueprintData) {

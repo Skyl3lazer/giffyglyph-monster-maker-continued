@@ -5,8 +5,8 @@ system:
   description:
     value: >-
       <p>When you are reduced to 0 hit points, each creature within 10 ft. must
-      succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or take
-      75% ([round(damage*0.75), damageDie]) acid damage.*</p><p><em>* Core
+      succeed on a DC [featureDc] Dexterity saving throw or take 75%
+      ([round(damage*0.75), damageDie]) acid damage.*</p><p><em>* Core
       automation (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
@@ -81,10 +81,9 @@ flags:
           image: icons/creatures/slimes/slime-movement-splash-green.webp
           text: >-
             <p>When you are reduced to 0 hit points, each creature within 10 ft.
-            must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving
-            throw or take 75% ([round(damage*0.75), damageDie]) acid
-            damage.*</p><p><em>* Core automation (roll it when the trigger
-            fires)</em></p>
+            must succeed on a DC [featureDc] Dexterity saving throw or take 75%
+            ([round(damage*0.75), damageDie]) acid damage.*</p><p><em>* Core
+            automation (roll it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

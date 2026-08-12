@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>Any creature that takes a breath within 30 ft. of you must make a DC
-      [dcPrimaryBonus + maxMod] Constitution saving throw or take poison damage
-      equal to your combat level ([level]).*</p><p><em>* Core automation (roll
-      it when the trigger fires)</em></p>
+      [featureDc] Constitution saving throw or take poison damage equal to your
+      combat level ([level]).*</p><p><em>* Core automation (roll it when the
+      trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,9 +81,9 @@ flags:
           image: icons/magic/nature/plant-undersea-seaweed-glow-green.webp
           text: >-
             <p>Any creature that takes a breath within 30 ft. of you must make a
-            DC [dcPrimaryBonus + maxMod] Constitution saving throw or take
-            poison damage equal to your combat level ([level]).*</p><p><em>*
-            Core automation (roll it when the trigger fires)</em></p>
+            DC [featureDc] Constitution saving throw or take poison damage equal
+            to your combat level ([level]).*</p><p><em>* Core automation (roll
+            it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

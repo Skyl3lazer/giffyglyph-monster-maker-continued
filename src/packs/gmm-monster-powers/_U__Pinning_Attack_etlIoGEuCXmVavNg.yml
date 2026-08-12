@@ -3,9 +3,7 @@ type: feat
 img: icons/skills/melee/strike-dagger-white-orange.webp
 system:
   description:
-    value: >-
-      <p>The target is restrained (DC [dcPrimaryBonus + maxMod] Strength save
-      ends).</p>
+    value: <p>The target is restrained (DC [durationSaveDc] Strength save ends).</p>
     chat: ''
   source: {}
   activation:
@@ -78,8 +76,8 @@ flags:
           name: (U) Pinning Attack
           image: icons/skills/melee/strike-dagger-white-orange.webp
           text: >-
-            <p>The target is restrained (DC [dcPrimaryBonus + maxMod] Strength
-            save ends).</p>
+            <p>The target is restrained (DC [durationSaveDc] Strength save
+            ends).</p>
         activation:
           type: action
           cost: null

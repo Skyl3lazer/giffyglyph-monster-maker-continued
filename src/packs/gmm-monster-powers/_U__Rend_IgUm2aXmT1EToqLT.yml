@@ -5,8 +5,8 @@ system:
   description:
     value: >-
       <p>At the start of each of the creature's turns, the target makes a saving
-      throw (DC [dcPrimaryBonus + maxMod]). On a failed save, the target takes
-      this damage again.</p>
+      throw (DC [durationSaveDc]). On a failed save, the target takes this
+      damage again.</p>
     chat: ''
   source: {}
   activation:
@@ -82,8 +82,8 @@ flags:
           image: icons/skills/melee/blood-slash-foam-red.webp
           text: >-
             <p>At the start of each of the creature's turns, the target makes a
-            saving throw (DC [dcPrimaryBonus + maxMod]). On a failed save, the
-            target takes this damage again.</p>
+            saving throw (DC [durationSaveDc]). On a failed save, the target
+            takes this damage again.</p>
         activation:
           type: action
           cost: null

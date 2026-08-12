@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>When you move through a smaller creature's space, the creature must
-      succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or take
-      bludgeoning damage equal to your combat level ([level]).*</p><p><em>* Core
-      automation (roll it when the trigger fires)</em></p>
+      succeed on a DC [featureDc] Dexterity saving throw or take bludgeoning
+      damage equal to your combat level ([level]).*</p><p><em>* Core automation
+      (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,8 +81,8 @@ flags:
           image: icons/equipment/feet/boots-collared-simple-leather.webp
           text: >-
             <p>When you move through a smaller creature's space, the creature
-            must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving
-            throw or take bludgeoning damage equal to your combat level
+            must succeed on a DC [featureDc] Dexterity saving throw or take
+            bludgeoning damage equal to your combat level
             ([level]).*</p><p><em>* Core automation (roll it when the trigger
             fires)</em></p>
         activation:

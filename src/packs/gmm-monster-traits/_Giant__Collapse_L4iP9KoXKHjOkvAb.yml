@@ -5,8 +5,8 @@ system:
   description:
     value: >-
       <p>When you are reduced to 0 hit points, each creature within 20 ft. must
-      succeed on a DC [dcPrimaryBonus + maxMod]&nbsp;Strength saving throw or
-      fall prone.*</p><p><em>* Core automation (roll it when the trigger
+      succeed on a DC [featureDc]&nbsp;Strength saving throw or fall
+      prone.*</p><p><em>* Core automation (roll it when the trigger
       fires)</em></p>
     chat: ''
   source: {}
@@ -81,9 +81,9 @@ flags:
           image: icons/magic/earth/explosion-lava-stone-yellow.webp
           text: >-
             <p>When you are reduced to 0 hit points, each creature within 20 ft.
-            must succeed on a DC [dcPrimaryBonus + maxMod]&nbsp;Strength saving
-            throw or fall prone.*</p><p><em>* Core automation (roll it when the
-            trigger fires)</em></p>
+            must succeed on a DC [featureDc]&nbsp;Strength saving throw or fall
+            prone.*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
           type: special
           cost: null

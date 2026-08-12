@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>When you critically hit a creature with a melee weapon attack, the
-      creature must succeed on a DC [dcPrimaryBonus + maxMod]&nbsp;Constitution
-      saving throw or be stunned until the end of its next turn.*</p><p><em>*
-      Core automation (roll it when the trigger fires)</em></p>
+      creature must succeed on a DC [featureDc]&nbsp;Constitution saving throw
+      or be stunned until the end of its next turn.*</p><p><em>* Core automation
+      (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -101,10 +101,10 @@ flags:
           image: icons/skills/wounds/injury-face-impact-orange.webp
           text: >-
             <p>When you critically hit a creature with a melee weapon attack,
-            the creature must succeed on a DC [dcPrimaryBonus +
-            maxMod]&nbsp;Constitution saving throw or be stunned until the end
-            of its next turn.*</p><p><em>* Core automation (roll it when the
-            trigger fires)</em></p>
+            the creature must succeed on a DC [featureDc]&nbsp;Constitution
+            saving throw or be stunned until the end of its next
+            turn.*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
           type: special
           cost: null

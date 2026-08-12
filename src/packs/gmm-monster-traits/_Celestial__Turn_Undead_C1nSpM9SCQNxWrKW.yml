@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>Any undead creature that starts its turn within 30 ft. of you must
-      succeed on a DC [dcPrimaryBonus + maxMod] Wisdom saving throw or be turned
-      until the start of its next turn.*</p><p><em>* Core automation (roll it
-      when the trigger fires)</em></p>
+      succeed on a DC [featureDc] Wisdom saving throw or be turned until the
+      start of its next turn.*</p><p><em>* Core automation (roll it when the
+      trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,9 +81,9 @@ flags:
           image: icons/magic/death/skeleton-skull-soul-blue.webp
           text: >-
             <p>Any undead creature that starts its turn within 30 ft. of you
-            must succeed on a DC [dcPrimaryBonus + maxMod] Wisdom saving throw
-            or be turned until the start of its next turn.*</p><p><em>* Core
-            automation (roll it when the trigger fires)</em></p>
+            must succeed on a DC [featureDc] Wisdom saving throw or be turned
+            until the start of its next turn.*</p><p><em>* Core automation (roll
+            it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

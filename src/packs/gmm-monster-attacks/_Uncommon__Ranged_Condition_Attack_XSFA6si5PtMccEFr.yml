@@ -69,8 +69,8 @@ flags:
           image: icons/weapons/polearms/spear-ice-crystal-blue.webp
           text: >-
             <p>The target is <em>Frightened</em> of you. The target can make a
-            Charisma saving throw (DC [dcPrimaryBonus + maxMod]) at the end of
-            their turns to remove this condition.</p>
+            Charisma saving throw (DC [durationSaveDc]) at the end of their
+            turns to remove this condition.</p>
         activation:
           type: action
           cost: 0
@@ -153,8 +153,8 @@ system:
   description:
     value: >-
       <p>The target is <em>Frightened</em> of you. The target can make a
-      Charisma saving throw (DC [dcPrimaryBonus + maxMod]) at the end of their
-      turns to remove this condition.</p>
+      Charisma saving throw (DC [durationSaveDc]) at the end of their turns to
+      remove this condition.</p>
     chat: ''
     unidentified: ''
   source: ''

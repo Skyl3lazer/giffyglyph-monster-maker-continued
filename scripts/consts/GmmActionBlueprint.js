@@ -57,7 +57,11 @@ export const GMM_ACTION_BLUEPRINT = {
 			value: "",
 			units: "",
 			save: {
-				ability: ""
+				ability: "",
+				modifier: {
+					value: "",
+					override: false
+				}
 			},
 			reapplies: "",
 			cancel: ""

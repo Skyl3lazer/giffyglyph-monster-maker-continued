@@ -17,9 +17,9 @@ flags:
           image: icons/creatures/abilities/stinger-poison-green.webp
           text: >-
             <p>&nbsp;The target can make a Constitution saving throw (DC
-            [dcPrimaryBonus + maxMod]) at the start of their turns. On success,
-            this effect ends. On failure, the target takes [round(damage *
-            1.75), damageDie] acid damage.</p>
+            [durationSaveDc]) at the start of their turns. On success, this
+            effect ends. On failure, the target takes [round(damage * 1.75),
+            damageDie] acid damage.</p>
         activation:
           type: action
           cost: 0
@@ -87,7 +87,7 @@ flags:
 _id: inn7H59CsOx0HyUQ
 system:
   description:
-    value: "<p>\_The target can make a Constitution saving throw (DC [dcPrimaryBonus + maxMod]) at the start of their turns. On success, this effect ends. On failure, the target takes [round(damage * 1.75), damageDie] acid damage.</p>"
+    value: "<p>\_The target can make a Constitution saving throw (DC [durationSaveDc]) at the start of their turns. On success, this effect ends. On failure, the target takes [round(damage * 1.75), damageDie] acid damage.</p>"
     chat: ''
     unidentified: ''
   source: ''

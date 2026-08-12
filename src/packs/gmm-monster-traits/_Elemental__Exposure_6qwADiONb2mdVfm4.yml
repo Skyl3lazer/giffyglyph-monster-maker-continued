@@ -5,10 +5,10 @@ system:
   description:
     value: >-
       <p>When you critically hit a creature, it must succeed on a DC
-      [dcPrimaryBonus + maxMod]&nbsp;Constitution saving throw or be vulnerable
-      to variant damage until the end of your next turn.*</p><p><em>* Core
-      automation (roll it when the trigger fires). Set the Damage Vulnerability
-      change on the effect to the element's damage type.</em></p>
+      [featureDc]&nbsp;Constitution saving throw or be vulnerable to variant
+      damage until the end of your next turn.*</p><p><em>* Core automation (roll
+      it when the trigger fires). Set the Damage Vulnerability change on the
+      effect to the element's damage type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -103,11 +103,11 @@ flags:
           image: icons/magic/water/heart-ice-freeze.webp
           text: >-
             <p>When you critically hit a creature, it must succeed on a DC
-            [dcPrimaryBonus + maxMod]&nbsp;Constitution saving throw or be
-            vulnerable to variant damage until the end of your next
-            turn.*</p><p><em>* Core automation (roll it when the trigger fires).
-            Set the Damage Vulnerability change on the effect to the element's
-            damage type.</em></p>
+            [featureDc]&nbsp;Constitution saving throw or be vulnerable to
+            variant damage until the end of your next turn.*</p><p><em>* Core
+            automation (roll it when the trigger fires). Set the Damage
+            Vulnerability change on the effect to the element's damage
+            type.</em></p>
         activation:
           type: special
           cost: null

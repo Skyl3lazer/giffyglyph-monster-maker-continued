@@ -181,6 +181,8 @@
   "gmm.action.blueprint.duration.length": "Duration",
   "gmm.action.blueprint.duration.reapplies": "Reapplies",
   "gmm.action.blueprint.duration.save": "Duration Save",
+  "gmm.action.blueprint.duration.save_dc": "Save DC Modifier",
+  "gmm.action.blueprint.duration.save_required": "This duration offers no saving throw until an ability is chosen.",
   "gmm.action.blueprint.duration.title": "Duration",
   "gmm.action.blueprint.duration.uncapped": "Uncapped",
   "gmm.action.blueprint.duration.type": "Type",

@@ -6,9 +6,9 @@ system:
     value: >-
       <p>The ground in a 10-foot radius around you is difficult terrain. Each
       creature that starts its turn in that area must succeed on a DC
-      [dcPrimaryBonus + maxMod] Strength saving throw or have its speed reduced
-      to 0 until the start of its next turn.*</p><p><em>* Core automation (roll
-      it when the trigger fires)</em></p>
+      [featureDc] Strength saving throw or have its speed reduced to 0 until the
+      start of its next turn.*</p><p><em>* Core automation (roll it when the
+      trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -83,9 +83,9 @@ flags:
           text: >-
             <p>The ground in a 10-foot radius around you is difficult terrain.
             Each creature that starts its turn in that area must succeed on a DC
-            [dcPrimaryBonus + maxMod] Strength saving throw or have its speed
-            reduced to 0 until the start of its next turn.*</p><p><em>* Core
-            automation (roll it when the trigger fires)</em></p>
+            [featureDc] Strength saving throw or have its speed reduced to 0
+            until the start of its next turn.*</p><p><em>* Core automation (roll
+            it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

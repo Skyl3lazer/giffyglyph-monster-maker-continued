@@ -5,12 +5,12 @@ system:
   description:
     value: >-
       <p>When a creature enters your space (or you enter a creature's space), it
-      must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or
-      be engulfed. While engulfed, the creature can't breathe, is restrained,
-      and takes 100%&nbsp;([round(damage), damageDie]) acid damage at the start
-      of each of your turns. The creature can try to escape on its turn by
-      making a Strength check.*</p><p><em>* Core automation (roll it when the
-      trigger fires)</em></p>
+      must succeed on a DC [featureDc] Dexterity saving throw or be engulfed.
+      While engulfed, the creature can't breathe, is restrained, and takes
+      100%&nbsp;([round(damage), damageDie]) acid damage at the start of each of
+      your turns. The creature can try to escape on its turn by making a
+      Strength check.*</p><p><em>* Core automation (roll it when the trigger
+      fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -84,13 +84,12 @@ flags:
           image: icons/magic/acid/dissolve-bone-ribs-skull.webp
           text: >-
             <p>When a creature enters your space (or you enter a creature's
-            space), it must succeed on a DC [dcPrimaryBonus + maxMod] Dexterity
-            saving throw or be engulfed. While engulfed, the creature can't
-            breathe, is restrained, and takes 100%&nbsp;([round(damage),
-            damageDie]) acid damage at the start of each of your turns. The
-            creature can try to escape on its turn by making a Strength
-            check.*</p><p><em>* Core automation (roll it when the trigger
-            fires)</em></p>
+            space), it must succeed on a DC [featureDc] Dexterity saving throw
+            or be engulfed. While engulfed, the creature can't breathe, is
+            restrained, and takes 100%&nbsp;([round(damage), damageDie]) acid
+            damage at the start of each of your turns. The creature can try to
+            escape on its turn by making a Strength check.*</p><p><em>* Core
+            automation (roll it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

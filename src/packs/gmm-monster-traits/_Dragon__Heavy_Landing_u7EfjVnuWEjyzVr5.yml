@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>When you land on the ground from a height of 20 ft. or more, each
-      creature within 20 ft. of you must succeed on a DC [dcPrimaryBonus +
-      maxMod] Strength saving throw or fall prone.*</p><p><em>* Core automation
-      (roll it when the trigger fires)</em></p>
+      creature within 20 ft. of you must succeed on a DC [featureDc] Strength
+      saving throw or fall prone.*</p><p><em>* Core automation (roll it when the
+      trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,9 +81,9 @@ flags:
           image: icons/magic/earth/barrier-stone-explosion-debris.webp
           text: >-
             <p>When you land on the ground from a height of 20 ft. or more, each
-            creature within 20 ft. of you must succeed on a DC [dcPrimaryBonus +
-            maxMod] Strength saving throw or fall prone.*</p><p><em>* Core
-            automation (roll it when the trigger fires)</em></p>
+            creature within 20 ft. of you must succeed on a DC [featureDc]
+            Strength saving throw or fall prone.*</p><p><em>* Core automation
+            (roll it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

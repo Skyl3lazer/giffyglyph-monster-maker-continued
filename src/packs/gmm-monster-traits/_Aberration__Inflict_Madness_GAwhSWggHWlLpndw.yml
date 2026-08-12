@@ -5,8 +5,8 @@ system:
   description:
     value: >-
       <p>When you reduce a creature to 0 hit points, it must make a DC
-      [dcPrimaryBonus + maxMod] Intelligence saving throw or gain a long term
-      madness effect.*</p><p><em>* Core automation (roll it when the trigger
+      [featureDc] Intelligence saving throw or gain a long term madness
+      effect.*</p><p><em>* Core automation (roll it when the trigger
       fires)</em></p>
     chat: ''
   source: {}
@@ -81,9 +81,9 @@ flags:
           image: icons/magic/perception/eye-ringed-glow-angry-small-red.webp
           text: >-
             <p>When you reduce a creature to 0 hit points, it must make a DC
-            [dcPrimaryBonus + maxMod] Intelligence saving throw or gain a long
-            term madness effect.*</p><p><em>* Core automation (roll it when the
-            trigger fires)</em></p>
+            [featureDc] Intelligence saving throw or gain a long term madness
+            effect.*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
           type: special
           cost: null

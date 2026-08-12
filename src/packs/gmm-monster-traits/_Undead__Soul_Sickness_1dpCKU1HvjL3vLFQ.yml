@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>When a creature touches you or hits you with a melee attack, it must
-      make a DC [dcPrimaryBonus + maxMod] Charisma saving throw or be vulnerable
-      to necrotic damage until the end of its next turn.*</p><p><em>* Core
-      automation (roll it when the trigger fires)</em></p>
+      make a DC [featureDc] Charisma saving throw or be vulnerable to necrotic
+      damage until the end of its next turn.*</p><p><em>* Core automation (roll
+      it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -102,10 +102,9 @@ flags:
           image: icons/magic/death/skull-horned-goat-pentagram-red.webp
           text: >-
             <p>When a creature touches you or hits you with a melee attack, it
-            must make a DC [dcPrimaryBonus + maxMod] Charisma saving throw or be
-            vulnerable to necrotic damage until the end of its next
-            turn.*</p><p><em>* Core automation (roll it when the trigger
-            fires)</em></p>
+            must make a DC [featureDc] Charisma saving throw or be vulnerable to
+            necrotic damage until the end of its next turn.*</p><p><em>* Core
+            automation (roll it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

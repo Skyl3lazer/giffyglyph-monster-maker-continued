@@ -17,9 +17,9 @@ flags:
           image: icons/magic/fire/projectile-arrow-fire-red-yellow.webp
           text: >-
             <p>At the start of their turn, the target can make a Constitution
-            saving throw (DC [dcPrimaryBonus + maxMod]). On success, the
-            condition ends. If they fail, they take [round(damage * 1.75),
-            damageDie] poison damage.</p>
+            saving throw (DC [durationSaveDc]). On success, the condition ends.
+            If they fail, they take [round(damage * 1.75), damageDie] poison
+            damage.</p>
         activation:
           type: action
           cost: 0
@@ -89,8 +89,8 @@ system:
   description:
     value: >-
       <p>At the start of their turn, the target can make a Constitution saving
-      throw (DC [dcPrimaryBonus + maxMod]). On success, the condition ends. If
-      they fail, they take [round(damage * 1.75), damageDie] poison damage.</p>
+      throw (DC [durationSaveDc]). On success, the condition ends. If they fail,
+      they take [round(damage * 1.75), damageDie] poison damage.</p>
     chat: ''
     unidentified: ''
   source: ''

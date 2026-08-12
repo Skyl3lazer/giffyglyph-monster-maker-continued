@@ -5,10 +5,10 @@ system:
   description:
     value: >-
       <p>When you reduce a creature to 0 hit points, it must succeed on a DC
-      [dcPrimaryBonus + maxMod]&nbsp;Constitution saving throw or be vulnerable
-      to variant damage until it finishes a long rest.*</p><p><em>* Core
-      automation (roll it when the trigger fires). Set the Damage Vulnerability
-      change on the effect to the element's damage type.</em></p>
+      [featureDc]&nbsp;Constitution saving throw or be vulnerable to variant
+      damage until it finishes a long rest.*</p><p><em>* Core automation (roll
+      it when the trigger fires). Set the Damage Vulnerability change on the
+      effect to the element's damage type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -101,11 +101,11 @@ flags:
           image: icons/magic/water/barrier-ice-water-cube.webp
           text: >-
             <p>When you reduce a creature to 0 hit points, it must succeed on a
-            DC [dcPrimaryBonus + maxMod]&nbsp;Constitution saving throw or be
-            vulnerable to variant damage until it finishes a long
-            rest.*</p><p><em>* Core automation (roll it when the trigger fires).
-            Set the Damage Vulnerability change on the effect to the element's
-            damage type.</em></p>
+            DC [featureDc]&nbsp;Constitution saving throw or be vulnerable to
+            variant damage until it finishes a long rest.*</p><p><em>* Core
+            automation (roll it when the trigger fires). Set the Damage
+            Vulnerability change on the effect to the element's damage
+            type.</em></p>
         activation:
           type: special
           cost: null

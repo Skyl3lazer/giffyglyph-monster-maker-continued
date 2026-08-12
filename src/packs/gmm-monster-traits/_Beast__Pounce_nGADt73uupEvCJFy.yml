@@ -5,9 +5,8 @@ system:
   description:
     value: >-
       <p>When you critically hit a creature with an attack, it must succeed on a
-      DC [dcPrimaryBonus + maxMod] Strength saving throw or be knocked
-      prone.*</p><p><em>* Core automation (roll it when the trigger
-      fires)</em></p>
+      DC [featureDc] Strength saving throw or be knocked prone.*</p><p><em>*
+      Core automation (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,9 +80,9 @@ flags:
           image: icons/creatures/abilities/cougar-pounce-stalk-black.webp
           text: >-
             <p>When you critically hit a creature with an attack, it must
-            succeed on a DC [dcPrimaryBonus + maxMod] Strength saving throw or
-            be knocked prone.*</p><p><em>* Core automation (roll it when the
-            trigger fires)</em></p>
+            succeed on a DC [featureDc] Strength saving throw or be knocked
+            prone.*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
           type: special
           cost: null

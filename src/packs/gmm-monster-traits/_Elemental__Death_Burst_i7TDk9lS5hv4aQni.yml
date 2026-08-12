@@ -5,10 +5,10 @@ system:
   description:
     value: >-
       <p>When you die, each creature within 10 ft. of you must succeed on a DC
-      [dcPrimaryBonus + maxMod] Dexterity saving throw or take 75%
-      ([round(damage*0.75), damageDie]) variant damage.*</p><p><em>* Core
-      automation (roll it when the trigger fires). Set the damage type on the
-      DAMAGE row to the element's own type.</em></p>
+      [featureDc] Dexterity saving throw or take 75% ([round(damage*0.75),
+      damageDie]) variant damage.*</p><p><em>* Core automation (roll it when the
+      trigger fires). Set the damage type on the DAMAGE row to the element's own
+      type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -82,7 +82,7 @@ flags:
           image: icons/magic/fire/explosion-embers-evade-silhouette.webp
           text: >-
             <p>When you die, each creature within 10 ft. of you must succeed on
-            a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or take 75%
+            a DC [featureDc] Dexterity saving throw or take 75%
             ([round(damage*0.75), damageDie]) variant damage.*</p><p><em>* Core
             automation (roll it when the trigger fires). Set the damage type on
             the DAMAGE row to the element's own type.</em></p>

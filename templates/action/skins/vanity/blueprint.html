@@ -456,8 +456,32 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="form-group form-group--modifier">
+                                <div class="form-group__header">
+                                    <span class="form-group__title">{{localize 'gmm.action.blueprint.duration.save_dc'}}</span>
+                                    <button type="button" class="button button--help" data-action="open-modal" data-modal="modal_shortcodes">
+                                        <i class="fas fa-question"></i>
+                                    </button>
+                                </div>
+                                <div class="form-group__body">
+                                    <input name="gmm.blueprint.duration.save.modifier.value" value="{{gmm.blueprint.duration.save.modifier.value}}" />
+                                    <label class="checkbox">
+                                        <input type="checkbox" name="gmm.blueprint.duration.save.modifier.override" {{#if gmm.blueprint.duration.save.modifier.override}} checked{{/if}} /> {{localize 'gmm.monster.blueprint.is_fixed'}}
+                                    </label>
+                                </div>
+                            </div>
                             {{else}}
                             <input type="hidden" name="gmm.blueprint.duration.save.ability" value="{{gmm.blueprint.duration.save.ability}}" />
+                            <input type="hidden" name="gmm.blueprint.duration.save.modifier.value" value="{{gmm.blueprint.duration.save.modifier.value}}" />
+                            {{! A hidden text input would submit the string "false", which is truthy. }}
+                            <input type="checkbox" name="gmm.blueprint.duration.save.modifier.override" hidden {{#if gmm.blueprint.duration.save.modifier.override}}checked{{/if}} />
+                            {{/if}}
+                            {{#if gmm.duration.rows.saveMissing}}
+                            <div class="form-group form-group--note">
+                                <div class="form-group__body">
+                                    <span>{{localize 'gmm.action.blueprint.duration.save_required'}}</span>
+                                </div>
+                            </div>
                             {{/if}}
                             {{#if gmm.duration.rows.reapplies}}
                             <div class="form-group">

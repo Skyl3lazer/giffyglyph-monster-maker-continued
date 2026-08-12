@@ -22,8 +22,8 @@ const Durations = (function () {
 		end_of_your_turn: { applies: true, expiry: "sourceEnd", rounds: 1 },
 		end_of_target_turn: { applies: true, expiry: "targetEnd", rounds: 1, cancellable: true },
 		timed: { applies: true, hasPeriod: true, periodRequired: true, reappliable: true, cancellable: true },
-		ongoing: { applies: true, hasPeriod: true, hasSave: true, saveTurn: "start", reappliable: true, cancellable: true },
-		save_ends: { applies: true, hasPeriod: true, hasSave: true, saveTurn: "end", reappliable: true, cancellable: true },
+		ongoing: { applies: true, hasPeriod: true, hasSave: true, saveRequired: true, saveTurn: "start", reappliable: true, cancellable: true },
+		save_ends: { applies: true, hasPeriod: true, hasSave: true, saveRequired: true, saveTurn: "end", reappliable: true, cancellable: true },
 		permanent: { applies: true },
 		special: { applies: false }
 	};
@@ -96,6 +96,8 @@ const Durations = (function () {
 				period: !!rules.hasPeriod,
 				periodRequired: !!rules.periodRequired,
 				save: !!rules.hasSave,
+				// midi builds no save at all from a blank ability, so the type cannot work without one.
+				saveMissing: !!rules.saveRequired && !duration.saveAbility,
 				reapplies: !!rules.reappliable,
 				cancel: !!rules.cancellable,
 				concentration: !!rules.hasPeriod

@@ -5,11 +5,11 @@ system:
   description:
     value: >-
       <p>At the start of your turn, each creature within 30 ft. of you that can
-      hear you must succeed on a DC [dcPrimaryBonus + maxMod]&nbsp;Wisdom saving
-      throw or be charmed until the end of its next turn. If the saving throw
-      succeeds by 5 or more, the creature is immune to your sound until it
-      finishes a long rest.*</p><p><em>* Core automation (roll it when the
-      trigger fires)</em></p>
+      hear you must succeed on a DC [featureDc]&nbsp;Wisdom saving throw or be
+      charmed until the end of its next turn. If the saving throw succeeds by 5
+      or more, the creature is immune to your sound until it finishes a long
+      rest.*</p><p><em>* Core automation (roll it when the trigger
+      fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -83,11 +83,11 @@ flags:
           image: icons/tools/instruments/harp-gold-glowing.webp
           text: >-
             <p>At the start of your turn, each creature within 30 ft. of you
-            that can hear you must succeed on a DC [dcPrimaryBonus +
-            maxMod]&nbsp;Wisdom saving throw or be charmed until the end of its
-            next turn. If the saving throw succeeds by 5 or more, the creature
-            is immune to your sound until it finishes a long rest.*</p><p><em>*
-            Core automation (roll it when the trigger fires)</em></p>
+            that can hear you must succeed on a DC [featureDc]&nbsp;Wisdom
+            saving throw or be charmed until the end of its next turn. If the
+            saving throw succeeds by 5 or more, the creature is immune to your
+            sound until it finishes a long rest.*</p><p><em>* Core automation
+            (roll it when the trigger fires)</em></p>
         activation:
           type: special
           cost: null

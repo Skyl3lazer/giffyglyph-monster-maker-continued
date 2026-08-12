@@ -5,10 +5,9 @@ system:
   description:
     value: >-
       <p>When you reduce a creature to 0 hit points, the creature must succeed
-      on a DC [dcPrimaryBonus + maxMod]&nbsp;Constitution saving throw or have
-      disadvantage on Constitution saving throws until it finishes a long
-      rest.*</p><p><em>* Core automation (roll it when the trigger
-      fires)</em></p>
+      on a DC [featureDc]&nbsp;Constitution saving throw or have disadvantage on
+      Constitution saving throws until it finishes a long rest.*</p><p><em>*
+      Core automation (roll it when the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
@@ -82,10 +81,10 @@ flags:
           image: icons/magic/death/undead-skeleton-worn-blue.webp
           text: >-
             <p>When you reduce a creature to 0 hit points, the creature must
-            succeed on a DC [dcPrimaryBonus + maxMod]&nbsp;Constitution saving
-            throw or have disadvantage on Constitution saving throws until it
-            finishes a long rest.*</p><p><em>* Core automation (roll it when the
-            trigger fires)</em></p>
+            succeed on a DC [featureDc]&nbsp;Constitution saving throw or have
+            disadvantage on Constitution saving throws until it finishes a long
+            rest.*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
           type: special
           cost: null
