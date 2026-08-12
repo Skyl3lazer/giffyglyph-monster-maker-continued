@@ -5,11 +5,8 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against being charmed, and magic
-      can&rsquo;t put you to sleep.+</p><p><em>+ Midi
-      automation</em></p><p><em>To finish it, edit this effect and set the value
-      of the <strong>advantage.save.all</strong> change to a midi condition that
-      is true only for saves against being charmed. Left blank the change does
-      nothing. The sleep clause is not automated.</em></p>
+      can&rsquo;t put you to sleep.+</p><p><em>+ CAT automation. The sleep
+      clause is not automated.</em></p>
     chat: ''
   source: {}
   activation:
@@ -78,9 +75,9 @@ effects:
     description: ''
     system:
       changes:
-        - key: flags.midi-qol.advantage.save.all
+        - key: flags.cat.CR.charmed
           type: custom
-          value: ''
+          value: '1'
     flags:
       dae:
         stackable: noneName
@@ -100,12 +97,8 @@ flags:
           image: icons/creatures/magical/fae-fairy-winged-glowing-green.webp
           text: >-
             <p>You have advantage on saving throws against being charmed, and
-            magic can&rsquo;t put you to sleep.+</p><p><em>+ Midi
-            automation</em></p><p><em>To finish it, edit this effect and set the
-            value of the <strong>advantage.save.all</strong> change to a midi
-            condition that is true only for saves against being charmed. Left
-            blank the change does nothing. The sleep clause is not
-            automated.</em></p>
+            magic can&rsquo;t put you to sleep.+</p><p><em>+ CAT automation. The
+            sleep clause is not automated.</em></p>
         activation:
           type: ''
           cost: null

@@ -5,9 +5,8 @@ system:
   description:
     value: >-
       <p>Any creature within 10 ft. of you that has an evil alignment has
-      advantage on saving throws.</p><p><em>Midi and Aura Effects
-      automation</em></p><p><em>Set the aura's Script to a test for an evil
-      alignment.</em></p>
+      advantage on saving throws.</p><p><em>Midi and Aura Effects automation.
+      Set the aura's Script to a test for an evil alignment.</em></p>
     chat: ''
   source: {}
   activation:
@@ -102,8 +101,8 @@ flags:
           text: >-
             <p>Any creature within 10 ft. of you that has an evil alignment has
             advantage on saving throws.</p><p><em>Midi and Aura Effects
-            automation</em></p><p><em>Set the aura's Script to a test for an
-            evil alignment.</em></p>
+            automation. Set the aura's Script to a test for an evil
+            alignment.</em></p>
         activation:
           type: ''
           cost: null

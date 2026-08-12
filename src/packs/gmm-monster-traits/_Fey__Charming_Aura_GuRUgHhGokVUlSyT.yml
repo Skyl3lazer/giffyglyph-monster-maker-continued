@@ -5,10 +5,7 @@ system:
   description:
     value: >-
       <p>Creatures within 10 ft. of you have disadvantage on saving throws
-      against charmed.</p><p><em>Midi and Aura Effects
-      automation</em></p><p><em>Set the value of the
-      <strong>disadvantage.save.all</strong> change to a midi condition for
-      saves against being charmed.</em></p>
+      against charmed.</p><p><em>CAT and Aura Effects automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -77,9 +74,9 @@ effects:
     description: ''
     system:
       changes:
-        - key: flags.midi-qol.disadvantage.save.all
+        - key: flags.cat.CV.charmed
           type: custom
-          value: ''
+          value: '1'
       applyToSelf: false
       combatOnly: true
       distanceFormula: '10'
@@ -102,10 +99,7 @@ flags:
           image: icons/magic/control/buff-flight-wings-blue.webp
           text: >-
             <p>Creatures within 10 ft. of you have disadvantage on saving throws
-            against charmed.</p><p><em>Midi and Aura Effects
-            automation</em></p><p><em>Set the value of the
-            <strong>disadvantage.save.all</strong> change to a midi condition
-            for saves against being charmed.</em></p>
+            against charmed.</p><p><em>CAT and Aura Effects automation</em></p>
         activation:
           type: ''
           cost: null

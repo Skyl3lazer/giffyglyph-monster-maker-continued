@@ -8,10 +8,8 @@ system:
       [dcPrimaryBonus + maxMod] Dexterity saving throw. If the creature fails,
       it takes 50% ([round(damage*0.50), damageDie])&nbsp; variant damage. If it
       succeeds, it takes half damage instead.*</p><p><em>* Core automation (roll
-      it when the trigger fires)</em></p><p><em>To finish it, edit this action
-      and set the damage type on the DAMAGE row to the elemental's own type.
-      Half damage on a successful save is already the behaviour of a scaling
-      save action.</em></p>
+      it when the trigger fires). Set the damage type on the DAMAGE row to the
+      element's own type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -88,10 +86,8 @@ flags:
             [dcPrimaryBonus + maxMod] Dexterity saving throw. If the creature
             fails, it takes 50% ([round(damage*0.50), damageDie])&nbsp; variant
             damage. If it succeeds, it takes half damage instead.*</p><p><em>*
-            Core automation (roll it when the trigger fires)</em></p><p><em>To
-            finish it, edit this action and set the damage type on the DAMAGE
-            row to the elemental's own type. Half damage on a successful save is
-            already the behaviour of a scaling save action.</em></p>
+            Core automation (roll it when the trigger fires). Set the damage
+            type on the DAMAGE row to the element's own type.</em></p>
         activation:
           type: special
           cost: null

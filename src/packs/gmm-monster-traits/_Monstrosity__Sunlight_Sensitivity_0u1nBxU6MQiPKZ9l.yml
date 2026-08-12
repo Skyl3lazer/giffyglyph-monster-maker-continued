@@ -5,11 +5,9 @@ system:
   description:
     value: >-
       <p>While in sunlight, you have disadvantage on attack rolls and Wisdom
-      (Perception) checks that rely on sight.+</p><p><em>+ Midi
-      automation</em></p><p><em>To finish it, edit this effect and set both
-      change values to <strong>1</strong> while the creature stands in sunlight,
-      or leave them blank and apply the effect by hand only when it does.
-      Nothing here reads the light level.</em></p>
+      (Perception) checks that rely on sight.+</p><p><em>+ Midi automation,
+      unfinished. Nothing here reads the light level. Set both changes to 1 and
+      apply the effect by hand while the creature stands in sunlight.</em></p>
     chat: ''
   source: {}
   activation:
@@ -104,10 +102,9 @@ flags:
           text: >-
             <p>While in sunlight, you have disadvantage on attack rolls and
             Wisdom (Perception) checks that rely on sight.+</p><p><em>+ Midi
-            automation</em></p><p><em>To finish it, edit this effect and set
-            both change values to <strong>1</strong> while the creature stands
-            in sunlight, or leave them blank and apply the effect by hand only
-            when it does. Nothing here reads the light level.</em></p>
+            automation, unfinished. Nothing here reads the light level. Set both
+            changes to 1 and apply the effect by hand while the creature stands
+            in sunlight.</em></p>
         activation:
           type: ''
           cost: null

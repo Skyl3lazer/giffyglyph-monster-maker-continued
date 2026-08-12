@@ -66,7 +66,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: msBa8d9LfXj8NTuL
+    name: Stunned
+    img: systems/dnd5e/icons/svg/statuses/stunned.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    duration:
+      value: 1
+      units: rounds
+      expiry: targetEnd
+    statuses:
+      - stunned
+    sort: 0
+    _key: '!items.effects!NTuLmsBa8d9LfXj8.msBa8d9LfXj8NTuL'
 folder: xPY1v6QbenBje2wG
 flags:
   core:

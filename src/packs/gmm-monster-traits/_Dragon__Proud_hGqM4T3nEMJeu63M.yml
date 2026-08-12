@@ -5,12 +5,8 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against effects that charm,
-      frighten, or dominate.+</p><p><em>+ Midi automation</em></p><p><em>To
-      finish it, edit this effect and set the value of the
-      <strong>advantage.save.all</strong> change to a midi condition that is
-      true only for saves against charm, fright and domination. Left blank the
-      change does nothing. Setting it to <strong>1</strong> would grant
-      advantage on every saving throw.</em></p>
+      frighten, or dominate.+</p><p><em>+ CAT automation. Domination is covered
+      by the charmed condition.</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,9 +75,12 @@ effects:
     description: ''
     system:
       changes:
-        - key: flags.midi-qol.advantage.save.all
+        - key: flags.cat.CR.charmed
           type: custom
-          value: ''
+          value: '1'
+        - key: flags.cat.CR.frightened
+          type: custom
+          value: '1'
     flags:
       dae:
         stackable: noneName
@@ -101,13 +100,8 @@ flags:
           image: icons/magic/control/mouth-smile-deception-purple.webp
           text: >-
             <p>You have advantage on saving throws against effects that charm,
-            frighten, or dominate.+</p><p><em>+ Midi
-            automation</em></p><p><em>To finish it, edit this effect and set the
-            value of the <strong>advantage.save.all</strong> change to a midi
-            condition that is true only for saves against charm, fright and
-            domination. Left blank the change does nothing. Setting it to
-            <strong>1</strong> would grant advantage on every saving
-            throw.</em></p>
+            frighten, or dominate.+</p><p><em>+ CAT automation. Domination is
+            covered by the charmed condition.</em></p>
         activation:
           type: ''
           cost: null

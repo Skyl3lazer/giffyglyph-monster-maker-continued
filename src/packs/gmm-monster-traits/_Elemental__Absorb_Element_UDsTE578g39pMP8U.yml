@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you would take variable damage, you instead regain that many hit
-      points.</p><p><em>No automation</em></p>
+      points.</p><p><em>Midi automation. Change <strong>fire</strong> in the
+      change key to the element's damage type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +65,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: E578g39pMP8UUDsT
+    name: Absorb Element
+    img: icons/magic/fire/projectile-fireball-orange-green.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: system.traits.da.fire
+          type: override
+          value: '-1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!UDsTE578g39pMP8U.E578g39pMP8UUDsT'
 folder: YmYak9E5lZfQxjFV
 flags:
   core:
@@ -79,7 +97,8 @@ flags:
           image: icons/magic/fire/projectile-fireball-orange-green.webp
           text: >-
             <p>When you would take variable damage, you instead regain that many
-            hit points.</p><p><em>No automation</em></p>
+            hit points.</p><p><em>Midi automation. Change <strong>fire</strong>
+            in the change key to the element's damage type.</em></p>
         activation:
           type: ''
           cost: null

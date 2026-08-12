@@ -5,12 +5,13 @@ system:
   description:
     value: >-
       <p>At the start of your turn, each creature within 10 ft. of you takes
-      variant damage equal to your combat level ([level]).</p><p><em>No
-      automation</em></p>
+      variant damage equal to your combat level ([level]).</p><p><em>* Core
+      automation (roll it at the start of your turn). Set the damage type on the
+      DAMAGE row to the element's own type.</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -19,15 +20,15 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 10
     width: null
-    units: ''
-    type: ''
+    units: ft
+    type: radius
     prompt: true
   range:
     value: null
     long: null
-    units: ''
+    units: self
   uses:
     value: null
     max: ''
@@ -40,7 +41,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: other
   attack:
     bonus: ''
     flat: false
@@ -49,7 +50,9 @@ system:
     threshold: null
     damage: ''
   damage:
-    parts: []
+    parts:
+      - - '[level]'
+        - ''
     versatile: ''
   formula: ''
   save:
@@ -81,9 +84,11 @@ flags:
           text: >-
             <p>At the start of your turn, each creature within 10 ft. of you
             takes variant damage equal to your combat level
-            ([level]).</p><p><em>No automation</em></p>
+            ([level]).</p><p><em>* Core automation (roll it at the start of your
+            turn). Set the damage type on the DAMAGE row to the element's own
+            type.</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -97,7 +102,7 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
+          type: other
           related_stat: str
           bonus: ''
           defense: ''
@@ -105,21 +110,25 @@ flags:
             damage: ''
           versatile:
             damage: ''
+          hit:
+            damage:
+              - formula: '[level]'
+                type: ''
         duration:
           units: ''
           value: ''
         range:
-          units: ''
+          units: self
           value: null
           long: null
         recharge:
           value: null
           is_charged: false
         target:
-          type: ''
-          units: ''
-          value: null
-          width: null
+          type: radius
+          units: ft
+          value: 10
+          width: 0
         uses:
           value: null
           max: ''

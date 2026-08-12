@@ -5,14 +5,8 @@ system:
   description:
     value: >-
       <p>You have advantage on melee attack rolls against any creature that is
-      bloodied (i.e. has 50% hit points or fewer).+</p><p><em>+ Midi
-      automation</em></p><p><em>To finish it, edit this effect and set the value
-      of the <strong>advantage.attack.mwak</strong> change to a midi condition
-      that is true only when the target is bloodied, for example
-      <strong>targetActor.system.attributes.hp.value &lt;=
-      targetActor.system.attributes.hp.max / 2</strong>. Left blank the change
-      does nothing. Setting it to <strong>1</strong> would grant advantage
-      against every target.</em></p>
+      bloodied (i.e. has 50% hit points or fewer).</p><p><em>Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -83,7 +77,9 @@ effects:
       changes:
         - key: flags.midi-qol.advantage.attack.mwak
           type: custom
-          value: ''
+          value: >-
+            targetActor.system.attributes.hp.value <=
+            targetActor.system.attributes.hp.max / 2
     flags:
       dae:
         stackable: noneName
@@ -103,14 +99,8 @@ flags:
           image: icons/creatures/eyes/humanoid-single-red-brown.webp
           text: >-
             <p>You have advantage on melee attack rolls against any creature
-            that is bloodied (i.e. has 50% hit points or fewer).+</p><p><em>+
-            Midi automation</em></p><p><em>To finish it, edit this effect and
-            set the value of the <strong>advantage.attack.mwak</strong> change
-            to a midi condition that is true only when the target is bloodied,
-            for example <strong>targetActor.system.attributes.hp.value &lt;=
-            targetActor.system.attributes.hp.max / 2</strong>. Left blank the
-            change does nothing. Setting it to <strong>1</strong> would grant
-            advantage against every target.</em></p>
+            that is bloodied (i.e. has 50% hit points or fewer).</p><p><em>Midi
+            automation</em></p>
         activation:
           type: ''
           cost: null

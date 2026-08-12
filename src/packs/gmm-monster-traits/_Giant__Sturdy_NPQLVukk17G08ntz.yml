@@ -5,11 +5,7 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against being knocked
-      prone.+</p><p><em>+ Midi automation</em></p><p><em>To finish it, edit this
-      effect and set the value of the <strong>advantage.save.all</strong> change
-      to a midi condition that is true only for saves against being knocked
-      prone. Left blank the change does nothing. Setting it to
-      <strong>1</strong> would grant advantage on every saving throw.</em></p>
+      prone.</p><p><em>CAT automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -78,9 +74,9 @@ effects:
     description: ''
     system:
       changes:
-        - key: flags.midi-qol.advantage.save.all
+        - key: flags.cat.CR.prone
           type: custom
-          value: ''
+          value: '1'
     flags:
       dae:
         stackable: noneName
@@ -100,12 +96,7 @@ flags:
           image: icons/skills/wounds/injury-body-pain-gray.webp
           text: >-
             <p>You have advantage on saving throws against being knocked
-            prone.+</p><p><em>+ Midi automation</em></p><p><em>To finish it,
-            edit this effect and set the value of the
-            <strong>advantage.save.all</strong> change to a midi condition that
-            is true only for saves against being knocked prone. Left blank the
-            change does nothing. Setting it to <strong>1</strong> would grant
-            advantage on every saving throw.</em></p>
+            prone.</p><p><em>CAT automation</em></p>
         activation:
           type: ''
           cost: null

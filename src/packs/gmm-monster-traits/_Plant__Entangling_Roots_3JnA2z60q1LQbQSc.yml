@@ -5,9 +5,8 @@ system:
   description:
     value: >-
       <p>Enemies standing on the ground within 10 ft. of you have disadvantage
-      on DC [dcPrimaryBonus + maxMod] Dexterity saving throws.</p><p><em>Core
-      and Aura Effects automation</em></p><p><em>Set the aura's Script to a test
-      for a creature on the ground.</em></p>
+      on Dexterity saving throws.</p><p><em>Core and Aura Effects automation.
+      Set the aura's Script to a test for a creature on the ground.</em></p>
     chat: ''
   source: {}
   activation:
@@ -102,10 +101,9 @@ flags:
           image: icons/magic/nature/root-vine-entangled-hand.webp
           text: >-
             <p>Enemies standing on the ground within 10 ft. of you have
-            disadvantage on DC [dcPrimaryBonus + maxMod] Dexterity saving
-            throws.</p><p><em>Core and Aura Effects
-            automation</em></p><p><em>Set the aura's Script to a test for a
-            creature on the ground.</em></p>
+            disadvantage on Dexterity saving throws.</p><p><em>Core and Aura
+            Effects automation. Set the aura's Script to a test for a creature
+            on the ground.</em></p>
         activation:
           type: ''
           cost: null

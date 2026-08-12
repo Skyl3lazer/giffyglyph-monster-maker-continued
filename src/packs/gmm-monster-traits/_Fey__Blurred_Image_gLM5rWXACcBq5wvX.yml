@@ -7,13 +7,8 @@ system:
       <p>You project a magical illusion which creates a blurred image of
       yourself, causing attack rolls against you to have disadvantage. If you
       are hit by an attack, this image vanishes until the start of your next
-      turn.+</p><p><em>+ Midi automation</em></p><p><em>To finish it, edit this
-      effect and set the value of the
-      <strong>grants.disadvantage.attack.all</strong> change to a midi condition
-      that is true only while the image is intact. Left blank the change does
-      nothing. Setting it to <strong>1</strong> gives permanent disadvantage,
-      because nothing here notices the image being dispelled by a hit - delete
-      or disable the effect by hand when that happens.</em></p>
+      turn.+</p><p><em>+ Midi automation. Midi disables the effect when you are
+      hit. Re-enable it at the start of your next turn.</em></p>
     chat: ''
   source: {}
   activation:
@@ -84,10 +79,12 @@ effects:
       changes:
         - key: flags.midi-qol.grants.disadvantage.attack.all
           type: custom
-          value: ''
+          value: '1'
     flags:
       dae:
         stackable: noneName
+        specialDuration:
+          - isHit
     sort: 0
     _key: '!items.effects!gLM5rWXACcBq5wvX.rWXACcBq5wvXgLM5'
 folder: l09SlhsvlSKdmc08
@@ -106,14 +103,9 @@ flags:
             <p>You project a magical illusion which creates a blurred image of
             yourself, causing attack rolls against you to have disadvantage. If
             you are hit by an attack, this image vanishes until the start of
-            your next turn.+</p><p><em>+ Midi automation</em></p><p><em>To
-            finish it, edit this effect and set the value of the
-            <strong>grants.disadvantage.attack.all</strong> change to a midi
-            condition that is true only while the image is intact. Left blank
-            the change does nothing. Setting it to <strong>1</strong> gives
-            permanent disadvantage, because nothing here notices the image being
-            dispelled by a hit - delete or disable the effect by hand when that
-            happens.</em></p>
+            your next turn.+</p><p><em>+ Midi automation. Midi disables the
+            effect when you are hit. Re-enable it at the start of your next
+            turn.</em></p>
         activation:
           type: ''
           cost: null

@@ -66,7 +66,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 0lHXVLOxEgzVUIlH
+    name: Prone
+    img: systems/dnd5e/icons/svg/statuses/prone.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - prone
+    sort: 0
+    _key: '!items.effects!UIlH0lHXVLOxEgzV.0lHXVLOxEgzVUIlH'
 folder: xPY1v6QbenBje2wG
 flags:
   core:

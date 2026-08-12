@@ -5,12 +5,9 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against spells and other magical
-      effects cast by a chaotic creature.+</p><p><em>+ Midi
-      automation</em></p><p><em>To finish it, edit this effect and set the value
-      of the <strong>advantage.save.all</strong> change to a midi condition that
-      is true only against a chaotic caster. Left blank the change does nothing.
-      Setting it to <strong>1</strong> would grant advantage on every saving
-      throw.</em></p>
+      effects cast by a chaotic creature.+</p><p><em>+ Midi automation,
+      unfinished. Set advantage.save.all to a condition that is true only
+      against a chaotic caster.</em></p>
     chat: ''
   source: {}
   activation:
@@ -102,11 +99,8 @@ flags:
           text: >-
             <p>You have advantage on saving throws against spells and other
             magical effects cast by a chaotic creature.+</p><p><em>+ Midi
-            automation</em></p><p><em>To finish it, edit this effect and set the
-            value of the <strong>advantage.save.all</strong> change to a midi
-            condition that is true only against a chaotic caster. Left blank the
-            change does nothing. Setting it to <strong>1</strong> would grant
-            advantage on every saving throw.</em></p>
+            automation, unfinished. Set advantage.save.all to a condition that
+            is true only against a chaotic caster.</em></p>
         activation:
           type: ''
           cost: null

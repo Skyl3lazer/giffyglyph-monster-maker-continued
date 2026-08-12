@@ -6,7 +6,7 @@ system:
     value: >-
       <p>The creature has advantage on Wisdom (Perception) checks and on saving
       throws against being blinded, charmed, deafened, frightened, stunned, and
-      knocked unconscious.+</p><p><em>+ Midi automation</em></p>
+      knocked unconscious.</p><p><em>Midi and CAT automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -78,6 +78,24 @@ effects:
         - key: flags.midi-qol.advantage.skill.prc
           type: custom
           value: '1'
+        - key: flags.cat.CR.blinded
+          type: custom
+          value: '1'
+        - key: flags.cat.CR.charmed
+          type: custom
+          value: '1'
+        - key: flags.cat.CR.deafened
+          type: custom
+          value: '1'
+        - key: flags.cat.CR.frightened
+          type: custom
+          value: '1'
+        - key: flags.cat.CR.stunned
+          type: custom
+          value: '1'
+        - key: flags.cat.CR.unconscious
+          type: custom
+          value: '1'
     flags:
       dae:
         stackable: noneName
@@ -98,7 +116,7 @@ flags:
           text: >-
             <p>The creature has advantage on Wisdom (Perception) checks and on
             saving throws against being blinded, charmed, deafened, frightened,
-            stunned, and knocked unconscious.+</p><p><em>+ Midi
+            stunned, and knocked unconscious.</p><p><em>Midi and CAT
             automation</em></p>
         activation:
           type: ''

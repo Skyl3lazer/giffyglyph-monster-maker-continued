@@ -931,8 +931,10 @@ const Activities = (function () {
     function _authoredEffectEntries(item) {
         const seen = new Set();
         const entries = [];
+        let forged = false;
         for (const activityId of GMM_ACTIVITY_IDS) {
             const existing = AutomationHelpers.activitySource(item, activityId);
+            if (existing) forged = true;
             for (const entry of (Array.isArray(existing?.effects) ? existing.effects : [])) {
                 const id = entry?._id;
                 if (!id || seen.has(id) || GMM_FORGED_EFFECT_IDS.has(id)) continue;
@@ -944,7 +946,16 @@ const Activities = (function () {
                 entries.push(entry);
             }
         }
-        return entries;
+        return forged ? entries : _seedEffectEntries(item);
+    }
+
+    /* A pack item carries authored effects but no activity to list them on, so the first forge has no
+     * membership to read and would strand every one of them. */
+    function _seedEffectEntries(item) {
+        const source = Array.isArray(item?._source?.effects) ? item._source.effects : [];
+        return source
+            .filter(e => e?._id && e.transfer === false && !GMM_FORGED_EFFECT_IDS.has(e._id))
+            .map(e => ({ _id: e._id }));
     }
 
     /* The clock document outlives the deferral that forged it: no builder can delete an embedded

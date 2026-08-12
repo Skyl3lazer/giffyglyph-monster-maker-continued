@@ -7,7 +7,8 @@ system:
       <p>When you reduce a creature to 0 hit points, it must succeed on a DC
       [dcPrimaryBonus + maxMod]&nbsp;Constitution saving throw or be vulnerable
       to variant damage until it finishes a long rest.*</p><p><em>* Core
-      automation (roll it when the trigger fires)</em></p>
+      automation (roll it when the trigger fires). Set the Damage Vulnerability
+      change on the effect to the element's damage type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -66,7 +67,26 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: Lp9eQ4ioadyPA7lz
+    name: Vulnerable
+    img: icons/skills/targeting/crosshair-ringed-gray.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: system.traits.dv.value
+          type: add
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+        specialDuration:
+          - longRest
+    sort: 0
+    _key: '!items.effects!A7lzLp9eQ4ioadyP.Lp9eQ4ioadyPA7lz'
 folder: YmYak9E5lZfQxjFV
 flags:
   core:
@@ -83,8 +103,9 @@ flags:
             <p>When you reduce a creature to 0 hit points, it must succeed on a
             DC [dcPrimaryBonus + maxMod]&nbsp;Constitution saving throw or be
             vulnerable to variant damage until it finishes a long
-            rest.*</p><p><em>* Core automation (roll it when the trigger
-            fires)</em></p>
+            rest.*</p><p><em>* Core automation (roll it when the trigger fires).
+            Set the Damage Vulnerability change on the effect to the element's
+            damage type.</em></p>
         activation:
           type: special
           cost: null

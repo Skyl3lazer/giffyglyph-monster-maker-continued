@@ -5,12 +5,9 @@ system:
   description:
     value: >-
       <p>If you are adjacent to another construct of the same type, you have
-      advantage on attack rolls.+</p><p><em>+ Midi automation</em></p><p><em>To
-      finish it, edit this effect and set the value of the
-      <strong>advantage.attack.all</strong> change to a midi condition that is
-      true only while an allied construct of the same type is adjacent. Left
-      blank the change does nothing. Setting it to <strong>1</strong> would
-      grant advantage on every attack.</em></p>
+      advantage on attack rolls.+</p><p><em>+ Midi automation, unfinished. Set
+      advantage.attack.all to a condition that is true only while an allied
+      construct of the same type is adjacent.</em></p>
     chat: ''
   source: {}
   activation:
@@ -101,12 +98,10 @@ flags:
           image: icons/commodities/tech/wire-red.webp
           text: >-
             <p>If you are adjacent to another construct of the same type, you
-            have advantage on attack rolls.+</p><p><em>+ Midi
-            automation</em></p><p><em>To finish it, edit this effect and set the
-            value of the <strong>advantage.attack.all</strong> change to a midi
-            condition that is true only while an allied construct of the same
-            type is adjacent. Left blank the change does nothing. Setting it to
-            <strong>1</strong> would grant advantage on every attack.</em></p>
+            have advantage on attack rolls.+</p><p><em>+ Midi automation,
+            unfinished. Set advantage.attack.all to a condition that is true
+            only while an allied construct of the same type is
+            adjacent.</em></p>
         activation:
           type: ''
           cost: null

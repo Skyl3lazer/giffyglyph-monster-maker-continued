@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>When you would take necrotic damage, you instead regain that many hit
-      points.</p><p><em>No automation</em></p>
+      points.</p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: jPr6YKCxxMiq2CKT
+    name: Mend Flesh
+    img: icons/skills/wounds/injury-stitched-flesh-red.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: system.traits.da.necrotic
+          type: override
+          value: '-1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!2CKTjPr6YKCxxMiq.jPr6YKCxxMiq2CKT'
 folder: eIquczNX8Uw4LNGE
 flags:
   core:
@@ -79,7 +96,7 @@ flags:
           image: icons/skills/wounds/injury-stitched-flesh-red.webp
           text: >-
             <p>When you would take necrotic damage, you instead regain that many
-            hit points.</p><p><em>No automation</em></p>
+            hit points.</p><p><em>Midi automation</em></p>
         activation:
           type: ''
           cost: null

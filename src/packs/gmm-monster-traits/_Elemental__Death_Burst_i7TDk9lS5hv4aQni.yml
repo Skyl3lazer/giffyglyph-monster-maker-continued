@@ -7,9 +7,8 @@ system:
       <p>When you die, each creature within 10 ft. of you must succeed on a DC
       [dcPrimaryBonus + maxMod] Dexterity saving throw or take 75%
       ([round(damage*0.75), damageDie]) variant damage.*</p><p><em>* Core
-      automation (roll it when the trigger fires)</em></p><p><em>To finish it,
-      edit this action and set the damage type on the DAMAGE row to the
-      elemental's own type.</em></p>
+      automation (roll it when the trigger fires). Set the damage type on the
+      DAMAGE row to the element's own type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -85,9 +84,8 @@ flags:
             <p>When you die, each creature within 10 ft. of you must succeed on
             a DC [dcPrimaryBonus + maxMod] Dexterity saving throw or take 75%
             ([round(damage*0.75), damageDie]) variant damage.*</p><p><em>* Core
-            automation (roll it when the trigger fires)</em></p><p><em>To finish
-            it, edit this action and set the damage type on the DAMAGE row to
-            the elemental's own type.</em></p>
+            automation (roll it when the trigger fires). Set the damage type on
+            the DAMAGE row to the element's own type.</em></p>
         activation:
           type: special
           cost: null

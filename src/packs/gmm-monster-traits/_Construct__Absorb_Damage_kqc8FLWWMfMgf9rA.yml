@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you would take variant damage, you instead regain that many hit
-      points.</p><p><em>No automation</em></p>
+      points.</p><p><em>Midi automation. Change <strong>fire</strong> in the
+      change key to the damage type this construct absorbs.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +65,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: FLWWMfMgf9rAkqc8
+    name: Absorb Damage
+    img: icons/magic/defensive/armor-shield-barrier-steel.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: system.traits.da.fire
+          type: override
+          value: '-1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!kqc8FLWWMfMgf9rA.FLWWMfMgf9rAkqc8'
 folder: pxm2WHPkmmMEun1n
 flags:
   core:
@@ -79,7 +97,9 @@ flags:
           image: icons/magic/defensive/armor-shield-barrier-steel.webp
           text: >-
             <p>When you would take variant damage, you instead regain that many
-            hit points.</p><p><em>No automation</em></p>
+            hit points.</p><p><em>Midi automation. Change <strong>fire</strong>
+            in the change key to the damage type this construct
+            absorbs.</em></p>
         activation:
           type: ''
           cost: null

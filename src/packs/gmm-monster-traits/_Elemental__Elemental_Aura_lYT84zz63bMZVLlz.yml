@@ -6,8 +6,8 @@ system:
     value: >-
       <p>Each creature within 10 ft. of you is vulnerable to variant damage (or,
       if they have immunity, it is reduced to resistance).</p><p><em>Core and
-      Aura Effects automation</em></p><p><em>Set the value of the <strong>Damage
-      Vulnerability</strong> change to a damage type.</em></p>
+      Aura Effects automation. Set the Damage Vulnerability change to a damage
+      type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -102,9 +102,8 @@ flags:
           text: >-
             <p>Each creature within 10 ft. of you is vulnerable to variant
             damage (or, if they have immunity, it is reduced to
-            resistance).</p><p><em>Core and Aura Effects
-            automation</em></p><p><em>Set the value of the <strong>Damage
-            Vulnerability</strong> change to a damage type.</em></p>
+            resistance).</p><p><em>Core and Aura Effects automation. Set the
+            Damage Vulnerability change to a damage type.</em></p>
         activation:
           type: ''
           cost: null

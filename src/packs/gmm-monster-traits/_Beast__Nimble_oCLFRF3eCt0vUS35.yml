@@ -5,14 +5,9 @@ system:
   description:
     value: >-
       <p>Difficult terrain doesn't cost you extra movement.*</p><p><em>* Core
-      automation</em></p><p><em>To finish it, edit this effect and set the value
-      of the <strong>Ignored Difficult Terrain</strong> change to one terrain
-      type - <strong>ice</strong>, <strong>liquid</strong>,
-      <strong>plants</strong>, <strong>rocks</strong>, <strong>mud</strong>,
-      <strong>sand</strong>, <strong>slope</strong>, <strong>snow</strong> or
-      <strong>web</strong>. Add one change per type you want ignored. This
-      covers dnd5e Difficult Terrain regions only, not terrain a GM draws by
-      hand.</em></p>
+      automation, unfinished. Set the Ignored Difficult Terrain change to one
+      terrain type: ice, liquid, plants, rocks, mud, sand, slope, snow or web.
+      Add one change per type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -103,15 +98,9 @@ flags:
           image: icons/creatures/abilities/paw-glowing-yellow.webp
           text: >-
             <p>Difficult terrain doesn't cost you extra movement.*</p><p><em>*
-            Core automation</em></p><p><em>To finish it, edit this effect and
-            set the value of the <strong>Ignored Difficult Terrain</strong>
-            change to one terrain type - <strong>ice</strong>,
-            <strong>liquid</strong>, <strong>plants</strong>,
-            <strong>rocks</strong>, <strong>mud</strong>, <strong>sand</strong>,
-            <strong>slope</strong>, <strong>snow</strong> or
-            <strong>web</strong>. Add one change per type you want ignored. This
-            covers dnd5e Difficult Terrain regions only, not terrain a GM draws
-            by hand.</em></p>
+            Core automation, unfinished. Set the Ignored Difficult Terrain
+            change to one terrain type: ice, liquid, plants, rocks, mud, sand,
+            slope, snow or web. Add one change per type.</em></p>
         activation:
           type: ''
           cost: null
