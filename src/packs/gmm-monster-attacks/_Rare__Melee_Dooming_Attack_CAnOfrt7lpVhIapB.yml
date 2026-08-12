@@ -74,7 +74,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: frt7lpVhIapBCAnO
+    name: Frightened
+    img: systems/dnd5e/icons/svg/statuses/frightened.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    statuses:
+      - frightened
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!CAnOfrt7lpVhIapB.frt7lpVhIapBCAnO'
 folder: Xu0gwcuFy6NMHm0f
 flags:
   core:
