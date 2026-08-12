@@ -44,7 +44,12 @@ const Conditions = (function () {
 	 * midi fires isDamaged once per target, so the target set would name the wrong one of two Cursed victims. */
 	async function cursed(macroData = {}) {
 		const actor = _getBearer("cursed", [macroData?.token, macroData?.actor]);
-		if (!actor || (Number(actor.system?.attributes?.hp?.value) || 0) > 0) return;
+		if (!actor) return;
+
+		/* midi's isDamaged pass runs before the damage is written. */
+		const pending = macroData?.damageItem ?? macroData?.workflow?.damageItem;
+		const hp = pending?.actorUuid === actor.uuid ? pending.newHP : actor.system?.attributes?.hp?.value;
+		if (!(Number(hp) <= 0)) return;
 		if (actor.statuses?.has("dead")) return;
 
 		await actor.toggleStatusEffect("dead", { active: true, overlay: true });
