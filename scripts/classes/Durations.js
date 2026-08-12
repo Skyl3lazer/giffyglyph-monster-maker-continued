@@ -2,8 +2,8 @@ import Shortcoder from "./Shortcoder.js";
 import AutomationHelpers from "./AutomationHelpers.js";
 import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
 
-/* GMMC runs none of this itself. An absent module degrades a type to a plain lifetime rather than
- * breaking it. */
+/* Every recurring type but one belongs to midi or DAE. An absent module degrades a type to a plain
+ * lifetime rather than breaking it. */
 const Durations = (function () {
 
 	const GMM_DURATIONS_SETTING = "automateDurations";
@@ -16,9 +16,6 @@ const Durations = (function () {
 	const GMM_DURATION_IMG = "icons/magic/time/clock-stopwatch-white-blue.webp";
 
 	const OVERTIME_KEY = "flags.midi-qol.OverTime";
-	const MACRO_REPEAT_KEY = "flags.dae.macroRepeat";
-	const MACRO_EXECUTE_KEY = "flags.dae.macro.execute";
-	const REAPPLY_FUNCTION = "function.gmmc.durations.reapplyOnSourceTurn";
 
 	const TYPES = {
 		instant: { applies: false },
@@ -92,7 +89,7 @@ const Durations = (function () {
 		const rules = _rules(duration.type);
 		const needs = [];
 		if (rules.hasSave || duration.reapplies === "target") needs.push("midi-qol");
-		if (rules.expiry || duration.reapplies === "source") needs.push("dae");
+		if (rules.expiry) needs.push("dae");
 		return {
 			duration,
 			rows: {
@@ -174,15 +171,6 @@ const Durations = (function () {
 		return changes;
 	}
 
-	/* Neither midi nor DAE offers a source-keyed repeat. This rides DAE's every-turn loop instead. The
-	 * formula travels on the effect flag because DAE tokenises macro arguments on whitespace. */
-	function _reapplySourceChanges() {
-		return [
-			{ key: MACRO_REPEAT_KEY, value: "startEveryTurnAny", type: "override", priority: 20 },
-			{ key: MACRO_EXECUTE_KEY, value: REAPPLY_FUNCTION, type: "override", priority: 20 }
-		];
-	}
-
 	/* Forged even when the action inflicts no condition, because a purely recurring damage effect would
 	 * otherwise have no document to hang its flags on. */
 	function buildEffectData(blueprint, { name, img, damage, saveDc } = {}) {
@@ -196,10 +184,7 @@ const Durations = (function () {
 			img: img || GMM_DURATION_IMG,
 			// v14 moved effect changes off the document and into its type data.
 			system: {
-				changes: [
-					..._overTimeChanges(duration, rules, damage, saveDc),
-					...(duration.reapplies === "source" ? _reapplySourceChanges() : [])
-				]
+				changes: _overTimeChanges(duration, rules, damage, saveDc)
 			},
 			duration: _effectDuration(duration, rules),
 			transfer: false,
@@ -283,24 +268,43 @@ const Durations = (function () {
 		return actor.applyDamage?.(parts);
 	}
 
-	/* Called by DAE on every combatant's turn, the source's included. */
-	async function reapplyOnSourceTurn({ args } = {}) {
-		const action = args?.[0];
-		if (action !== "each") return;
+	/* Combatants only. A creature outside the tracker has no turn for a source-keyed tick to arrive on. */
+	function _sourceReapplyCarriers(combat, source) {
+		const carriers = [];
+		const seen = new Set();
+		for (const combatant of combat?.combatants ?? []) {
+			const actor = combatant.actor;
+			if (!actor || seen.has(actor.uuid)) continue;
+			seen.add(actor.uuid);
+			for (const effect of actor.effects ?? []) {
+				if (!isDurationEffect(effect) || !effect.active) continue;
+				const flag = effect.flags[GMM_MODULE_TITLE][GMM_DURATION_FLAG];
+				if (flag.reapplies !== "source" || !flag.formula) continue;
+				if (_sourceActorOf(effect)?.uuid === source.uuid) carriers.push(effect);
+			}
+		}
+		return carriers;
+	}
+
+	/* The one recurring type GMMC runs itself. midi and DAE both key a repeat to whoever holds the
+	 * effect. This one is keyed to whoever inflicted it. */
+	async function _onCombatTurnChange(combat) {
 		if (!game.users.activeGM?.isSelf || !isEnabled() || !isSupported()) return;
+		const source = combat?.combatant?.actor;
+		if (!source) return;
 
-		const last = args?.[args.length - 1];
-		const effect = last?.effectUuid ? fromUuidSync(last.effectUuid) : null;
-		const flag = effect?.flags?.[GMM_MODULE_TITLE]?.[GMM_DURATION_FLAG];
-		if (!flag?.formula) return;
-
-		const source = _sourceActorOf(effect);
-		const current = game.combat?.combatant?.actor;
-		if (!source || !current || source.uuid !== current.uuid) return;
-
-		const target = effect.parent;
-		if (!target) return;
-		return _applyDamage(target, flag.formula, flag.damageType, effect.name);
+		const tick = `${combat.id}:${combat.round}`;
+		for (const effect of _sourceReapplyCarriers(combat, source)) {
+			try {
+				const flag = effect.flags[GMM_MODULE_TITLE][GMM_DURATION_FLAG];
+				// A rewound round would otherwise tick twice.
+				if (flag.lastTick === tick) continue;
+				await effect.setFlag(GMM_MODULE_TITLE, GMM_DURATION_FLAG, { ...flag, lastTick: tick });
+				await _applyDamage(effect.parent, flag.formula, flag.damageType, effect.name);
+			} catch (error) {
+				console.error("GMM | Source-keyed reapplication failed", error);
+			}
+		}
 	}
 
 	function _concentrationFor(source, itemId) {
@@ -357,12 +361,11 @@ const Durations = (function () {
 		await concentration.delete();
 	}
 
-	function registerApi() {
-		globalThis.gmmc ??= {};
-		globalThis.gmmc.durations = { reapplyOnSourceTurn };
+	function init() {
 		Hooks.on("preCreateActiveEffect", _onPreCreateActiveEffect);
 		Hooks.on("createActiveEffect", _onCreateActiveEffect);
 		Hooks.on("deleteActiveEffect", _onDeleteActiveEffect);
+		Hooks.on("combatTurnChange", _onCombatTurnChange);
 	}
 
 	return {
@@ -378,8 +381,7 @@ const Durations = (function () {
 		buildActivityDuration,
 		buildEffectData,
 		resolveEffectFormulas,
-		reapplyOnSourceTurn,
-		registerApi
+		init
 	};
 })();
 

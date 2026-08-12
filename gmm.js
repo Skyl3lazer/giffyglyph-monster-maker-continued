@@ -44,7 +44,7 @@ Hooks.once("init", function() {
 	ParagonPower.init();
 	ParagonDefenses.init();
 	Deferrals.init();
-	Durations.registerApi();
+	Durations.init();
 
 	// Backward-compatible API used by legacy migration scripts/macros.
 	const moduleRef = game.modules.get(GMM_MODULE_TITLE);
