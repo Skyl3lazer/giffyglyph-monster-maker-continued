@@ -13,7 +13,7 @@ system:
   changes:
     - key: flags.midi-qol.onUseMacroName
       type: custom
-      value: '[isDamaged]function.gmmc.conditions.cursed'
+      value: function.gmmc.conditions.cursed,isDamaged
 flags:
   dae:
     stackable: noneName
