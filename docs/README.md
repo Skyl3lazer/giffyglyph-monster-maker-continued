@@ -59,9 +59,12 @@ These modules are required for GMMC to function.
 ### Recommended Modules
 These modules are optional, but may improve the experience of using GMMC.
 
-* [Midi QOL](https://foundryvtt.com/packages/midi-qol) - Provides automation, which some compendium items have built in already if Midi is active.
+* [Midi QOL](https://foundryvtt.com/packages/midi-qol) - Provides core automation, which some compendium items have built in already if Midi is active.
 * [Side Effects](https://foundryvtt.com/packages/side-effects) - Adds a sidebar effect directory and lets you turn effects into token statuses. Works with GMM's conditions compendium - see [Conditions](#conditions). Needs Foundry v14.
 * [Automated Conditions 5E](https://foundryvtt.com/packages/automated-conditions-5e) - Adds more automation options. Needs Foundry v14.
+* [Coven's Automation Toolkit](https://foundryvtt.com/packages/cat) - Adds more automation options.
+* [Aura Effects](https://foundryvtt.com/packages/auraeffects) - Adds more automation options.
+* [Enhanced Region Behavior](https://foundryvtt.com/packages/enhanced-region-behavior) - Adds more automation options.
 
 ---
 
@@ -120,21 +123,6 @@ The **GMM Effects** compendium holds the eighteen expanded conditions from the M
 Banished, Bleeding, Bound, Cursed, Dazed, Decaying, Dehydrated, Disoriented, Fatigued, Feeble,
 Silenced, Slowed, Starving, Stinking, Swarmed, Transformed, Vulnerable and Exposed - in a
 `Conditions` folder. Drag one onto a token to apply it.
-
-### With the Side Effects module
-
-[Side Effects](https://foundryvtt.com/packages/side-effects) adds an effect directory to the
-sidebar, built from **one** compendium of your choosing. Two ways to use it with GMM:
-
-* Point its **effect compendium** setting at `giffyglyph-monster-maker-continued.gmm-effects` to
-  browse the GMM conditions from the sidebar directly. Note that this replaces your own effect
-  compendium as the directory source, and GMM's pack is locked, so Side Effects features that write
-  to the compendium will not work against it.
-* Or leave the setting alone and copy the conditions you want into your own effect compendium. This
-  is the better option if you also keep custom effects of your own.
-
-Either way, right-clicking a condition and choosing **Add Status Effect** promotes it to a real
-status on the token HUD.
 
 ## Roadmap
 
