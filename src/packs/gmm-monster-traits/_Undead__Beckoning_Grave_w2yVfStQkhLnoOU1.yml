@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Creatures within 30 ft. of you have disadvantage on death saving
-      throws.</p><p><em>No automation</em></p>
+      throws.</p><p><em>Core and Aura Effects automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: fStQkhLnoOU1w2yV
+    name: Beckoning Grave
+    img: icons/magic/death/grave-tombstone-glow-teal.webp
+    type: auraeffects.aura
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: system.attributes.death.roll.mode
+          type: add
+          value: '-1'
+      applyToSelf: false
+      combatOnly: true
+      distanceFormula: '30'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!w2yVfStQkhLnoOU1.fStQkhLnoOU1w2yV'
 folder: eIquczNX8Uw4LNGE
 flags:
   core:
@@ -79,7 +99,7 @@ flags:
           image: icons/magic/death/grave-tombstone-glow-teal.webp
           text: >-
             <p>Creatures within 30 ft. of you have disadvantage on death saving
-            throws.</p><p><em>No automation</em></p>
+            throws.</p><p><em>Core and Aura Effects automation</em></p>
         activation:
           type: ''
           cost: null

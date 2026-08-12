@@ -685,6 +685,8 @@
   "gmm.monster.artifact.legendary_resistances.title": "Legendary Resistances",
   "gmm.monster.artifact.paragon_actions.blurb": "When another creature ends its turn, you can spend 1 paragon action to a) move or b) perform one action (attack, help, hide, etc). You regain spent paragon actions at the start of your turn.",
   "gmm.monster.artifact.paragon_actions.current": "Current",
+  "gmm.aura.suppressed": "{count} aura effect(s) are switched off because the Aura Effects module is not active. See the console for which.",
+  "gmm.aura.stranded": "{count} effect(s) left behind by Aura Effects are still applying, but nothing remains to remove them.",
   "gmm.condition.bleeding.spent": "{name} loses a hit die to Bleeding.",
   "gmm.condition.cursed.died": "{name} is Cursed and dies at 0 hit points.",
   "gmm.monster.artifact.paragon_actions.depleted": "{name} has no paragon actions remaining.",

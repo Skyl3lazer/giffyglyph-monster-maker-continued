@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>All creatures within 10 ft. of you have disadvantage on Concentration
-      saving throws.</p><p><em>No automation</em></p>
+      saving throws.</p><p><em>Core and Aura Effects automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: geAqaUUJXwxcuOya
+    name: Disconcerting Aura
+    img: icons/magic/unholy/orb-stone-pink.webp
+    type: auraeffects.aura
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: system.attributes.concentration.roll.mode
+          type: add
+          value: '-1'
+      applyToSelf: false
+      combatOnly: true
+      distanceFormula: '10'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!uOyageAqaUUJXwxc.geAqaUUJXwxcuOya'
 folder: ovdj4g064I0mjIWa
 flags:
   core:
@@ -79,7 +99,8 @@ flags:
           image: icons/magic/unholy/orb-stone-pink.webp
           text: >-
             <p>All creatures within 10 ft. of you have disadvantage on
-            Concentration saving throws.</p><p><em>No automation</em></p>
+            Concentration saving throws.</p><p><em>Core and Aura Effects
+            automation</em></p>
         activation:
           type: ''
           cost: null

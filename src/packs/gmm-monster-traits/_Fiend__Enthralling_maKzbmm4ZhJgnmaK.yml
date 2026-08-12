@@ -5,7 +5,10 @@ system:
   description:
     value: >-
       <p>Creatures within 10 ft. of you have disadvantage on saving throws
-      against charmed.</p><p><em>No automation</em></p>
+      against charmed.</p><p><em>Midi and Aura Effects
+      automation</em></p><p><em>Set the value of the
+      <strong>disadvantage.save.all</strong> change to a midi condition for
+      saves against being charmed.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +67,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: bmm4ZhJgnmaKmaKz
+    name: Enthralling
+    img: icons/magic/perception/eye-slit-red-orange.webp
+    type: auraeffects.aura
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.disadvantage.save.all
+          type: custom
+          value: ''
+      applyToSelf: false
+      combatOnly: true
+      distanceFormula: '10'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!maKzbmm4ZhJgnmaK.bmm4ZhJgnmaKmaKz'
 folder: hgnohyDtSml3Virp
 flags:
   core:
@@ -79,7 +102,10 @@ flags:
           image: icons/magic/perception/eye-slit-red-orange.webp
           text: >-
             <p>Creatures within 10 ft. of you have disadvantage on saving throws
-            against charmed.</p><p><em>No automation</em></p>
+            against charmed.</p><p><em>Midi and Aura Effects
+            automation</em></p><p><em>Set the value of the
+            <strong>disadvantage.save.all</strong> change to a midi condition
+            for saves against being charmed.</em></p>
         activation:
           type: ''
           cost: null

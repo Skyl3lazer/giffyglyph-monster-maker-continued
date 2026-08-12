@@ -5,7 +5,10 @@ system:
   description:
     value: >-
       <p>Enemies within 30 ft. of you have disadvantage on saving throws against
-      being frightened.</p><p><em>No automation</em></p>
+      being frightened.</p><p><em>Midi and Aura Effects
+      automation</em></p><p><em>Set the value of the
+      <strong>disadvantage.save.all</strong> change to a midi condition for
+      saves against being frightened.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +67,28 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: w9N4PPHXHpUL098O
+    name: Frightening Aura
+    img: icons/magic/unholy/barrier-fire-pink.webp
+    type: auraeffects.aura
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.disadvantage.save.all
+          type: custom
+          value: ''
+      applyToSelf: false
+      combatOnly: true
+      distanceFormula: '30'
+      disposition: -1
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!098Ow9N4PPHXHpUL.w9N4PPHXHpUL098O'
 folder: 2LPDPz4IMyoc7wHb
 flags:
   core:
@@ -79,7 +103,10 @@ flags:
           image: icons/magic/unholy/barrier-fire-pink.webp
           text: >-
             <p>Enemies within 30 ft. of you have disadvantage on saving throws
-            against being frightened.</p><p><em>No automation</em></p>
+            against being frightened.</p><p><em>Midi and Aura Effects
+            automation</em></p><p><em>Set the value of the
+            <strong>disadvantage.save.all</strong> change to a midi condition
+            for saves against being frightened.</em></p>
         activation:
           type: ''
           cost: null

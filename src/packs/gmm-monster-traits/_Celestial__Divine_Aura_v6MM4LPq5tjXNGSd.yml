@@ -5,7 +5,9 @@ system:
   description:
     value: >-
       <p>Any creature within 10 ft. of you that has a good alignment has
-      advantage on saving throws.</p><p><em>No automation</em></p>
+      advantage on saving throws.</p><p><em>Midi and Aura Effects
+      automation</em></p><p><em>Set the aura's Script to a test for a good
+      alignment.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +66,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 4LPq5tjXNGSdv6MM
+    name: Divine Aura
+    img: icons/magic/holy/angel-wings-gray.webp
+    type: auraeffects.aura
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.all
+          type: custom
+          value: '1'
+      applyToSelf: false
+      combatOnly: true
+      distanceFormula: '10'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!v6MM4LPq5tjXNGSd.4LPq5tjXNGSdv6MM'
 folder: r0yJRhYh7Fs0Mmc1
 flags:
   core:
@@ -79,7 +101,9 @@ flags:
           image: icons/magic/holy/angel-wings-gray.webp
           text: >-
             <p>Any creature within 10 ft. of you that has a good alignment has
-            advantage on saving throws.</p><p><em>No automation</em></p>
+            advantage on saving throws.</p><p><em>Midi and Aura Effects
+            automation</em></p><p><em>Set the aura's Script to a test for a good
+            alignment.</em></p>
         activation:
           type: ''
           cost: null

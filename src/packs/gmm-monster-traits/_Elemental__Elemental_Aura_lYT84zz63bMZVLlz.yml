@@ -5,8 +5,9 @@ system:
   description:
     value: >-
       <p>Each creature within 10 ft. of you is vulnerable to variant damage (or,
-      if they have immunity, it is reduced to resistance).</p><p><em>No
-      automation</em></p>
+      if they have immunity, it is reduced to resistance).</p><p><em>Core and
+      Aura Effects automation</em></p><p><em>Set the value of the <strong>Damage
+      Vulnerability</strong> change to a damage type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -65,7 +66,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 4zz63bMZVLlzlYT8
+    name: Elemental Aura
+    img: icons/magic/earth/explosion-lava-orange.webp
+    type: auraeffects.aura
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: system.traits.dv.value
+          type: add
+          value: ''
+      applyToSelf: false
+      combatOnly: true
+      distanceFormula: '10'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!lYT84zz63bMZVLlz.4zz63bMZVLlzlYT8'
 folder: YmYak9E5lZfQxjFV
 flags:
   core:
@@ -81,7 +102,9 @@ flags:
           text: >-
             <p>Each creature within 10 ft. of you is vulnerable to variant
             damage (or, if they have immunity, it is reduced to
-            resistance).</p><p><em>No automation</em></p>
+            resistance).</p><p><em>Core and Aura Effects
+            automation</em></p><p><em>Set the value of the <strong>Damage
+            Vulnerability</strong> change to a damage type.</em></p>
         activation:
           type: ''
           cost: null

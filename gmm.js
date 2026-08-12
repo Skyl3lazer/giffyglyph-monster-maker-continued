@@ -7,6 +7,7 @@ import Activities from './scripts/classes/Activities.js';
 import ActionBlueprint from './scripts/classes/ActionBlueprint.js';
 import ParagonPower from './scripts/classes/ParagonPower.js';
 import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
+import Auras from './scripts/classes/Auras.js';
 import Conditions from './scripts/classes/Conditions.js';
 import Deferrals from './scripts/classes/Deferrals.js';
 import Durations from './scripts/classes/Durations.js';
@@ -45,6 +46,7 @@ Hooks.once("init", function() {
 	ParagonDefenses.init();
 	Deferrals.init();
 	Durations.init();
+	Auras.init();
 
 	// Backward-compatible API used by legacy migration scripts/macros.
 	const moduleRef = game.modules.get(GMM_MODULE_TITLE);
