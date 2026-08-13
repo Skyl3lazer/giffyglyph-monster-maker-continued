@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Any lawful creature within 10 ft. of you has advantage on saving
-      throws.</p><p><em>Midi and Aura Effects automation.</em></p>
+      throws.</p><p><em>Midi and Aura Effects automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -100,7 +100,7 @@ flags:
           image: icons/skills/social/trading-justice-scale-yellow.webp
           text: >-
             <p>Any lawful creature within 10 ft. of you has advantage on saving
-            throws.</p><p><em>Midi and Aura Effects automation.</em></p>
+            throws.</p><p><em>Midi and Aura Effects automation</em></p>
         activation:
           type: ''
           cost: null

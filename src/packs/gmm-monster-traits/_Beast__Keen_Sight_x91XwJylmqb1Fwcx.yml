@@ -6,7 +6,7 @@ system:
     value: >-
       <p>You have advantage on Wisdom (Perception) checks that rely on
       sight.+</p><p><em>+ Midi automation, widened to every Perception
-      check.</em></p>
+      check</em></p>
     chat: ''
   source: {}
   activation:
@@ -98,7 +98,7 @@ flags:
           text: >-
             <p>You have advantage on Wisdom (Perception) checks that rely on
             sight.+</p><p><em>+ Midi automation, widened to every Perception
-            check.</em></p>
+            check</em></p>
         activation:
           type: ''
           cost: null

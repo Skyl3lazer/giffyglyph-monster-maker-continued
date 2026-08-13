@@ -6,7 +6,7 @@ system:
     value: >-
       <p>Any creature within 10 ft. of you that has a good alignment has
       advantage on saving throws.</p><p><em>Midi and Aura Effects
-      automation.</em></p>
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -102,7 +102,7 @@ flags:
           text: >-
             <p>Any creature within 10 ft. of you that has a good alignment has
             advantage on saving throws.</p><p><em>Midi and Aura Effects
-            automation.</em></p>
+            automation</em></p>
         activation:
           type: ''
           cost: null

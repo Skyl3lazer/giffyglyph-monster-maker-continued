@@ -6,7 +6,7 @@ system:
     value: >-
       <p>During your turn, you have advantage on attack rolls against any other
       creature that is adjacent to at least one ally that isn't
-      incapacitated.+</p><p><em>+ Midi automation, unfinished. Set
+      incapacitated.+</p><p><em>+ Midi automation, unfinished</em></p><p><em>Set
       advantage.attack.all to a condition that is true only while the target has
       an ally adjacent.</em></p>
     chat: ''
@@ -100,9 +100,9 @@ flags:
           text: >-
             <p>During your turn, you have advantage on attack rolls against any
             other creature that is adjacent to at least one ally that isn't
-            incapacitated.+</p><p><em>+ Midi automation, unfinished. Set
-            advantage.attack.all to a condition that is true only while the
-            target has an ally adjacent.</em></p>
+            incapacitated.+</p><p><em>+ Midi automation,
+            unfinished</em></p><p><em>Set advantage.attack.all to a condition
+            that is true only while the target has an ally adjacent.</em></p>
         activation:
           type: ''
           cost: null

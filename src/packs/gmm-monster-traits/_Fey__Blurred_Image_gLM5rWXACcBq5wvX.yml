@@ -7,8 +7,8 @@ system:
       <p>You project a magical illusion which creates a blurred image of
       yourself, causing attack rolls against you to have disadvantage. If you
       are hit by an attack, this image vanishes until the start of your next
-      turn.+</p><p><em>+ Midi automation. Midi disables the effect when you are
-      hit. Re-enable it at the start of your next turn.</em></p>
+      turn.+</p><p><em>+ Midi automation</em></p><p><em>Midi disables the effect
+      when you are hit. Re-enable it at the start of your next turn.</em></p>
     chat: ''
   source: {}
   activation:
@@ -103,9 +103,9 @@ flags:
             <p>You project a magical illusion which creates a blurred image of
             yourself, causing attack rolls against you to have disadvantage. If
             you are hit by an attack, this image vanishes until the start of
-            your next turn.+</p><p><em>+ Midi automation. Midi disables the
-            effect when you are hit. Re-enable it at the start of your next
-            turn.</em></p>
+            your next turn.+</p><p><em>+ Midi automation</em></p><p><em>Midi
+            disables the effect when you are hit. Re-enable it at the start of
+            your next turn.</em></p>
         activation:
           type: ''
           cost: null

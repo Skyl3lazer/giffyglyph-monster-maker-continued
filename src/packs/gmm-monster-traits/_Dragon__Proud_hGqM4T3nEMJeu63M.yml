@@ -5,8 +5,9 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against effects that charm,
-      frighten, or dominate.+</p><p><em>+ CAT automation. Domination is covered
-      by the charmed condition.</em></p>
+      frighten, or dominate.#</p><p><em># CAT
+      automation</em></p><p><em>Domination is covered by the charmed
+      condition.</em></p>
     chat: ''
   source: {}
   activation:
@@ -100,8 +101,9 @@ flags:
           image: icons/magic/control/mouth-smile-deception-purple.webp
           text: >-
             <p>You have advantage on saving throws against effects that charm,
-            frighten, or dominate.+</p><p><em>+ CAT automation. Domination is
-            covered by the charmed condition.</em></p>
+            frighten, or dominate.#</p><p><em># CAT
+            automation</em></p><p><em>Domination is covered by the charmed
+            condition.</em></p>
         activation:
           type: ''
           cost: null

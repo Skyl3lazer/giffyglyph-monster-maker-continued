@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>Difficult terrain doesn't cost you extra movement.*</p><p><em>* Core
-      automation, unfinished. Set the Ignored Difficult Terrain change to one
-      terrain type: ice, liquid, plants, rocks, mud, sand, slope, snow or web.
-      Add one change per type.</em></p>
+      automation, unfinished</em></p><p><em>Set the Ignored Difficult Terrain
+      change to one terrain type: ice, liquid, plants, rocks, mud, sand, slope,
+      snow or web. Add one change per type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -98,9 +98,9 @@ flags:
           image: icons/magic/nature/vines-thorned-entwined-glow-teal-purple.webp
           text: >-
             <p>Difficult terrain doesn't cost you extra movement.*</p><p><em>*
-            Core automation, unfinished. Set the Ignored Difficult Terrain
-            change to one terrain type: ice, liquid, plants, rocks, mud, sand,
-            slope, snow or web. Add one change per type.</em></p>
+            Core automation, unfinished</em></p><p><em>Set the Ignored Difficult
+            Terrain change to one terrain type: ice, liquid, plants, rocks, mud,
+            sand, slope, snow or web. Add one change per type.</em></p>
         activation:
           type: ''
           cost: null

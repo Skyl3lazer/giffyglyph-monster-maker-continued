@@ -7,8 +7,8 @@ system:
       <p>When you reduce a creature to 0 hit points, it must succeed on a DC
       [featureDc]&nbsp;Constitution saving throw or be vulnerable to variant
       damage until it finishes a long rest.*</p><p><em>* Core automation (roll
-      it when the trigger fires). Set the Damage Vulnerability change on the
-      effect to the element's damage type.</em></p>
+      it when the trigger fires)</em></p><p><em>Set the Damage Vulnerability
+      change on the effect to the element's damage type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -103,8 +103,8 @@ flags:
             <p>When you reduce a creature to 0 hit points, it must succeed on a
             DC [featureDc]&nbsp;Constitution saving throw or be vulnerable to
             variant damage until it finishes a long rest.*</p><p><em>* Core
-            automation (roll it when the trigger fires). Set the Damage
-            Vulnerability change on the effect to the element's damage
+            automation (roll it when the trigger fires)</em></p><p><em>Set the
+            Damage Vulnerability change on the effect to the element's damage
             type.</em></p>
         activation:
           type: special

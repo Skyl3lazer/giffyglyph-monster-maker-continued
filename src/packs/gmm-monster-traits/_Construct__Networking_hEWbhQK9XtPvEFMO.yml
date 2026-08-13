@@ -5,9 +5,9 @@ system:
   description:
     value: >-
       <p>If you are adjacent to another construct of the same type, you have
-      advantage on attack rolls.+</p><p><em>+ Midi automation, unfinished. Set
-      advantage.attack.all to a condition that is true only while an allied
-      construct of the same type is adjacent.</em></p>
+      advantage on attack rolls.+</p><p><em>+ Midi automation,
+      unfinished</em></p><p><em>Set advantage.attack.all to a condition that is
+      true only while an allied construct of the same type is adjacent.</em></p>
     chat: ''
   source: {}
   activation:
@@ -99,8 +99,8 @@ flags:
           text: >-
             <p>If you are adjacent to another construct of the same type, you
             have advantage on attack rolls.+</p><p><em>+ Midi automation,
-            unfinished. Set advantage.attack.all to a condition that is true
-            only while an allied construct of the same type is
+            unfinished</em></p><p><em>Set advantage.attack.all to a condition
+            that is true only while an allied construct of the same type is
             adjacent.</em></p>
         activation:
           type: ''

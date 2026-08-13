@@ -5,8 +5,8 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against being charmed, and magic
-      can&rsquo;t put you to sleep.+</p><p><em>+ CAT automation. The sleep
-      clause is not automated.</em></p>
+      can&rsquo;t put you to sleep.#</p><p><em># CAT
+      automation</em></p><p><em>The sleep clause is not automated.</em></p>
     chat: ''
   source: {}
   activation:
@@ -97,8 +97,9 @@ flags:
           image: icons/creatures/magical/fae-fairy-winged-glowing-green.webp
           text: >-
             <p>You have advantage on saving throws against being charmed, and
-            magic can&rsquo;t put you to sleep.+</p><p><em>+ CAT automation. The
-            sleep clause is not automated.</em></p>
+            magic can&rsquo;t put you to sleep.#</p><p><em># CAT
+            automation</em></p><p><em>The sleep clause is not
+            automated.</em></p>
         activation:
           type: ''
           cost: null

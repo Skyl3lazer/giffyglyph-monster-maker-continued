@@ -6,9 +6,9 @@ system:
     value: >-
       <p>While in bright light, you have disadvantage on all attack rolls and
       any Wisdom (Perception) check which relies on sight.+</p><p><em>+ Midi
-      automation, unfinished. Nothing here reads the light level. Set both
-      changes to 1 and apply the effect by hand while the creature stands in
-      bright light.</em></p>
+      automation, unfinished</em></p><p><em>Nothing here reads the light level.
+      Set both changes to 1 and apply the effect by hand while the creature
+      stands in bright light.</em></p>
     chat: ''
   source: {}
   activation:
@@ -103,9 +103,10 @@ flags:
           text: >-
             <p>While in bright light, you have disadvantage on all attack rolls
             and any Wisdom (Perception) check which relies on
-            sight.+</p><p><em>+ Midi automation, unfinished. Nothing here reads
-            the light level. Set both changes to 1 and apply the effect by hand
-            while the creature stands in bright light.</em></p>
+            sight.+</p><p><em>+ Midi automation,
+            unfinished</em></p><p><em>Nothing here reads the light level. Set
+            both changes to 1 and apply the effect by hand while the creature
+            stands in bright light.</em></p>
         activation:
           type: ''
           cost: null

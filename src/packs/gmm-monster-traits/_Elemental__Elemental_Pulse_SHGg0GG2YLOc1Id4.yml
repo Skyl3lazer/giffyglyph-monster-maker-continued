@@ -6,8 +6,8 @@ system:
     value: >-
       <p>At the start of your turn, each creature within 10 ft. of you takes
       variant damage equal to your combat level ([level]).</p><p><em>* Core
-      automation (roll it at the start of your turn). Set the damage type on the
-      DAMAGE row to the element's own type.</em></p>
+      automation (roll it at the start of your turn)</em></p><p><em>Set the
+      damage type on the DAMAGE row to the element's own type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -85,8 +85,8 @@ flags:
             <p>At the start of your turn, each creature within 10 ft. of you
             takes variant damage equal to your combat level
             ([level]).</p><p><em>* Core automation (roll it at the start of your
-            turn). Set the damage type on the DAMAGE row to the element's own
-            type.</em></p>
+            turn)</em></p><p><em>Set the damage type on the DAMAGE row to the
+            element's own type.</em></p>
         activation:
           type: special
           cost: null

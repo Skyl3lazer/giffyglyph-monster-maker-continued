@@ -5,8 +5,8 @@ system:
   description:
     value: >-
       <p>You are invisible. If you take damage, you lose this
-      invisibility.</p><p><em>+ Midi automation. Midi disables the effect when
-      you are hit or damaged. Re-enable it by hand.</em></p>
+      invisibility.</p><p><em>+ Midi automation</em></p><p><em>Midi disables the
+      effect when you are hit or damaged. Re-enable it by hand.</em></p>
     chat: ''
   source: {}
   activation:
@@ -99,8 +99,9 @@ flags:
           image: icons/creatures/magical/spirit-undead-ghost-purple.webp
           text: >-
             <p>You are invisible. If you take damage, you lose this
-            invisibility.</p><p><em>+ Midi automation. Midi disables the effect
-            when you are hit or damaged. Re-enable it by hand.</em></p>
+            invisibility.</p><p><em>+ Midi automation</em></p><p><em>Midi
+            disables the effect when you are hit or damaged. Re-enable it by
+            hand.</em></p>
         activation:
           type: ''
           cost: null

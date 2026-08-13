@@ -6,8 +6,9 @@ system:
     value: >-
       <p>At the start of your turn, if you have at least 1 hit point, you regain
       10% ([round(hpMax*0.1)]) of your maximum hit points.+</p><p><em>+ Midi
-      automation. The at least 1 hit point precondition is not checked, so a
-      downed creature still heals unless the effect is disabled.</em></p>
+      automation</em></p><p><em>The at least 1 hit point precondition is not
+      checked, so a downed creature still heals unless the effect is
+      disabled.</em></p>
     chat: ''
   source: {}
   activation:
@@ -101,9 +102,9 @@ flags:
           text: >-
             <p>At the start of your turn, if you have at least 1 hit point, you
             regain 10% ([round(hpMax*0.1)]) of your maximum hit
-            points.+</p><p><em>+ Midi automation. The at least 1 hit point
-            precondition is not checked, so a downed creature still heals unless
-            the effect is disabled.</em></p>
+            points.+</p><p><em>+ Midi automation</em></p><p><em>The at least 1
+            hit point precondition is not checked, so a downed creature still
+            heals unless the effect is disabled.</em></p>
         activation:
           type: ''
           cost: null

@@ -8,8 +8,8 @@ system:
       [featureDc] Dexterity saving throw. If the creature fails, it takes 50%
       ([round(damage*0.50), damageDie])&nbsp; variant damage. If it succeeds, it
       takes half damage instead.*</p><p><em>* Core automation (roll it when the
-      trigger fires). Set the damage type on the DAMAGE row to the element's own
-      type.</em></p>
+      trigger fires)</em></p><p><em>Set the damage type on the DAMAGE row to the
+      element's own type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -86,8 +86,8 @@ flags:
             [featureDc] Dexterity saving throw. If the creature fails, it takes
             50% ([round(damage*0.50), damageDie])&nbsp; variant damage. If it
             succeeds, it takes half damage instead.*</p><p><em>* Core automation
-            (roll it when the trigger fires). Set the damage type on the DAMAGE
-            row to the element's own type.</em></p>
+            (roll it when the trigger fires)</em></p><p><em>Set the damage type
+            on the DAMAGE row to the element's own type.</em></p>
         activation:
           type: special
           cost: null

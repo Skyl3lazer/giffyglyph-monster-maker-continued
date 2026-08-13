@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against spells and other magical
-      effects cast by a lawful creature.</p><p><em>Midi automation.</em></p>
+      effects cast by a lawful creature.</p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -97,7 +97,7 @@ flags:
           text: >-
             <p>You have advantage on saving throws against spells and other
             magical effects cast by a lawful creature.</p><p><em>Midi
-            automation.</em></p>
+            automation</em></p>
         activation:
           type: ''
           cost: null

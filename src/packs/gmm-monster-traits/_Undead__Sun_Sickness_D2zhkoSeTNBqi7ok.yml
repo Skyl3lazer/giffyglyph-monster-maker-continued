@@ -6,10 +6,10 @@ system:
     value: >-
       <p>While in sunlight, you have disadvantage on ability checks, attack
       rolls, and saving throws. You die if you spend more than 1 hour in direct
-      sunlight.+</p><p><em>+ Midi automation, unfinished. Nothing here reads the
-      light level. Set disadvantage.all to 1 and apply the effect by hand while
-      the creature stands in sunlight. The one-hour death clause is not
-      automated.</em></p>
+      sunlight.+</p><p><em>+ Midi automation, unfinished</em></p><p><em>Nothing
+      here reads the light level. Set disadvantage.all to 1 and apply the effect
+      by hand while the creature stands in sunlight. The one-hour death clause
+      is not automated.</em></p>
     chat: ''
   source: {}
   activation:
@@ -101,10 +101,11 @@ flags:
           text: >-
             <p>While in sunlight, you have disadvantage on ability checks,
             attack rolls, and saving throws. You die if you spend more than 1
-            hour in direct sunlight.+</p><p><em>+ Midi automation, unfinished.
-            Nothing here reads the light level. Set disadvantage.all to 1 and
-            apply the effect by hand while the creature stands in sunlight. The
-            one-hour death clause is not automated.</em></p>
+            hour in direct sunlight.+</p><p><em>+ Midi automation,
+            unfinished</em></p><p><em>Nothing here reads the light level. Set
+            disadvantage.all to 1 and apply the effect by hand while the
+            creature stands in sunlight. The one-hour death clause is not
+            automated.</em></p>
         activation:
           type: ''
           cost: null

@@ -5,8 +5,9 @@ system:
   description:
     value: >-
       <p>You have advantage on ability checks and saving throws made to escape a
-      grapple.+</p><p><em>+ Midi automation, unfinished. Set the change values
-      to a condition that is true only for grapple escapes.</em></p>
+      grapple.+</p><p><em>+ Midi automation, unfinished</em></p><p><em>Set the
+      change values to a condition that is true only for grapple
+      escapes.</em></p>
     chat: ''
   source: {}
   activation:
@@ -103,9 +104,9 @@ flags:
           image: icons/skills/movement/feet-winged-boots-glowing-yellow.webp
           text: >-
             <p>You have advantage on ability checks and saving throws made to
-            escape a grapple.+</p><p><em>+ Midi automation, unfinished. Set the
-            change values to a condition that is true only for grapple
-            escapes.</em></p>
+            escape a grapple.+</p><p><em>+ Midi automation,
+            unfinished</em></p><p><em>Set the change values to a condition that
+            is true only for grapple escapes.</em></p>
         activation:
           type: ''
           cost: null

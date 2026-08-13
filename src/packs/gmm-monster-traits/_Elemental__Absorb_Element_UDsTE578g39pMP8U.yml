@@ -5,8 +5,9 @@ system:
   description:
     value: >-
       <p>When you would take variable damage, you instead regain that many hit
-      points.</p><p><em>Midi automation. Change <strong>fire</strong> in the
-      change key to the element's damage type.</em></p>
+      points.</p><p><em>Midi automation</em></p><p><em>Change
+      <strong>fire</strong> in the change key to the element's damage
+      type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -97,8 +98,9 @@ flags:
           image: icons/magic/fire/projectile-fireball-orange-green.webp
           text: >-
             <p>When you would take variable damage, you instead regain that many
-            hit points.</p><p><em>Midi automation. Change <strong>fire</strong>
-            in the change key to the element's damage type.</em></p>
+            hit points.</p><p><em>Midi automation</em></p><p><em>Change
+            <strong>fire</strong> in the change key to the element's damage
+            type.</em></p>
         activation:
           type: ''
           cost: null
