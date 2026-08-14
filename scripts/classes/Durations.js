@@ -315,19 +315,40 @@ const Durations = (function () {
 			.find(e => e.getFlag("dnd5e", "item")?.id === itemId) ?? null;
 	}
 
+	/* Not the origin string. Under midi every effect in one application carries the first one's uuid.
+	 * Under core they all differ. */
+	function _sourceItemIdOf(effect) {
+		return AutomationHelpers.resolveSourceItem(effect?.origin)?.id ?? null;
+	}
+
+	function _carrierFor(effect) {
+		const itemId = _sourceItemIdOf(effect);
+		if (!itemId) return null;
+		return [...(effect.parent?.effects ?? [])]
+			.find(e => isDurationEffect(e) && _sourceItemIdOf(e) === itemId) ?? null;
+	}
+
+	/* A doom clock from a second use of the same feature is machinery rather than payload. Ending this
+	 * carrier would cancel a payload that has not landed yet. */
+	function _payloadOf(carrier) {
+		const itemId = _sourceItemIdOf(carrier);
+		if (!itemId) return [];
+		return [...(carrier.parent?.effects ?? [])].filter(e => e.id !== carrier.id
+			&& !isDurationEffect(e)
+			&& !e.flags?.[GMM_MODULE_TITLE]?.deferral
+			&& _sourceItemIdOf(e) === itemId);
+	}
+
 	/* An authored effect carries whatever lifetime the GM gave it in the native config. The blueprint's
-	 * own duration then contradicts it. Provisional until a duration is per-effect. */
+	 * own duration then contradicts it. The carrier's wins. */
 	async function _slaveSiblingDurations(effect) {
 		const parent = effect?.parent;
-		if (!parent?.effects || !effect.origin) return;
-		const carrier = [...parent.effects].find(e => isDurationEffect(e) && e.origin === effect.origin);
+		if (!parent?.effects) return;
+		const carrier = _carrierFor(effect);
 		if (!carrier) return;
 		const duration = carrier.toObject().duration;
-		const updates = [...parent.effects]
-			.filter(e => e.origin === carrier.origin
-				&& e.id !== carrier.id
-				&& !e.flags?.[GMM_MODULE_TITLE]?.deferral
-				&& !foundry.utils.objectsEqual(e.toObject().duration, duration))
+		const updates = _payloadOf(carrier)
+			.filter(e => !foundry.utils.objectsEqual(e.toObject().duration, duration))
 			.map(e => ({ _id: e.id, duration }));
 		if (updates.length) await parent.updateEmbeddedDocuments("ActiveEffect", updates);
 	}
@@ -353,6 +374,10 @@ const Durations = (function () {
 	 * dependents check keeps a multi-target feature concentrating until the last carrier is gone. */
 	async function _onDeleteActiveEffect(effect) {
 		if (!game.users.activeGM?.isSelf || !isDurationEffect(effect)) return;
+
+		const payload = _payloadOf(effect).map(e => e.id);
+		if (payload.length) await effect.parent?.deleteEmbeddedDocuments("ActiveEffect", payload);
+
 		const source = _sourceActorOf(effect);
 		const itemId = AutomationHelpers.resolveSourceItem(effect.origin)?.id ?? null;
 		const concentration = _concentrationFor(source, itemId);
@@ -363,9 +388,21 @@ const Durations = (function () {
 		await concentration.delete();
 	}
 
+	/* A world left on the default expiry action marks a carrier rather than deleting it. The payload is
+	 * marked the same way, because which of the two happens is the world's policy and not GMMC's. */
+	async function _onUpdateActiveEffect(effect) {
+		if (!game.users.activeGM?.isSelf || !isDurationEffect(effect)) return;
+		if (effect.active || effect.disabled) return;
+		const updates = _payloadOf(effect)
+			.filter(e => e.active)
+			.map(e => ({ _id: e.id, "duration.expired": true }));
+		if (updates.length) await effect.parent?.updateEmbeddedDocuments("ActiveEffect", updates);
+	}
+
 	function init() {
 		Hooks.on("preCreateActiveEffect", _onPreCreateActiveEffect);
 		Hooks.on("createActiveEffect", _onCreateActiveEffect);
+		Hooks.on("updateActiveEffect", _onUpdateActiveEffect);
 		Hooks.on("deleteActiveEffect", _onDeleteActiveEffect);
 		Hooks.on("combatTurnChange", _onCombatTurnChange);
 	}
