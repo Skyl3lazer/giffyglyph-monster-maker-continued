@@ -53,7 +53,7 @@ const MonsterForge = (function () {
                 description: _parseDescription(blueprint.data.description),
                 hit_points: _parseHitPoints(derivedAttributes, blueprint.data.hit_points),
                 image: blueprint.data.description.image,
-                initiative: _parseInitiative(monsterAbilityModifiers, derivedAttributes.rank, derivedAttributes.role, blueprint.data.initiative),
+                initiative: _parseInitiative(monsterAbilityModifiers, derivedAttributes.rank, derivedAttributes.role, blueprint.data.initiative, monsterProficiency.value),
                 inventory: _parseInventory(monsterInventoryWeight, monsterInventoryCapacity, blueprint.data.inventory),
                 lair_actions: _parseLairActions(derivedAttributes, blueprint.data.lair_actions, ignoreItemRequirements),
                 languages: _parseCollection(GMM_5E_LANGUAGES, blueprint.data.languages, "language"),
@@ -546,11 +546,11 @@ const MonsterForge = (function () {
         return cr;
     }
 
-    function _parseInitiative(monsterAbilityModifiers, rank, role, initiative) {
+    function _parseInitiative(monsterAbilityModifiers, rank, role, initiative, proficiencyBonus) {
         const init = new DerivedAttribute();
         init.add(monsterAbilityModifiers[initiative.ability].value, game.i18n.format('gmm.common.derived_source.ability_modifier'));
-        init.add(rank.modifiers.initiative, game.i18n.format('gmm.common.derived_source.rank'));
-        init.add(role.modifiers.initiative, game.i18n.format('gmm.common.derived_source.role'));
+        init.add(_getInitiativeBonus(rank.modifiers, proficiencyBonus), game.i18n.format('gmm.common.derived_source.rank'));
+        init.add(_getInitiativeBonus(role.modifiers, proficiencyBonus), game.i18n.format('gmm.common.derived_source.role'));
         init.applyModifier(initiative.modifier.value, initiative.modifier.override);
         init.ceil();
 
@@ -558,6 +558,10 @@ const MonsterForge = (function () {
             ability: initiative.ability,
             advantage: initiative.advantage
         });
+    }
+
+    function _getInitiativeBonus(modifiers, proficiencyBonus) {
+        return Math.floor(proficiencyBonus * (modifiers.initiative_pb ?? 0)) + (modifiers.initiative ?? 0);
     }
 
     function _parseBiography(biography) {

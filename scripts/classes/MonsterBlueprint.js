@@ -6,8 +6,8 @@ import { GMM_5E_SIZES } from "../consts/Gmm5eSizes.js";
 import { GMM_5E_SKILLS } from "../consts/Gmm5eSkills.js";
 import { GMM_5E_UNITS } from "../consts/Gmm5eUnits.js";
 import { GMM_MONSTER_BLUEPRINT } from "../consts/GmmMonsterBlueprint.js";
-import { GMM_MONSTER_RANKS } from "../consts/GmmMonsterRanks.js";
-import { GMM_MONSTER_ROLES } from "../consts/GmmMonsterRoles.js";
+import { GMM_MONSTER_RANKS, GMM_MONSTER_RANK_AUTHORED_KEYS } from "../consts/GmmMonsterRanks.js";
+import { GMM_MONSTER_ROLES, GMM_MONSTER_ROLE_AUTHORED_KEYS } from "../consts/GmmMonsterRoles.js";
 import { GMM_5E_XP } from "../consts/Gmm5eXp.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 
@@ -87,20 +87,40 @@ const MonsterBlueprint = (function () {
 		return [stored?.data?.combat?.rank?.type ? null : _getInitialData(actor), stored];
 	}
 
+	/* A non-custom dial's modifiers are a creation-time snapshot of the const table, so a corrected
+	   table reaches an existing scaler only by being restored here. Under `custom` there is no table
+	   to restore from, because every value in it was typed by the builder. */
+	function _reconcileModifiers(blueprint) {
+		_reconcileDial(blueprint.data?.combat?.rank, GMM_MONSTER_RANKS, GMM_MONSTER_RANK_AUTHORED_KEYS);
+		_reconcileDial(blueprint.data?.combat?.role, GMM_MONSTER_ROLES, GMM_MONSTER_ROLE_AUTHORED_KEYS);
+		return blueprint;
+	}
+
+	function _reconcileDial(dial, table, authoredKeys) {
+		const owned = (dial?.type && dial.type !== "custom") ? table[dial.type] : null;
+		if (!owned) return;
+		const authored = {};
+		authoredKeys.forEach((x) => {
+			if (dial.modifiers?.[x] !== undefined) authored[x] = dial.modifiers[x];
+		});
+		// Deep: a shallow copy would leave `phases` a live reference into the const table.
+		dial.modifiers = $.extend(true, {}, owned, authored);
+	}
+
 	function createFromActor(actor) {
-		const blueprint = $.extend(true, {}, GMM_MONSTER_BLUEPRINT, ..._resolveBlueprintSources(actor));
+		const blueprint = _reconcileModifiers($.extend(true, {}, GMM_MONSTER_BLUEPRINT, ..._resolveBlueprintSources(actor)));
 		return _syncActorDataToBlueprint(blueprint, actor);
 	}
 
 	/* AC and max HP have to be assigned in base data, and nothing else the forge produces does. */
 	function createBaseFromActor(actor) {
 		const [seed, stored] = _resolveBlueprintSources(actor);
-		return {
+		return _reconcileModifiers({
 			data: $.extend(true, {},
 				_pickBaseSubtrees(GMM_MONSTER_BLUEPRINT.data),
 				_pickBaseSubtrees(seed?.data),
 				_pickBaseSubtrees(stored?.data))
-		};
+		});
 	}
 
 	function _pickBaseSubtrees(data) {

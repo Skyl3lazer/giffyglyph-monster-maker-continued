@@ -7,6 +7,7 @@ export const GMM_MONSTER_RANKS = {
 		saving_throws: 1,
 		attack_dcs: 0,
 		initiative: 0,
+		initiative_pb: 0,
 		xp: 0.0625,
 		threat: 1,
 		paragon_actions: 0,
@@ -27,6 +28,7 @@ export const GMM_MONSTER_RANKS = {
 		saving_throws: 2,
 		attack_dcs: 0,
 		initiative: 0,
+		initiative_pb: 0,
 		xp: 0.25,
 		threat: 2,
 		paragon_actions: 0,
@@ -46,7 +48,8 @@ export const GMM_MONSTER_RANKS = {
 		damage_per_action: 1.1,
 		saving_throws: 3,
 		attack_dcs: 0,
-		initiative: 2,
+		initiative: 0,
+		initiative_pb: 0.5,
 		xp: 0.5,
 		threat: 3,
 		paragon_actions: 1,
@@ -66,7 +69,8 @@ export const GMM_MONSTER_RANKS = {
 		damage_per_action: 1.2,
 		saving_throws: 3,
 		attack_dcs: 0,
-		initiative: 1,
+		initiative: 0,
+		initiative_pb: 1,
 		xp: 1,
 		threat: 4,
 		paragon_actions: 1,
@@ -87,6 +91,7 @@ export const GMM_MONSTER_RANKS = {
 		saving_throws: 0,
 		attack_dcs: 0,
 		initiative: 0,
+		initiative_pb: 0,
 		xp: 1,
 		threat: 1,
 		paragon_actions: 0,
@@ -100,3 +105,5 @@ export const GMM_MONSTER_RANKS = {
 		}
 	}
 };
+
+export const GMM_MONSTER_RANK_AUTHORED_KEYS = ["target_players", "phases"];

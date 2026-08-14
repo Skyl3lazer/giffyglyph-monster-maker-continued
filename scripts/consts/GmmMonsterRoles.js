@@ -7,6 +7,7 @@ export const GMM_MONSTER_ROLES = {
 		saving_throws: 0,
 		attack_dcs: 0,
 		initiative: 0,
+		initiative_pb: 1,
 		skill: [],
 		speed: 0,
 		icon: "fas fa-brain"
@@ -19,6 +20,7 @@ export const GMM_MONSTER_ROLES = {
 		saving_throws: 1,
 		attack_dcs: 0,
 		initiative: 0,
+		initiative_pb: 0,
 		skill: [],
 		speed: -5,
 		icon: "fas fa-shield-alt"
@@ -31,6 +33,7 @@ export const GMM_MONSTER_ROLES = {
 		saving_throws: -1,
 		attack_dcs: 0,
 		initiative: 0,
+		initiative_pb: 0,
 		skill: ["stealth"],
 		speed: 0,
 		icon: "fas fa-moon"
@@ -43,6 +46,7 @@ export const GMM_MONSTER_ROLES = {
 		saving_throws: 0,
 		attack_dcs: 0,
 		initiative: 0,
+		initiative_pb: 0,
 		skill: ["perception"],
 		speed: 5,
 		icon: "fas fa-eye"
@@ -55,6 +59,7 @@ export const GMM_MONSTER_ROLES = {
 		saving_throws: 0,
 		attack_dcs: 0,
 		initiative: 0,
+		initiative_pb: 0,
 		skill: [],
 		speed: 0,
 		icon: "fas fa-fire"
@@ -66,7 +71,8 @@ export const GMM_MONSTER_ROLES = {
 		damage_per_action: 0.75,
 		saving_throws: 0,
 		attack_dcs: 0,
-		initiative: 1,
+		initiative: 0,
+		initiative_pb: 1,
 		skill: [],
 		speed: 0,
 		icon: "fas fa-first-aid"
@@ -79,8 +85,12 @@ export const GMM_MONSTER_ROLES = {
 		saving_throws: 0,
 		attack_dcs: 0,
 		initiative: 0,
+		initiative_pb: 0,
 		skill: [],
 		speed: 0,
 		icon: "fas fa-question"
 	}
 };
+
+/* Nothing in a role's modifiers is editable outside the custom role. */
+export const GMM_MONSTER_ROLE_AUTHORED_KEYS = [];
