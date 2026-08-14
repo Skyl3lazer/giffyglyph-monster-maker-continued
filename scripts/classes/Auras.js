@@ -1,3 +1,5 @@
+import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
+
 const AURA_MODULE_ID = "auraeffects";
 const AURA_TYPE = "auraeffects.aura";
 
@@ -61,9 +63,23 @@ const Auras = (function () {
 		ui.notifications?.warn(game.i18n.format(key, { count: count }));
 	}
 
+	/* Give a better error when a GM loads an aura automation without Aura Effects */
+	function _explainRejections() {
+		try {
+			libWrapper.register(GMM_MODULE_TITLE, "Hooks.onError", function (wrapped, location, error, options = {}) {
+				if (!String(error?.message ?? "").includes(AURA_TYPE)) return wrapped(location, error, options);
+				ui.notifications?.warn(game.i18n.localize("gmm.aura.not_created"));
+				return wrapped(location, error, { ...options, notify: null });
+			}, "MIXED");
+		} catch (error) {
+			console.warn(`GMM | libWrapper hook for "Hooks.onError" was not registered: ${error.message}`);
+		}
+	}
+
 	function init() {
 		if (game.modules.get(AURA_MODULE_ID)?.active) return;
 		CONFIG.ActiveEffect.dataModels[AURA_TYPE] = _inertModel();
+		_explainRejections();
 		Hooks.once("ready", () => {
 			if (!game.user?.isGM) return;
 			afterReady = true;
