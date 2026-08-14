@@ -12,19 +12,9 @@ const GmmItem = (function () {
         return dnd5e.dice.simplifyRollFormula(...args);
     }
 
-    function _safeWrap(target, fn, type) {
-        try {
-            libWrapper.register('giffyglyph-monster-maker-continued', target, fn, type);
-            return true;
-        } catch (error) {
-            console[game.modules.get('lib-wrapper')?.active ? "error" : "warn"](`GMM | libWrapper hook for "${target}" was not registered: ${error.message}`);
-            return false;
-        }
-    }
-
     function patchItem5e() {
         // Rebuilt from the document every prepare, so it can never be stale.
-        _safeWrap('game.dnd5e.documents.Item5e.prototype.prepareData', function (wrapped, ...args) {
+        CompatibilityHelpers.safeWrap('game.dnd5e.documents.Item5e.prototype.prepareData', function (wrapped, ...args) {
             wrapped(...args);
             if (this.getSheetId() == `${GMM_MODULE_TITLE}.ActionSheet`) {
                 try {

@@ -1,7 +1,8 @@
-import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
+import CompatibilityHelpers from "./CompatibilityHelpers.js";
 
 const AURA_MODULE_ID = "auraeffects";
 const AURA_TYPE = "auraeffects.aura";
+const GMM_PACK_PREFIX = "Compendium.giffyglyph-monster-maker-continued.";
 
 /* An unregistered ActiveEffect subtype still applies its changes, so an aura in a world without Aura Effects would land its payload on the monster itself. */
 const Auras = (function () {
@@ -65,21 +66,43 @@ const Auras = (function () {
 
 	/* Give a better error when a GM loads an aura automation without Aura Effects */
 	function _explainRejections() {
-		try {
-			libWrapper.register(GMM_MODULE_TITLE, "Hooks.onError", function (wrapped, location, error, options = {}) {
-				if (!String(error?.message ?? "").includes(AURA_TYPE)) return wrapped(location, error, options);
-				ui.notifications?.warn(game.i18n.localize("gmm.aura.not_created"));
-				return wrapped(location, error, { ...options, notify: null });
-			}, "MIXED");
-		} catch (error) {
-			console.warn(`GMM | libWrapper hook for "Hooks.onError" was not registered: ${error.message}`);
-		}
+		CompatibilityHelpers.safeWrap("Hooks.onError", function (wrapped, location, error, options = {}) {
+			if (!String(error?.message ?? "").includes(AURA_TYPE)) return wrapped(location, error, options);
+			ui.notifications?.warn(game.i18n.localize("gmm.aura.not_created"));
+			return wrapped(location, error, { ...options, notify: null });
+		}, "MIXED");
+	}
+
+	/* Provenance is stamped on a drag or an import and not on a programmatic create, so the blueprint carries the ones it misses. */
+	function _isOurs(item) {
+		if (item.flags?.gmm?.blueprint) return true;
+		return String(item._stats?.compendiumSource ?? "").startsWith(GMM_PACK_PREFIX);
+	}
+
+	/* Foundry rejects the whole item rather than the effect, and nothing a client registers makes the subtype valid. */
+	function _stripUnusableAuras() {
+		CompatibilityHelpers.safeWrap("game.dnd5e.documents.Item5e.createDocuments", function (wrapped, data = [], operation = {}) {
+			if (!Array.isArray(data)) return wrapped(data, operation);
+			let dropped = 0;
+			const cleaned = data.map((item) => {
+				if (!Array.isArray(item?.effects)) return item;
+				/* Only GMMC's own content, because re-importing from where it came from is the only way back to the aura. */
+				if (!_isOurs(item)) return item;
+				const kept = item.effects.filter((effect) => effect?.type !== AURA_TYPE);
+				if (kept.length === item.effects.length) return item;
+				dropped += item.effects.length - kept.length;
+				return { ...item, effects: kept };
+			});
+			if (dropped) ui.notifications?.warn(game.i18n.format("gmm.aura.dropped", { count: dropped }));
+			return wrapped(cleaned, operation);
+		}, "WRAPPER");
 	}
 
 	function init() {
 		if (game.modules.get(AURA_MODULE_ID)?.active) return;
 		CONFIG.ActiveEffect.dataModels[AURA_TYPE] = _inertModel();
 		_explainRejections();
+		_stripUnusableAuras();
 		Hooks.once("ready", () => {
 			if (!game.user?.isGM) return;
 			afterReady = true;

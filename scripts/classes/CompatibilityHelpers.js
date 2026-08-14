@@ -1,4 +1,19 @@
+import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
+
 const CompatibilityHelpers = (function () {
+	/* Wrap libWrapper.register so a registration failure (e.g. against a method dnd5e has since
+	 * removed) emits a console warning instead of throwing and aborting the rest of the patching. */
+	function safeWrap(target, fn, type) {
+		try {
+			libWrapper.register(GMM_MODULE_TITLE, target, fn, type);
+			return true;
+		} catch (error) {
+			// Missing lib-wrapper is expected (the ready hook warns the user); any other failure means
+			// a wrap target changed in this dnd5e version, which has to surface loudly.
+			console[game.modules.get('lib-wrapper')?.active ? "error" : "warn"](`GMM | libWrapper hook for "${target}" was not registered: ${error.message}`);
+			return false;
+		}
+	}
 	//fv14 - Property management moved to foundry.utils
 	function hasProperty(...args) {
 		if (game.version >= 12) {
@@ -86,6 +101,7 @@ const CompatibilityHelpers = (function () {
 		return messageMode ? { messageMode } : {};
 	}
 	return {
+		safeWrap: safeWrap,
 		hasProperty: hasProperty,
 		setProperty: setProperty,
 		getProperty: getProperty,

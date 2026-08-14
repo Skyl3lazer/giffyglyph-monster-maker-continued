@@ -5,27 +5,15 @@ import MonsterForge from './MonsterForge.js';
 import { GMM_5E_ABILITIES } from "../consts/Gmm5eAbilities.js";
 import { GMM_5E_SKILLS } from '../consts/Gmm5eSkills.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
+import CompatibilityHelpers from './CompatibilityHelpers.js';
 
 const GmmActor = (function () {
 	function Proficiency(...args) {
 		return new dnd5e.documents.Proficiency(...args);
 	}
-	/* Wrap libWrapper.register so a registration failure (e.g. against a method dnd5e has since
-	 * removed) emits a console warning instead of throwing and aborting the rest of the patching. */
-	function _safeWrap(target, fn, type) {
-		try {
-			libWrapper.register('giffyglyph-monster-maker-continued', target, fn, type);
-			return true;
-		} catch (error) {
-			// Missing lib-wrapper is expected (the ready hook warns the user); any other failure means
-			// a wrap target changed in this dnd5e version, which has to surface loudly.
-			console[game.modules.get('lib-wrapper')?.active ? "error" : "warn"](`GMM | libWrapper hook for "${target}" was not registered: ${error.message}`);
-			return false;
-		}
-	}
 
 	function patchActor5e() {
-		_safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareBaseData', function (wrapped, ...args) {
+		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareBaseData', function (wrapped, ...args) {
 			if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
 				wrapped(...args);
 				_prepareMonsterBaseData(this);
@@ -35,7 +23,7 @@ const GmmActor = (function () {
 				delete this._gmmRollData;
 			}
 		}, 'WRAPPER');
-		_safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
+		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
 			if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
 				wrapped(...args);
 				_prepareMonsterDerivedData(this);
@@ -46,7 +34,7 @@ const GmmActor = (function () {
 		}, 'WRAPPER');
 
 		// DAE wraps this too, through libWrapper. The two interleave by priority.
-		_safeWrap('game.dnd5e.documents.Actor5e.prototype.getRollData', function (wrapped, ...args) {
+		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.getRollData', function (wrapped, ...args) {
 			const data = wrapped(...args);
 			if (this._gmmRollData) data.gmm = this._gmmRollData;
 			return data;

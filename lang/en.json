@@ -690,6 +690,7 @@
   "gmm.aura.suppressed": "{count} aura effect(s) are switched off because the Aura Effects module is not active. See the console for which.",
   "gmm.aura.stranded": "{count} effect(s) left behind by Aura Effects are still applying, but nothing remains to remove them.",
   "gmm.aura.not_created": "This item carries an aura effect which cannot be used while the Aura Effects module is inactive. Enable Aura Effects and re-import to use it.",
+  "gmm.aura.dropped": "{count} aura effect(s) were removed from the imported item(s) because the Aura Effects module is not active. Enable Aura Effects and re-import to use them.",
   "gmm.condition.bleeding.spent": "{name} loses a hit die to Bleeding.",
   "gmm.condition.cursed.died": "{name} is Cursed and dies at 0 hit points.",
   "gmm.monster.artifact.paragon_actions.depleted": "{name} has no paragon actions remaining.",
