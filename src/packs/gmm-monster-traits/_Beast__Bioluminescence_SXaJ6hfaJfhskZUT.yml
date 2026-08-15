@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You shed bright light for 15 ft. and dim light for an additional 15
-      ft.</p><p><em>ATL automation</em></p>
+      ft.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -74,10 +74,10 @@ effects:
     description: ''
     system:
       changes:
-        - key: ATL.light.bright
+        - key: token.light.bright
           type: override
           value: '15'
-        - key: ATL.light.dim
+        - key: token.light.dim
           type: override
           value: '30'
     flags:
@@ -99,7 +99,7 @@ flags:
           image: icons/creatures/eyes/slime-cluster-green.webp
           text: >-
             <p>You shed bright light for 15 ft. and dim light for an additional
-            15 ft.</p><p><em>ATL automation</em></p>
+            15 ft.</p><p><em>Core automation</em></p>
         activation:
           type: ''
           cost: null
