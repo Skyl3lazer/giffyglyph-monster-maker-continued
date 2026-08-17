@@ -5,22 +5,16 @@ const MonsterHelpers = (function () {
 
     function getDerivedAttributes(level, rank, role) {
         const clampedLevel = _getClampedLevel(level);
-        const proficiencyBonus = _getProficiencyBonus(clampedLevel);
         const abilityModifiers = _getAbilityModifiers(clampedLevel);
         const trainedSavingThrowCount = _getTrainedSavingThrowCount(rank, role);
-        const averagePlayerDamagePerRound = _getAveragePlayerDamagePerRound(clampedLevel, proficiencyBonus);
-        const averagePlayerHitPoints = _getAveragePlayerHitPoints(clampedLevel, abilityModifiers);
         const monsterXp = _getMonsterXp(clampedLevel, rank);
 
         return {
             level: clampedLevel,
             rank: rank,
             role: role,
-            proficiencyBonus: proficiencyBonus,
             maximumHitPoints: _getMonsterMaximumHitPoints(clampedLevel, rank, role),
             armorClass: _getMonsterArmorClass(clampedLevel, rank, role),
-            attackBonus: _getMonsterAttackBonus(proficiencyBonus),
-            attackDcs: _getMonsterAttackDcs(proficiencyBonus, abilityModifiers, rank, role),
             damagePerAction: _getMonsterDamagePerAction(clampedLevel, rank, role),
             abilityModifiers: _getMonsterAbilityModifiers(abilityModifiers, rank),
             trainedSavingThrowCount: trainedSavingThrowCount,
@@ -36,7 +30,7 @@ const MonsterHelpers = (function () {
         return Math.max(min, Math.min(level, max));
     }
 
-    function _getProficiencyBonus(level) {
+    function getProficiencyBonus(level) {
         return Math.max(1, Math.floor((level + 3) / 4) + 1);
     }
 
@@ -65,14 +59,6 @@ const MonsterHelpers = (function () {
 
     function _getTrainedSavingThrowCount(rank, role) {
         return rank.modifiers.saving_throws + role.modifiers.saving_throws;
-    }
-
-    function _getAveragePlayerDamagePerRound(level, proficiencyBonus) {
-        return (level > 0) ? Math.max((Math.ceil(level / 4) + (((level - 1) % 4) / 8)) * (4.5 + proficiencyBonus), 1) : 4 + level
-    }
-
-    function _getAveragePlayerHitPoints(level, abilityModifier) {
-        return (level * (5 + Math.min(abilityModifier - 2, 5))) + 2
     }
 
     function _getMonsterMaximumHitPoints(combatLevel, rank, role) {
@@ -107,26 +93,6 @@ const MonsterHelpers = (function () {
         ac.add(roleAc, game.i18n.format('gmm.common.derived_source.role'));
 
         return ac;
-    }
-
-    function _getMonsterAttackBonus(proficiencyBonus) {
-        const baseAttack = proficiencyBonus;
-
-        const ab = new DerivedAttribute();
-        ab.add(baseAttack, game.i18n.format('gmm.common.derived_source.base'));
-
-        return ab;
-    }
-
-    function _getMonsterAttackDcs(proficiencyBonus) {
-        const baseDc = proficiencyBonus + 8;
-
-        const primary = new DerivedAttribute();
-        primary.add(baseDc, game.i18n.format('gmm.common.derived_source.base'));
-
-        return {
-            primary: primary
-        };
     }
 
     function _getMonsterDamagePerAction(monsterLevel, rank, role) {
@@ -173,7 +139,8 @@ const MonsterHelpers = (function () {
     }
 
     return {
-        getDerivedAttributes: getDerivedAttributes
+        getDerivedAttributes: getDerivedAttributes,
+        getProficiencyBonus: getProficiencyBonus
     };
 })();
 

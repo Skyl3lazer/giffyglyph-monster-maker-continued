@@ -39,8 +39,8 @@ const MonsterForge = (function () {
                 ability_modifiers: monsterAbilityModifiers,
                 actions: _parseActions(derivedAttributes, blueprint.data.actions, ignoreItemRequirements),
                 armor_class: _parseArmorClass(derivedAttributes, blueprint.data.armor_class),
-                attack_bonus: _parseAttackBonus(derivedAttributes, blueprint.data.attack_bonus),
-                attack_dcs: _parseAttackDcs(derivedAttributes, blueprint.data.attack_dcs),
+                attack_bonus: _parseAttackBonus(monsterProficiency.value, blueprint.data.attack_bonus),
+                attack_dcs: _parseAttackDcs(monsterProficiency.value, blueprint.data.attack_dcs),
                 biography: _parseBiography(blueprint.data.biography),
                 bonus_actions: _parseBonusActions(derivedAttributes, blueprint.data.bonus_actions, ignoreItemRequirements),
                 challenge_rating: _parseChallengeRating(derivedAttributes, blueprint.data.challenge_rating),
@@ -117,13 +117,14 @@ const MonsterForge = (function () {
             blueprint.data.combat.rank,
             blueprint.data.combat.role
         );
+        const monsterProficiency = _parseProficiency(derivedAttributes, blueprint.data.proficiency_bonus);
         const hitPoints = _parseHitPoints(derivedAttributes, blueprint.data.hit_points);
         const rolled = Number(blueprint.data.hit_points.rolled_max) || 0;
 
         return _rollDataSurface(blueprint, {
             level: derivedAttributes.level,
-            attackBonus: _parseAttackBonus(derivedAttributes, blueprint.data.attack_bonus).value,
-            saveDc: _parseAttackDcs(derivedAttributes, blueprint.data.attack_dcs).primary.value
+            attackBonus: _parseAttackBonus(monsterProficiency.value, blueprint.data.attack_bonus).value,
+            saveDc: _parseAttackDcs(monsterProficiency.value, blueprint.data.attack_dcs).primary.value
                 + _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers).max.value,
             damage: _parseDamagePerAction(derivedAttributes, blueprint.data.damage_per_action).value,
             naturalMax: (hitPoints.use_formula && rolled) ? rolled : hitPoints.natural_maximum
@@ -252,8 +253,9 @@ const MonsterForge = (function () {
         return $.extend(ac, { type: armorClass.type });
     }
 
-    function _parseAttackBonus(derivedAttributes, attackBonus) {
-        const ab = derivedAttributes.attackBonus;
+    function _parseAttackBonus(proficiencyBonus, attackBonus) {
+        const ab = new DerivedAttribute();
+        ab.add(proficiencyBonus, game.i18n.format('gmm.common.derived_source.proficiency'));
         ab.applyModifier(attackBonus.modifier.value, attackBonus.modifier.override);
         ab.setMinimumValue(1);
         ab.ceil();
@@ -261,14 +263,16 @@ const MonsterForge = (function () {
         return $.extend(ab, { type: attackBonus.type });
     }
 
-    function _parseAttackDcs(derivedAttributes, attackDcs) {
-        const dcs = derivedAttributes.attackDcs;
-        dcs.primary.applyModifier(attackDcs.primary.modifier.value, attackDcs.primary.modifier.override);
-        dcs.primary.setMinimumValue(0);
-        dcs.primary.ceil();
+    function _parseAttackDcs(proficiencyBonus, attackDcs) {
+        const primary = new DerivedAttribute();
+        primary.add(8, game.i18n.format('gmm.common.derived_source.base'));
+        primary.add(proficiencyBonus, game.i18n.format('gmm.common.derived_source.proficiency'));
+        primary.applyModifier(attackDcs.primary.modifier.value, attackDcs.primary.modifier.override);
+        primary.setMinimumValue(0);
+        primary.ceil();
 
         return {
-            primary: $.extend(dcs.primary, { type: attackDcs.primary.type })
+            primary: $.extend(primary, { type: attackDcs.primary.type })
         };
     }
 
@@ -373,7 +377,7 @@ const MonsterForge = (function () {
 
     function _parseProficiency(derivedAttributes, proficiencyBonus) {
         const prof = new DerivedAttribute();
-        prof.setValue(derivedAttributes.proficiencyBonus, game.i18n.format('gmm.common.derived_source.base'));
+        prof.setValue(MonsterHelpers.getProficiencyBonus(derivedAttributes.level), game.i18n.format('gmm.common.derived_source.base'));
         prof.applyModifier(proficiencyBonus.modifier.value, proficiencyBonus.modifier.override);
         prof.setMinimumValue(1);
         prof.ceil();

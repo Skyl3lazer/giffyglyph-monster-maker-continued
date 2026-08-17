@@ -177,16 +177,17 @@ const GmmActor = (function () {
 	/* The Forge sheet reads these off the artifact, so a replayed change is invisible until it is folded back.
 	 * Absent by design: a skill's mod is the ability's, and value/prof target a Proficiency object. */
 	const GMM_RECONCILED_NODES = new Map([
-		["system.attributes.init.mod", (x) => x.initiative],
-		["system.attributes.prof", (x) => x.proficiency_bonus],
-		["system.details.cr", (x) => x.challenge_rating],
-		["system.details.xp.value", (x) => x.xp],
-		["system.attributes.hp.max", (x) => x.hit_points.maximum],
-		["system.attributes.spell.dc", (x) => x.spellbook.spellcasting.dc],
-		["system.attributes.encumbrance.max", (x) => x.inventory.capacity],
-		["system.attributes.encumbrance.value", (x) => x.inventory.weight],
-		[`system.skills.${GMM_5E_SKILLS.find((x) => x.name == "perception").foundry}.passive`, (x) => x.passive_perception],
-		...GMM_5E_SKILLS.map((x) => [`system.skills.${x.foundry}.total`, (y) => y.skills.find((z) => z.code == x.name)])
+		["system.attributes.init.mod", (x) => [x.initiative]],
+		/* ATK is the proficiency bonus and the attack DC is 8 plus it, so one delta moves all three. */
+		["system.attributes.prof", (x) => [x.proficiency_bonus, x.attack_bonus, x.attack_dcs.primary]],
+		["system.details.cr", (x) => [x.challenge_rating]],
+		["system.details.xp.value", (x) => [x.xp]],
+		["system.attributes.hp.max", (x) => [x.hit_points.maximum]],
+		["system.attributes.spell.dc", (x) => [x.spellbook.spellcasting.dc]],
+		["system.attributes.encumbrance.max", (x) => [x.inventory.capacity]],
+		["system.attributes.encumbrance.value", (x) => [x.inventory.weight]],
+		[`system.skills.${GMM_5E_SKILLS.find((x) => x.name == "perception").foundry}.passive`, (x) => [x.passive_perception]],
+		...GMM_5E_SKILLS.map((x) => [`system.skills.${x.foundry}.total`, (y) => [y.skills.find((z) => z.code == x.name)]])
 	]);
 
 	/* Targets a scaling which a monster cannot honor, each with the reason the console reports. */
@@ -258,10 +259,12 @@ const GmmActor = (function () {
 	/* The forge's floors are deliberately not re-asserted: the sheet has to show the number the die uses. */
 	function _reconcileArtifactWithEffects(actor, monsterData, snapshot) {
 		for (const [key, entry] of snapshot) {
-			const node = GMM_RECONCILED_NODES.get(key)(monsterData);
+			const nodes = GMM_RECONCILED_NODES.get(key)(monsterData);
 			const delta = Number(foundry.utils.getProperty(actor, key)) - entry.before;
-			if (!node || !Number.isFinite(delta)) continue;
-			node.add(delta, _effectSourceLabel(entry.changes));
+			if (!Number.isFinite(delta)) continue;
+			for (const node of nodes) {
+				if (node) node.add(delta, _effectSourceLabel(entry.changes));
+			}
 		}
 	}
 

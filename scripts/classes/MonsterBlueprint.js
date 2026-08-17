@@ -78,7 +78,7 @@ const MonsterBlueprint = (function () {
 	// Everything the base pass derives, none of it synced from actor data.
 	const BASE_SUBTREES = [
 		"combat", "armor_class", "hit_points",
-		"ability_modifiers", "attack_bonus", "attack_dcs", "damage_per_action"
+		"ability_modifiers", "proficiency_bonus", "attack_bonus", "attack_dcs", "damage_per_action"
 	];
 
 	/* Defaults, then the seed derived from a static block, then whatever is stored */

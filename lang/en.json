@@ -628,7 +628,7 @@
   "gmm.monster.artifact.biography.title": "Biography",
   "gmm.monster.artifact.blocks.armor_class.ac": "AC",
   "gmm.monster.artifact.blocks.armor_class.title": "Armor Class",
-  "gmm.monster.artifact.blocks.attack_bonus.title": "To-Hit Bonus",
+  "gmm.monster.artifact.blocks.attack_bonus.title": "Attack Bonus",
   "gmm.monster.artifact.blocks.attack_bonus.vs": "to Attacks/Spells",
   "gmm.monster.artifact.blocks.attack_dcs.primary": "Save",
   "gmm.monster.artifact.blocks.attack_dcs.title": "Attack DC",
