@@ -33,6 +33,13 @@ const GmmActor = (function () {
 			}
 		}, 'WRAPPER');
 
+		/* Wrapped here rather than on applyActiveEffects because DAE applies its phase-corrected changes
+		 * after delegating. Nesting is the only way to be sure this runs after them. */
+		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareData', function (wrapped, ...args) {
+			wrapped(...args);
+			if (AutomationHelpers.changePhasesSupported() && this.isGmmMonster()) _reDeriveHitPointsAfterFinalPhase(this);
+		}, 'WRAPPER');
+
 		// DAE wraps this too, through libWrapper. The two interleave by priority.
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.getRollData', function (wrapped, ...args) {
 			const data = wrapped(...args);
@@ -384,6 +391,16 @@ const GmmActor = (function () {
 		} catch (error) {
 			console.error(error);
 		}
+	}
+
+	function _reDeriveHitPointsAfterFinalPhase(actor) {
+		const hp = actor.system?.attributes?.hp;
+		if (!hp) return;
+		// Mirrored rather than re-calling prepareHitPoints, which would halve hp.max a second time.
+		hp.effectiveMax = Math.max((hp.max ?? 0) + (hp.tempmax ?? 0), 0);
+		hp.value = Math.min(hp.value, hp.effectiveMax);
+		hp.damage = hp.effectiveMax - hp.value;
+		hp.pct = CompatibilityHelpers.clamped(hp.effectiveMax ? (hp.value / hp.effectiveMax) * 100 : 0, 0, 100);
 	}
 
 	function _getActorSheetId() {
