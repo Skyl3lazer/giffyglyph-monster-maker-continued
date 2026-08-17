@@ -35,6 +35,9 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 
 ## AI Disclaimer
 
+[![AI-DECLARATION: copilot](https://img.shields.io/badge/䷼%20AI--DECLARATION-copilot-fee2e2?labelColor=fee2e2)](https://ai-declaration.md)
+*This level comes from the use of AI in testing and deployment tasks, see [AI-DECLARATION.md](../AI-DECLARATION.md)*
+
 * The v14 refactor was written largely via Opus. I (skyl3lazer) have reviewed and tested this code over time to ensure its function and stability. That said, there is still code that was written by AI, even if I don't plan on continuing to use it after the refactoring stage.
 
 * I recognize that this may be disappointing to some people, which I understand. Put simply, due to the staggering amount of work required to make this refactor happen it would not have occured if I wasn't able to hand it off to the LLM tools like this. I just wasn't interested in doing the updates myself, and this allowed me to bring the module back to a working state.

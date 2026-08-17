@@ -27,9 +27,13 @@
 * The paragon defenses maximum now has its "is fixed" toggle, so the modifier can override the rank-derived value instead of only adding to it
 * Module settings for Paragon Defense and Action automation.
 
-### Automation
+### Automation *(v14 only)*
 * Deferral automation! Deferred abilities will now properly wait before rolling attacks or applying effects where appropriate. This is compatible with *MidiQOL*, but some amount of the automation works without it.
-* Began to add better support for automation modules using GMMC scalar effects
+* Began to add better support for automation modules using GMMC scalar effects. Utilized modules include:
+	* DAE/MidiQOL
+	* Automated Conditions 5e
+	* Aura Effects
+	* Coven's Automation Toolkit
 * GMM conditions are now a real compendium of effects. Foundry v14 lets a module ship active effects directly, so the eighteen expanded conditions live in a new **GMM Effects** compendium, instead of being hidden on a placeholder actor you had to open first. You can browse, search, and drag them straight onto a token.
 	* Each condition now states its rarity the way the book does. This will be used later to try to estimate Scaler point values!
 	* This needs Foundry v14. On v13 the new compendium cannot exist at all, so the old **GMM Conditions (Legacy)** compendium is still there with the same conditions on its placeholder actor. It is frozen and won't get any updates, namely automation.
