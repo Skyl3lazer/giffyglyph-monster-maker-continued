@@ -34,6 +34,9 @@
 	* Automated Conditions 5e
 	* Aura Effects
 	* Coven's Automation Toolkit
+* An active effect on a scaler's maximum hit points now works in either effect phase. A DAE effect set to apply in the *final* phase used to move only the raw maximum. The token bar, the healing cap and the Bloodied line all stayed where they were. A `+5` maximum bought the creature nothing. All four now follow the effect.
+	* The Forge sheet's Maximum cell and `[hpMax]` are read a moment before the final phase. Under a final-phase effect they still show the unbuffed number while the token bar shows the buffed one. The token bar is the number the game uses. Author the effect in the initial phase if you want the sheet to agree.
+	* A final-phase effect that lowers the maximum below the creature's current hit points now brings the current value down with it. That matches what dnd5e does on a vanilla monster.
 * GMM conditions are now a real compendium of effects. Foundry v14 lets a module ship active effects directly, so the eighteen expanded conditions live in a new **GMM Effects** compendium, instead of being hidden on a placeholder actor you had to open first. You can browse, search, and drag them straight onto a token.
 	* Each condition now states its rarity the way the book does. This will be used later to try to estimate Scaler point values!
 	* This needs Foundry v14. On v13 the new compendium cannot exist at all, so the old **GMM Conditions (Legacy)** compendium is still there with the same conditions on its placeholder actor. It is frozen and won't get any updates, namely automation.
