@@ -37,7 +37,7 @@ const GmmActor = (function () {
 		 * after delegating. Nesting is the only way to be sure this runs after them. */
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareData', function (wrapped, ...args) {
 			wrapped(...args);
-			if (AutomationHelpers.changePhasesSupported() && this.isGmmMonster()) _reDeriveHitPointsAfterFinalPhase(this);
+			if (this.isGmmMonster()) _prepareMonsterSettledData(this);
 		}, 'WRAPPER');
 
 		// DAE wraps this too, through libWrapper. The two interleave by priority.
@@ -63,9 +63,7 @@ const GmmActor = (function () {
 		actorData.attributes.ac.calc = "natural";
 		actorData.attributes.ac.flat = baseAttributes.armor_class.value;
 		actorData.attributes.ac.base = baseAttributes.armor_class.value;
-		if (!baseAttributes.hit_points.use_formula) {
-			actorData.attributes.hp.max = baseAttributes.hit_points.maximum.value;
-		}
+		actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, baseAttributes);
 	}
 	function _postProcessData(actor) {
 		const actorData = actor.system;
@@ -152,7 +150,6 @@ const GmmActor = (function () {
 		"system.attributes.init.prof",
 		"system.attributes.init.ability",
 		"system.attributes.init.mod",
-		"system.attributes.hp.max",
 		"system.attributes.hp.formula",
 		"system.attributes.encumbrance",
 		"system.attributes.encumbrance.value",
@@ -182,7 +179,6 @@ const GmmActor = (function () {
 		["system.attributes.prof", (x) => [x.proficiency_bonus, x.attack_bonus, x.attack_dcs.primary]],
 		["system.details.cr", (x) => [x.challenge_rating]],
 		["system.details.xp.value", (x) => [x.xp]],
-		["system.attributes.hp.max", (x) => [x.hit_points.maximum]],
 		["system.attributes.spell.dc", (x) => [x.spellbook.spellcasting.dc]],
 		["system.attributes.encumbrance.max", (x) => [x.inventory.capacity]],
 		["system.attributes.encumbrance.value", (x) => [x.inventory.weight]],
@@ -269,9 +265,9 @@ const GmmActor = (function () {
 	}
 
 	/* A rolled total is the creature's own maximum once it exists; until then the scaled average stands in for it. */
-	function _resolveMaximumHitPoints(blueprint, monsterData) {
+	function _resolveMaximumHitPoints(blueprint, attributes) {
 		const rolled = Number(blueprint.data.hit_points.rolled_max) || 0;
-		return (monsterData.hit_points.use_formula && rolled) ? rolled : monsterData.hit_points.maximum.value;
+		return (attributes.hit_points.use_formula && rolled) ? rolled : attributes.hit_points.maximum.value;
 	}
 
 	function _prepareMonsterDerivedData(actor) {
@@ -334,11 +330,6 @@ const GmmActor = (function () {
 			actorData.attributes.prof = monsterData.proficiency_bonus.value;
 			monsterData.armor_class.display = actorData.attributes.ac.value;
 
-			
-
-			// Both HP modes: the replay below is unconditional, so a mode that skipped this would count an effect twice.
-			actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, monsterData);
-
 			// Field-wise, because replacing the init object would overwrite the `roll` mode dnd5e keeps beside these.
 			actorData.attributes.init.prof = new Proficiency(0, 1);
 			actorData.attributes.init.ability = monsterData.initiative.ability;
@@ -371,39 +362,46 @@ const GmmActor = (function () {
 			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.late);
 			_reconcileArtifactWithEffects(actor, monsterData, reconciledNodes);
 
-			// dnd5e derived the whole hit point read model before the scaled maximum existed, and its
-			// half-health halving has to land on the replayed one rather than the number it saw.
-			dnd5e.dataModels?.actor?.AttributesFields?.prepareHitPoints?.call(actorData, actorData.attributes.hp);
-			monsterData.hit_points.natural_maximum = actorData.attributes.hp.max;
-			monsterData.hit_points.effective_maximum = actorData.attributes.hp.effectiveMax;
-			monsterData.hit_points.temporary_maximum = actorData.attributes.hp.tempmax;
-
 			// Replaces the pre-effect seed from the base pass. A roll-time reference must read reconciled numbers.
 			actor._gmmRollData = MonsterForge.createRollData(monsterBlueprint, monsterData);
-
-			// Reads the finished artifact and current hit points, so it goes after the late replay.
-			ParagonDefenses.prepareDerivedData(actor);
-
-			actor.items.contents.forEach((item) => {
-				try {
-					item.prepareShortcodes?.();
-				} catch (e) {
-					console.warn(`GMM | prepareShortcodes failed for item ${item.id}`, e);
-				}
-			});
 		} catch (error) {
 			console.error(error);
 		}
 	}
 
-	function _reDeriveHitPointsAfterFinalPhase(actor) {
+	/* dnd5e derives the hit point read model before Foundry's final change phase. Everything
+	 * downstream of the maximum is therefore read here instead. */
+	function _prepareMonsterSettledData(actor) {
 		const hp = actor.system?.attributes?.hp;
 		if (!hp) return;
-		// Mirrored rather than re-calling prepareHitPoints, which would halve hp.max a second time.
+
 		hp.effectiveMax = Math.max((hp.max ?? 0) + (hp.tempmax ?? 0), 0);
-		hp.value = Math.min(hp.value, hp.effectiveMax);
+		const stored = actor._source?.system?.attributes?.hp?.value ?? hp.value;
+		hp.value = Math.min(Number(stored) || 0, hp.effectiveMax);
 		hp.damage = hp.effectiveMax - hp.value;
 		hp.pct = CompatibilityHelpers.clamped(hp.effectiveMax ? (hp.value / hp.effectiveMax) * 100 : 0, 0, 100);
+
+		const monsterData = actor.flags?.gmm?.monster?.data;
+		if (!monsterData) return;
+		const hitPoints = monsterData.hit_points;
+
+		const delta = (hp.max ?? 0) - hitPoints.maximum.value;
+		if (delta) hitPoints.maximum.add(delta, game.i18n.format('gmm.common.derived_source.effects'));
+		hitPoints.natural_maximum = hp.max;
+		hitPoints.effective_maximum = hp.effectiveMax;
+		hitPoints.temporary_maximum = hp.tempmax;
+		hitPoints.current = hp.value;
+		if (actor._gmmRollData) actor._gmmRollData.naturalMax = hp.max;
+
+		ParagonDefenses.prepareDerivedData(actor);
+
+		actor.items.contents.forEach((item) => {
+			try {
+				item.prepareShortcodes?.();
+			} catch (e) {
+				console.warn(`GMM | prepareShortcodes failed for item ${item.id}`, e);
+			}
+		});
 	}
 
 	function _getActorSheetId() {

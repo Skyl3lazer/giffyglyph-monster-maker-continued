@@ -113,7 +113,6 @@ const AutomationHelpers = (function () {
 	}
 
 	return {
-		changePhasesSupported: _changePhasesSupported,
 		collectOverwrittenEffects: collectOverwrittenEffects,
 		applyOverwrittenEffects: applyOverwrittenEffects,
 		activitySource: activitySource,

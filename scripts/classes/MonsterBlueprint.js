@@ -75,6 +75,13 @@ const MonsterBlueprint = (function () {
 		{ from: "spellbook.spellcasting.level", to: "system.attributes.spell.level" }
 	];
 
+	/* Read from `_source` because the form writes these back. This is going to be expanded */
+	const STORED_MAPPINGS = new Set([
+		"hit_points.current",
+		"hit_points.temporary",
+		"hit_points.temporary_maximum"
+	]);
+
 	// Everything the base pass derives, none of it synced from actor data.
 	const BASE_SUBTREES = [
 		"combat", "armor_class", "hit_points",
@@ -205,8 +212,11 @@ const MonsterBlueprint = (function () {
 		const actorData = actor;
 		try {
 			mappings.forEach((x) => {
-				if (CompatibilityHelpers.hasProperty(actor, x.to)) {
-					CompatibilityHelpers.setProperty(blueprintData, x.from, CompatibilityHelpers.getProperty(actor, x.to));
+				const from = STORED_MAPPINGS.has(x.from) && CompatibilityHelpers.hasProperty(actor._source, x.to)
+					? actor._source
+					: actor;
+				if (CompatibilityHelpers.hasProperty(from, x.to)) {
+					CompatibilityHelpers.setProperty(blueprintData, x.from, CompatibilityHelpers.getProperty(from, x.to));
 				}
 			});
 
