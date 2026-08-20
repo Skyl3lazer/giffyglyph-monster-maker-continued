@@ -108,9 +108,12 @@ const GmmActor = (function () {
 				monsterSkill.add(globalSkillBonus, game.i18n.format('gmm.common.derived_source.skill_bonus'));
 			}
 			if (x.name === "perception") {
-				// dnd5e counts every check bonus toward a passive score; the forge only had the ability modifier.
+				// dnd5e counts every check bonus toward a passive score. The forge had proficiency and the modifier.
 				monsterData.passive_perception.add(skill.bonus ?? 0, game.i18n.format('gmm.common.derived_source.check_bonus'));
 				monsterData.passive_perception.add(dnd5e.utils.simplifyBonus(skill.bonuses.passive, rollData), game.i18n.format('gmm.common.derived_source.passive_bonus'));
+				/* Assigned here rather than in the skills pass, where the node is not yet final. It also keeps
+				   the blueprint's own modifier, its override and the floor reaching the schema. */
+				skill.passive = monsterData.passive_perception.value;
 			}
 		});
 		const globalSaveBonus = dnd5e.utils.simplifyBonus(actorData.bonuses?.abilities?.save, rollData);
@@ -165,7 +168,11 @@ const GmmActor = (function () {
 
 	// Absent by design, along with resources.legres.value - dnd5e re-derives these from spent/max
 	const GMM_DERIVED_ABILITY_FIELDS = ["value", "mod", "proficient", "saveProf", "checkProf", "dc"];
-	const GMM_DERIVED_SKILL_FIELDS = ["value", "mod", "prof", "total", "passive"];
+	// `value` is absent by design. prepareSkill reads the effect off `effectValue` and sets it itself.
+	const GMM_DERIVED_SKILL_FIELDS = ["mod", "prof", "total", "passive"];
+
+	/* Read to decide whether a Role's skill grant still applies, never replayed. */
+	const GMM_OBSERVED_SKILL_KEYS = new Set(GMM_5E_SKILLS.map((x) => `system.skills.${x.foundry}.value`));
 
 	/* Effects apply before prepareDerivedData, so anything the pass below assigns would discard them. */
 	const GMM_DERIVED_KEYS = new Set([
@@ -237,6 +244,7 @@ const GmmActor = (function () {
 
 	function _effectSourceLabel(changes) {
 		const names = [...new Set(changes.map((x) => x.effect?.name).filter(Boolean))];
+		if (!names.length) return game.i18n.format('gmm.common.derived_source.in_play');
 		return names.length === 1
 			? names[0]
 			: game.i18n.format('gmm.common.derived_source.active_effects', { count: names.length });
@@ -265,6 +273,31 @@ const GmmActor = (function () {
 		return Object.keys(abilityDeltas).length
 			? MonsterForge.createArtifact(blueprint, { abilityDeltas: abilityDeltas, checkBonuses: checkBonuses })
 			: artifact;
+	}
+
+	/* dnd5e's own arithmetic, run again once the scaled ability modifiers and proficiency bonus are in place.
+	 * The multiplier is the only thing GMMC contributes. */
+	function _prepareMonsterSkills(actor, monsterData, observed) {
+		const actorData = actor.system;
+		const rollData = actor.getRollData({ deterministic: true });
+		const roleSkills = monsterData.role?.skill_prof ?? [];
+		GMM_5E_SKILLS.forEach((x) => {
+			const skill = actorData.skills[x.foundry];
+			const targeted = observed.filter((y) => y.key === `system.skills.${x.foundry}.value`);
+			const granted = roleSkills.includes(x.name) ? 1 : 0;
+			// A GM who moved the multiplier deliberately outranks the Role, including down to nothing.
+			skill.value = targeted.length ? (skill.effectValue ?? 0) : Math.max(skill.effectValue ?? 0, granted);
+			actorData.prepareSkill(x.foundry, { skillData: skill, rollData: rollData });
+
+			const node = monsterData.skills.find((y) => y.code == x.name);
+			if (!node) return;
+			node.ability = skill.ability;
+			const delta = skill.prof.flat - node.value;
+			if (!delta) return;
+			const source = _effectSourceLabel(targeted);
+			node.add(delta, source);
+			if (x.name == "perception") monsterData.passive_perception.add(delta, source);
+		});
 	}
 
 	/* Taken before the replay so the delta measures what it moved, not how the schema and artifact differ. */
@@ -301,7 +334,7 @@ const GmmActor = (function () {
 		try {
 			const actorData = actor.system;
 			const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
-			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_EFFECT_ABILITY_KEYS, GMM_UNSUPPORTED_EFFECT_PREFIXES);
+			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_EFFECT_ABILITY_KEYS, GMM_UNSUPPORTED_EFFECT_PREFIXES, GMM_OBSERVED_SKILL_KEYS);
 			if (effectChanges.unsupported.length) _warnUnsupportedEffectTargets(actor, effectChanges.unsupported);
 			const checkBonuses = _collectCheckBonuses(actorData);
 			let monsterArtifact = MonsterForge.createArtifact(monsterBlueprint, { checkBonuses: checkBonuses });
@@ -336,25 +369,11 @@ const GmmActor = (function () {
                 actorData.abilities[x].attack = monsterData.ability_modifiers[x].value + monsterData.proficiency_bonus.value;
             });
 
-			GMM_5E_SKILLS.forEach((x) => {
-				let monsterSkill = monsterData.skills.find((y) => y.code == x.name);
-				const skill = actorData.skills[x.foundry];
-				skill.value = 0;
-				skill.mod = monsterData.ability_modifiers[skill.ability].value;
-				skill.prof = new Proficiency(monsterSkill ? monsterSkill.value : 0, 1);
-				// `bonus` is left as dnd5e resolved it: the skill, ability and global check bonuses.
-				// Proficiency stringifies to its term, so adding the object would build text, not a total.
-				skill.total = skill.mod + (skill.bonus ?? 0) + (Number.isNumeric(skill.prof.term) ? skill.prof.flat : 0);
-				if (x.name == "perception") {
-					skill.passive = monsterData.passive_perception.value;
-				} else {
-					skill.passive = 10 + skill.total;
-				}
-			});
-
 			actorData.details.cr = monsterData.challenge_rating.value;
 			actorData.details.xp.value = monsterData.xp.value;
+			// Above the skills pass, which derives every proficiency from it.
 			actorData.attributes.prof = monsterData.proficiency_bonus.value;
+			_prepareMonsterSkills(actor, monsterData, effectChanges.observed);
 			monsterData.armor_class.display = actorData.attributes.ac.value;
 
 			// Field-wise, because replacing the init object would overwrite the `roll` mode dnd5e keeps beside these.

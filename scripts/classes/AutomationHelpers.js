@@ -21,11 +21,13 @@ const AutomationHelpers = (function () {
 			: change.effect.apply(actor, change);
 	}
 
-	/* `earlyKeys` have to land before the rest of the derived pass reads them.
+	/* `earlyKeys` have to land before the rest of the derived pass reads them. `observedKeys` get their
+	 * own bucket, because the caller reads them and never replays them.
 	 * `unsupportedPrefixes` are reported, not collected - the caller decides what to say. */
-	function collectOverwrittenEffects(actor, keys, earlyKeys, unsupportedPrefixes) {
+	function collectOverwrittenEffects(actor, keys, earlyKeys, unsupportedPrefixes, observedKeys) {
 		const early = [];
 		const late = [];
+		const observed = [];
 		const unsupported = [];
 		if (typeof actor.allApplicableEffects === "function") {
 			for (const effect of actor.allApplicableEffects()) {
@@ -35,12 +37,14 @@ const AutomationHelpers = (function () {
 					if (unsupportedPrefixes?.some((x) => change.key.startsWith(x))) {
 						unsupported.push({ key: change.key, effect: effect });
 					}
-					if (!keys.has(change.key)) continue;
+					const isObserved = !!observedKeys?.has(change.key);
+					if (!isObserved && !keys.has(change.key)) continue;
 					if (_effectiveChangePhase(change, effect) !== "initial") continue;
 					const copy = foundry.utils.deepClone(change);
 					copy.effect = effect;
 					copy.priority ??= (copy.mode ?? 0) * 10;
-					(earlyKeys?.has(change.key) ? early : late).push(copy);
+					if (isObserved) observed.push(copy);
+					else (earlyKeys?.has(change.key) ? early : late).push(copy);
 				}
 			}
 		}
@@ -48,7 +52,8 @@ const AutomationHelpers = (function () {
 		const byPriority = (a, b) => a.priority - b.priority;
 		early.sort(byPriority);
 		late.sort(byPriority);
-		return { early: early, late: late, unsupported: unsupported };
+		observed.sort(byPriority);
+		return { early: early, late: late, observed: observed, unsupported: unsupported };
 	}
 
 	/* Replaying the change, not the stored override, keeps ADD/MULTIPLY relative to the new base. */

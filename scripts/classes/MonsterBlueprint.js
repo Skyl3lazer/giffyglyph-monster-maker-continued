@@ -200,6 +200,8 @@ const MonsterBlueprint = (function () {
 		}
 	}
 	
+	const GMM_5E_SKILL_LEVELS = { "half-proficient": 0.5, "proficient": 1, "expert": 2 };
+
 	/* A prepared read would save an effect's contribution here as the build's own value, because
 	   everything this function reads is written back. */
 	function _syncActorDataToBlueprint(blueprint, actor) {
@@ -413,22 +415,14 @@ const MonsterBlueprint = (function () {
 		}
 
 		GMM_5E_SKILLS.forEach((x) => {
-			if (CompatibilityHelpers.hasProperty(blueprint.data, `skills.${x.name}`)) {
-				switch (blueprint.data.skills[x.name]) {
-					case "half-proficient":
-						CompatibilityHelpers.setProperty(actorData, `system.skills.${x.foundry}.value`, 0.5);
-						break;
-					case "proficient":
-						CompatibilityHelpers.setProperty(actorData, `system.skills.${x.foundry}.value`, 1);
-						break;
-					case "expert":
-						CompatibilityHelpers.setProperty(actorData, `system.skills.${x.foundry}.value`, 2);
-						break;
-					default:
-						CompatibilityHelpers.setProperty(actorData, `system.skills.${x.foundry}.value`, 0);
-						break;
-				}
-			}
+			if (!CompatibilityHelpers.hasProperty(blueprint.data, `skills.${x.name}`)) return;
+			const level = blueprint.data.skills[x.name];
+			const stored = currentActor?._source?.system?.skills?.[x.foundry];
+			// An entry created for a skill nobody trained is what leaves the schema to default its ability.
+			if (!level && !stored) return;
+			CompatibilityHelpers.setProperty(actorData, `system.skills.${x.foundry}.value`, GMM_5E_SKILL_LEVELS[level] ?? 0);
+			// A deliberate re-basing carries its own key. An entry an earlier save created does not.
+			CompatibilityHelpers.setProperty(actorData, `system.skills.${x.foundry}.ability`, stored?.ability ?? x.ability);
 		});
 
 		_convertTraits(blueprint, actorData, GMM_5E_DAMAGE_TYPES, "damage_resistances", "dr");

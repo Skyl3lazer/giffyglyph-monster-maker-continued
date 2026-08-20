@@ -503,10 +503,10 @@ const MonsterForge = (function () {
         const percep = new DerivedAttribute();
         percep.add(basePerc, game.i18n.format('gmm.common.derived_source.base'));
 
-        if (skills.find((x) => x.code == "perception")) {
-            const abilityPerc = skills.find((x) => x.code == "perception").ability;
-            const statBonus = abilityModifiers[abilityPerc].getValue();
-            percep.add(statBonus, game.i18n.format('gmm.common.derived_source.ability_modifier'));
+        const perception = skills.find((x) => x.code == "perception");
+        if (perception) {
+            percep.add(abilityModifiers[perception.ability].getValue(), game.i18n.format('gmm.common.derived_source.ability_modifier'));
+            percep.add(perception.getValue(), game.i18n.format('gmm.common.derived_source.proficiency'));
         }
 
         percep.applyModifier(passivePerception.modifier.value, passivePerception.modifier.override);
