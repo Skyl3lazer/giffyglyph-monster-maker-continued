@@ -146,6 +146,10 @@ const MonsterForge = (function () {
     }
 
     function _parseDescription(description) {
+        return { text: _describeCreature(description), source: null, moved: false };
+    }
+
+    function _describeCreature(description) {
         const parts = [];
 
         if (description.size) {
@@ -445,13 +449,16 @@ const MonsterForge = (function () {
         GMM_5E_SPEEDS.forEach(function (defaultSpeed) {
             if (monsterSpeeds[defaultSpeed]) {
                 const speed = new DerivedAttribute();
-                speed.add(monsterSpeeds[defaultSpeed], game.i18n.format('gmm.common.derived_source.base'));
+                /* A mode is a FormulaField, so the Stored Value is a string and adding it would build
+                   text. An authored formula reads as 0 here and is corrected by the settled read. */
+                speed.add(Number(monsterSpeeds[defaultSpeed]) || 0, game.i18n.format('gmm.common.derived_source.base'));
                 speed.add(role.modifiers.speed, game.i18n.format('gmm.common.derived_source.role'));
                 /* 0 rather than the 1 every other attribute floors at, because dnd5e clamps a speed there. */
                 speed.setMinimumValue(0);
                 speed.ceil();
 
                 const details = {};
+                details.code = defaultSpeed;
                 details.title = game.i18n.format(`gmm.common.speed.${defaultSpeed}`);
                 details.units = monsterSpeeds.units;
                 if (defaultSpeed == "fly" && monsterSpeeds.can_hover) {
@@ -462,43 +469,33 @@ const MonsterForge = (function () {
             }
         });
 
-        if (monsterSpeeds.other) {
-            monsterSpeeds.other.split(";").map(x => x.split("=")).forEach((x) => {
-                ;
-                speeds.push({
-                    title: x[0].trim().toLowerCase(),
-                    value: Number(x[1]) ? Number(x[1]) : null,
-                    units: monsterSpeeds.units
-                });
-            });
-        }
+        return speeds.concat(_parseFreeTextDistances(monsterSpeeds.other, monsterSpeeds.units));
+    }
 
-        return speeds;
+    function _parseFreeTextDistances(text, units) {
+        if (!text) return [];
+        return text.split(";").map(x => x.split("=")).map((x) => ({
+            title: x[0].trim().toLowerCase(),
+            value: Number(x[1]) ? Number(x[1]) : null,
+            units: units
+        }));
     }
 
     function _parseSenses(monsterSenses) {
         const senses = [];
         GMM_5E_SENSES.forEach(function (type) {
             if (monsterSenses[type]) {
-                const sense = {};
-                sense.title = game.i18n.format(`gmm.common.sense.${type}`);
-                sense.value = monsterSenses[type];
-                sense.units = monsterSenses.units;
-                senses.push(sense);
+                const sense = new DerivedAttribute();
+                sense.add(monsterSenses[type], game.i18n.format('gmm.common.derived_source.base'));
+                senses.push($.extend(sense, {
+                    code: type,
+                    title: game.i18n.format(`gmm.common.sense.${type}`),
+                    units: monsterSenses.units
+                }));
             }
         });
 
-        if (monsterSenses.other) {
-            monsterSenses.other.split(";").map(x => x.split("=")).forEach((x) => {
-                senses.push({
-                    title: x[0].trim().toLowerCase(),
-                    value: Number(x[1]) ? Number(x[1]) : null,
-                    units: monsterSenses.units
-                });
-            });
-        }
-
-        return senses;
+        return senses.concat(_parseFreeTextDistances(monsterSenses.other, monsterSenses.units));
     }
 
     function _parsePassivePerception(skills, abilityModifiers, rank, role, passivePerception) {
@@ -519,19 +516,192 @@ const MonsterForge = (function () {
         return percep;
     }
 
+    /* `source` is what moved an entry into the row, and null for one the build authored. */
     function _parseCollection(collection, options, key) {
         let output = [];
         collection.forEach(function (type) {
             if (options[type]) {
-                output.push(game.i18n.format(`gmm.common.${key}.${type}`));
+                output.push({ code: type, label: game.i18n.format(`gmm.common.${key}.${type}`), source: null });
             }
         });
 
         if (options.other) {
-            options.other.split(";").forEach((x) => output.push(x));
+            options.other.split(";").forEach((x) => output.push({ code: null, label: x, source: null }));
         }
 
         return output;
+    }
+
+    /* Each row the stat block prints straight from a schema field an effect can reach. `path` is
+       relative to `system`, because the stored and the settled reads start from different objects. */
+    const GMM_SETTLED_COLLECTIONS = [
+        { row: "damage_resistances", collection: GMM_5E_DAMAGE_TYPES, key: "damage", path: "traits.dr" },
+        { row: "damage_immunities", collection: GMM_5E_DAMAGE_TYPES, key: "damage", path: "traits.di" },
+        { row: "damage_vulnerabilities", collection: GMM_5E_DAMAGE_TYPES, key: "damage", path: "traits.dv" },
+        { row: "condition_immunities", collection: GMM_5E_CONDITIONS, key: "condition", path: "traits.ci" },
+        { row: "languages", collection: GMM_5E_LANGUAGES, key: "language", path: "traits.languages" }
+    ];
+
+    function _storedSystem(actor) {
+        return actor._source?.system ?? {};
+    }
+
+    /* Nothing else records what moved these fields. They are outside GMM_DERIVED_KEYS, so Foundry
+       applies them itself and there is no replayed change list to read a name off. */
+    function _settledSource(actor, key, matches) {
+        const names = new Set();
+        for (const effect of (actor.appliedEffects ?? [])) {
+            for (const change of (effect.system?.changes ?? effect.changes ?? [])) {
+                if (change?.key !== key) continue;
+                if (matches && !matches(change)) continue;
+                names.add(effect.name);
+            }
+        }
+        if (names.size == 1) {
+            return [...names][0];
+        }
+        return (names.size > 1)
+            ? game.i18n.format('gmm.common.derived_source.active_effects', { count: names.size })
+            : game.i18n.format('gmm.common.derived_source.in_play');
+    }
+
+    /* A free-text row is a string on both sides, so an entry is new when its name is. */
+    function _reconcileFreeTextDistances(stored, settled, units, source) {
+        const known = new Set(_parseFreeTextDistances(stored, units).map((x) => x.title));
+        return _parseFreeTextDistances(settled, units).map((x) => known.has(x.title)
+            ? x
+            : $.extend(x, { source: source, moved: true }));
+    }
+
+    function _reconcileFreeTextLabels(stored, settled, source) {
+        const pieces = (text) => String(text ?? "").split(";").map((x) => x.trim()).filter((x) => x.length > 0);
+        const known = new Set(pieces(stored));
+        return pieces(settled).map((x) => ({
+            code: null,
+            label: x,
+            source: known.has(x) ? null : source,
+            moved: !known.has(x)
+        }));
+    }
+
+    /* The stat block prints what the game will use, so every row built from a schema field an effect
+       can reach is re-read once the final change phase has landed. */
+    function reconcileWithSettledActor(monsterData, blueprint, actor) {
+        monsterData.speeds = _reconcileSpeeds(monsterData.speeds, blueprint.data.speeds, actor);
+        monsterData.senses = _reconcileSenses(monsterData.senses, blueprint.data.senses, actor);
+        GMM_SETTLED_COLLECTIONS.forEach((x) => {
+            monsterData[x.row] = _reconcileCollection(monsterData[x.row], x, actor);
+        });
+        _reconcileDescription(monsterData, blueprint.data.description, actor);
+    }
+
+    function _reconcileSpeeds(speeds, blueprintSpeeds, actor) {
+        const stored = _storedSystem(actor).attributes?.movement ?? {};
+        const preResolution = actor._gmmPreResolutionMovement ?? {};
+        const settled = actor.system?.attributes?.movement ?? {};
+        const modes = [];
+        // A mode is a FormulaField, so an effect's contribution can be a reference rather than a number.
+        const rollData = actor.getRollData();
+
+        GMM_5E_SPEEDS.forEach((mode) => {
+            const value = Number(settled[mode]) || 0;
+            let speed = speeds.find((x) => x.code == mode);
+            if (!speed) {
+                if (!value) return;
+                speed = $.extend(new DerivedAttribute(), {
+                    code: mode,
+                    title: game.i18n.format(`gmm.common.speed.${mode}`),
+                    units: blueprintSpeeds.units
+                });
+            }
+            const key = `system.attributes.movement.${mode}`;
+            const effects = (preResolution[mode] === undefined)
+                ? 0
+                : dnd5e.utils.simplifyBonus(preResolution[mode], rollData) - dnd5e.utils.simplifyBonus(stored[mode], rollData);
+            if (effects) speed.add(effects, _settledSource(actor, key));
+            const remainder = value - speed.value;
+            if (remainder) speed.add(remainder, game.i18n.format('gmm.common.derived_source.in_play'));
+            speed.moved = !!(speed.moved || effects || remainder);
+            modes.push(speed);
+        });
+
+        const fly = modes.find((x) => x.code == "fly");
+        if (fly) {
+            if (settled.hover) fly.detail = game.i18n.format(`gmm.common.speed.can_hover`).toLowerCase();
+            else delete fly.detail;
+            if (!!settled.hover != !!stored.hover) fly.moved = true;
+        }
+
+        return modes.concat(speeds.filter((x) => !x.code));
+    }
+
+    function _reconcileSenses(senses, blueprintSenses, actor) {
+        const stored = _storedSystem(actor).attributes?.senses ?? {};
+        const settled = actor.system?.attributes?.senses ?? {};
+        const ranges = [];
+
+        GMM_5E_SENSES.forEach((type) => {
+            const value = Number(settled.ranges?.[type]) || 0;
+            let sense = senses.find((x) => x.code == type);
+            // A range of 0 is the absence of the sense, where a speed of 0 is a state a creature is in.
+            if (!value) return;
+            if (!sense) {
+                sense = $.extend(new DerivedAttribute(), {
+                    code: type,
+                    title: game.i18n.format(`gmm.common.sense.${type}`),
+                    units: blueprintSenses.units
+                });
+            }
+            const delta = value - sense.value;
+            if (delta) sense.add(delta, _settledSource(actor, `system.attributes.senses.ranges.${type}`));
+            sense.moved = !!(sense.moved || delta);
+            ranges.push(sense);
+        });
+
+        const special = _reconcileFreeTextDistances(stored.special, settled.special, blueprintSenses.units,
+            _settledSource(actor, "system.attributes.senses.special"));
+        return ranges.concat(special);
+    }
+
+    function _reconcileCollection(row, entry, actor) {
+        const path = `${entry.path}.value`;
+        const settled = [...(foundry.utils.getProperty(actor.system, path) ?? [])];
+        const key = `system.${path}`;
+        const authored = (code) => row.find((x) => x.code == code);
+        const granted = (code) => ({
+            code: code,
+            label: entry.collection.includes(code) ? game.i18n.format(`gmm.common.${entry.key}.${code}`) : code,
+            source: _settledSource(actor, key, (x) => String(x.value).includes(code)),
+            moved: true
+        });
+
+        const known = entry.collection.filter((x) => settled.includes(x)).map((x) => authored(x) ?? granted(x));
+        const unknown = settled.filter((x) => !entry.collection.includes(x)).map((x) => authored(x) ?? granted(x));
+        const custom = _reconcileFreeTextLabels(
+            foundry.utils.getProperty(_storedSystem(actor), `${entry.path}.custom`),
+            foundry.utils.getProperty(actor.system, `${entry.path}.custom`),
+            _settledSource(actor, `system.${entry.path}.custom`)
+        );
+
+        return known.concat(unknown, custom);
+    }
+
+    function _reconcileDescription(monsterData, blueprintDescription, actor) {
+        const sizeName = (value) => GMM_5E_SIZES.find((x) => x.foundry == value)?.name;
+        const stored = _storedSystem(actor);
+        const size = actor.system?.traits?.size;
+        const swarm = actor.system?.details?.type?.swarm;
+        if (size == stored.traits?.size && swarm == stored.details?.type?.swarm) return;
+
+        const settled = $.extend(true, {}, blueprintDescription);
+        // An unmappable size keeps the authored one; an empty swarm is a creature that stopped being one.
+        settled.size = sizeName(size) ?? settled.size;
+        settled.type.swarm = sizeName(swarm) ?? "";
+        monsterData.description = {
+            text: _describeCreature(settled),
+            source: _settledSource(actor, (size == stored.traits?.size) ? "system.details.type.swarm" : "system.traits.size"),
+            moved: true
+        };
     }
 
     function _parseXp(derivedAttributes, xpModifier) {
@@ -835,7 +1005,8 @@ const MonsterForge = (function () {
         createArtifact: createArtifact,
         createBaseAttributes: createBaseAttributes,
         createBaseRollData: createBaseRollData,
-        createRollData: createRollData
+        createRollData: createRollData,
+        reconcileWithSettledActor: reconcileWithSettledActor
     };
 })();
 

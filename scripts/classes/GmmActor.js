@@ -25,6 +25,7 @@ const GmmActor = (function () {
 		}, 'WRAPPER');
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
 			if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
+				_stashPreResolutionMovement(this);
 				wrapped(...args);
 				_prepareMonsterDerivedData(this);
 				_postProcessData(this);
@@ -76,6 +77,13 @@ const GmmActor = (function () {
 		const authored = String(movement.bonus ?? "").trim();
 		movement.bonus = authored ? `${authored} ${role < 0 ? "-" : "+"} ${Math.abs(role)}` : String(role);
 	}
+
+	/* prepareMovement replaces each mode with a number that also carries the Role bonus, exhaustion and
+	 * encumbrance, so the formula holding an effect's own contribution is only readable before it runs. */
+	function _stashPreResolutionMovement(actor) {
+		actor._gmmPreResolutionMovement = foundry.utils.deepClone(actor.system?.attributes?.movement ?? {});
+	}
+
 	function _postProcessData(actor) {
 		const actorData = actor.system;
 		const monsterBlueprint = actor.flags.gmm.blueprint;
@@ -403,6 +411,12 @@ const GmmActor = (function () {
 		hitPoints.temporary_maximum = hp.tempmax;
 		hitPoints.current = hp.value;
 		if (actor._gmmRollData) actor._gmmRollData.naturalMax = hp.max;
+
+		try {
+			MonsterForge.reconcileWithSettledActor(monsterData, actor.flags.gmm.blueprint, actor);
+		} catch (error) {
+			console.error(error);
+		}
 
 		ParagonDefenses.prepareDerivedData(actor);
 

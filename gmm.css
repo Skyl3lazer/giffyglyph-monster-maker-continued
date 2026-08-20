@@ -228,6 +228,10 @@
   cursor: pointer;
   color: var(--color-secondary-base) !important;
 }
+.gmm-artifact .value--moved {
+  text-decoration: underline dotted var(--color-secondary-base);
+  text-underline-offset: 0.125rem;
+}
 .gmm-artifact ::-webkit-scrollbar {
   width: 1rem;
 }

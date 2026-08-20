@@ -3,7 +3,7 @@
         <div class="monster__image" data-action="open-config" data-config="description"><img src="{{gmm.monster.image}}"></div>
         <div class="monster__name" data-action="open-config" data-config="description">{{gmm.monster.name}}</div>
         <div class="monster__subtitle">
-            <div class="monster__description" data-action="open-config" data-config="description">{{gmm.monster.description}}</div>
+            <div class="monster__description{{#if gmm.monster.description.moved}} value--moved{{/if}}" data-action="open-config" data-config="description" title="{{gmm.monster.description.source}}">{{gmm.monster.description.text}}</div>
             {{#if showRests}}
             <div class="monster__rests">
                 {{#each CONFIG.restTypes}}
@@ -257,7 +257,7 @@
                                     <div class="property__title" data-action="open-config" data-config="speed">{{localize 'gmm.monster.artifact.attributes.speeds.title'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.speeds as | speed |}}
-                                        <span title="{{{parseSources speed.sources}}}">{{speed.title}} {{#if (ne speed.value null)}}{{localize (concat 'gmm.monster.artifact.attributes.speeds.' speed.units) distance=speed.value}}{{/if}}{{#if speed.detail}} ({{speed.detail}}){{/if}}</span>
+                                        <span class="{{#if speed.moved}}value--moved{{/if}}" title="{{#if speed.sources}}{{{parseSources speed.sources}}}{{else}}{{speed.source}}{{/if}}">{{speed.title}} {{#if (ne speed.value null)}}{{localize (concat 'gmm.monster.artifact.attributes.speeds.' speed.units) distance=speed.value}}{{/if}}{{#if speed.detail}} ({{speed.detail}}){{/if}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -270,7 +270,7 @@
                                     <div class="property__title" data-action="open-config" data-config="damage-vulnerabilities">{{localize 'gmm.monster.artifact.attributes.damage_vulnerabilities'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.damage_vulnerabilities}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -283,7 +283,7 @@
                                     <div class="property__title" data-action="open-config" data-config="damage-resistances">{{localize 'gmm.monster.artifact.attributes.damage_resistances'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.damage_resistances}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -296,7 +296,7 @@
                                     <div class="property__title" data-action="open-config" data-config="damage-immunities">{{localize 'gmm.monster.artifact.attributes.damage_immunities'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.damage_immunities}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -309,7 +309,7 @@
                                     <div class="property__title" data-action="open-config" data-config="condition-immunities">{{localize 'gmm.monster.artifact.attributes.condition_immunities'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.condition_immunities}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -322,7 +322,7 @@
                                     <div class="property__title" data-action="open-config" data-config="senses">{{localize 'gmm.monster.artifact.attributes.senses.title'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.senses as | sense |}}
-                                        <span>{{sense.title}}{{#if sense.value}} {{localize (concat 'gmm.monster.artifact.attributes.senses.' sense.units) distance=sense.value}}{{/if}}</span>
+                                        <span class="{{#if sense.moved}}value--moved{{/if}}" title="{{#if sense.sources}}{{{parseSources sense.sources}}}{{else}}{{sense.source}}{{/if}}">{{sense.title}}{{#if sense.value}} {{localize (concat 'gmm.monster.artifact.attributes.senses.' sense.units) distance=sense.value}}{{/if}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -335,7 +335,7 @@
                                     <div class="property__title" data-action="open-config" data-config="languages">{{localize 'gmm.monster.artifact.attributes.languages'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.languages}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
