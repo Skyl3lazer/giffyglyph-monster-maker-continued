@@ -75,13 +75,6 @@ const MonsterBlueprint = (function () {
 		{ from: "spellbook.spellcasting.level", to: "system.attributes.spell.level" }
 	];
 
-	/* Read from `_source` because the form writes these back. This is going to be expanded */
-	const STORED_MAPPINGS = new Set([
-		"hit_points.current",
-		"hit_points.temporary",
-		"hit_points.temporary_maximum"
-	]);
-
 	// Everything the base pass derives, none of it synced from actor data.
 	const BASE_SUBTREES = [
 		"combat", "armor_class", "hit_points",
@@ -139,7 +132,7 @@ const MonsterBlueprint = (function () {
 	}
 
 	function _getInitialData(actor) {
-		let actorData = actor.system;
+		let actorData = actor._source.system;
 		let resources = actorData.resources;
 		let combatType = (resources.lair.value) ? "paragon" : (resources.legact.max || resources.legres.max) ? "elite": "grunt";
 		let combatRank = GMM_MONSTER_RANKS[combatType];
@@ -207,42 +200,41 @@ const MonsterBlueprint = (function () {
 		}
 	}
 	
+	/* A prepared read would save an effect's contribution here as the build's own value, because
+	   everything this function reads is written back. */
 	function _syncActorDataToBlueprint(blueprint, actor) {
 		const blueprintData = blueprint.data;
-		const actorData = actor;
+		const stored = actor._source;
 		try {
 			mappings.forEach((x) => {
-				const from = STORED_MAPPINGS.has(x.from) && CompatibilityHelpers.hasProperty(actor._source, x.to)
-					? actor._source
-					: actor;
-				if (CompatibilityHelpers.hasProperty(from, x.to)) {
-					CompatibilityHelpers.setProperty(blueprintData, x.from, CompatibilityHelpers.getProperty(from, x.to));
+				if (CompatibilityHelpers.hasProperty(stored, x.to)) {
+					CompatibilityHelpers.setProperty(blueprintData, x.from, CompatibilityHelpers.getProperty(stored, x.to));
 				}
 			});
 
 			blueprintData.actions.items = [];
 			blueprintData.bonus_actions.items = [];
-			blueprintData.description.alignment = _getActorAlignment(actor.system.details.alignment);
-			blueprintData.description.size = GMM_5E_SIZES.find((x) => x.foundry == actor.system.traits.size)?.name;
-			blueprintData.description.type.swarm = GMM_5E_SIZES.find((x) => x.foundry == actor.system.details.type.swarm)?.name;
+			blueprintData.description.alignment = _getActorAlignment(stored.system.details.alignment);
+			blueprintData.description.size = GMM_5E_SIZES.find((x) => x.foundry == stored.system.traits.size)?.name;
+			blueprintData.description.type.swarm = GMM_5E_SIZES.find((x) => x.foundry == stored.system.details.type.swarm)?.name;
 			// Initiative advantage moved from `flags.dnd5e.initiativeAdv` (boolean) to
 			// `system.attributes.init.roll.mode` (number, 1 = advantage, -1 = disadvantage).
-			blueprintData.initiative.advantage = actor.system?.attributes?.init?.roll?.mode === 1;
+			blueprintData.initiative.advantage = stored.system?.attributes?.init?.roll?.mode === 1;
 			// dnd5e no longer stores legact/legres remaining; derive "current remaining" as max - spent.
-			const legact = actor.system?.resources?.legact ?? {};
+			const legact = stored.system?.resources?.legact ?? {};
 			blueprintData.legendary_actions.current = (legact.max ?? 0) - (legact.spent ?? 0);
-			const legres = actor.system?.resources?.legres ?? {};
+			const legres = stored.system?.resources?.legres ?? {};
 			blueprintData.legendary_resistances.current = (legres.max ?? 0) - (legres.spent ?? 0);
-			blueprintData.inventory.encumbrance.powerful_build = actor.flags.dnd5e && actor.flags.dnd5e.powerfulBuild;
+			blueprintData.inventory.encumbrance.powerful_build = !!stored.flags?.dnd5e?.powerfulBuild;
 			blueprintData.inventory.items = [];
 			blueprintData.lair_actions.items = [];
 			blueprintData.legendary_actions.items = [];
 			blueprintData.reactions.items = [];
-			blueprintData.senses.units = GMM_5E_UNITS.find((x) => x.foundry == actor.system.attributes.senses.units)?.name;
-			blueprintData.speeds.units = GMM_5E_UNITS.find((x) => x.foundry == actor.system.attributes.movement.units)?.name;
-			blueprintData.spellbook.spellcasting.ability = (actor.system.attributes.spellcasting == "") ? "int" : actor.system.attributes.spellcasting;
+			blueprintData.senses.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.senses.units)?.name;
+			blueprintData.speeds.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.movement.units)?.name;
+			blueprintData.spellbook.spellcasting.ability = (stored.system.attributes.spellcasting) ? stored.system.attributes.spellcasting : "int";
 			// First-time conversion: vanilla NPCs with spell items usually have spell.level=0; mirror combat level so casters scale.
-			if (!actor.flags?.gmm
+			if (!stored.flags?.gmm
 				&& !blueprintData.spellbook.spellcasting.level
 				&& actor.items?.some?.(i => i.type === "spell")) {
 				blueprintData.spellbook.spellcasting.level = blueprintData.combat?.level ?? 1;
@@ -261,8 +253,8 @@ const MonsterBlueprint = (function () {
 			blueprintData.traits.items = [];
 			
 			GMM_5E_SKILLS.forEach((x) => {
-				let actorSkill = actorData.system.skills[x.foundry];
-				switch (actorSkill.value) {
+				// A skill the creature was never proficient in is absent from the source entirely.
+				switch (stored.system.skills?.[x.foundry]?.value) {
 					case 0.5:
 						blueprintData.skills[x.name] = "half-proficient";
 						break;
@@ -278,11 +270,11 @@ const MonsterBlueprint = (function () {
 				}
 			});
 
-			actor.system.traits.di.value.forEach((x) => blueprintData.damage_immunities[x] = true);
-			actor.system.traits.dr.value.forEach((x) => blueprintData.damage_resistances[x] = true);
-			actor.system.traits.dv.value.forEach((x) => blueprintData.damage_vulnerabilities[x] = true);
-			actor.system.traits.ci.value.forEach((x) => blueprintData.condition_immunities[x] = true);
-			actor.system.traits.languages.value.forEach((x) => blueprintData.languages[x] = true);
+			stored.system.traits.di.value.forEach((x) => blueprintData.damage_immunities[x] = true);
+			stored.system.traits.dr.value.forEach((x) => blueprintData.damage_resistances[x] = true);
+			stored.system.traits.dv.value.forEach((x) => blueprintData.damage_vulnerabilities[x] = true);
+			stored.system.traits.ci.value.forEach((x) => blueprintData.condition_immunities[x] = true);
+			stored.system.traits.languages.value.forEach((x) => blueprintData.languages[x] = true);
 
 			if (actor.items) {
 				try {
