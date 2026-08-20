@@ -108,7 +108,7 @@ flags:
           bonus: ''
           defense: int
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

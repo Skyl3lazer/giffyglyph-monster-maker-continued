@@ -2210,6 +2210,17 @@
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--duration .form-group__body select {
   flex: 1 1 auto;
 }
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group__body--suffixed {
+  display: flex;
+  align-items: center;
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group__body--suffixed input {
+  flex: 0 0 5rem;
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group__body--suffixed .form-group__suffix {
+  padding-left: 0.5rem;
+  color: var(--color-primary-shade-2);
+}
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--note .form-group__body {
   padding: 0.5rem;
   font-style: italic;

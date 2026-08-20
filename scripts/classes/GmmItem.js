@@ -333,9 +333,10 @@ const GmmItem = (function () {
             const v = blueprint.attack.versatile.damage;
             labels.damage_versatile = `${gmmMonster ? Shortcoder.replaceShortcodes(v, gmmMonster, true, this) : v} damage`;
         }
-        if (blueprint?.attack?.miss?.damage) {
-            const m = blueprint.attack.miss.damage;
-            labels.damage_miss = `${gmmMonster ? Shortcoder.replaceShortcodes(m, gmmMonster, true, this) : m} damage`;
+        /* Miss takes a fraction of the rolled damage rather than rolling its own. */
+        const missPercentage = Activities.missPercentage(blueprint);
+        if (missPercentage > 0) {
+            labels.damage_miss = game.i18n.format("gmm.common.attack.miss_damage", { percentage: missPercentage });
         }
 
         labels.bpRarity = blueprint?.rarity ?? "";

@@ -98,7 +98,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: '[round(damage/2), damageDie]'
+            percentage: 50
           versatile:
             damage: ''
           hit:

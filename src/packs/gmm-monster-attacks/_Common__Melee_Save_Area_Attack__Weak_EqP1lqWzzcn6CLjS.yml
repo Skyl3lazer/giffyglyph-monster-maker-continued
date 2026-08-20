@@ -30,7 +30,7 @@ flags:
           target: ''
           amount: null
         attack:
-          type: other
+          type: save
           related_stat: str
           bonus: ''
           defense: str
@@ -40,7 +40,7 @@ flags:
                 formula: '[round(damage * 0.5), damageDie]'
                 type: slashing
           miss:
-            damage: '[round(damage * 0.25), damageDie]'
+            percentage: 50
           versatile:
             damage: ''
         duration:
@@ -108,7 +108,7 @@ system:
     target: ''
     amount: null
   ability: null
-  actionType: other
+  actionType: save
   attackBonus: 0
   chatFlavor: ''
   critical: null

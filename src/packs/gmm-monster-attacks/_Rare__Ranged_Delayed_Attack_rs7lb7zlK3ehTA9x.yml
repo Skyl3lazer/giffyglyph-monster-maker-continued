@@ -183,7 +183,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: '[round(damage*0.75), damageDie] radiant'
+            percentage: 60
           versatile:
             damage: ''
           hit:

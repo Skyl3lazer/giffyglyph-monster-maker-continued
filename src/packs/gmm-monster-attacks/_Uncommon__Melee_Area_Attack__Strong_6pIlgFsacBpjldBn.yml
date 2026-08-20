@@ -39,7 +39,7 @@ flags:
                 formula: '[round(damage*1.25), damageDie]'
                 type: slashing
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

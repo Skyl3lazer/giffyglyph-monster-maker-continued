@@ -110,7 +110,7 @@ flags:
           bonus: ''
           defense: dex
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

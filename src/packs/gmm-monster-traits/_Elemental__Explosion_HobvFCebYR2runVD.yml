@@ -108,7 +108,7 @@ flags:
           bonus: ''
           defense: dex
           miss:
-            damage: ''
+            percentage: 50
           versatile:
             damage: ''
           hit:

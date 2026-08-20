@@ -40,7 +40,7 @@ flags:
                 formula: '[damage, damageDie]'
                 type: slashing
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

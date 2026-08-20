@@ -45,7 +45,7 @@ flags:
                 formula: '[round(damage * 1.25), damageDie]'
                 type: acid
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

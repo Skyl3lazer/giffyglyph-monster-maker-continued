@@ -11,6 +11,7 @@ import Auras from './scripts/classes/Auras.js';
 import Conditions from './scripts/classes/Conditions.js';
 import Deferrals from './scripts/classes/Deferrals.js';
 import Durations from './scripts/classes/Durations.js';
+import MissDamage from './scripts/classes/MissDamage.js';
 import Shortcoder from './scripts/classes/Shortcoder.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
@@ -47,6 +48,7 @@ Hooks.once("init", function() {
 	Deferrals.init();
 	Durations.init();
 	Auras.init();
+	MissDamage.init();
 
 	// Backward-compatible API used by legacy migration scripts/macros.
 	const moduleRef = game.modules.get(GMM_MODULE_TITLE);

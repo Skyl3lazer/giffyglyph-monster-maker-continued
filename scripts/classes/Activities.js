@@ -402,6 +402,28 @@ const Activities = (function () {
         return { ...duration, value: null, units: GMM_PLANT_DURATION_UNITS };
     }
 
+    function _midiActive() {
+        return !!game.modules?.get?.("midi-qol")?.active;
+    }
+
+    function missPercentage(blueprint) {
+        const data = blueprint?.data ?? blueprint ?? {};
+        const raw = Number(data.attack?.miss?.percentage);
+        if (!Number.isFinite(raw) || raw <= 0) return 0;
+        return Math.min(100, Math.trunc(raw));
+    }
+
+    /* `full` is not a mistake. midi is handed the whole amount because GMMC scales it per target,
+       and `half` here would make every authored share a fraction of a fraction. */
+    function onSaveFor(blueprint) {
+        const p = missPercentage(blueprint);
+        if (p === 0) return "none";
+        if (p === 100) return "full";
+        if (_midiActive()) return "full";
+        // Core applies nothing and only prints the word, so it gets the nearest of the three.
+        return p < 25 ? "none" : p < 75 ? "half" : "full";
+    }
+
     /* Shared so the combined, gate and delivery forms cannot disagree about what a type produces. */
     function _applyPayloadFields(data, blueprintData, type, { damage = true } = {}) {
         const blueprintAttack = blueprintData.attack ?? {};
@@ -431,7 +453,7 @@ const Activities = (function () {
                 }
             };
             data.damage = {
-                onSave: "half",
+                onSave: onSaveFor(blueprintData),
                 parts: damageParts
             };
         } else if (type === "heal") {
@@ -1321,6 +1343,7 @@ const Activities = (function () {
         if (primary?.type !== _wantedPrimaryType(blueprint)) return true;
         if (_poolTargetMismatch(blueprint, primary)) return true;
         if (_durationEffectStale(item, blueprint)) return true;
+        if (_onSaveStale(activities, blueprint)) return true;
         if (isDoomingDeferral(blueprint)) {
             // A dooming primary that still carries damage predates the gate/delivery split.
             if (primary?.damage?.parts?.length) return true;
@@ -1331,10 +1354,19 @@ const Activities = (function () {
         return wantsDeferred && (primary?.duration?.units !== GMM_PLANT_DURATION_UNITS);
     }
 
+    function _onSaveStale(activities, blueprint) {
+        const wanted = onSaveFor(blueprint);
+        for (const id of GMM_ACTIVITY_IDS) {
+            const activity = activities.get?.(id);
+            if (activity?.type === "save" && activity.damage?.onSave !== wanted) return true;
+        }
+        return false;
+    }
+
     /* Guarded on midi being active: without it the schema drops `midiProperties`, and an unguarded
        check would rebuild the item on every load forever. */
     function _deliveryNeedsMidiFlags(delivery) {
-        if (!delivery || !game.modules?.get?.("midi-qol")?.active) return false;
+        if (!delivery || !_midiActive()) return false;
         const p = delivery.midiProperties;
         return !p || p.automationOnly !== true || p.otherActivityCompatible !== false;
     }
@@ -1630,6 +1662,8 @@ const Activities = (function () {
         needsActivityRebuild,
         ATTACK_TYPES,
         activityTypeFor,
+        missPercentage,
+        onSaveFor,
         damagePartFromBlueprint,
         damagePartToBlueprint,
         buildActivityData,

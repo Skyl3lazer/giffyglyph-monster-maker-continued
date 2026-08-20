@@ -334,12 +334,20 @@
                                 <div class="form-fieldset__body">
                                     <div class="form-group">
                                         <div class="form-group__header">
-                                            <span class="form-group__title">{{localize 'gmm.action.blueprint.attack.damage.formula'}}</span>
+                                            <span class="form-group__title">{{localize 'gmm.action.blueprint.attack.damage.miss.share'}}</span>
                                         </div>
-                                        <div class="form-group__body">
-                                            <input name="gmm.blueprint.attack.miss.damage" value="{{gmm.blueprint.attack.miss.damage}}" />
+                                        <div class="form-group__body form-group__body--suffixed">
+                                            <input type="number" min="0" max="100" step="1" name="gmm.blueprint.attack.miss.percentage" value="{{gmm.blueprint.attack.miss.percentage}}" />
+                                            <span class="form-group__suffix">%</span>
                                         </div>
                                     </div>
+                                    {{#unless (eq gmm.blueprint.attack.type 'save')}}
+                                    <div class="form-group form-group--note">
+                                        <div class="form-group__body">
+                                            <span>{{localize 'gmm.action.blueprint.attack.damage.miss.inert'}}</span>
+                                        </div>
+                                    </div>
+                                    {{/unless}}
                                 </div>
                             </div>
                             <div class="form-fieldset">
@@ -353,6 +361,11 @@
                                         </div>
                                         <div class="form-group__body">
                                             <input name="gmm.blueprint.attack.versatile.damage" value="{{gmm.blueprint.attack.versatile.damage}}" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group form-group--note">
+                                        <div class="form-group__body">
+                                            <span>{{localize 'gmm.action.blueprint.attack.damage.versatile.inert'}}</span>
                                         </div>
                                     </div>
                                 </div>

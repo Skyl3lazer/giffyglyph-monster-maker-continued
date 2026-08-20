@@ -93,6 +93,9 @@ export const GMM_ACTION_BLUEPRINT = {
 				formula: null,
 				type: null
 			},
+			miss: {
+				percentage: null
+			},
 			message: null,
 			related_stat: "max"
 		}

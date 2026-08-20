@@ -70,6 +70,20 @@
 			}
 		}
 
+		.form-group__body--suffixed {
+			display: flex;
+			align-items: center;
+
+			input {
+				flex: 0 0 5rem;
+			}
+
+			.form-group__suffix {
+				padding-left: 0.5rem;
+				color: var(--color-primary-shade-2);
+			}
+		}
+
 		.form-group--note {
 
 			.form-group__body {

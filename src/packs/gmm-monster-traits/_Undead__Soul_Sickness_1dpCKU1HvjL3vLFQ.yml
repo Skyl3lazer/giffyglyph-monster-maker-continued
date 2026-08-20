@@ -125,7 +125,7 @@ flags:
           bonus: ''
           defense: cha
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:
