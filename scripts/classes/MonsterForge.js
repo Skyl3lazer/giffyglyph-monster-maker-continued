@@ -587,7 +587,7 @@ const MonsterForge = (function () {
     /* The stat block prints what the game will use, so every row built from a schema field an effect
        can reach is re-read once the final change phase has landed. */
     function reconcileWithSettledActor(monsterData, blueprint, actor) {
-        monsterData.speeds = _reconcileSpeeds(monsterData.speeds, blueprint.data.speeds, actor);
+        monsterData.speeds = _reconcileSpeeds(monsterData.speeds, blueprint.data.speeds, actor, blueprint.data.combat.role);
         monsterData.senses = _reconcileSenses(monsterData.senses, blueprint.data.senses, actor);
         GMM_SETTLED_COLLECTIONS.forEach((x) => {
             monsterData[x.row] = _reconcileCollection(monsterData[x.row], x, actor);
@@ -595,9 +595,9 @@ const MonsterForge = (function () {
         _reconcileDescription(monsterData, blueprint.data.description, actor);
     }
 
-    function _reconcileSpeeds(speeds, blueprintSpeeds, actor) {
+    function _reconcileSpeeds(speeds, blueprintSpeeds, actor, role) {
         const stored = _storedSystem(actor).attributes?.movement ?? {};
-        const preResolution = actor._gmmPreResolutionMovement ?? {};
+        const applied = actor._gmmAppliedMovement ?? {};
         const settled = actor.system?.attributes?.movement ?? {};
         const modes = [];
         // A mode is a FormulaField, so an effect's contribution can be a reference rather than a number.
@@ -613,11 +613,16 @@ const MonsterForge = (function () {
                     title: game.i18n.format(`gmm.common.speed.${mode}`),
                     units: blueprintSpeeds.units
                 });
+                /* dnd5e adds the bonus to every non-zero mode, including one nobody authored. Without
+                   this term the Role's amount would read as something the table did. */
+                speed.add(Number(role?.modifiers?.speed) || 0, game.i18n.format('gmm.common.derived_source.role'));
             }
             const key = `system.attributes.movement.${mode}`;
-            const effects = (preResolution[mode] === undefined)
+            /* A mode is a formula until prepareMovement replaces it with a number. A number here means
+               the stash was taken too late to credit anyone. */
+            const effects = (typeof applied[mode] !== "string")
                 ? 0
-                : dnd5e.utils.simplifyBonus(preResolution[mode], rollData) - dnd5e.utils.simplifyBonus(stored[mode], rollData);
+                : dnd5e.utils.simplifyBonus(applied[mode], rollData) - dnd5e.utils.simplifyBonus(stored[mode], rollData);
             if (effects) speed.add(effects, _settledSource(actor, key));
             const remainder = value - speed.value;
             if (remainder) speed.add(remainder, game.i18n.format('gmm.common.derived_source.in_play'));

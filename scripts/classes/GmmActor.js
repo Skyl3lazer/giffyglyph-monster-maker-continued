@@ -4,6 +4,7 @@ import MonsterBlueprint from './MonsterBlueprint.js';
 import MonsterForge from './MonsterForge.js';
 import { GMM_5E_ABILITIES } from "../consts/Gmm5eAbilities.js";
 import { GMM_5E_SKILLS } from '../consts/Gmm5eSkills.js';
+import { GMM_5E_SPEEDS } from '../consts/Gmm5eSpeeds.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 import CompatibilityHelpers from './CompatibilityHelpers.js';
 
@@ -25,7 +26,6 @@ const GmmActor = (function () {
 		}, 'WRAPPER');
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
 			if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
-				_stashPreResolutionMovement(this);
 				wrapped(...args);
 				_prepareMonsterDerivedData(this);
 				_postProcessData(this);
@@ -34,8 +34,15 @@ const GmmActor = (function () {
 			}
 		}, 'WRAPPER');
 
+		/* Foundry runs the data model's derived pass, where prepareMovement resolves every mode, before
+		 * the document's. */
+		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareEmbeddedDocuments', function (wrapped, ...args) {
+			wrapped(...args);
+			if (this.isGmmMonster()) _stashAppliedMovement(this);
+		}, 'WRAPPER');
+
 		/* Wrapped here rather than on applyActiveEffects because DAE applies its phase-corrected changes
-		 * after delegating. Nesting is the only way to be sure this runs after them. */
+		 * after delegating. */
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareData', function (wrapped, ...args) {
 			wrapped(...args);
 			if (this.isGmmMonster()) _prepareMonsterSettledData(this);
@@ -78,10 +85,11 @@ const GmmActor = (function () {
 		movement.bonus = authored ? `${authored} ${role < 0 ? "-" : "+"} ${Math.abs(role)}` : String(role);
 	}
 
-	/* prepareMovement replaces each mode with a number that also carries the Role bonus, exhaustion and
-	 * encumbrance, so the formula holding an effect's own contribution is only readable before it runs. */
-	function _stashPreResolutionMovement(actor) {
-		actor._gmmPreResolutionMovement = foundry.utils.deepClone(actor.system?.attributes?.movement ?? {});
+	/* `bonus` already carries the Role at this point. Stashing it would invite the double-count the
+	 * speed tooltip exists to avoid. */
+	function _stashAppliedMovement(actor) {
+		const movement = actor.system?.attributes?.movement ?? {};
+		actor._gmmAppliedMovement = Object.fromEntries(GMM_5E_SPEEDS.map((x) => [x, movement[x]]));
 	}
 
 	function _postProcessData(actor) {
