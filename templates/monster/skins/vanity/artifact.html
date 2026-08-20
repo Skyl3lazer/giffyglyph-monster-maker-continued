@@ -257,7 +257,7 @@
                                     <div class="property__title" data-action="open-config" data-config="speed">{{localize 'gmm.monster.artifact.attributes.speeds.title'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.speeds as | speed |}}
-                                        <span title="{{{parseSources speed.sources}}}">{{speed.title}} {{#if speed.value}}{{localize (concat 'gmm.monster.artifact.attributes.speeds.' speed.units) distance=speed.value}}{{/if}}{{#if speed.detail}} ({{speed.detail}}){{/if}}</span>
+                                        <span title="{{{parseSources speed.sources}}}">{{speed.title}} {{#if (ne speed.value null)}}{{localize (concat 'gmm.monster.artifact.attributes.speeds.' speed.units) distance=speed.value}}{{/if}}{{#if speed.detail}} ({{speed.detail}}){{/if}}</span>
                                         {{/each}}
                                     </div>
                                 </div>

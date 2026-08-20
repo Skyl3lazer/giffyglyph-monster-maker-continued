@@ -64,6 +64,17 @@ const GmmActor = (function () {
 		actorData.attributes.ac.flat = baseAttributes.armor_class.value;
 		actorData.attributes.ac.base = baseAttributes.armor_class.value;
 		actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, baseAttributes);
+		_applyRoleSpeedBonus(actorData, monsterBlueprint);
+	}
+
+	/* dnd5e adds this to every non-zero mode, which is what the stat block does with it. Assigning a mode
+	 * instead would flatten what prepareMovement derives from conditions, exhaustion and encumbrance. */
+	function _applyRoleSpeedBonus(actorData, blueprint) {
+		const role = Number(blueprint.data.combat.role?.modifiers?.speed) || 0;
+		if (!role) return;
+		const movement = actorData.attributes.movement;
+		const authored = String(movement.bonus ?? "").trim();
+		movement.bonus = authored ? `${authored} ${role < 0 ? "-" : "+"} ${Math.abs(role)}` : String(role);
 	}
 	function _postProcessData(actor) {
 		const actorData = actor.system;

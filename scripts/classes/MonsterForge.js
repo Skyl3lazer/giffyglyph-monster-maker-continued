@@ -447,7 +447,8 @@ const MonsterForge = (function () {
                 const speed = new DerivedAttribute();
                 speed.add(monsterSpeeds[defaultSpeed], game.i18n.format('gmm.common.derived_source.base'));
                 speed.add(role.modifiers.speed, game.i18n.format('gmm.common.derived_source.role'));
-                speed.setMinimumValue(1);
+                /* 0 rather than the 1 every other attribute floors at, because dnd5e clamps a speed there. */
+                speed.setMinimumValue(0);
                 speed.ceil();
 
                 const details = {};
