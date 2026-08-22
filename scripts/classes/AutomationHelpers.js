@@ -117,8 +117,16 @@ const AutomationHelpers = (function () {
 		return itemId ? (carrier.parent?.items?.get?.(itemId) ?? null) : null;
 	}
 
+	/* A concentration effect names its feature on a flag rather than through `origin`. */
+	function concentrationFor(actor, itemId) {
+		if (!actor || !itemId) return null;
+		return [...(actor.concentration?.effects ?? [])]
+			.find(e => e.getFlag("dnd5e", "item")?.id === itemId) ?? null;
+	}
+
 	return {
 		collectOverwrittenEffects: collectOverwrittenEffects,
+		concentrationFor: concentrationFor,
 		applyOverwrittenEffects: applyOverwrittenEffects,
 		activitySource: activitySource,
 		preserveForeignActivityFields: preserveForeignActivityFields,

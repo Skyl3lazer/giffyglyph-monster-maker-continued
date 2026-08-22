@@ -11,6 +11,7 @@ import Auras from './scripts/classes/Auras.js';
 import Conditions from './scripts/classes/Conditions.js';
 import Deferrals from './scripts/classes/Deferrals.js';
 import Durations from './scripts/classes/Durations.js';
+import Areas from './scripts/classes/Areas.js';
 import MissDamage from './scripts/classes/MissDamage.js';
 import Shortcoder from './scripts/classes/Shortcoder.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
@@ -47,6 +48,7 @@ Hooks.once("init", function() {
 	ParagonDefenses.init();
 	Deferrals.init();
 	Durations.init();
+	Areas.init();
 	Auras.init();
 	MissDamage.init();
 

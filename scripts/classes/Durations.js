@@ -309,12 +309,6 @@ const Durations = (function () {
 		}
 	}
 
-	function _concentrationFor(source, itemId) {
-		if (!source || !itemId) return null;
-		return [...(source.concentration?.effects ?? [])]
-			.find(e => e.getFlag("dnd5e", "item")?.id === itemId) ?? null;
-	}
-
 	/* Not the origin string. Under midi every effect in one application carries the first one's uuid.
 	 * Under core they all differ. */
 	function _sourceItemIdOf(effect) {
@@ -363,7 +357,7 @@ const Durations = (function () {
 		if (!isDurationEffect(effect) && !deferral) return;
 		const source = _sourceActorOf(effect);
 		const itemId = AutomationHelpers.resolveSourceItem(effect.origin)?.id ?? null;
-		await _concentrationFor(source, itemId)?.addDependent(effect);
+		await AutomationHelpers.concentrationFor(source, itemId)?.addDependent(effect);
 	}
 
 	function _isPayload(document) {
@@ -380,10 +374,10 @@ const Durations = (function () {
 
 		const source = _sourceActorOf(effect);
 		const itemId = AutomationHelpers.resolveSourceItem(effect.origin)?.id ?? null;
-		const concentration = _concentrationFor(source, itemId);
+		const concentration = AutomationHelpers.concentrationFor(source, itemId);
 		// v14 prepares a blank value to Infinity, so only a finite one is a real expiry.
 		if (!concentration || Number.isFinite(concentration.duration?.value)) return;
-		// A measured template is a dependent too, and it never leaves while the concentration holds.
+		// An area is a dependent too, and it never leaves while the concentration holds.
 		if (concentration.getDependents().some(d => d.id !== effect.id && _isPayload(d))) return;
 		await concentration.delete();
 	}
