@@ -421,7 +421,7 @@ const MonsterBlueprint = (function () {
 			// An entry created for a skill nobody trained is what leaves the schema to default its ability.
 			if (!level && !stored) return;
 			CompatibilityHelpers.setProperty(actorData, `system.skills.${x.foundry}.value`, GMM_5E_SKILL_LEVELS[level] ?? 0);
-			// A deliberate re-basing carries its own key. An entry an earlier save created does not.
+			// dnd5e's initializer never runs on an entry this write creates, so the ability has to be seeded here.
 			CompatibilityHelpers.setProperty(actorData, `system.skills.${x.foundry}.ability`, stored?.ability ?? x.ability);
 		});
 
