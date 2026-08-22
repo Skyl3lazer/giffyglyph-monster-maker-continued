@@ -7,13 +7,8 @@ CLAUDE.md
 CONTEXT.md
 CONTEXT-MAP.md
 
-# docs/ is the GMMC-Docs repository. Only these four paths belong to this module;
-# module.json points its readme, changelog and media URLs at them.
-/docs/*
-!/docs/README.md
-!/docs/CHANGELOG.md
-!/docs/DEV_TODO.md
-!/docs/img/
+# GMMC-Docs is a separate repository checked out here.
+/development_docs/
 
 # Compiled LevelDB packs - built from src/packs via `npm run pack`; source of truth is the yml.
 # Anchored: an unanchored `packs/` also swallows src/packs, hiding new pack sources from git.

@@ -130,6 +130,15 @@ flags:
           value: 3
           max: 3
           per: lr
+        zone:
+          terrain: []
+          rules:
+            - triggers:
+                - enter
+                - turn_start
+              payload: attack
+          audience: any
+          once_per_turn: true
         display:
           layout: ''
           skin:

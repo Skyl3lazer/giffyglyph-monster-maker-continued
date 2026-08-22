@@ -681,6 +681,140 @@
                                     <input name="gmm.blueprint.target.width" value="{{gmm.blueprint.target.width}}" type="number" />
                                 </div>
                             </div>
+                            {{#if gmm.zone.available}}
+                            <div class="form-fieldset">
+                                <div class="form-fieldset__header">
+                                    <span>{{localize 'gmm.action.blueprint.zone.title'}}</span>
+                                </div>
+                                <div class="form-fieldset__body">
+                                    <div class="form-group">
+                                        <div class="form-group__header">
+                                            <span class="form-group__title">{{localize 'gmm.action.blueprint.zone.audience'}}</span>
+                                            <button type="button" class="button button--help" data-action="open-modal" data-modal="modal_zone">
+                                                <i class="fas fa-question"></i>
+                                            </button>
+                                        </div>
+                                        <div class="form-group__body">
+                                            <select name="gmm.blueprint.zone.audience">
+                                                {{#select gmm.blueprint.zone.audience}}
+                                                {{#each gmm.enums.zone_audiences}}
+                                                <option value="{{.}}">{{localize (concat 'gmm.common.zone_audience.' .)}}</option>
+                                                {{/each}}
+                                                {{/select}}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-group__header">
+                                            <span class="form-group__title">{{localize 'gmm.action.blueprint.zone.once_per_turn'}}</span>
+                                        </div>
+                                        <div class="form-group__body">
+                                            <input type="checkbox" name="gmm.blueprint.zone.once_per_turn" {{checked gmm.blueprint.zone.once_per_turn}} />
+                                        </div>
+                                    </div>
+                                    {{#if gmm.zone.midi}}
+                                    <div class="form-group">
+                                        <div class="form-group__header">
+                                            <span class="form-group__title">{{localize 'gmm.action.blueprint.zone.custom_behaviors'}}</span>
+                                        </div>
+                                        <div class="form-group__body">
+                                            <button type="button" data-action="open-region-behaviors">
+                                                {{localize 'gmm.action.blueprint.zone.open_editor'}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {{/if}}
+                                </div>
+                            </div>
+                            <div class="form-fieldset">
+                                <div class="form-fieldset__header">
+                                    <span>{{localize 'gmm.action.blueprint.zone.terrain.title'}}</span>
+                                    <button type="button" data-action="add-terrain">
+                                        {{localize 'gmm.action.blueprint.zone.terrain.add'}}
+                                    </button>
+                                </div>
+                                <div class="form-fieldset__body">
+                                    {{#each gmm.zone.terrain as | terrain |}}
+                                    <div class="form-group--terrain" data-index="{{@index}}">
+                                        <div class="form-group">
+                                            <div class="form-group__header">
+                                                <span class="form-group__title">{{localize 'gmm.action.blueprint.zone.terrain.modifier'}}</span>
+                                            </div>
+                                            <div class="form-group__body zone-row">
+                                                <select name="gmm.blueprint.zone.terrain.{{@index}}.category">
+                                                    {{#select terrain.category}}
+                                                    {{#each ../gmm.enums.zone_terrain}}
+                                                    <option value="{{.}}">{{localize (concat 'gmm.common.zone_terrain.' .)}}</option>
+                                                    {{/each}}
+                                                    {{/select}}
+                                                </select>
+                                                <button type="button" data-action="remove-terrain">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {{#if (eq terrain.category 'custom')}}
+                                        <div class="form-group">
+                                            <div class="form-group__header">
+                                                <span class="form-group__title">{{localize 'gmm.action.blueprint.zone.terrain.custom'}}</span>
+                                            </div>
+                                            <div class="form-group__body">
+                                                <input name="gmm.blueprint.zone.terrain.{{@index}}.custom" value="{{terrain.custom}}" />
+                                            </div>
+                                        </div>
+                                        {{else}}
+                                        <input type="hidden" name="gmm.blueprint.zone.terrain.{{@index}}.custom" value="{{terrain.custom}}" />
+                                        {{/if}}
+                                    </div>
+                                    {{/each}}
+                                </div>
+                            </div>
+                            <div class="form-fieldset">
+                                <div class="form-fieldset__header">
+                                    <span>{{localize 'gmm.action.blueprint.zone.rules.title'}}</span>
+                                    <button type="button" data-action="add-zone-rule">
+                                        {{localize 'gmm.action.blueprint.zone.rules.add'}}
+                                    </button>
+                                </div>
+                                <div class="form-fieldset__body">
+                                    {{#each gmm.zone.rules as | rule |}}
+                                    <div class="form-group--zone-rule" data-index="{{@index}}">
+                                        <div class="form-group">
+                                            <div class="form-group__header">
+                                                <span class="form-group__title">{{localize 'gmm.action.blueprint.zone.rules.triggers'}}</span>
+                                            </div>
+                                            <div class="form-group__body">
+                                                <div class="checkboxes">
+                                                    {{#each ../gmm.enums.zone_triggers}}
+                                                    <label class="checkbox">
+                                                        <input type="checkbox" name="gmm.blueprint.zone.rules.{{@../index}}.triggers" value="{{.}}" {{#if (includes rule.triggers this)}}checked{{/if}} /> {{localize (concat 'gmm.common.zone_trigger.' .)}}
+                                                    </label>
+                                                    {{/each}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="form-group__header">
+                                                <span class="form-group__title">{{localize 'gmm.action.blueprint.zone.rules.payload'}}</span>
+                                            </div>
+                                            <div class="form-group__body zone-row">
+                                                <select name="gmm.blueprint.zone.rules.{{@index}}.payload">
+                                                    {{#select rule.payload}}
+                                                    {{#each ../gmm.enums.zone_payloads}}
+                                                    <option value="{{.}}">{{localize (concat 'gmm.common.zone_payload.' .)}}</option>
+                                                    {{/each}}
+                                                    {{/select}}
+                                                </select>
+                                                <button type="button" data-action="remove-zone-rule">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{/each}}
+                                </div>
+                            </div>
+                            {{/if}}
                         </div>
                     </div>
                     <div class="accordion-section" data-section="uses">

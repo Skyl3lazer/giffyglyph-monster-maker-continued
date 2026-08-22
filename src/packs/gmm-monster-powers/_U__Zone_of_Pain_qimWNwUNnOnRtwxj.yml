@@ -109,6 +109,10 @@ flags:
             percentage: null
           versatile:
             damage: ''
+          hit:
+            damage:
+              - formula: '[level]'
+                type: ''
         duration:
           units: minute
           value: '10'
@@ -128,6 +132,15 @@ flags:
           value: 3
           max: 3
           per: lr
+        zone:
+          terrain:
+            - category: damaging
+              custom: ''
+            - category: unstable
+              custom: ''
+          rules: []
+          audience: any
+          once_per_turn: true
         display:
           layout: ''
           skin:

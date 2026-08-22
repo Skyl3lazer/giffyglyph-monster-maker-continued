@@ -17,6 +17,10 @@ import { GMM_MONSTER_RANKS } from "../consts/GmmMonsterRanks.js";
 import { GMM_MONSTER_ROLES } from "../consts/GmmMonsterRoles.js";
 import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
 import { GMM_5E_ABILITIES } from "../consts/Gmm5eAbilities.js";
+import { GMM_ZONE_TERRAIN_TYPES } from "../consts/GmmZoneTerrain.js";
+import { GMM_ZONE_TRIGGERS } from "../consts/GmmZoneTriggers.js";
+import { GMM_ZONE_PAYLOADS } from "../consts/GmmZonePayloads.js";
+import { GMM_ZONE_AUDIENCES } from "../consts/GmmZoneAudiences.js";
 import Gui from "./Gui.js";
 import ActionBlueprint from "./ActionBlueprint.js";
 import ActionForge from "./ActionForge.js";
@@ -41,6 +45,11 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         actions: {
             "add-damage": ActionSheet.#actionAddDamage,
             "remove-damage": ActionSheet.#actionRemoveDamage,
+            "add-terrain": ActionSheet.#actionAddTerrain,
+            "remove-terrain": ActionSheet.#actionRemoveTerrain,
+            "add-zone-rule": ActionSheet.#actionAddZoneRule,
+            "remove-zone-rule": ActionSheet.#actionRemoveZoneRule,
+            "open-region-behaviors": ActionSheet.#actionOpenRegionBehaviors,
             "create-effect": ActionSheet.#actionCreateEffect,
             "toggle-effect-mode": ActionSheet.#actionToggleEffectMode,
             "edit-image": ActionSheet.#actionEditImage
@@ -127,9 +136,15 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
                 deferral_types: GMM_DEFERRAL_TYPES,
                 duration_types: GMM_ACTION_DURATION_TYPES,
                 reapply_modes: GMM_ACTION_REAPPLY_MODES,
-                abilities: GMM_5E_ABILITIES
+                abilities: GMM_5E_ABILITIES,
+                zone_terrain: GMM_ZONE_TERRAIN_TYPES,
+                zone_triggers: GMM_ZONE_TRIGGERS,
+                zone_payloads: GMM_ZONE_PAYLOADS,
+                zone_audiences: GMM_ZONE_AUDIENCES
             }
         };
+
+        context.gmm.zone = this._getZoneContext(context.gmm.blueprint);
 
         const duration = Durations.describe(context.gmm.blueprint);
         context.gmm.duration = {
@@ -414,6 +429,75 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         const update = ActionBlueprint.getItemDataFromBlueprint(blueprint, this.item);
         update["flags.gmm.blueprint"] = blueprint;
         return this.item.update(update);
+    }
+
+    /* Normalised for the template, so a dotted-object shape left by an earlier submit still draws its rows. */
+    _getZoneContext(blueprintData) {
+        return {
+            ...Activities.readZoneLists(blueprintData),
+            available: Activities.isAreaTarget(blueprintData ?? {}),
+            midi: !!game.modules.get("midi-qol")?.active
+        };
+    }
+
+    /** @this {ActionSheet} */
+    static async #actionAddTerrain(event, target) {
+        event.preventDefault();
+        return ActionSheet.#mutateBlueprintZone.call(this, "terrain", entries => {
+            entries.push({ category: "difficult", custom: "" });
+        });
+    }
+
+    /** @this {ActionSheet} */
+    static async #actionRemoveTerrain(event, target) {
+        event.preventDefault();
+        const index = Number(target.closest(".form-group--terrain")?.dataset?.index);
+        return ActionSheet.#mutateBlueprintZone.call(this, "terrain", entries => {
+            if (Number.isInteger(index)) entries.splice(index, 1);
+        });
+    }
+
+    /** @this {ActionSheet} */
+    static async #actionAddZoneRule(event, target) {
+        event.preventDefault();
+        return ActionSheet.#mutateBlueprintZone.call(this, "rules", entries => {
+            entries.push({ triggers: ["enter"], payload: "damage" });
+        });
+    }
+
+    /** @this {ActionSheet} */
+    static async #actionRemoveZoneRule(event, target) {
+        event.preventDefault();
+        const index = Number(target.closest(".form-group--zone-rule")?.dataset?.index);
+        return ActionSheet.#mutateBlueprintZone.call(this, "rules", entries => {
+            if (Number.isInteger(index)) entries.splice(index, 1);
+        });
+    }
+
+    /* The twin of #mutateBlueprintDamage, down to rewriting the whole list to flatten a legacy shape. */
+    static async #mutateBlueprintZone(key, mutate) {
+        const stored = this.item.flags?.gmm?.blueprint;
+        const blueprint = foundry.utils.deepClone(stored ?? { vid: 1, type: "action", data: {} });
+        blueprint.vid = 1;
+        blueprint.type = "action";
+        blueprint.data ??= {};
+
+        const entries = Activities.readZoneLists(blueprint.data)[key];
+        mutate(entries);
+        foundry.utils.setProperty(blueprint.data, `zone.${key}`, entries);
+
+        const update = ActionBlueprint.getItemDataFromBlueprint(blueprint, this.item);
+        update["flags.gmm.blueprint"] = blueprint;
+        return this.item.update(update);
+    }
+
+    /* midi never exports the editor. Its sheet's action map is the only handle, and the handler reads nothing but `this.activity`. */
+    static #actionOpenRegionBehaviors(event) {
+        event.preventDefault();
+        const activity = this.item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
+        const open = activity?.constructor?.metadata?.sheetClass?.DEFAULT_OPTIONS?.actions?.openRegionBehaviorEditor;
+        if (!open) return void ui.notifications?.warn(game.i18n.localize("gmm.action.blueprint.zone.no_editor"));
+        open.call({ activity });
     }
 
     /** @this {ActionSheet} */

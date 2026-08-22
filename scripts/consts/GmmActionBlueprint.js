@@ -46,6 +46,13 @@ export const GMM_ACTION_BLUEPRINT = {
 			type: "creature",
 			width: null
 		},
+		// Top-level rather than inside `target`, which round-trips to the activity and would drop it.
+		zone: {
+			terrain: [],
+			rules: [],
+			audience: "any",
+			once_per_turn: true
+		},
 		range: {
 			value: null,
 			long: null,

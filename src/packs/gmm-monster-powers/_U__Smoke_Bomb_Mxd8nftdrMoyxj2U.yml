@@ -123,6 +123,13 @@ flags:
           value: 3
           max: 3
           per: lr
+        zone:
+          terrain:
+            - category: heavily_obscured
+              custom: ''
+          rules: []
+          audience: any
+          once_per_turn: true
         display:
           layout: ''
           skin:

@@ -18,6 +18,6 @@ This format is based on [AI-DECLARATION.md](https://ai-declaration.md/en/0.1.2).
 - Claude Code is the assistant used. Its workspace brief is tracked as `CLAUDE.local.md`. The wider instruction set under `CLAUDE.md` and `.claude/` is gitignored. A clone of this repository does not contain it.
 - Claude Code wrote parts of the production code under `scripts/`. Architecture and design decisions are the author's.
 - The release workflows in `.github/workflows/`, the pack tooling in `tools/`, and the pre-commit gates in `.githooks/` were AI-drafted.
-- The Playwright regression suite behind the `testing` level is not in this repository. It is versioned separately under `docs/`.
+- The Playwright regression suite behind the `testing` level is not in this repository. It is versioned separately under `development_docs/`.
 - `scripts/vendors/math.min.js` is third-party. This declaration does not cover it.
 - `gmm.css` is build output. Gulp compiles it from `stylesheets/*.scss`.

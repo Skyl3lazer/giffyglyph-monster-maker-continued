@@ -34,6 +34,10 @@ const Templates = (function() {
 			return html.replace(rgx, "$& selected");
 		});
 
+		Handlebars.registerHelper('includes', function(list, value) {
+			return Array.isArray(list) && list.includes(value);
+		});
+
 		Handlebars.registerHelper('json', function (context) {
 			return JSON.stringify(context);
 		});

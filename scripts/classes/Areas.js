@@ -1,5 +1,6 @@
 import Activities from './Activities.js';
 import AutomationHelpers from './AutomationHelpers.js';
+import Zones from './Zones.js';
 
 /* dnd5e honors `flags.dnd5e.dependentOn` through a mixin it never puts on a Region, so a placed area
    never registers itself and nothing ever deletes it. */
@@ -35,6 +36,7 @@ const Areas = (function () {
 	function _onCreateRegion(region) {
 		_track(region);
 		_declareOwner(region).catch(e => console.warn("GMM | Declaring an area's owner failed", e));
+		Zones.attach(region, _gmmActivityUuid(region)).catch(e => console.warn("GMM | Attaching a zone failed", e));
 	}
 
 	/* midi declares the owner itself, and writes the same value. Without midi nobody does. */

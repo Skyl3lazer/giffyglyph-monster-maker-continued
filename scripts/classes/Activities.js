@@ -3,6 +3,10 @@ import Durations from "./Durations.js";
 import Shortcoder from "./Shortcoder.js";
 import { buildSaveDcFormula, buildDurationSaveDcFormula } from "./SaveDc.js";
 import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
+import { GMM_ZONE_TERRAIN } from "../consts/GmmZoneTerrain.js";
+import { GMM_ZONE_TRIGGERS } from "../consts/GmmZoneTriggers.js";
+import { GMM_ZONE_PAYLOADS } from "../consts/GmmZonePayloads.js";
+import { GMM_ZONE_AUDIENCES } from "../consts/GmmZoneAudiences.js";
 
 /* The blueprint is the authored source of truth; every activity here is a generated mirror of it. */
 const Activities = (function () {
@@ -17,7 +21,12 @@ const Activities = (function () {
         ? dnd5e.utils.staticID("gmmdeferred")
         : "gmmdeferred00000";
 
-    const GMM_ACTIVITY_IDS = new Set([GMM_ACTIVITY_ID, GMM_DEFERRED_ACTIVITY_ID]);
+    /* Carries a Zone's payload, because the primary places the area and stops there. */
+    const GMM_ZONE_ACTIVITY_ID = (typeof dnd5e !== "undefined" && dnd5e?.utils?.staticID)
+        ? dnd5e.utils.staticID("gmmzone")
+        : "gmmzone000000000";
+
+    const GMM_ACTIVITY_IDS = new Set([GMM_ACTIVITY_ID, GMM_DEFERRED_ACTIVITY_ID, GMM_ZONE_ACTIVITY_ID]);
 
     /* Fixed, so a re-save finds the forged clock again rather than adding a second one. */
     const GMM_DOOM_CLOCK_EFFECT_ID = (typeof dnd5e !== "undefined" && dnd5e?.utils?.staticID)
@@ -81,6 +90,88 @@ const Activities = (function () {
     /* Not the same question as "is this ours": on a deferred action the payload is the second activity. */
     function payloadActivityId(blueprint) {
         return isAutomatedDeferral(blueprint) ? GMM_DEFERRED_ACTIVITY_ID : GMM_ACTIVITY_ID;
+    }
+
+    /* A form submit expands `zone.terrain.0.category` into a dotted object, not an array. */
+    function _normalizeList(raw) {
+        if (Array.isArray(raw)) return raw.filter(x => x && typeof x === "object");
+        if (raw && typeof raw === "object") {
+            return Object.keys(raw)
+                .filter(k => /^\d+$/.test(k))
+                .sort((a, b) => Number(a) - Number(b))
+                .map(k => raw[k])
+                .filter(x => x && typeof x === "object");
+        }
+        return [];
+    }
+
+    function isAreaTarget(blueprintData) {
+        const type = blueprintData?.target?.type;
+        return !!(type && CONFIG?.DND5E?.areaTargetTypes?.[type]);
+    }
+
+    /* Ungated on the target type, because the sheet still has to draw what is already authored. */
+    function readZoneLists(blueprintData) {
+        const raw = blueprintData?.zone ?? {};
+        return {
+            terrain: _normalizeList(raw.terrain).map(x => ({
+                category: x.category ?? "",
+                custom: x.custom ?? ""
+            })),
+            rules: _normalizeList(raw.rules).map(x => ({
+                triggers: (Array.isArray(x.triggers) ? x.triggers : Object.values(x.triggers ?? {}))
+                    .filter(t => GMM_ZONE_TRIGGERS.includes(t)),
+                payload: GMM_ZONE_PAYLOADS.includes(x.payload) ? x.payload : "damage"
+            }))
+        };
+    }
+
+    /* Null unless the action places an area and authors something for it, so callers lead with one check. */
+    function readZone(blueprint) {
+        const data = blueprint?.data ?? blueprint ?? {};
+        if (!isAreaTarget(data) || !data.zone) return null;
+
+        const lists = readZoneLists(data);
+        const terrain = lists.terrain.filter(x => x.category in GMM_ZONE_TERRAIN);
+        const rules = lists.rules.filter(x => x.triggers.length);
+        if (!terrain.length && !rules.length) return null;
+
+        return {
+            terrain,
+            rules,
+            audience: GMM_ZONE_AUDIENCES.includes(data.zone.audience) ? data.zone.audience : "any",
+            oncePerTurn: data.zone.once_per_turn !== false
+        };
+    }
+
+    /* Damaging is a Terrain Modifier whose delivery is a rule, so the author is not asked for it twice. */
+    function zoneRules(blueprint) {
+        const zone = readZone(blueprint);
+        if (!zone) return [];
+        const rules = zone.rules.map(r => ({ ...r }));
+        if (zone.terrain.some(t => t.category === "damaging")) {
+            rules.push({ triggers: ["enter", "turn_start"], payload: "damage" });
+        }
+        return _claimTriggersOnce(rules);
+    }
+
+    /* Two rules that agree fire the payload twice. The authored one is first, so it keeps the trigger. */
+    function _claimTriggersOnce(rules) {
+        const claimed = new Map();
+        const out = [];
+        for (const rule of rules) {
+            const seen = claimed.get(rule.payload) ?? new Set();
+            const triggers = rule.triggers.filter(t => !seen.has(t));
+            for (const trigger of triggers) seen.add(trigger);
+            claimed.set(rule.payload, seen);
+            if (triggers.length) out.push({ ...rule, triggers });
+        }
+        return out;
+    }
+
+    /* An Effects payload points midi straight at the item's own effect, so it needs no activity. */
+    function hasZoneActivity(blueprint) {
+        return zoneRules(blueprint).some(r => r.payload === "damage" || r.payload === "attack");
     }
 
     const ATTACK_TYPES = {
@@ -363,7 +454,8 @@ const Activities = (function () {
         const blueprintAttack = blueprintData.attack ?? {};
         const delayed = isDelayedDeferral(blueprint);
         const dooming = isDoomingDeferral(blueprint);
-        const type = delayed ? "utility"
+        // A Zone's payload belongs to whoever triggers it, so placing the area must not also roll it.
+        const type = (delayed || hasZoneActivity(blueprint)) ? "utility"
             : dooming ? gateTypeFor(blueprintAttack.type)
                 : activityTypeFor(blueprintAttack.type);
 
@@ -486,6 +578,34 @@ const Activities = (function () {
             duration: _buildDuration(blueprintData),
             range: _buildRange(blueprintData),
             // The primary already placed the template; a second would be planted here.
+            target: _buildTarget(blueprintData, { template: false }),
+            uses: { ...GMM_EMPTY_ACTIVITY_USES },
+            midiProperties: { automationOnly: true }
+        };
+
+        _applyPayloadFields(data, blueprintData, type);
+        return data;
+    }
+
+    /* Not the primary, whose area a region behaviour triggering it would place a second time. */
+    function buildZoneActivityData(blueprint) {
+        if (!hasZoneActivity(blueprint)) return null;
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+        const type = zoneRules(blueprint).some(r => r.payload === "attack")
+            ? activityTypeFor(blueprintData.attack?.type)
+            : deliveryTypeFor(blueprintData);
+
+        const data = {
+            _id: GMM_ZONE_ACTIVITY_ID,
+            type,
+            name: blueprintData.description?.name || "",
+            sort: 2,
+            // Placing the area already charged all of these.
+            activation: { type: "", value: null, condition: "", override: false },
+            consumption: { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false },
+            description: { chatFlavor: "" },
+            duration: _buildDuration(blueprintData),
+            range: _buildRange(blueprintData),
             target: _buildTarget(blueprintData, { template: false }),
             uses: { ...GMM_EMPTY_ACTIVITY_USES },
             midiProperties: { automationOnly: true }
@@ -905,11 +1025,23 @@ const Activities = (function () {
             };
         }
 
-        _setEffectMembership(item, blueprint, { primary, deferred, duration: !!duration });
+        const zoneData = buildZoneActivityData(blueprint);
+        const zone = zoneData ? _mergeForeignFields(item, GMM_ZONE_ACTIVITY_ID, zoneData) : null;
+        if (zone) {
+            zone.midiProperties = {
+                ...(zone.midiProperties ?? {}),
+                automationOnly: true,
+                otherActivityCompatible: false
+            };
+        }
+
+        _setEffectMembership(item, blueprint, { primary, deferred, zone, duration: !!duration });
 
         _wrapActivity(update, GMM_ACTIVITY_ID, primary);
         if (deferred) _wrapActivity(update, GMM_DEFERRED_ACTIVITY_ID, deferred);
         else Object.assign(update, _buildActivityDeletion(item, GMM_DEFERRED_ACTIVITY_ID));
+        if (zone) _wrapActivity(update, GMM_ZONE_ACTIVITY_ID, zone);
+        else Object.assign(update, _buildActivityDeletion(item, GMM_ZONE_ACTIVITY_ID));
 
         // An embedded-collection array upserts by `_id`. This creates them once and updates them after.
         const effects = [];
@@ -923,12 +1055,13 @@ const Activities = (function () {
 
     /* Placed, not carried: membership rides the host so nothing applies a turn before its payload, and
      * moving the host cannot strand an entry behind. The only writer of either `effects` array. */
-    function _setEffectMembership(item, blueprint, { primary, deferred, duration }) {
+    function _setEffectMembership(item, blueprint, { primary, deferred, zone, duration }) {
         const hostId = payloadActivityId(blueprint);
         const gateId = isDoomingDeferral(blueprint) ? gateActivityId(blueprint) : null;
         const authored = _authoredEffectEntries(item);
 
-        for (const [activityId, data] of [[GMM_ACTIVITY_ID, primary], [GMM_DEFERRED_ACTIVITY_ID, deferred]]) {
+        // The zone activity is listed so it is emptied: its Effects payload rides the region behaviour.
+        for (const [activityId, data] of [[GMM_ACTIVITY_ID, primary], [GMM_DEFERRED_ACTIVITY_ID, deferred], [GMM_ZONE_ACTIVITY_ID, zone]]) {
             if (!data) continue;
             const entries = [];
             if (activityId === gateId) entries.push({ _id: GMM_DOOM_CLOCK_EFFECT_ID });
@@ -1339,6 +1472,7 @@ const Activities = (function () {
         if (!activities?.has?.(GMM_ACTIVITY_ID)) return true;
         const wantsDeferred = isAutomatedDeferral(blueprint);
         if (wantsDeferred !== !!activities.has(GMM_DEFERRED_ACTIVITY_ID)) return true;
+        if (hasZoneActivity(blueprint) !== !!activities.has(GMM_ZONE_ACTIVITY_ID)) return true;
         const primary = activities.get(GMM_ACTIVITY_ID);
         if (primary?.type !== _wantedPrimaryType(blueprint)) return true;
         if (_poolTargetMismatch(blueprint, primary)) return true;
@@ -1373,7 +1507,7 @@ const Activities = (function () {
 
     function _wantedPrimaryType(blueprint) {
         const blueprintData = blueprint?.data ?? blueprint ?? {};
-        if (isDelayedDeferral(blueprint)) return "utility";
+        if (isDelayedDeferral(blueprint) || hasZoneActivity(blueprint)) return "utility";
         if (isDoomingDeferral(blueprint)) return gateTypeFor(blueprintData.attack?.type);
         return activityTypeFor(blueprintData.attack?.type);
     }
@@ -1424,6 +1558,7 @@ const Activities = (function () {
         const wantsDeferred = isAutomatedDeferral(blueprint);
         const rebuild = !source[GMM_ACTIVITY_ID]
             || (wantsDeferred !== !!source[GMM_DEFERRED_ACTIVITY_ID])
+            || (hasZoneActivity(blueprint) !== !!source[GMM_ZONE_ACTIVITY_ID])
             || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint))
             || _poolTargetMismatch(blueprint, source[GMM_ACTIVITY_ID]);
         if (!rebuild && foundry.utils.isEmpty(purge)) return null;
@@ -1648,6 +1783,7 @@ const Activities = (function () {
     return {
         GMM_ACTIVITY_ID,
         GMM_DEFERRED_ACTIVITY_ID,
+        GMM_ZONE_ACTIVITY_ID,
         GMM_DOOM_CLOCK_EFFECT_ID,
         GMM_FORGED_EFFECT_IDS,
         isGmmActivityId,
@@ -1666,8 +1802,14 @@ const Activities = (function () {
         onSaveFor,
         damagePartFromBlueprint,
         damagePartToBlueprint,
+        isAreaTarget,
+        readZone,
+        readZoneLists,
+        zoneRules,
+        hasZoneActivity,
         buildActivityData,
         buildDeferredActivityData,
+        buildZoneActivityData,
         buildDoomClockEffectData,
         buildActivityUpdate,
         buildDurationEffectData,

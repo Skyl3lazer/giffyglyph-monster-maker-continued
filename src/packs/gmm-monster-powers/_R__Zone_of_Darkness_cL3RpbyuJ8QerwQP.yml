@@ -119,6 +119,13 @@ flags:
           value: 1
           max: 1
           per: lr
+        zone:
+          terrain:
+            - category: magical_darkness
+              custom: ''
+          rules: []
+          audience: any
+          once_per_turn: true
         display:
           layout: ''
           skin:

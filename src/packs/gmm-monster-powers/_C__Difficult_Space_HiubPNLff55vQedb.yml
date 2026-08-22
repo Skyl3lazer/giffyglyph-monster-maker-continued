@@ -119,6 +119,13 @@ flags:
           value: null
           max: ''
           per: ''
+        zone:
+          terrain:
+            - category: difficult
+              custom: ''
+          rules: []
+          audience: enemy
+          once_per_turn: true
         display:
           layout: ''
           skin:
