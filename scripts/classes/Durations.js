@@ -139,6 +139,18 @@ const Durations = (function () {
 		return out;
 	}
 
+	/* Read from the activity rather than the type, because a type may be keyed to a target and a placed
+	 * area has no single one. */
+	function areaLifetime(duration) {
+		const units = EFFECT_UNITS[duration?.units];
+		const value = Number(duration?.value);
+		if (!units || !Number.isFinite(value) || value <= 0) return null;
+		// A turn-keyed expiry reads the bearer, which for an area is the scaler that placed it.
+		return (units === "rounds" || units === "turns")
+			? { value, units, expiry: "turnEnd" }
+			: { value, units };
+	}
+
 	/* Separated with `#` because a damage formula may legally contain a comma. The `,` separator applies
 	 * only when no `#` is present. */
 	function _overTimeChanges(duration, rules, damage, saveDc) {
@@ -323,13 +335,15 @@ const Durations = (function () {
 	}
 
 	/* A doom clock from a second use of the same feature is machinery rather than payload. Ending this
-	 * carrier would cancel a payload that has not landed yet. */
+	 * carrier would cancel a payload that has not landed yet. An area clock is machinery too, and
+	 * sweeping it would take the area off the canvas. */
 	function _payloadOf(carrier) {
 		const itemId = _sourceItemIdOf(carrier);
 		if (!itemId) return [];
 		return [...(carrier.parent?.effects ?? [])].filter(e => e.id !== carrier.id
 			&& !isDurationEffect(e)
 			&& !e.flags?.[GMM_MODULE_TITLE]?.deferral
+			&& !e.flags?.[GMM_MODULE_TITLE]?.areaClock
 			&& _sourceItemIdOf(e) === itemId);
 	}
 
@@ -413,6 +427,7 @@ const Durations = (function () {
 		isDurationEffect,
 		buildActivityDuration,
 		buildEffectData,
+		areaLifetime,
 		resolveEffectFormulas,
 		init
 	};
