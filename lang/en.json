@@ -737,6 +737,7 @@
   "gmm.aura.dropped": "{count} aura effect(s) were removed from the imported item(s) because the Aura Effects module is not active. Enable Aura Effects and re-import to use them.",
   "gmm.condition.bleeding.spent": "{name} loses a hit die to Bleeding.",
   "gmm.condition.cursed.died": "{name} is Cursed and dies at 0 hit points.",
+  "gmm.terrain.unstable.prone": "{name} ends their turn on Unstable ground and falls prone.",
   "gmm.monster.artifact.paragon_actions.depleted": "{name} has no paragon actions remaining.",
   "gmm.monster.artifact.paragon_actions.maximum": "Maximum",
   "gmm.monster.artifact.paragon_actions.title": "Paragon Actions",

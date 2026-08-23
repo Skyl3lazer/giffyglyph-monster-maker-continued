@@ -1,6 +1,6 @@
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
-/* Function macros for the conditions midi drives; reached by name as `function.gmmc.conditions.*`. */
+/* Function macros for the pack effects midi drives; reached by name as `function.gmmc.conditions.*`. */
 const Conditions = (function () {
 
 	/* Only an actor that carries the condition is eligible, so a bad guess is a no-op rather than the
@@ -56,8 +56,23 @@ const Conditions = (function () {
 		ui.notifications?.info(game.i18n.format("gmm.condition.cursed.died", { name: actor.name }));
 	}
 
+	/* Unstable terrain: when a creature ends their turn within the area, they fall prone.
+	 * The book gives no save, and a plain OverTime string can only apply a status behind one. */
+	async function unstable(macroData = {}) {
+		const actor = _getBearer("unstable", [
+			...(macroData?.workflow?.targets ?? []),
+			macroData?.token,
+			macroData?.actor
+		]);
+		if (!actor) return;
+		if (actor.statuses?.has("prone")) return;
+
+		await actor.toggleStatusEffect("prone", { active: true });
+		ui.notifications?.info(game.i18n.format("gmm.terrain.unstable.prone", { name: actor.name }));
+	}
+
 	function registerApi() {
-		const api = { bleeding: bleeding, cursed: cursed };
+		const api = { bleeding: bleeding, cursed: cursed, unstable: unstable };
 		// midi resolves `function.<path>` as a bare dotted global, so the short alias is the callable one.
 		globalThis.gmmc ??= {};
 		globalThis.gmmc.conditions = api;
@@ -72,7 +87,8 @@ const Conditions = (function () {
 	return {
 		registerApi: registerApi,
 		bleeding: bleeding,
-		cursed: cursed
+		cursed: cursed,
+		unstable: unstable
 	};
 })();
 
