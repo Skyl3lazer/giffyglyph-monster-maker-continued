@@ -108,7 +108,8 @@ const Areas = (function () {
 		const combatant = duration.expiry && game.combat?.started
 			? game.combat.getCombatantsByActor(actor)?.[0]
 			: null;
-		if (combatant) data.start = { combatant: combatant.id };
+		const start = combatant ? CONFIG.ActiveEffect.documentClass.getEffectStart?.() : null;
+		if (start) data.start = { ...start, combatant: combatant.id, initiative: combatant.initiative ?? null };
 
 		const [clock] = await actor.createEmbeddedDocuments("ActiveEffect", [data]);
 		return clock ?? null;
