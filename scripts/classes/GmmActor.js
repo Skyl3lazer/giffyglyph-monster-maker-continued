@@ -22,6 +22,7 @@ const GmmActor = (function () {
 				wrapped(...args);
 				// A sheet switch away from the forge would otherwise leave the surface behind until a reload.
 				delete this._gmmRollData;
+				delete this._gmmBaseMax;
 			}
 		}, 'WRAPPER');
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
@@ -72,6 +73,8 @@ const GmmActor = (function () {
 		actorData.attributes.ac.flat = baseAttributes.armor_class.value;
 		actorData.attributes.ac.base = baseAttributes.armor_class.value;
 		actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, baseAttributes);
+		// Stashed before effects reach the ceiling, so the HP sync can tell a build change from a cap.
+		actor._gmmBaseMax = actorData.attributes.hp.max;
 		_applyRoleSpeedBonus(actorData, monsterBlueprint);
 	}
 

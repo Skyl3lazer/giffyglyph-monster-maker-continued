@@ -352,12 +352,12 @@ function _isGmmMonster(actor) {
 /* `appliedMax` lives in the module flag scope because `flags.gmm` is rebuilt each prepareData. */
 async function _syncScalingMonsterHp(actor, { force = false } = {}) {
 	if (!_isGmmMonster(actor)) return;
-	const hp = actor.system?.attributes?.hp;
-	if (!hp) return;
+	if (!actor.system?.attributes?.hp) return;
 	// Formula HP is owned by the sheet's "Roll HP" button, which sets current and max together.
 	if (actor.flags?.gmm?.monster?.data?.hit_points?.use_formula) return;
+	if (!Number.isFinite(actor._gmmBaseMax)) return;
 
-	const max = Math.max(1, Number(hp.max) || 0);
+	const max = Math.max(1, actor._gmmBaseMax);
 	const appliedMax = actor.getFlag(GMM_MODULE_TITLE, "appliedMax");
 
 	if (force || (appliedMax !== undefined && appliedMax !== max)) {
