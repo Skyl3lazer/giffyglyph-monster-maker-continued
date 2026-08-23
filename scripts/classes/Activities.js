@@ -604,7 +604,8 @@ const Activities = (function () {
             activation: { type: "", value: null, condition: "", override: false },
             consumption: { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false },
             description: { chatFlavor: "" },
-            duration: _buildDuration(blueprintData),
+            // Concentrating here would end the concentration the placed area depends on, deleting it.
+            duration: _buildDuration(blueprintData, { concentration: false }),
             range: _buildRange(blueprintData),
             target: _buildTarget(blueprintData, { template: false }),
             uses: { ...GMM_EMPTY_ACTIVITY_USES },
@@ -668,8 +669,11 @@ const Activities = (function () {
         };
     }
 
-    function _buildDuration(blueprintData) {
-        return Durations.buildActivityDuration(blueprintData, blueprintData.properties?.concentration?.checked);
+    function _buildDuration(blueprintData, { concentration = true } = {}) {
+        return Durations.buildActivityDuration(
+            blueprintData,
+            concentration && blueprintData.properties?.concentration?.checked
+        );
     }
 
     function _buildRange(blueprintData) {
@@ -1478,6 +1482,8 @@ const Activities = (function () {
         if (_poolTargetMismatch(blueprint, primary)) return true;
         if (_durationEffectStale(item, blueprint)) return true;
         if (_onSaveStale(activities, blueprint)) return true;
+        // Predates the concentration strip, so its first trigger would take its own area with it.
+        if (activities.get(GMM_ZONE_ACTIVITY_ID)?.duration?.concentration) return true;
         if (isDoomingDeferral(blueprint)) {
             // A dooming primary that still carries damage predates the gate/delivery split.
             if (primary?.damage?.parts?.length) return true;
@@ -1559,6 +1565,7 @@ const Activities = (function () {
         const rebuild = !source[GMM_ACTIVITY_ID]
             || (wantsDeferred !== !!source[GMM_DEFERRED_ACTIVITY_ID])
             || (hasZoneActivity(blueprint) !== !!source[GMM_ZONE_ACTIVITY_ID])
+            || !!source[GMM_ZONE_ACTIVITY_ID]?.duration?.concentration
             || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint))
             || _poolTargetMismatch(blueprint, source[GMM_ACTIVITY_ID]);
         if (!rebuild && foundry.utils.isEmpty(purge)) return null;
