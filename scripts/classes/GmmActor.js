@@ -94,7 +94,17 @@ const GmmActor = (function () {
 			// A partial stored `skills` object leaves keys absent, and nothing repairs one.
 			if (actorData.skills[x.foundry]) actorData.skills[x.foundry].value = baseAttributes.skills[x.foundry];
 		});
+		if (baseAttributes.spell_dc_bonus) {
+			actorData.bonuses.spell.dc = _appendBonus(actorData.bonuses.spell.dc, baseAttributes.spell_dc_bonus);
+		}
 		_applyRoleSpeedBonus(actorData, monsterBlueprint);
+	}
+
+	/* A FormulaField can already hold something a GM typed, so an amount joins it rather than landing on it. */
+	function _appendBonus(formula, value) {
+		const authored = String(formula ?? "").trim();
+		if (!authored) return String(value);
+		return `${authored} ${value < 0 ? "-" : "+"} ${Math.abs(value)}`;
 	}
 
 	/* dnd5e adds this to every non-zero mode, which is what the stat block does with it. Assigning a mode
@@ -103,8 +113,7 @@ const GmmActor = (function () {
 		const role = Number(blueprint.data.combat.role?.modifiers?.speed) || 0;
 		if (!role) return;
 		const movement = actorData.attributes.movement;
-		const authored = String(movement.bonus ?? "").trim();
-		movement.bonus = authored ? `${authored} ${role < 0 ? "-" : "+"} ${Math.abs(role)}` : String(role);
+		movement.bonus = _appendBonus(movement.bonus, role);
 	}
 
 	/* `bonus` already carries the Role at this point. Stashing it would invite the double-count the
@@ -149,8 +158,7 @@ const GmmActor = (function () {
 			const derived = monsterData.ability_modifiers[x].value + proficiency + abilitySaveBonus + globalSaveBonus;
 			const delta = monsterData.saving_throws[x].value - derived;
 			if (delta) {
-				const existing = String(ability.bonuses.save ?? "").trim();
-				ability.bonuses.save = existing ? `${existing} ${delta < 0 ? "-" : "+"} ${Math.abs(delta)}` : String(delta);
+				ability.bonuses.save = _appendBonus(ability.bonuses.save, delta);
 				// prepareAbilities consumed bonuses.save before this wrote to it, so both totals follow by hand.
 				ability.saveBonus += delta;
 				ability.save.value += delta;
@@ -314,11 +322,6 @@ const GmmActor = (function () {
 				monster: monsterArtifact
 			};
 
-			GMM_5E_ABILITIES.forEach((x) => {
-				// The schema modifier, not the artifact's, because a Change has already reached it here.
-				actorData.abilities[x].dc = 8 + actorData.abilities[x].mod;
-			});
-
 			actorData.details.cr = monsterData.challenge_rating.value;
 			actorData.details.xp.value = monsterData.xp.value;
 			_stampSkillAbilities(actorData, monsterData);
@@ -382,6 +385,20 @@ const GmmActor = (function () {
 
 		const blueprint = actor.flags.gmm.blueprint;
 		const builtInitiative = monsterData.initiative.value;
+
+		/* dnd5e built each Proficiency from the bonus it held in the derived pass, and nothing rebuilds
+		   one after the final phase. The artifact fold reads prof.flat, so this runs before it. */
+		GMM_5E_SKILLS.forEach((x) => {
+			const skill = actorData.skills[x.foundry];
+			if (!skill?.prof) return;
+			const flat = () => Number.isNumeric(skill.prof.term) ? skill.prof.flat : 0;
+			const before = flat();
+			skill.prof = new Proficiency(proficiency, skill.prof.multiplier, skill.prof.rounding !== "up");
+			const delta = flat() - before;
+			skill.total += delta;
+			skill.passive += delta;
+		});
+
 		try {
 			MonsterForge.reparseSettledDependents(monsterData, blueprint, { proficiency: proficiency, abilityModifiers: abilityModifiers }, actor);
 		} catch (error) {

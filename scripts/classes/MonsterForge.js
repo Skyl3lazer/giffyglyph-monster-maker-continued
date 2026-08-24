@@ -102,6 +102,9 @@ const MonsterForge = (function () {
             proficiency_bonus: proficiency,
             skills: Object.fromEntries(GMM_5E_SKILLS.map((x) =>
                 [x.foundry, _skillProficiency(blueprint.data.skills, derivedAttributes.role?.modifiers?.skill, x.name).multiplier])),
+            // An Absolute Modifier pins the forge's own DC, and a bonus formula cannot express a pin.
+            spell_dc_bonus: (blueprint.data.spellbook.spellcasting.dc.modifier.override
+                ? 0 : Number(blueprint.data.spellbook.spellcasting.dc.modifier.value)) || 0,
             trained_saves: Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, !!blueprint.data.trained_saves[x]?.trained]))
         };
     }
