@@ -104,10 +104,8 @@ const Areas = (function () {
 			transfer: false,
 			flags: { [GMM_MODULE_TITLE]: { [GMM_AREA_CLOCK_FLAG]: { region: region.uuid } } }
 		};
-		// Core keys a turn expiry to whoever was acting when the effect began, which need not be the scaler.
-		const combatant = duration.expiry && game.combat?.started
-			? game.combat.getCombatantsByActor(actor)?.[0]
-			: null;
+		// Core keys the start to whoever was acting when the effect began, which need not be the scaler.
+		const combatant = game.combat?.started ? game.combat.getCombatantsByActor(actor)?.[0] : null;
 		const start = combatant ? CONFIG.ActiveEffect.documentClass.getEffectStart?.() : null;
 		if (start) data.start = { ...start, combatant: combatant.id, initiative: combatant.initiative ?? null };
 

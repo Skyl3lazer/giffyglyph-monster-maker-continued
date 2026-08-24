@@ -144,10 +144,10 @@ const Durations = (function () {
 		const units = EFFECT_UNITS[duration?.units];
 		const value = Number(duration?.value);
 		if (!units || !Number.isFinite(value) || value <= 0) return null;
-		// A turn-keyed expiry reads the bearer, which for an area is the scaler that placed it.
+		// Core defaults a numeric duration to `turnStart`, so a world-time lifetime has to say `null` out loud.
 		return (units === "rounds" || units === "turns")
 			? { value, units, expiry: "turnEnd" }
-			: { value, units };
+			: { value, units, expiry: null };
 	}
 
 	/* Separated with `#` because a damage formula may legally contain a comma. The `,` separator applies
