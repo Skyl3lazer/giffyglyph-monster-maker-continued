@@ -125,8 +125,7 @@ const Durations = (function () {
 	}
 
 	function _effectDuration(duration, rules) {
-		const out = {};
-		if (rules.expiry) out.expiry = rules.expiry;
+		const out = { expiry: rules.expiry ?? null, value: null, units: "seconds" };
 		if (rules.rounds) {
 			out.value = rules.rounds;
 			out.units = "rounds";

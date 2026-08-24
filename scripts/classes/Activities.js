@@ -1463,11 +1463,11 @@ const Activities = (function () {
        prepared copy in place. Comparing that copy would rebuild the item on every load forever. */
     function _durationEffectStale(item, blueprint) {
         const fresh = buildDurationEffectData(blueprint);
-        // A null build already leaves the orphan inert, so there is nothing to rebuild for.
         if (!fresh) return false;
         const stored = item?._source?.effects?.find?.(e => e?._id === Durations.GMM_DURATION_EFFECT_ID);
         if (!stored) return true;
-        return !_sameChanges(stored.system?.changes ?? stored.changes, fresh.system.changes);
+        if (!_sameChanges(stored.system?.changes ?? stored.changes, fresh.system.changes)) return true;
+        return Object.keys(fresh.duration).some(k => (stored.duration?.[k] ?? null) !== fresh.duration[k]);
     }
 
     /* True when the item's GMM activities do not match the shape its blueprint asks for. */
