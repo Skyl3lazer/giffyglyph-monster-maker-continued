@@ -94,9 +94,6 @@ const GmmActor = (function () {
 			// A partial stored `skills` object leaves keys absent, and nothing repairs one.
 			if (actorData.skills[x.foundry]) actorData.skills[x.foundry].value = baseAttributes.skills[x.foundry];
 		});
-		if (baseAttributes.spell_dc_bonus) {
-			actorData.bonuses.spell.dc = _appendBonus(actorData.bonuses.spell.dc, baseAttributes.spell_dc_bonus);
-		}
 		_applyRoleSpeedBonus(actorData, monsterBlueprint);
 	}
 
@@ -348,6 +345,18 @@ const GmmActor = (function () {
 					heavilyEncumbered: (2 / 3)
 				}
 			};
+			/* prepareAbilities already folded 8, the modifier, the proficiency bonus and any spell DC
+			   bonus a GM typed. The authored Modifier is the one term it cannot know about. */
+			const spellDcModifier = monsterBlueprint.data.spellbook.spellcasting.dc.modifier;
+			const spellDcRelative = spellDcModifier.override ? 0 : (Number(spellDcModifier.value) || 0);
+			if (spellDcRelative) GMM_5E_ABILITIES.forEach((x) => { actorData.abilities[x].dc += spellDcRelative; });
+
+			/* dnd5e folds this into every ability's dc, so the printed row carries it or the two disagree. */
+			monsterData.spellbook.spellcasting.dc.add(
+				dnd5e.utils.simplifyBonus(actorData.bonuses?.spell?.dc, actor.getRollData({ deterministic: true })),
+				game.i18n.format('gmm.common.derived_source.spell_dc_bonus')
+			);
+
 			actorData.attributes.spellcasting = monsterData.spellbook.spellcasting.ability;
 			dnd5e.dataModels?.actor?.AttributesFields?.prepareSpellcastingAbility?.call(actorData);
 

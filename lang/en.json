@@ -377,6 +377,7 @@
   "gmm.common.derived_source.role": "role",
   "gmm.common.derived_source.scale_with_players": "scale with players",
   "gmm.common.derived_source.skill_bonus": "skill bonus",
+  "gmm.common.derived_source.spell_dc_bonus": "spell DC bonus",
   "gmm.common.derived_source.phases": "phases",
   "gmm.common.effect_mode.always": "Always applied",
   "gmm.common.effect_mode.on_use": "Applied On Use",

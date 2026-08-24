@@ -102,9 +102,6 @@ const MonsterForge = (function () {
             proficiency_bonus: proficiency,
             skills: Object.fromEntries(GMM_5E_SKILLS.map((x) =>
                 [x.foundry, _skillProficiency(blueprint.data.skills, derivedAttributes.role?.modifiers?.skill, x.name).multiplier])),
-            // An Absolute Modifier pins the forge's own DC, and a bonus formula cannot express a pin.
-            spell_dc_bonus: (blueprint.data.spellbook.spellcasting.dc.modifier.override
-                ? 0 : Number(blueprint.data.spellbook.spellcasting.dc.modifier.value)) || 0,
             trained_saves: Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, !!blueprint.data.trained_saves[x]?.trained]))
         };
     }
@@ -310,6 +307,8 @@ const MonsterForge = (function () {
         });
     }
 
+    /* Hands back the instances derivedAttributes holds rather than copies, and mutates them. Two calls
+       against one getDerivedAttributes result therefore produce one bundle, not two. */
     function _parseAbilityModifiers(derivedAttributes, abilityModifiers) {
         const ams = {};
         GMM_5E_ABILITIES.forEach((x) => {
@@ -573,13 +572,14 @@ const MonsterForge = (function () {
     /* The difference between two bundles, not between a parse and the node: measuring against the node
        erases the bonuses _postProcessData had already folded into it. */
     function reparseSettledDependents(monsterData, blueprint, settled, actor) {
-        const derivedAttributes = MonsterHelpers.getDerivedAttributes(
+        const derive = () => MonsterHelpers.getDerivedAttributes(
             blueprint.data.combat.level,
             blueprint.data.combat.rank,
             blueprint.data.combat.role
         );
-        const builtAbilities = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
-        const settledAbilities = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
+        const derivedAttributes = derive();
+        const builtAbilities = _parseAbilityModifiers(derive(), blueprint.data.ability_modifiers);
+        const settledAbilities = _parseAbilityModifiers(derive(), blueprint.data.ability_modifiers);
         const movedKeys = [];
 
         GMM_5E_ABILITIES.forEach((x) => {
