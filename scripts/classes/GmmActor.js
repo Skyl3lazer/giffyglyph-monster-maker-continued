@@ -25,6 +25,7 @@ const GmmActor = (function () {
 				delete this._gmmBaseMax;
 				delete this._gmmBaseProf;
 				delete this._gmmBaseAbilityMods;
+				delete this._gmmBaseSkillValue;
 			}
 		}, 'WRAPPER');
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
@@ -86,6 +87,12 @@ const GmmActor = (function () {
 			actorData.abilities[x].value = baseAttributes.ability_modifiers[x].score;
 			actorData.abilities[x].proficient = baseAttributes.trained_saves[x] ? 1 : 0;
 			actor._gmmBaseAbilityMods[x] = baseAttributes.ability_modifiers[x].value;
+		});
+		// A Role's grant is a floor Foundry cannot see unless it is on the field before Changes apply.
+		actor._gmmBaseSkillValue = baseAttributes.skills;
+		GMM_5E_SKILLS.forEach((x) => {
+			// A partial stored `skills` object leaves keys absent, and nothing repairs one.
+			if (actorData.skills[x.foundry]) actorData.skills[x.foundry].value = baseAttributes.skills[x.foundry];
 		});
 		_applyRoleSpeedBonus(actorData, monsterBlueprint);
 	}
@@ -178,13 +185,13 @@ const GmmActor = (function () {
 	/* dnd5e keys every global attack bonus per action type; DAE's `system.bonuses.All-Attacks` writes all four. */
 	const GMM_5E_ATTACK_ACTION_TYPES = ["mwak", "rwak", "msak", "rsak"];
 
-	// `value` is absent by design. prepareSkill reads the effect off `effectValue` and sets it itself.
+	const GMM_PERCEPTION = GMM_5E_SKILLS.find((x) => x.name == "perception");
+
+	/* `value` is absent by design. It is seeded in the base pass, so a Change lands on it natively. */
 	const GMM_DERIVED_SKILL_FIELDS = ["mod", "prof", "total", "passive"];
 
-	/* Read to decide whether a Role's skill grant still applies, never replayed. */
-	const GMM_OBSERVED_SKILL_KEYS = new Set(GMM_5E_SKILLS.map((x) => `system.skills.${x.foundry}.value`));
-
-	/* Effects apply before prepareDerivedData, so anything the pass below assigns would discard them. */
+	/* A Change on one of these is discarded by the pass that runs after it, whether that pass is
+	 * GMMC's own or the dnd5e one that recomputes a derived field from its inputs. */
 	const GMM_DERIVED_KEYS = new Set([
 		...GMM_5E_ABILITIES.map((x) => `system.abilities.${x}.dc`),
 		...GMM_5E_SKILLS.flatMap((x) => GMM_DERIVED_SKILL_FIELDS.map((f) => `system.skills.${x.foundry}.${f}`)),
@@ -218,7 +225,7 @@ const GmmActor = (function () {
 		["system.attributes.spell.dc", (x) => [x.spellbook.spellcasting.dc]],
 		["system.attributes.encumbrance.max", (x) => [x.inventory.capacity]],
 		["system.attributes.encumbrance.value", (x) => [x.inventory.weight]],
-		[`system.skills.${GMM_5E_SKILLS.find((x) => x.name == "perception").foundry}.passive`, (x) => [x.passive_perception]],
+		[`system.skills.${GMM_PERCEPTION.foundry}.passive`, (x) => [x.passive_perception]],
 		...GMM_5E_SKILLS.map((x) => [`system.skills.${x.foundry}.total`, (y) => [y.skills.find((z) => z.code == x.name)]])
 	]);
 
@@ -253,28 +260,12 @@ const GmmActor = (function () {
 		return Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, actorData.abilities[x].checkBonus ?? 0]));
 	}
 
-	/* Re-run because GMMC seeds the multiplier after dnd5e has already consumed it.
-	 * The multiplier is the only thing GMMC contributes. */
-	function _prepareMonsterSkills(actor, monsterData, observed) {
-		const actorData = actor.system;
-		const rollData = actor.getRollData({ deterministic: true });
-		const roleSkills = monsterData.role?.skill_prof ?? [];
+	/* _parseSkills stamps the default ability, and dnd5e resolves the one the check actually uses. */
+	function _stampSkillAbilities(actorData, monsterData) {
 		GMM_5E_SKILLS.forEach((x) => {
-			const skill = actorData.skills[x.foundry];
-			const targeted = observed.filter((y) => y.key === `system.skills.${x.foundry}.value`);
-			const granted = roleSkills.includes(x.name) ? 1 : 0;
-			// A GM who moved the multiplier deliberately outranks the Role, including down to nothing.
-			skill.value = targeted.length ? (skill.effectValue ?? 0) : Math.max(skill.effectValue ?? 0, granted);
-			actorData.prepareSkill(x.foundry, { skillData: skill, rollData: rollData });
-
 			const node = monsterData.skills.find((y) => y.code == x.name);
-			if (!node) return;
-			node.ability = skill.ability;
-			const delta = skill.prof.flat - node.value;
-			if (!delta) return;
-			const source = _effectSourceLabel(targeted);
-			node.add(delta, source);
-			if (x.name == "perception") monsterData.passive_perception.add(delta, source);
+			const ability = actorData.skills[x.foundry]?.ability;
+			if (node && ability) node.ability = ability;
 		});
 	}
 
@@ -312,7 +303,7 @@ const GmmActor = (function () {
 		try {
 			const actorData = actor.system;
 			const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
-			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_UNSUPPORTED_EFFECT_PREFIXES, GMM_OBSERVED_SKILL_KEYS);
+			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_UNSUPPORTED_EFFECT_PREFIXES);
 			if (effectChanges.unsupported.length) _warnUnsupportedEffectTargets(actor, effectChanges.unsupported);
 			const checkBonuses = _collectCheckBonuses(actorData);
 			const monsterArtifact = MonsterForge.createArtifact(monsterBlueprint, { checkBonuses: checkBonuses });
@@ -330,9 +321,7 @@ const GmmActor = (function () {
 
 			actorData.details.cr = monsterData.challenge_rating.value;
 			actorData.details.xp.value = monsterData.xp.value;
-			// Re-read by the settled pass, which cannot rebuild the bucket after the final phase.
-			actor._gmmObservedSkills = effectChanges.observed;
-			_prepareMonsterSkills(actor, monsterData, effectChanges.observed);
+			_stampSkillAbilities(actorData, monsterData);
 			monsterData.armor_class.display = actorData.attributes.ac.value;
 
 			// Field-wise, because replacing the init object would overwrite the `roll` mode dnd5e keeps beside these.
@@ -380,13 +369,15 @@ const GmmActor = (function () {
 		const actorData = actor.system;
 		const proficiency = Number(actorData?.attributes?.prof);
 		if (!Number.isFinite(proficiency)) return;
-		// Both are stamped together, so either one missing means the base pass never ran for this actor.
-		if (!Number.isFinite(actor._gmmBaseProf) || !actor._gmmBaseAbilityMods) return;
+		// All three are stamped together, so any one missing means the base pass never ran for this actor.
+		if (!Number.isFinite(actor._gmmBaseProf) || !actor._gmmBaseAbilityMods || !actor._gmmBaseSkillValue) return;
 
 		const abilityModifiers = {};
 		GMM_5E_ABILITIES.forEach((x) => { abilityModifiers[x] = Number(actorData.abilities[x]?.mod) || 0; });
+		// effectValue is the multiplier a Change left behind, before prepareSkill collapsed it.
 		const moved = proficiency !== actor._gmmBaseProf
-			|| GMM_5E_ABILITIES.some((x) => abilityModifiers[x] !== actor._gmmBaseAbilityMods?.[x]);
+			|| GMM_5E_ABILITIES.some((x) => abilityModifiers[x] !== actor._gmmBaseAbilityMods[x])
+			|| GMM_5E_SKILLS.some((x) => (actorData.skills[x.foundry]?.effectValue ?? 0) !== actor._gmmBaseSkillValue[x.foundry]);
 		if (!moved) return;
 
 		const blueprint = actor.flags.gmm.blueprint;
@@ -403,9 +394,6 @@ const GmmActor = (function () {
 			actor._gmmRollData.saveDc = monsterData.attack_dcs.primary.value + monsterData.ability_modifiers.max.value;
 		}
 
-		// Idempotent: it folds the difference against the node it already wrote.
-		_prepareMonsterSkills(actor, monsterData, actor._gmmObservedSkills ?? []);
-
 		// init.mod is wholly the artifact's, so total and score follow it by the same amount.
 		const initiativeDelta = monsterData.initiative.value - builtInitiative;
 		if (initiativeDelta) {
@@ -413,8 +401,7 @@ const GmmActor = (function () {
 			actorData.attributes.init.total += initiativeDelta;
 			actorData.attributes.init.score += initiativeDelta;
 		}
-		const perception = GMM_5E_SKILLS.find((x) => x.name == "perception");
-		if (perception) actorData.skills[perception.foundry].passive = monsterData.passive_perception.value;
+		if (actorData.skills[GMM_PERCEPTION.foundry]) actorData.skills[GMM_PERCEPTION.foundry].passive = monsterData.passive_perception.value;
 		if (actorData.attributes.spell) actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
 
 		GMM_5E_ABILITIES.forEach((x) => {

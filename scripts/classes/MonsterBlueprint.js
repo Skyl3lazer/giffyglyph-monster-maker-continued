@@ -77,7 +77,7 @@ const MonsterBlueprint = (function () {
 
 	// Everything the base pass derives, none of it synced from actor data.
 	const BASE_SUBTREES = [
-		"combat", "armor_class", "hit_points", "trained_saves",
+		"combat", "armor_class", "hit_points", "trained_saves", "skills",
 		"ability_modifiers", "proficiency_bonus", "attack_bonus", "attack_dcs", "damage_per_action"
 	];
 

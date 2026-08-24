@@ -21,11 +21,9 @@ const AutomationHelpers = (function () {
 			: change.effect.apply(actor, change);
 	}
 
-	/* `observedKeys` get their own bucket, because the caller reads them and never replays them.
-	 * `unsupportedPrefixes` are reported, not collected - the caller decides what to say. */
-	function collectOverwrittenEffects(actor, keys, unsupportedPrefixes, observedKeys) {
+	/* `unsupportedPrefixes` are reported, not collected - the caller decides what to say. */
+	function collectOverwrittenEffects(actor, keys, unsupportedPrefixes) {
 		const replay = [];
-		const observed = [];
 		const unsupported = [];
 		if (typeof actor.allApplicableEffects === "function") {
 			for (const effect of actor.allApplicableEffects()) {
@@ -35,22 +33,18 @@ const AutomationHelpers = (function () {
 					if (unsupportedPrefixes?.some((x) => change.key.startsWith(x))) {
 						unsupported.push({ key: change.key, effect: effect });
 					}
-					const isObserved = !!observedKeys?.has(change.key);
-					if (!isObserved && !keys.has(change.key)) continue;
+					if (!keys.has(change.key)) continue;
 					if (_effectiveChangePhase(change, effect) !== "initial") continue;
 					const copy = foundry.utils.deepClone(change);
 					copy.effect = effect;
 					copy.priority ??= (copy.mode ?? 0) * 10;
-					if (isObserved) observed.push(copy);
-					else replay.push(copy);
+					replay.push(copy);
 				}
 			}
 		}
 
-		const byPriority = (a, b) => a.priority - b.priority;
-		replay.sort(byPriority);
-		observed.sort(byPriority);
-		return { replay: replay, observed: observed, unsupported: unsupported };
+		replay.sort((a, b) => a.priority - b.priority);
+		return { replay: replay, unsupported: unsupported };
 	}
 
 	/* Replaying the change, not the stored override, keeps ADD/MULTIPLY relative to the new base. */

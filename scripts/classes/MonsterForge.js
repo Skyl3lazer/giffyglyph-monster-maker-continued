@@ -100,6 +100,8 @@ const MonsterForge = (function () {
             armor_class: _parseArmorClass(derivedAttributes, blueprint.data.armor_class),
             hit_points: _parseHitPoints(derivedAttributes, blueprint.data.hit_points),
             proficiency_bonus: proficiency,
+            skills: Object.fromEntries(GMM_5E_SKILLS.map((x) =>
+                [x.foundry, _skillProficiency(blueprint.data.skills, derivedAttributes.role?.modifiers?.skill, x.name).multiplier])),
             trained_saves: Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, !!blueprint.data.trained_saves[x]?.trained]))
         };
     }
@@ -393,59 +395,34 @@ const MonsterForge = (function () {
         return prof;
     }
 
+    /* The multiplier dnd5e stores, and the tooltip line that names it. */
+    const GMM_SKILL_LEVELS = {
+        "half-proficient": { multiplier: 0.5, source: "half_proficiency" },
+        "proficient": { multiplier: 1, source: "proficiency" },
+        "expert": { multiplier: 2, source: "expertise" }
+    };
+
+    /* The authored level and the Role's grant are one axis. The higher wins, and a tie goes to the
+       authored level because that is the number a builder typed. */
+    function _skillProficiency(monsterSkills, roleSkills, skillName) {
+        const authored = GMM_SKILL_LEVELS[monsterSkills[skillName]];
+        const granted = (roleSkills ?? []).includes(skillName);
+        if (authored && (!granted || authored.multiplier >= 1)) return authored;
+        return granted ? { multiplier: 1, source: "role" } : { multiplier: 0, source: null };
+    }
+
+    /* `floor(prof * multiplier)` is what dnd5e's Proficiency gives for all three levels. */
     function _parseSkills(proficiencyBonus, monsterSkills, monsterRole) {
-        let skills = [];
-        GMM_5E_SKILLS.forEach(function (defaultSkill) {
-            if (monsterSkills[defaultSkill.name]) {
-                let proficiencyModifier = 0;
-                let proficiencyType = "";
-                switch (monsterSkills[defaultSkill.name]) {
-                    case "half-proficient":
-                        proficiencyModifier = Math.floor(proficiencyBonus / 2);
-                        proficiencyType = game.i18n.format('gmm.common.derived_source.half_proficiency');
-                        break;
-                    case "proficient":
-                        proficiencyModifier = proficiencyBonus;
-                        proficiencyType = game.i18n.format('gmm.common.derived_source.proficiency');
-                        break;
-                    case "expert":
-                        proficiencyModifier = proficiencyBonus * 2;
-                        proficiencyType = game.i18n.format('gmm.common.derived_source.expertise');
-                        break;
-                }
-
-
-
-                const skill = new DerivedAttribute();
-                skill.add(proficiencyModifier, proficiencyType);
-
-                skills.push($.extend(skill, {
-                    code: defaultSkill.name,
-                    ability: defaultSkill.ability,
-                    title: game.i18n.format(`gmm.common.skill.${defaultSkill.name}`)
-                }));
-            } else if (monsterRole.modifiers.skill.includes(defaultSkill.name)) {
-                let proficiencyModifier = proficiencyBonus;
-                let proficiencyType = game.i18n.format('gmm.common.derived_source.role');
-
-                const skill = new DerivedAttribute();
-                skill.add(proficiencyModifier, proficiencyType);
-
-                skills.push($.extend(skill, {
-                    code: defaultSkill.name,
-                    ability: defaultSkill.ability,
-                    title: game.i18n.format(`gmm.common.skill.${defaultSkill.name}`)
-                }));
-            } else {
-                const skill = new DerivedAttribute();
-                skills.push($.extend(skill, {
-                    code: defaultSkill.name,
-                    ability: defaultSkill.ability,
-                    title: game.i18n.format(`gmm.common.skill.${defaultSkill.name}`)
-                }));
-            }
+        return GMM_5E_SKILLS.map((defaultSkill) => {
+            const { multiplier, source } = _skillProficiency(monsterSkills, monsterRole.modifiers.skill, defaultSkill.name);
+            const skill = new DerivedAttribute();
+            if (source) skill.add(Math.floor(proficiencyBonus * multiplier), game.i18n.format(`gmm.common.derived_source.${source}`));
+            return $.extend(skill, {
+                code: defaultSkill.name,
+                ability: defaultSkill.ability,
+                title: game.i18n.format(`gmm.common.skill.${defaultSkill.name}`)
+            });
         });
-        return skills;
     }
 
     function _parseSpeeds(monsterSpeeds, role) {
@@ -591,7 +568,7 @@ const MonsterForge = (function () {
 
 
     /* The difference between two bundles, not between a parse and the node: measuring against the node
-       erases what _postProcessData and _prepareMonsterSkills had already folded into it. */
+       erases the bonuses _postProcessData had already folded into it. */
     function reparseSettledDependents(monsterData, blueprint, settled, actor) {
         const derivedAttributes = MonsterHelpers.getDerivedAttributes(
             blueprint.data.combat.level,
@@ -616,6 +593,17 @@ const MonsterForge = (function () {
         const builtProficiency = { value: Number(actor._gmmBaseProf) || 0 };
         const settledProficiency = { value: settled.proficiency };
         if (settledProficiency.value !== builtProficiency.value) movedKeys.push("system.attributes.prof");
+
+        /* dnd5e owns the multiplier arithmetic, so the settled side is the schema's flat. The built side
+           stays a parse, or the fold would erase the check bonuses already on the node. */
+        const builtSkills = _parseSkills(builtProficiency.value, blueprint.data.skills, derivedAttributes.role);
+        const skillDeltas = GMM_5E_SKILLS.map((x) => ({
+            skill: x,
+            delta: (Number(actor.system?.skills?.[x.foundry]?.prof?.flat) || 0)
+                - (builtSkills.find((y) => y.code == x.name)?.value ?? 0)
+        })).filter((x) => x.delta);
+        skillDeltas.forEach((x) => movedKeys.push(`system.skills.${x.skill.foundry}.value`));
+
         if (!movedKeys.length) return;
 
         // The schema's score is canonical, so an UPGRADE to an odd one is not rounded away here.
@@ -650,6 +638,11 @@ const MonsterForge = (function () {
         fold(monsterData.spellbook?.spellcasting?.dc, settledParse.spellDc - built.spellDc);
         GMM_5E_ABILITIES.forEach((x) => {
             fold(monsterData.saving_throws?.[x], (settledParse.savingThrows[x]?.value ?? 0) - (built.savingThrows[x]?.value ?? 0));
+        });
+        skillDeltas.forEach(({ skill, delta }) => {
+            fold(monsterData.skills.find((y) => y.code == skill.name), delta);
+            // The forge's own floor and Modifier are deliberately not re-applied over the settled number.
+            if (skill.name == "perception") fold(monsterData.passive_perception, delta);
         });
     }
 
