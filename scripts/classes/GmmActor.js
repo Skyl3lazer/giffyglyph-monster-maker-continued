@@ -24,6 +24,7 @@ const GmmActor = (function () {
 				delete this._gmmRollData;
 				delete this._gmmBaseMax;
 				delete this._gmmBaseProf;
+				delete this._gmmBaseAbilityMods;
 			}
 		}, 'WRAPPER');
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
@@ -79,6 +80,13 @@ const GmmActor = (function () {
 		actorData.attributes.prof = baseAttributes.proficiency_bonus.value;
 		// The forge computes the same number from the blueprint, so this is what the settled pass measures against.
 		actor._gmmBaseProf = actorData.attributes.prof;
+		// Only the score is seeded. dnd5e derives the modifier from it, after a Change has moved it.
+		actor._gmmBaseAbilityMods = {};
+		GMM_5E_ABILITIES.forEach((x) => {
+			actorData.abilities[x].value = baseAttributes.ability_modifiers[x].score;
+			actorData.abilities[x].proficient = baseAttributes.trained_saves[x] ? 1 : 0;
+			actor._gmmBaseAbilityMods[x] = baseAttributes.ability_modifiers[x].value;
+		});
 		_applyRoleSpeedBonus(actorData, monsterBlueprint);
 	}
 
@@ -136,13 +144,10 @@ const GmmActor = (function () {
 			if (delta) {
 				const existing = String(ability.bonuses.save ?? "").trim();
 				ability.bonuses.save = existing ? `${existing} ${delta < 0 ? "-" : "+"} ${Math.abs(delta)}` : String(delta);
+				// prepareAbilities consumed bonuses.save before this wrote to it, so both totals follow by hand.
+				ability.saveBonus += delta;
+				ability.save.value += delta;
 			}
-
-			// prepareAbilities ran before the derived pass replaced mod and saveProf, so its output is stale.
-			const cover = x === "dex" ? (actorData.attributes.ac?.cover ?? 0) : 0;
-			ability.saveBonus = abilitySaveBonus + delta + globalSaveBonus + cover;
-			ability.save.value = ability.mod + ability.saveBonus
-				+ (Number.isNumeric(ability.saveProf.term) ? ability.saveProf.flat : 0);
 		});
 
 		// init.mod was copied out before this, so folding the bonuses in here cannot double-count the roll.
@@ -173,8 +178,6 @@ const GmmActor = (function () {
 	/* dnd5e keys every global attack bonus per action type; DAE's `system.bonuses.All-Attacks` writes all four. */
 	const GMM_5E_ATTACK_ACTION_TYPES = ["mwak", "rwak", "msak", "rsak"];
 
-	// Absent by design, along with resources.legres.value - dnd5e re-derives these from spent/max
-	const GMM_DERIVED_ABILITY_FIELDS = ["value", "mod", "proficient", "saveProf", "checkProf", "dc"];
 	// `value` is absent by design. prepareSkill reads the effect off `effectValue` and sets it itself.
 	const GMM_DERIVED_SKILL_FIELDS = ["mod", "prof", "total", "passive"];
 
@@ -183,7 +186,7 @@ const GmmActor = (function () {
 
 	/* Effects apply before prepareDerivedData, so anything the pass below assigns would discard them. */
 	const GMM_DERIVED_KEYS = new Set([
-		...GMM_5E_ABILITIES.flatMap((x) => GMM_DERIVED_ABILITY_FIELDS.map((f) => `system.abilities.${x}.${f}`)),
+		...GMM_5E_ABILITIES.map((x) => `system.abilities.${x}.dc`),
 		...GMM_5E_SKILLS.flatMap((x) => GMM_DERIVED_SKILL_FIELDS.map((f) => `system.skills.${x.foundry}.${f}`)),
 		"system.details.cr",
 		"system.details.xp.value",
@@ -205,11 +208,6 @@ const GmmActor = (function () {
 		"system.attributes.spell.level",
 		"system.attributes.spell.dc"
 	]);
-
-	/* The forge derives too much from an ability modifier to replay these with the rest of the list. */
-	const GMM_EFFECT_ABILITY_KEYS = new Set(
-		GMM_5E_ABILITIES.flatMap((x) => ["value", "mod"].map((f) => `system.abilities.${x}.${f}`))
-	);
 
 	/* The Forge sheet reads these off the artifact, so a replayed change is invisible until it is folded back.
 	 * Absent by design: a skill's mod is the ability's, and value/prof target a Proficiency object. */
@@ -242,10 +240,6 @@ const GmmActor = (function () {
 		}
 	}
 
-	function _abilitiesTargetedByScore(changes) {
-		return new Set(GMM_5E_ABILITIES.filter((x) => changes.some((y) => y.key === `system.abilities.${x}.value`)));
-	}
-
 	function _effectSourceLabel(changes) {
 		const names = [...new Set(changes.map((x) => x.effect?.name).filter(Boolean))];
 		if (!names.length) return game.i18n.format('gmm.common.derived_source.in_play');
@@ -259,27 +253,7 @@ const GmmActor = (function () {
 		return Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, actorData.abilities[x].checkBonus ?? 0]));
 	}
 
-	/* The forge reads only the blueprint, so a modifier an effect moved is invisible to it. */
-	function _reforgeWithAbilityEffects(actor, blueprint, artifact, changes, checkBonuses) {
-		if (!changes.length) return artifact;
-
-		const abilityDeltas = {};
-		GMM_5E_ABILITIES.forEach((x) => {
-			const ability = actor.system.abilities[x];
-			const scaled = artifact.data.ability_modifiers[x].value;
-			// A score-targeting effect is the 5e convention, so convert it the way dnd5e reads a score.
-			const delta = (ability.mod - scaled) || (Math.floor((ability.value - 10) / 2) - scaled);
-			if (!delta) return;
-			const keys = [`system.abilities.${x}.value`, `system.abilities.${x}.mod`];
-			abilityDeltas[x] = { value: delta, source: _effectSourceLabel(changes.filter((y) => keys.includes(y.key))) };
-		});
-
-		return Object.keys(abilityDeltas).length
-			? MonsterForge.createArtifact(blueprint, { abilityDeltas: abilityDeltas, checkBonuses: checkBonuses })
-			: artifact;
-	}
-
-	/* dnd5e's own arithmetic, run again once the scaled ability modifiers and proficiency bonus are in place.
+	/* Re-run because GMMC seeds the multiplier after dnd5e has already consumed it.
 	 * The multiplier is the only thing GMMC contributes. */
 	function _prepareMonsterSkills(actor, monsterData, observed) {
 		const actorData = actor.system;
@@ -338,18 +312,10 @@ const GmmActor = (function () {
 		try {
 			const actorData = actor.system;
 			const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
-			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_EFFECT_ABILITY_KEYS, GMM_UNSUPPORTED_EFFECT_PREFIXES, GMM_OBSERVED_SKILL_KEYS);
+			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_UNSUPPORTED_EFFECT_PREFIXES, GMM_OBSERVED_SKILL_KEYS);
 			if (effectChanges.unsupported.length) _warnUnsupportedEffectTargets(actor, effectChanges.unsupported);
 			const checkBonuses = _collectCheckBonuses(actorData);
-			let monsterArtifact = MonsterForge.createArtifact(monsterBlueprint, { checkBonuses: checkBonuses });
-
-			// The replay reads these as its base, so they are seeded before it rather than in the pass below.
-			GMM_5E_ABILITIES.forEach((x) => {
-				actorData.abilities[x].value = monsterArtifact.data.ability_modifiers[x].score;
-				actorData.abilities[x].mod = monsterArtifact.data.ability_modifiers[x].value;
-			});
-			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.early);
-			monsterArtifact = _reforgeWithAbilityEffects(actor, monsterBlueprint, monsterArtifact, effectChanges.early, checkBonuses);
+			const monsterArtifact = MonsterForge.createArtifact(monsterBlueprint, { checkBonuses: checkBonuses });
 
 			const monsterData = monsterArtifact.data;
 			actor.flags.gmm = {
@@ -357,21 +323,10 @@ const GmmActor = (function () {
 				monster: monsterArtifact
 			};
 
-			const scoreTargeted = _abilitiesTargetedByScore(effectChanges.early);
 			GMM_5E_ABILITIES.forEach((x) => {
-                // Nothing derives from the score, so an effect that set one outright should keep it.
-                if (!scoreTargeted.has(x)) actorData.abilities[x].value = monsterData.ability_modifiers[x].score;
-                actorData.abilities[x].mod = monsterData.ability_modifiers[x].value;
-                actorData.abilities[x].proficient = false;
-				actorData.abilities[x].saveProf = new Proficiency(actorData.attributes.prof, monsterBlueprint.data.trained_saves[x].trained ? 1 : 0);
-				actorData.abilities[x].checkProf = new Proficiency(0, 1);
-				// Replace only save.value - the save object carries the .mode and .roll #rollD20Test needs.
-				if (monsterBlueprint.data.trained_saves[x].trained) {
-					actorData.abilities[x].proficient = true;
-				}
-                actorData.abilities[x].dc = 8 + monsterData.ability_modifiers[x].value;
-                actorData.abilities[x].attack = monsterData.ability_modifiers[x].value + actorData.attributes.prof;
-            });
+				// The schema modifier, not the artifact's, because a Change has already reached it here.
+				actorData.abilities[x].dc = 8 + actorData.abilities[x].mod;
+			});
 
 			actorData.details.cr = monsterData.challenge_rating.value;
 			actorData.details.xp.value = monsterData.xp.value;
@@ -408,8 +363,8 @@ const GmmActor = (function () {
 			actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
 			actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
 
-			const reconciledNodes = _snapshotReconciledNodes(actor, effectChanges.late);
-			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.late);
+			const reconciledNodes = _snapshotReconciledNodes(actor, effectChanges.replay);
+			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.replay);
 			_reconcileArtifactWithEffects(actor, monsterData, reconciledNodes);
 
 			// Replaces the pre-effect seed from the base pass. A roll-time reference must read reconciled numbers.
@@ -419,15 +374,25 @@ const GmmActor = (function () {
 		}
 	}
 
-	/* The forge builds every node below from the blueprint's proficiency bonus, which an effect in
-	 * either change phase can have moved by the time the schema settles. */
-	function _reparseProficiencyDependents(actor, monsterData) {
-		const settled = Number(actor.system?.attributes?.prof);
-		if (!Number.isFinite(settled) || settled === actor._gmmBaseProf) return;
+	/* The forge builds every node below from the blueprint's proficiency bonus and ability modifiers,
+	 * either of which a Change in either phase can have moved by the time the schema settles. */
+	function _reparseSettledDependents(actor, monsterData) {
+		const actorData = actor.system;
+		const proficiency = Number(actorData?.attributes?.prof);
+		if (!Number.isFinite(proficiency)) return;
+		// Both are stamped together, so either one missing means the base pass never ran for this actor.
+		if (!Number.isFinite(actor._gmmBaseProf) || !actor._gmmBaseAbilityMods) return;
+
+		const abilityModifiers = {};
+		GMM_5E_ABILITIES.forEach((x) => { abilityModifiers[x] = Number(actorData.abilities[x]?.mod) || 0; });
+		const moved = proficiency !== actor._gmmBaseProf
+			|| GMM_5E_ABILITIES.some((x) => abilityModifiers[x] !== actor._gmmBaseAbilityMods?.[x]);
+		if (!moved) return;
 
 		const blueprint = actor.flags.gmm.blueprint;
+		const builtInitiative = monsterData.initiative.value;
 		try {
-			MonsterForge.reparseProficiencyDependents(monsterData, blueprint, settled, actor);
+			MonsterForge.reparseSettledDependents(monsterData, blueprint, { proficiency: proficiency, abilityModifiers: abilityModifiers }, actor);
 		} catch (error) {
 			console.error(error);
 			return;
@@ -440,10 +405,25 @@ const GmmActor = (function () {
 
 		// Idempotent: it folds the difference against the node it already wrote.
 		_prepareMonsterSkills(actor, monsterData, actor._gmmObservedSkills ?? []);
+
+		// init.mod is wholly the artifact's, so total and score follow it by the same amount.
+		const initiativeDelta = monsterData.initiative.value - builtInitiative;
+		if (initiativeDelta) {
+			actorData.attributes.init.mod = monsterData.initiative.value;
+			actorData.attributes.init.total += initiativeDelta;
+			actorData.attributes.init.score += initiativeDelta;
+		}
+		const perception = GMM_5E_SKILLS.find((x) => x.name == "perception");
+		if (perception) actorData.skills[perception.foundry].passive = monsterData.passive_perception.value;
+		if (actorData.attributes.spell) actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
+
 		GMM_5E_ABILITIES.forEach((x) => {
-			const ability = actor.system.abilities[x];
-			ability.saveProf = new Proficiency(settled, blueprint.data.trained_saves[x].trained ? 1 : 0);
-			ability.attack = monsterData.ability_modifiers[x].value + settled;
+			const ability = actorData.abilities[x];
+			ability.saveProf = new Proficiency(proficiency, blueprint.data.trained_saves[x].trained ? 1 : 0);
+			ability.attack = ability.mod + proficiency;
+			// saveBonus already carries the forge's excess, so recomputing cannot lose it.
+			ability.save.value = ability.mod + ability.saveBonus
+				+ (Number.isNumeric(ability.saveProf.term) ? ability.saveProf.flat : 0);
 		});
 	}
 
@@ -471,7 +451,7 @@ const GmmActor = (function () {
 		hitPoints.current = hp.value;
 		if (actor._gmmRollData) actor._gmmRollData.naturalMax = hp.max;
 
-		_reparseProficiencyDependents(actor, monsterData);
+		_reparseSettledDependents(actor, monsterData);
 
 		try {
 			MonsterForge.reconcileWithSettledActor(monsterData, actor.flags.gmm.blueprint, actor);

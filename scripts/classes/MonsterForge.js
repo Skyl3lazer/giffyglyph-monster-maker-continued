@@ -20,7 +20,7 @@ const MonsterForge = (function () {
             blueprint.data.combat.role
         );
         const monsterProficiency = _parseProficiency(derivedAttributes, blueprint.data.proficiency_bonus);
-        const monsterAbilityModifiers = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers, options.abilityDeltas);
+        const monsterAbilityModifiers = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
         const monsterCheckModifiers = _parseCheckModifiers(options.checkBonuses);
         const monsterRank = _parseRank(derivedAttributes.rank);
         const monsterRole = _parseRole(derivedAttributes.role);
@@ -81,18 +81,26 @@ const MonsterForge = (function () {
         };
     }
 
-    /* Shares getDerivedAttributes and both parsers with createArtifact so the two passes cannot drift. */
+    /* Shares getDerivedAttributes and its parsers with createArtifact so the two passes cannot drift. */
     function createBaseAttributes(blueprint) {
         const derivedAttributes = MonsterHelpers.getDerivedAttributes(
             blueprint.data.combat.level,
             blueprint.data.combat.rank,
             blueprint.data.combat.role
         );
+        const proficiency = _parseProficiency(derivedAttributes, blueprint.data.proficiency_bonus);
+        const abilityModifiers = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
+        _parseSavingThrows(
+            blueprint.data.trained_saves, proficiency, abilityModifiers,
+            blueprint.data.ability_modifiers.ranking, derivedAttributes.trainedSavingThrowCount
+        );
 
         return {
+            ability_modifiers: abilityModifiers,
             armor_class: _parseArmorClass(derivedAttributes, blueprint.data.armor_class),
             hit_points: _parseHitPoints(derivedAttributes, blueprint.data.hit_points),
-            proficiency_bonus: _parseProficiency(derivedAttributes, blueprint.data.proficiency_bonus)
+            proficiency_bonus: proficiency,
+            trained_saves: Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, !!blueprint.data.trained_saves[x]?.trained]))
         };
     }
 
@@ -243,7 +251,7 @@ const MonsterForge = (function () {
             temporary: hitPoints.temporary,
             temporary_maximum: hitPoints.temporary_maximum,
             maximum: maximumHp,
-            // Placeholders until the derived pass stamps what the schema settled on, so a shortcode always resolves.
+            // Placeholders until the settled pass stamps what the schema settled on, so a shortcode always resolves.
             natural_maximum: maximumHp.value,
             effective_maximum: maximumHp.value
         };
@@ -297,7 +305,7 @@ const MonsterForge = (function () {
         });
     }
 
-    function _parseAbilityModifiers(derivedAttributes, abilityModifiers, abilityDeltas) {
+    function _parseAbilityModifiers(derivedAttributes, abilityModifiers) {
         const ams = {};
         GMM_5E_ABILITIES.forEach((x) => {
             let ranking = abilityModifiers.ranking.indexOf(x);
@@ -308,11 +316,6 @@ const MonsterForge = (function () {
 
         Object.entries(_parseModifierList(abilityModifiers.modifier.value)).forEach(([ability, value]) => {
             ams[ability].applyModifier(value, abilityModifiers.modifier.override);
-        });
-
-        // Must land after the fixed modifier resets the attribute and before the score is derived.
-        Object.entries(abilityDeltas ?? {}).forEach(([ability, delta]) => {
-            ams[ability]?.add(delta.value, delta.source);
         });
 
         for (const am in ams) {
@@ -550,10 +553,11 @@ const MonsterForge = (function () {
     /* Nothing else records what moved these fields. They are outside GMM_DERIVED_KEYS, so Foundry
        applies them itself and there is no replayed change list to read a name off. */
     function _settledSource(actor, key, matches) {
+        const keys = new Set(Array.isArray(key) ? key : [key]);
         const names = new Set();
         for (const effect of (actor.appliedEffects ?? [])) {
             for (const change of (effect.system?.changes ?? effect.changes ?? [])) {
-                if (change?.key !== key) continue;
+                if (!keys.has(change?.key)) continue;
                 if (matches && !matches(change)) continue;
                 names.add(effect.name);
             }
@@ -586,38 +590,66 @@ const MonsterForge = (function () {
     }
 
 
-    function reparseProficiencyDependents(monsterData, blueprint, settledProficiency, actor) {
+    /* The difference between two bundles, not between a parse and the node: measuring against the node
+       erases what _postProcessData and _prepareMonsterSkills had already folded into it. */
+    function reparseSettledDependents(monsterData, blueprint, settled, actor) {
         const derivedAttributes = MonsterHelpers.getDerivedAttributes(
             blueprint.data.combat.level,
             blueprint.data.combat.rank,
             blueprint.data.combat.role
         );
-        // Every consumer reads `.value` off it, so the settled number needs no other parsed field.
-        const proficiency = { value: settledProficiency };
-        const abilityModifiers = monsterData.ability_modifiers;
-        const savingThrows = _parseSavingThrows(
-            blueprint.data.trained_saves, proficiency, abilityModifiers,
-            blueprint.data.ability_modifiers.ranking, derivedAttributes.trainedSavingThrowCount
-        );
-        const spellbook = _parseSpellbook(
-            abilityModifiers, proficiency,
-            blueprint.data.traits.items.filter((x) => x.class), blueprint.data.spellbook
-        );
+        const builtAbilities = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
+        const settledAbilities = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
+        const movedKeys = [];
 
-        const targets = [
-            [monsterData.proficiency_bonus, settledProficiency],
-            [monsterData.attack_bonus, _parseAttackBonus(settledProficiency, blueprint.data.attack_bonus).value],
-            [monsterData.attack_dcs.primary, _parseAttackDcs(settledProficiency, blueprint.data.attack_dcs).primary.value],
-            [monsterData.initiative, _parseInitiative(abilityModifiers, derivedAttributes.rank, derivedAttributes.role, blueprint.data.initiative, settledProficiency).value],
-            [monsterData.spellbook.spellcasting.dc, spellbook.spellcasting.dc.value],
-            ...GMM_5E_ABILITIES.map((x) => [monsterData.saving_throws[x], savingThrows[x]?.value])
-        ];
+        GMM_5E_ABILITIES.forEach((x) => {
+            const keys = [`system.abilities.${x}.value`, `system.abilities.${x}.mod`];
+            const delta = Number(settled.abilityModifiers?.[x]) - builtAbilities[x].value;
+            if (!Number.isFinite(delta) || !delta) return;
+            movedKeys.push(...keys);
+            const source = _settledSource(actor, keys);
+            // `max` aliases the top-ranked ability, so it follows this and must never be folded again.
+            settledAbilities[x].add(delta, source);
+            monsterData.ability_modifiers[x].add(delta, source);
+        });
 
-        const source = _settledSource(actor, "system.attributes.prof");
-        targets.forEach(([node, target]) => {
-            if (!node || !Number.isFinite(target)) return;
-            const delta = target - node.value;
-            if (delta) node.add(delta, source);
+        const builtProficiency = { value: Number(actor._gmmBaseProf) || 0 };
+        const settledProficiency = { value: settled.proficiency };
+        if (settledProficiency.value !== builtProficiency.value) movedKeys.push("system.attributes.prof");
+        if (!movedKeys.length) return;
+
+        // The schema's score is canonical, so an UPGRADE to an odd one is not rounded away here.
+        GMM_5E_ABILITIES.forEach((x) => {
+            const score = Number(actor.system?.abilities?.[x]?.value);
+            if (Number.isFinite(score)) monsterData.ability_modifiers[x].score = score;
+        });
+
+        const classes = blueprint.data.traits.items.filter((x) => x.class);
+        const parse = (abilities, proficiency) => ({
+            attackBonus: _parseAttackBonus(proficiency.value, blueprint.data.attack_bonus).value,
+            attackDc: _parseAttackDcs(proficiency.value, blueprint.data.attack_dcs).primary.value,
+            capacity: _getInventoryCapacity(abilities, blueprint.data).value,
+            initiative: _parseInitiative(abilities, derivedAttributes.rank, derivedAttributes.role, blueprint.data.initiative, proficiency.value).value,
+            passive: _parsePassivePerception(monsterData.skills, abilities, derivedAttributes.rank, derivedAttributes.role, blueprint.data.passive_perception).value,
+            savingThrows: _parseSavingThrows(blueprint.data.trained_saves, proficiency, abilities, blueprint.data.ability_modifiers.ranking, derivedAttributes.trainedSavingThrowCount),
+            spellDc: _parseSpellbook(abilities, proficiency, classes, blueprint.data.spellbook).spellcasting.dc.value
+        });
+        const built = parse(builtAbilities, builtProficiency);
+        const settledParse = parse(settledAbilities, settledProficiency);
+
+        const source = _settledSource(actor, movedKeys);
+        const fold = (node, delta) => {
+            if (node && Number.isFinite(delta) && delta) node.add(delta, source);
+        };
+        fold(monsterData.proficiency_bonus, settledProficiency.value - builtProficiency.value);
+        fold(monsterData.attack_bonus, settledParse.attackBonus - built.attackBonus);
+        fold(monsterData.attack_dcs?.primary, settledParse.attackDc - built.attackDc);
+        fold(monsterData.inventory?.capacity, settledParse.capacity - built.capacity);
+        fold(monsterData.initiative, settledParse.initiative - built.initiative);
+        fold(monsterData.passive_perception, settledParse.passive - built.passive);
+        fold(monsterData.spellbook?.spellcasting?.dc, settledParse.spellDc - built.spellDc);
+        GMM_5E_ABILITIES.forEach((x) => {
+            fold(monsterData.saving_throws?.[x], (settledParse.savingThrows[x]?.value ?? 0) - (built.savingThrows[x]?.value ?? 0));
         });
     }
 
@@ -1049,7 +1081,7 @@ const MonsterForge = (function () {
         createBaseRollData: createBaseRollData,
         createRollData: createRollData,
         reconcileWithSettledActor: reconcileWithSettledActor,
-        reparseProficiencyDependents: reparseProficiencyDependents
+        reparseSettledDependents: reparseSettledDependents
     };
 })();
 

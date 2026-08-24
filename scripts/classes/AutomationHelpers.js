@@ -21,12 +21,10 @@ const AutomationHelpers = (function () {
 			: change.effect.apply(actor, change);
 	}
 
-	/* `earlyKeys` have to land before the rest of the derived pass reads them. `observedKeys` get their
-	 * own bucket, because the caller reads them and never replays them.
+	/* `observedKeys` get their own bucket, because the caller reads them and never replays them.
 	 * `unsupportedPrefixes` are reported, not collected - the caller decides what to say. */
-	function collectOverwrittenEffects(actor, keys, earlyKeys, unsupportedPrefixes, observedKeys) {
-		const early = [];
-		const late = [];
+	function collectOverwrittenEffects(actor, keys, unsupportedPrefixes, observedKeys) {
+		const replay = [];
 		const observed = [];
 		const unsupported = [];
 		if (typeof actor.allApplicableEffects === "function") {
@@ -44,23 +42,22 @@ const AutomationHelpers = (function () {
 					copy.effect = effect;
 					copy.priority ??= (copy.mode ?? 0) * 10;
 					if (isObserved) observed.push(copy);
-					else (earlyKeys?.has(change.key) ? early : late).push(copy);
+					else replay.push(copy);
 				}
 			}
 		}
 
 		const byPriority = (a, b) => a.priority - b.priority;
-		early.sort(byPriority);
-		late.sort(byPriority);
+		replay.sort(byPriority);
 		observed.sort(byPriority);
-		return { early: early, late: late, observed: observed, unsupported: unsupported };
+		return { replay: replay, observed: observed, unsupported: unsupported };
 	}
 
 	/* Replaying the change, not the stored override, keeps ADD/MULTIPLY relative to the new base. */
 	function applyOverwrittenEffects(actor, changes) {
 		if (!changes?.length) return;
 
-		// A late bucket must resolve against what an earlier one already produced.
+		// Resolved here rather than by the caller, so a formula change reads the values just prepared.
 		const replacementData = actor.getRollData();
 		const overrides = {};
 		for (const change of changes) {
