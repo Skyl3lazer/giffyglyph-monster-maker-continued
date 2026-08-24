@@ -23,6 +23,7 @@ const GmmActor = (function () {
 				// A sheet switch away from the forge would otherwise leave the surface behind until a reload.
 				delete this._gmmRollData;
 				delete this._gmmBaseMax;
+				delete this._gmmBaseProf;
 			}
 		}, 'WRAPPER');
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
@@ -75,6 +76,9 @@ const GmmActor = (function () {
 		actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, baseAttributes);
 		// Stashed before effects reach the ceiling, so the HP sync can tell a build change from a cap.
 		actor._gmmBaseMax = actorData.attributes.hp.max;
+		actorData.attributes.prof = baseAttributes.proficiency_bonus.value;
+		// The forge computes the same number from the blueprint, so this is what the settled pass measures against.
+		actor._gmmBaseProf = actorData.attributes.prof;
 		_applyRoleSpeedBonus(actorData, monsterBlueprint);
 	}
 
@@ -183,7 +187,6 @@ const GmmActor = (function () {
 		...GMM_5E_SKILLS.flatMap((x) => GMM_DERIVED_SKILL_FIELDS.map((f) => `system.skills.${x.foundry}.${f}`)),
 		"system.details.cr",
 		"system.details.xp.value",
-		"system.attributes.prof",
 		"system.attributes.init.prof",
 		"system.attributes.init.ability",
 		"system.attributes.init.mod",
@@ -212,8 +215,6 @@ const GmmActor = (function () {
 	 * Absent by design: a skill's mod is the ability's, and value/prof target a Proficiency object. */
 	const GMM_RECONCILED_NODES = new Map([
 		["system.attributes.init.mod", (x) => [x.initiative]],
-		/* ATK is the proficiency bonus and the attack DC is 8 plus it, so one delta moves all three. */
-		["system.attributes.prof", (x) => [x.proficiency_bonus, x.attack_bonus, x.attack_dcs.primary]],
 		["system.details.cr", (x) => [x.challenge_rating]],
 		["system.details.xp.value", (x) => [x.xp]],
 		["system.attributes.spell.dc", (x) => [x.spellbook.spellcasting.dc]],
@@ -362,20 +363,20 @@ const GmmActor = (function () {
                 if (!scoreTargeted.has(x)) actorData.abilities[x].value = monsterData.ability_modifiers[x].score;
                 actorData.abilities[x].mod = monsterData.ability_modifiers[x].value;
                 actorData.abilities[x].proficient = false;
-				actorData.abilities[x].saveProf = new Proficiency(monsterData.proficiency_bonus.value, monsterBlueprint.data.trained_saves[x].trained ? 1 : 0);
+				actorData.abilities[x].saveProf = new Proficiency(actorData.attributes.prof, monsterBlueprint.data.trained_saves[x].trained ? 1 : 0);
 				actorData.abilities[x].checkProf = new Proficiency(0, 1);
 				// Replace only save.value - the save object carries the .mode and .roll #rollD20Test needs.
 				if (monsterBlueprint.data.trained_saves[x].trained) {
 					actorData.abilities[x].proficient = true;
 				}
                 actorData.abilities[x].dc = 8 + monsterData.ability_modifiers[x].value;
-                actorData.abilities[x].attack = monsterData.ability_modifiers[x].value + monsterData.proficiency_bonus.value;
+                actorData.abilities[x].attack = monsterData.ability_modifiers[x].value + actorData.attributes.prof;
             });
 
 			actorData.details.cr = monsterData.challenge_rating.value;
 			actorData.details.xp.value = monsterData.xp.value;
-			// Above the skills pass, which derives every proficiency from it.
-			actorData.attributes.prof = monsterData.proficiency_bonus.value;
+			// Re-read by the settled pass, which cannot rebuild the bucket after the final phase.
+			actor._gmmObservedSkills = effectChanges.observed;
 			_prepareMonsterSkills(actor, monsterData, effectChanges.observed);
 			monsterData.armor_class.display = actorData.attributes.ac.value;
 
@@ -418,6 +419,34 @@ const GmmActor = (function () {
 		}
 	}
 
+	/* The forge builds every node below from the blueprint's proficiency bonus, which an effect in
+	 * either change phase can have moved by the time the schema settles. */
+	function _reparseProficiencyDependents(actor, monsterData) {
+		const settled = Number(actor.system?.attributes?.prof);
+		if (!Number.isFinite(settled) || settled === actor._gmmBaseProf) return;
+
+		const blueprint = actor.flags.gmm.blueprint;
+		try {
+			MonsterForge.reparseProficiencyDependents(monsterData, blueprint, settled, actor);
+		} catch (error) {
+			console.error(error);
+			return;
+		}
+
+		if (actor._gmmRollData) {
+			actor._gmmRollData.attackBonus = monsterData.attack_bonus.value;
+			actor._gmmRollData.saveDc = monsterData.attack_dcs.primary.value + monsterData.ability_modifiers.max.value;
+		}
+
+		// Idempotent: it folds the difference against the node it already wrote.
+		_prepareMonsterSkills(actor, monsterData, actor._gmmObservedSkills ?? []);
+		GMM_5E_ABILITIES.forEach((x) => {
+			const ability = actor.system.abilities[x];
+			ability.saveProf = new Proficiency(settled, blueprint.data.trained_saves[x].trained ? 1 : 0);
+			ability.attack = monsterData.ability_modifiers[x].value + settled;
+		});
+	}
+
 	/* dnd5e derives the hit point read model before Foundry's final change phase. Everything
 	 * downstream of the maximum is therefore read here instead. */
 	function _prepareMonsterSettledData(actor) {
@@ -441,6 +470,8 @@ const GmmActor = (function () {
 		hitPoints.temporary_maximum = hp.tempmax;
 		hitPoints.current = hp.value;
 		if (actor._gmmRollData) actor._gmmRollData.naturalMax = hp.max;
+
+		_reparseProficiencyDependents(actor, monsterData);
 
 		try {
 			MonsterForge.reconcileWithSettledActor(monsterData, actor.flags.gmm.blueprint, actor);

@@ -91,7 +91,8 @@ const MonsterForge = (function () {
 
         return {
             armor_class: _parseArmorClass(derivedAttributes, blueprint.data.armor_class),
-            hit_points: _parseHitPoints(derivedAttributes, blueprint.data.hit_points)
+            hit_points: _parseHitPoints(derivedAttributes, blueprint.data.hit_points),
+            proficiency_bonus: _parseProficiency(derivedAttributes, blueprint.data.proficiency_bonus)
         };
     }
 
@@ -584,6 +585,42 @@ const MonsterForge = (function () {
         }));
     }
 
+
+    function reparseProficiencyDependents(monsterData, blueprint, settledProficiency, actor) {
+        const derivedAttributes = MonsterHelpers.getDerivedAttributes(
+            blueprint.data.combat.level,
+            blueprint.data.combat.rank,
+            blueprint.data.combat.role
+        );
+        // Every consumer reads `.value` off it, so the settled number needs no other parsed field.
+        const proficiency = { value: settledProficiency };
+        const abilityModifiers = monsterData.ability_modifiers;
+        const savingThrows = _parseSavingThrows(
+            blueprint.data.trained_saves, proficiency, abilityModifiers,
+            blueprint.data.ability_modifiers.ranking, derivedAttributes.trainedSavingThrowCount
+        );
+        const spellbook = _parseSpellbook(
+            abilityModifiers, proficiency,
+            blueprint.data.traits.items.filter((x) => x.class), blueprint.data.spellbook
+        );
+
+        const targets = [
+            [monsterData.proficiency_bonus, settledProficiency],
+            [monsterData.attack_bonus, _parseAttackBonus(settledProficiency, blueprint.data.attack_bonus).value],
+            [monsterData.attack_dcs.primary, _parseAttackDcs(settledProficiency, blueprint.data.attack_dcs).primary.value],
+            [monsterData.initiative, _parseInitiative(abilityModifiers, derivedAttributes.rank, derivedAttributes.role, blueprint.data.initiative, settledProficiency).value],
+            [monsterData.spellbook.spellcasting.dc, spellbook.spellcasting.dc.value],
+            ...GMM_5E_ABILITIES.map((x) => [monsterData.saving_throws[x], savingThrows[x]?.value])
+        ];
+
+        const source = _settledSource(actor, "system.attributes.prof");
+        targets.forEach(([node, target]) => {
+            if (!node || !Number.isFinite(target)) return;
+            const delta = target - node.value;
+            if (delta) node.add(delta, source);
+        });
+    }
+
     /* The stat block prints what the game will use, so every row built from a schema field an effect
        can reach is re-read once the final change phase has landed. */
     function reconcileWithSettledActor(monsterData, blueprint, actor) {
@@ -1011,7 +1048,8 @@ const MonsterForge = (function () {
         createBaseAttributes: createBaseAttributes,
         createBaseRollData: createBaseRollData,
         createRollData: createRollData,
-        reconcileWithSettledActor: reconcileWithSettledActor
+        reconcileWithSettledActor: reconcileWithSettledActor,
+        reparseProficiencyDependents: reparseProficiencyDependents
     };
 })();
 
