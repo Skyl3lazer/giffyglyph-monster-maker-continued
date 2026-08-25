@@ -12,9 +12,16 @@ const Auras = (function () {
 	let afterReady = false;
 
 	function _inertModel() {
-		return class InertAuraData extends foundry.data.ActiveEffectTypeDataModel {
+		const Base = foundry.data?.ActiveEffectTypeDataModel;
+		return class InertAuraData extends (Base ?? foundry.abstract.TypeDataModel) {
+			static defineSchema() {
+				return Base ? super.defineSchema() : {};
+			}
+
 			/* Aura fields this shim knows nothing about survive, so installing the module later finds them intact. */
 			static cleanData(data, options = {}, state) {
+				/* v13 deletes unknown keys and has no prune option. Not cleaning is the only way to keep them. */
+				if (!Base) return data;
 				return super.cleanData(data, { ...options, prune: false }, state);
 			}
 
