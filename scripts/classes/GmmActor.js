@@ -1,4 +1,3 @@
-import AutomationHelpers from './AutomationHelpers.js';
 import ParagonDefenses from './ParagonDefenses.js';
 import MonsterBlueprint from './MonsterBlueprint.js';
 import MonsterForge from './MonsterForge.js';
@@ -28,16 +27,6 @@ const GmmActor = (function () {
 				delete this._gmmBaseSkillValue;
 			}
 		}, 'WRAPPER');
-		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareDerivedData', function (wrapped, ...args) {
-			if (this.type == "npc" && this.getSheetId() == `${GMM_MODULE_TITLE}.MonsterSheet`) {
-				wrapped(...args);
-				_prepareMonsterDerivedData(this);
-				_postProcessData(this);
-			} else {
-				wrapped(...args);
-			}
-		}, 'WRAPPER');
-
 		/* Foundry runs the data model's derived pass, where prepareMovement resolves every mode, before
 		 * the document's. */
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareEmbeddedDocuments', function (wrapped, ...args) {
@@ -70,7 +59,7 @@ const GmmActor = (function () {
 		const actorData = actor.system;
 		const monsterBlueprint = MonsterBlueprint.createBaseFromActor(actor);
 		const baseAttributes = MonsterForge.createBaseAttributes(monsterBlueprint);
-		// Seeded here because an initial-phase effect change is substituted before the derived pass runs.
+		// Seeded here so a Change written as a formula over @gmm.* has numbers to resolve against.
 		actor._gmmRollData = MonsterForge.createBaseRollData(monsterBlueprint);
 		actorData.attributes.ac.calc = "natural";
 		actorData.attributes.ac.flat = baseAttributes.armor_class.value;
@@ -78,6 +67,9 @@ const GmmActor = (function () {
 		actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, baseAttributes);
 		// Stashed before effects reach the ceiling, so the HP sync can tell a build change from a cap.
 		actor._gmmBaseMax = actorData.attributes.hp.max;
+		actorData.attributes.hp.formula = baseAttributes.hit_points.formula || '';
+		actorData.details.cr = baseAttributes.challenge_rating.value;
+		actorData.details.xp.value = baseAttributes.xp.value;
 		actorData.attributes.prof = baseAttributes.proficiency_bonus.value;
 		// The forge computes the same number from the blueprint, so this is what the settled pass measures against.
 		actor._gmmBaseProf = actorData.attributes.prof;
@@ -120,7 +112,7 @@ const GmmActor = (function () {
 		actor._gmmAppliedMovement = Object.fromEntries(GMM_5E_SPEEDS.map((x) => [x, movement[x]]));
 	}
 
-	function _postProcessData(actor) {
+	function _foldActorBonuses(actor) {
 		const actorData = actor.system;
 		const monsterBlueprint = actor.flags.gmm.blueprint;
 		const monsterArtifact = actor.flags.gmm.monster;
@@ -139,8 +131,7 @@ const GmmActor = (function () {
 				// dnd5e counts every check bonus toward a passive score. The forge had proficiency and the modifier.
 				monsterData.passive_perception.add(skill.bonus ?? 0, game.i18n.format('gmm.common.derived_source.check_bonus'));
 				monsterData.passive_perception.add(dnd5e.utils.simplifyBonus(skill.bonuses.passive, rollData), game.i18n.format('gmm.common.derived_source.passive_bonus'));
-				/* Assigned here rather than in the skills pass, where the node is not yet final. It also keeps
-				   the blueprint's own modifier, its override and the floor reaching the schema. */
+				// Taken off the node so the blueprint's own Modifier, its override and the floor reach the schema.
 				skill.passive = monsterData.passive_perception.value;
 			}
 		});
@@ -192,75 +183,40 @@ const GmmActor = (function () {
 
 	const GMM_PERCEPTION = GMM_5E_SKILLS.find((x) => x.name == "perception");
 
-	/* `value` is absent by design. It is seeded in the base pass, so a Change lands on it natively. */
-	const GMM_DERIVED_SKILL_FIELDS = ["mod", "prof", "total", "passive"];
-
-	/* A Change on one of these is discarded by the pass that runs after it, whether that pass is
-	 * GMMC's own or the dnd5e one that recomputes a derived field from its inputs. */
-	const GMM_DERIVED_KEYS = new Set([
-		...GMM_5E_ABILITIES.map((x) => `system.abilities.${x}.dc`),
-		...GMM_5E_SKILLS.flatMap((x) => GMM_DERIVED_SKILL_FIELDS.map((f) => `system.skills.${x.foundry}.${f}`)),
-		"system.details.cr",
-		"system.details.xp.value",
-		"system.attributes.init.prof",
-		"system.attributes.init.ability",
-		"system.attributes.init.mod",
-		"system.attributes.hp.formula",
-		"system.attributes.encumbrance",
-		"system.attributes.encumbrance.value",
-		"system.attributes.encumbrance.max",
-		"system.attributes.encumbrance.pct",
-		"system.attributes.encumbrance.encumbered",
-		"system.attributes.encumbrance.thresholds.encumbered",
-		"system.attributes.encumbrance.thresholds.heavilyEncumbered",
-		"system.attributes.encumbrance.thresholds.maximum",
-		"system.attributes.encumbrance.stops.encumbered",
-		"system.attributes.encumbrance.stops.heavilyEncumbered",
-		"system.attributes.spellcasting",
-		"system.attributes.spell.level",
-		"system.attributes.spell.dc"
-	]);
-
-	/* The Forge sheet reads these off the artifact, so a replayed change is invisible until it is folded back.
-	 * Absent by design: a skill's mod is the ability's, and value/prof target a Proficiency object. */
-	const GMM_RECONCILED_NODES = new Map([
-		["system.attributes.init.mod", (x) => [x.initiative]],
-		["system.details.cr", (x) => [x.challenge_rating]],
-		["system.details.xp.value", (x) => [x.xp]],
-		["system.attributes.spell.dc", (x) => [x.spellbook.spellcasting.dc]],
-		["system.attributes.encumbrance.max", (x) => [x.inventory.capacity]],
-		["system.attributes.encumbrance.value", (x) => [x.inventory.weight]],
-		[`system.skills.${GMM_PERCEPTION.foundry}.passive`, (x) => [x.passive_perception]],
-		...GMM_5E_SKILLS.map((x) => [`system.skills.${x.foundry}.total`, (y) => [y.skills.find((z) => z.code == x.name)]])
-	]);
-
-	/* Targets a scaling which a monster cannot honor, each with the reason the console reports. */
+	/* GMMC writes each of these after both change phases, so a Change on one is dead and names its input.
+	 * A field dnd5e recomputes is absent: a scaler is no different from a vanilla NPC there. */
 	const GMM_UNSUPPORTED_EFFECT_TARGETS = new Map([
 		["flags.gmm.blueprint", "The blueprint is read before effects apply, so this will reach the sheet inconsistently or not at all."],
-		["system.attributes.hp.effectiveMax", "It is re-derived from system.attributes.hp.max and system.attributes.hp.tempmax after effects apply; target one of those instead."]
+		["system.attributes.hp.effectiveMax", "It is re-derived from system.attributes.hp.max and system.attributes.hp.tempmax after effects apply; target one of those instead."],
+		["system.attributes.init.mod", "The forge assigns it after effects apply; target system.attributes.init.bonus instead."],
+		["system.attributes.init.prof", "The forge assigns it after effects apply, and a scaling monster adds no proficiency to initiative."],
+		["system.attributes.init.ability", "The forge assigns it after effects apply; set the initiative ability on the Forge sheet instead."],
+		["system.attributes.encumbrance", "The forge assigns it after effects apply; target system.abilities.str.value or the creature's size instead."],
+		["system.attributes.spellcasting", "The forge assigns it after effects apply; set the spellcasting ability on the Forge sheet instead."],
+		["system.attributes.spell.level", "The forge assigns it after effects apply; set the spellcasting level on the Forge sheet instead."],
+		["system.attributes.spell.dc", "The forge assigns it after effects apply; target system.bonuses.spell.dc instead."],
+		...GMM_5E_SKILLS.map((x) => [`system.skills.${x.foundry}.passive`,
+			`The forge assigns it after effects apply; target system.skills.${x.foundry}.bonuses.passive instead.`])
 	]);
 	const GMM_UNSUPPORTED_EFFECT_PREFIXES = [...GMM_UNSUPPORTED_EFFECT_TARGETS.keys()];
 	const _reportedUnsupportedTargets = new Set();
 
-	function _warnUnsupportedEffectTargets(actor, unsupported) {
-		for (const entry of unsupported) {
-			const id = `${actor.id}:${entry.effect?.id}:${entry.key}`;
-			if (_reportedUnsupportedTargets.has(id)) continue;
-			_reportedUnsupportedTargets.add(id);
-			const reason = GMM_UNSUPPORTED_EFFECT_PREFIXES.filter((x) => entry.key.startsWith(x)).map((x) => GMM_UNSUPPORTED_EFFECT_TARGETS.get(x)).join(" ");
-			console.warn(`GMM | Active effect "${entry.effect?.name}" on "${actor.name}" targets "${entry.key}", which is not a supported effect target on a scaling monster. ${reason}`);
+	function _warnUnsupportedEffectTargets(actor) {
+		if (typeof actor.allApplicableEffects !== "function") return;
+		for (const effect of actor.allApplicableEffects()) {
+			if (!effect.active) continue;
+			for (const change of (effect.system?.changes ?? effect.changes ?? [])) {
+				const prefix = GMM_UNSUPPORTED_EFFECT_PREFIXES.find((x) => change?.key?.startsWith(x));
+				if (!prefix) continue;
+				const id = `${actor.id}:${effect.id}:${change.key}`;
+				if (_reportedUnsupportedTargets.has(id)) continue;
+				_reportedUnsupportedTargets.add(id);
+				console.warn(`GMM | Active effect "${effect.name}" on "${actor.name}" targets "${change.key}", which is not a supported effect target on a scaling monster. ${GMM_UNSUPPORTED_EFFECT_TARGETS.get(prefix)}`);
+			}
 		}
 	}
 
-	function _effectSourceLabel(changes) {
-		const names = [...new Set(changes.map((x) => x.effect?.name).filter(Boolean))];
-		if (!names.length) return game.i18n.format('gmm.common.derived_source.in_play');
-		return names.length === 1
-			? names[0]
-			: game.i18n.format('gmm.common.derived_source.active_effects', { count: names.length });
-	}
-
-	/* dnd5e resolves these from the bonus formulas before the derived pass, so they are already final. */
+	/* dnd5e resolves these from the bonus formulas in its own derived pass, so they arrive final. */
 	function _collectCheckBonuses(actorData) {
 		return Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, actorData.abilities[x].checkBonus ?? 0]));
 	}
@@ -274,105 +230,71 @@ const GmmActor = (function () {
 		});
 	}
 
-	/* Taken before the replay so the delta measures what it moved, not how the schema and artifact differ. */
-	function _snapshotReconciledNodes(actor, changes) {
-		const snapshot = new Map();
-		for (const change of changes) {
-			if (!GMM_RECONCILED_NODES.has(change.key)) continue;
-			const entry = snapshot.get(change.key);
-			if (entry) entry.changes.push(change);
-			else snapshot.set(change.key, { before: Number(foundry.utils.getProperty(actor, change.key)), changes: [change] });
-		}
-		return snapshot;
-	}
-
-	/* The forge's floors are deliberately not re-asserted: the sheet has to show the number the die uses. */
-	function _reconcileArtifactWithEffects(actor, monsterData, snapshot) {
-		for (const [key, entry] of snapshot) {
-			const nodes = GMM_RECONCILED_NODES.get(key)(monsterData);
-			const delta = Number(foundry.utils.getProperty(actor, key)) - entry.before;
-			if (!Number.isFinite(delta)) continue;
-			for (const node of nodes) {
-				if (node) node.add(delta, _effectSourceLabel(entry.changes));
-			}
-		}
-	}
-
 	/* A rolled total is the creature's own maximum once it exists; until then the scaled average stands in for it. */
 	function _resolveMaximumHitPoints(blueprint, attributes) {
 		const rolled = Number(blueprint.data.hit_points.rolled_max) || 0;
 		return (attributes.hit_points.use_formula && rolled) ? rolled : attributes.hit_points.maximum.value;
 	}
 
-	function _prepareMonsterDerivedData(actor) {
-		try {
-			const actorData = actor.system;
-			const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
-			const effectChanges = AutomationHelpers.collectOverwrittenEffects(actor, GMM_DERIVED_KEYS, GMM_UNSUPPORTED_EFFECT_PREFIXES);
-			if (effectChanges.unsupported.length) _warnUnsupportedEffectTargets(actor, effectChanges.unsupported);
-			const checkBonuses = _collectCheckBonuses(actorData);
-			const monsterArtifact = MonsterForge.createArtifact(monsterBlueprint, { checkBonuses: checkBonuses });
+	/* The only call site: a second one would read inputs the change phases have not settled yet. */
+	function _forgeSettledArtifact(actor) {
+		const actorData = actor.system;
+		const monsterBlueprint = MonsterBlueprint.createFromActor(actor);
+		_warnUnsupportedEffectTargets(actor);
+		const checkBonuses = _collectCheckBonuses(actorData);
+		const monsterArtifact = MonsterForge.createArtifact(monsterBlueprint, { checkBonuses: checkBonuses });
 
-			const monsterData = monsterArtifact.data;
-			actor.flags.gmm = {
-				blueprint: monsterBlueprint,
-				monster: monsterArtifact
-			};
+		const monsterData = monsterArtifact.data;
+		actor.flags.gmm = {
+			blueprint: monsterBlueprint,
+			monster: monsterArtifact
+		};
 
-			actorData.details.cr = monsterData.challenge_rating.value;
-			actorData.details.xp.value = monsterData.xp.value;
-			_stampSkillAbilities(actorData, monsterData);
-			monsterData.armor_class.display = actorData.attributes.ac.value;
+		// Replaces the pre-effect seed from the base pass. Every bonus formula below resolves against it.
+		actor._gmmRollData = MonsterForge.createRollData(monsterBlueprint, monsterData);
 
-			// Field-wise, because replacing the init object would overwrite the `roll` mode dnd5e keeps beside these.
-			actorData.attributes.init.prof = new Proficiency(0, 1);
-			actorData.attributes.init.ability = monsterData.initiative.ability;
-			actorData.attributes.init.mod = monsterData.initiative.value;
-			actorData.attributes.hp.formula = monsterData.hit_points.formula ? monsterData.hit_points.formula : '';
-			
-			actorData.attributes.encumbrance = {
-				value: monsterData.inventory.weight.value,
-				max: monsterData.inventory.capacity.value,
-				pct: monsterData.inventory.encumbrance,
-				encumbered: monsterData.inventory.encumbrance > (2 / 3),
-				thresholds: {
-					encumbered: monsterData.inventory.capacity.value * (1 / 3),
-					heavilyEncumbered: monsterData.inventory.capacity.value * (2 / 3),
-					maximum: monsterData.inventory.capacity.value
-				},
-				stops: {
-					encumbered: (1 / 3),
-					heavilyEncumbered: (2 / 3)
-				}
-			};
-			/* prepareAbilities already folded 8, the modifier, the proficiency bonus and any spell DC
-			   bonus a GM typed. The authored Modifier is the one term it cannot know about. */
-			const spellDcModifier = monsterBlueprint.data.spellbook.spellcasting.dc.modifier;
-			const spellDcRelative = spellDcModifier.override ? 0 : (Number(spellDcModifier.value) || 0);
-			if (spellDcRelative) GMM_5E_ABILITIES.forEach((x) => { actorData.abilities[x].dc += spellDcRelative; });
+		_stampSkillAbilities(actorData, monsterData);
+		monsterData.armor_class.display = actorData.attributes.ac.value;
 
-			/* dnd5e folds this into every ability's dc, so the printed row carries it or the two disagree. */
-			monsterData.spellbook.spellcasting.dc.add(
-				dnd5e.utils.simplifyBonus(actorData.bonuses?.spell?.dc, actor.getRollData({ deterministic: true })),
-				game.i18n.format('gmm.common.derived_source.spell_dc_bonus')
-			);
+		// Field-wise, because replacing the init object would overwrite the `roll` mode dnd5e keeps beside these.
+		actorData.attributes.init.prof = new Proficiency(0, 1);
+		actorData.attributes.init.ability = monsterData.initiative.ability;
+		actorData.attributes.init.mod = monsterData.initiative.value;
 
-			actorData.attributes.spellcasting = monsterData.spellbook.spellcasting.ability;
-			dnd5e.dataModels?.actor?.AttributesFields?.prepareSpellcastingAbility?.call(actorData);
+		actorData.attributes.encumbrance = {
+			value: monsterData.inventory.weight.value,
+			max: monsterData.inventory.capacity.value,
+			pct: monsterData.inventory.encumbrance,
+			encumbered: monsterData.inventory.encumbrance > (2 / 3),
+			thresholds: {
+				encumbered: monsterData.inventory.capacity.value * (1 / 3),
+				heavilyEncumbered: monsterData.inventory.capacity.value * (2 / 3),
+				maximum: monsterData.inventory.capacity.value
+			},
+			stops: {
+				encumbered: (1 / 3),
+				heavilyEncumbered: (2 / 3)
+			}
+		};
+		// The authored Modifier is the only term prepareAbilities cannot know about.
+		const spellDcModifier = monsterBlueprint.data.spellbook.spellcasting.dc.modifier;
+		const spellDcRelative = spellDcModifier.override ? 0 : (Number(spellDcModifier.value) || 0);
+		if (spellDcRelative) GMM_5E_ABILITIES.forEach((x) => { actorData.abilities[x].dc += spellDcRelative; });
 
-			actorData.attributes.spell ??= {};
-			actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
-			actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
+		/* dnd5e folds this into every ability's dc, so the printed row carries it or the two disagree. */
+		monsterData.spellbook.spellcasting.dc.add(
+			dnd5e.utils.simplifyBonus(actorData.bonuses?.spell?.dc, actor.getRollData({ deterministic: true })),
+			game.i18n.format('gmm.common.derived_source.spell_dc_bonus')
+		);
 
-			const reconciledNodes = _snapshotReconciledNodes(actor, effectChanges.replay);
-			AutomationHelpers.applyOverwrittenEffects(actor, effectChanges.replay);
-			_reconcileArtifactWithEffects(actor, monsterData, reconciledNodes);
+		actorData.attributes.spellcasting = monsterData.spellbook.spellcasting.ability;
+		dnd5e.dataModels?.actor?.AttributesFields?.prepareSpellcastingAbility?.call(actorData);
 
-			// Replaces the pre-effect seed from the base pass. A roll-time reference must read reconciled numbers.
-			actor._gmmRollData = MonsterForge.createRollData(monsterBlueprint, monsterData);
-		} catch (error) {
-			console.error(error);
-		}
+		actorData.attributes.spell ??= {};
+		actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
+		actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
+
+		return monsterData;
 	}
 
 	/* The forge builds every node below from the blueprint's proficiency bonus and ability modifiers,
@@ -440,8 +362,7 @@ const GmmActor = (function () {
 		});
 	}
 
-	/* dnd5e derives the hit point read model before Foundry's final change phase. Everything
-	 * downstream of the maximum is therefore read here instead. */
+	/* Runs after both change phases, so everything GMMC derives from settled state is read here. */
 	function _prepareMonsterSettledData(actor) {
 		const hp = actor.system?.attributes?.hp;
 		if (!hp) return;
@@ -452,8 +373,13 @@ const GmmActor = (function () {
 		hp.damage = hp.effectiveMax - hp.value;
 		hp.pct = CompatibilityHelpers.clamped(hp.effectiveMax ? (hp.value / hp.effectiveMax) * 100 : 0, 0, 100);
 
-		const monsterData = actor.flags?.gmm?.monster?.data;
-		if (!monsterData) return;
+		let monsterData;
+		try {
+			monsterData = _forgeSettledArtifact(actor);
+		} catch (error) {
+			console.error(error);
+			return;
+		}
 		const hitPoints = monsterData.hit_points;
 
 		const delta = (hp.max ?? 0) - hitPoints.maximum.value;
@@ -464,7 +390,12 @@ const GmmActor = (function () {
 		hitPoints.current = hp.value;
 		if (actor._gmmRollData) actor._gmmRollData.naturalMax = hp.max;
 
-		_reparseSettledDependents(actor, monsterData);
+		try {
+			_foldActorBonuses(actor);
+			_reparseSettledDependents(actor, monsterData);
+		} catch (error) {
+			console.error(error);
+		}
 
 		try {
 			MonsterForge.reconcileWithSettledActor(monsterData, actor.flags.gmm.blueprint, actor);

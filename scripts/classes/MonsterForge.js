@@ -98,8 +98,10 @@ const MonsterForge = (function () {
         return {
             ability_modifiers: abilityModifiers,
             armor_class: _parseArmorClass(derivedAttributes, blueprint.data.armor_class),
+            challenge_rating: _parseChallengeRating(derivedAttributes, blueprint.data.challenge_rating),
             hit_points: _parseHitPoints(derivedAttributes, blueprint.data.hit_points),
             proficiency_bonus: proficiency,
+            xp: _parseXp(derivedAttributes, blueprint.data.xp),
             skills: Object.fromEntries(GMM_5E_SKILLS.map((x) =>
                 [x.foundry, _skillProficiency(blueprint.data.skills, derivedAttributes.role?.modifiers?.skill, x.name).multiplier])),
             trained_saves: Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, !!blueprint.data.trained_saves[x]?.trained]))
@@ -529,8 +531,7 @@ const MonsterForge = (function () {
         return actor._source?.system ?? {};
     }
 
-    /* Nothing else records what moved these fields. They are outside GMM_DERIVED_KEYS, so Foundry
-       applies them itself and there is no replayed change list to read a name off. */
+    /* Foundry applies every Change itself, so nothing else records which effect moved a field. */
     function _settledSource(actor, key, matches) {
         const keys = new Set(Array.isArray(key) ? key : [key]);
         const names = new Set();
@@ -570,7 +571,7 @@ const MonsterForge = (function () {
 
 
     /* The difference between two bundles, not between a parse and the node: measuring against the node
-       erases the bonuses _postProcessData had already folded into it. */
+       erases the bonuses _foldActorBonuses had already folded into it. */
     function reparseSettledDependents(monsterData, blueprint, settled, actor) {
         const derive = () => MonsterHelpers.getDerivedAttributes(
             blueprint.data.combat.level,
