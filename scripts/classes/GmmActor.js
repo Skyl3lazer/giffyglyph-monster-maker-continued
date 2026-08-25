@@ -186,17 +186,17 @@ const GmmActor = (function () {
 	/* GMMC writes each of these after both change phases, so a Change on one is dead and names its input.
 	 * A field dnd5e recomputes is absent: a scaler is no different from a vanilla NPC there. */
 	const GMM_UNSUPPORTED_EFFECT_TARGETS = new Map([
-		["flags.gmm.blueprint", "The blueprint is read before effects apply, so this will reach the sheet inconsistently or not at all."],
-		["system.attributes.hp.effectiveMax", "It is re-derived from system.attributes.hp.max and system.attributes.hp.tempmax after effects apply; target one of those instead."],
-		["system.attributes.init.mod", "The forge assigns it after effects apply; target system.attributes.init.bonus instead."],
-		["system.attributes.init.prof", "The forge assigns it after effects apply, and a scaling monster adds no proficiency to initiative."],
-		["system.attributes.init.ability", "The forge assigns it after effects apply; set the initiative ability on the Forge sheet instead."],
-		["system.attributes.encumbrance", "The forge assigns it after effects apply; target system.abilities.str.value or the creature's size instead."],
-		["system.attributes.spellcasting", "The forge assigns it after effects apply; set the spellcasting ability on the Forge sheet instead."],
-		["system.attributes.spell.level", "The forge assigns it after effects apply; set the spellcasting level on the Forge sheet instead."],
-		["system.attributes.spell.dc", "The forge assigns it after effects apply; target system.bonuses.spell.dc instead."],
+		["flags.gmm.blueprint", { key: "gmm.effect.unsupported.blueprint" }],
+		["system.attributes.hp.effectiveMax", { key: "gmm.effect.unsupported.hp_effective_max" }],
+		["system.attributes.init.mod", { key: "gmm.effect.unsupported.init_mod" }],
+		["system.attributes.init.prof", { key: "gmm.effect.unsupported.init_prof" }],
+		["system.attributes.init.ability", { key: "gmm.effect.unsupported.init_ability" }],
+		["system.attributes.encumbrance", { key: "gmm.effect.unsupported.encumbrance" }],
+		["system.attributes.spellcasting", { key: "gmm.effect.unsupported.spellcasting" }],
+		["system.attributes.spell.level", { key: "gmm.effect.unsupported.spell_level" }],
+		["system.attributes.spell.dc", { key: "gmm.effect.unsupported.spell_dc" }],
 		...GMM_5E_SKILLS.map((x) => [`system.skills.${x.foundry}.passive`,
-			`The forge assigns it after effects apply; target system.skills.${x.foundry}.bonuses.passive instead.`])
+			{ key: "gmm.effect.unsupported.skill_passive", data: { target: `system.skills.${x.foundry}.bonuses.passive` } }])
 	]);
 	const GMM_UNSUPPORTED_EFFECT_PREFIXES = [...GMM_UNSUPPORTED_EFFECT_TARGETS.keys()];
 	const _reportedUnsupportedTargets = new Set();
@@ -211,7 +211,13 @@ const GmmActor = (function () {
 				const id = `${actor.id}:${effect.id}:${change.key}`;
 				if (_reportedUnsupportedTargets.has(id)) continue;
 				_reportedUnsupportedTargets.add(id);
-				console.warn(`GMM | Active effect "${effect.name}" on "${actor.name}" targets "${change.key}", which is not a supported effect target on a scaling monster. ${GMM_UNSUPPORTED_EFFECT_TARGETS.get(prefix)}`);
+				const reason = GMM_UNSUPPORTED_EFFECT_TARGETS.get(prefix);
+				console.warn(`GMM | ${game.i18n.format("gmm.effect.unsupported_target", {
+					effect: effect.name,
+					actor: actor.name,
+					target: change.key,
+					reason: game.i18n.format(reason.key, reason.data ?? {})
+				})}`);
 			}
 		}
 	}

@@ -195,7 +195,7 @@ const MonsterBlueprint = (function () {
 				// Blueprint is up-to-date and requires no changes.
 				return blueprint;
 			default:
-				console.error(`This monster blueprint has an invalid version id [${blueprint?.vid}] and can't be verified.`, blueprint);
+				console.error(game.i18n.format("gmm.monster.errors.invalid_version", { vid: blueprint?.vid }), blueprint);
 				return null;
 		}
 	}

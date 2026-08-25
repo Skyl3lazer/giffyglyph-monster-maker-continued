@@ -28,7 +28,7 @@ const ActionBlueprint = (function () {
             case 1:
                 return blueprint;
             default:
-                console.error(`This action blueprint has an invalid version id [${blueprint?.vid}] and can't be verified.`, blueprint);
+                console.error(game.i18n.format("gmm.action.errors.invalid_version", { vid: blueprint?.vid }), blueprint);
                 return null;
         }
     }
