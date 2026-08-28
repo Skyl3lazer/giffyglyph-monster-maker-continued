@@ -25,6 +25,7 @@ const GmmActor = (function () {
 				delete this._gmmBaseProf;
 				delete this._gmmBaseAbilityMods;
 				delete this._gmmBaseSkillValue;
+				delete this._gmmSpellDc;
 			}
 		}, 'WRAPPER');
 		/* Foundry runs the data model's derived pass, where prepareMovement resolves every mode, before
@@ -39,6 +40,12 @@ const GmmActor = (function () {
 		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Actor5e.prototype.prepareData', function (wrapped, ...args) {
 			wrapped(...args);
 			if (this.isGmmMonster()) _prepareMonsterSettledData(this);
+		}, 'WRAPPER');
+
+		/* An owned item resolves a spellcasting save DC from `abilities.<x>.dc` here */
+		CompatibilityHelpers.safeWrap('game.dnd5e.documents.Item5e.prototype.prepareFinalAttributes', function (wrapped, ...args) {
+			if (this.actor?.isGmmMonster?.()) _stampSpellDcModifier(this.actor);
+			wrapped(...args);
 		}, 'WRAPPER');
 
 		// DAE wraps this too, through libWrapper. The two interleave by priority.
@@ -87,6 +94,20 @@ const GmmActor = (function () {
 			if (actorData.skills[x.foundry]) actorData.skills[x.foundry].value = baseAttributes.skills[x.foundry];
 		});
 		_applyRoleSpeedBonus(actorData, monsterBlueprint);
+		actor._gmmSpellDc = {
+			modifier: actor.flags.gmm?.blueprint?.data?.spellbook?.spellcasting?.dc?.modifier ?? null,
+			applied: false
+		};
+	}
+
+	/* prepareAbilities cannot know about the authored Modifier, and Item5e#prepareFinalAttributes reads
+	   the field it lands on before the settled pass runs. */
+	function _stampSpellDcModifier(actor) {
+		const state = actor._gmmSpellDc;
+		if (!state || state.applied) return;
+		state.applied = true;
+		const relative = state.modifier?.override ? 0 : (Number(state.modifier?.value) || 0);
+		if (relative) GMM_5E_ABILITIES.forEach((x) => { actor.system.abilities[x].dc += relative; });
 	}
 
 	/* A FormulaField can already hold something a GM typed, so an amount joins it rather than landing on it. */
@@ -325,10 +346,7 @@ const GmmActor = (function () {
 				heavilyEncumbered: (2 / 3)
 			}
 		};
-		// The authored Modifier is the only term prepareAbilities cannot know about.
-		const spellDcModifier = monsterBlueprint.data.spellbook.spellcasting.dc.modifier;
-		const spellDcRelative = spellDcModifier.override ? 0 : (Number(spellDcModifier.value) || 0);
-		if (spellDcRelative) GMM_5E_ABILITIES.forEach((x) => { actorData.abilities[x].dc += spellDcRelative; });
+		_stampSpellDcModifier(actor);
 
 		/* dnd5e folds this into every ability's dc, so the printed row carries it or the two disagree. */
 		monsterData.spellbook.spellcasting.dc.add(
