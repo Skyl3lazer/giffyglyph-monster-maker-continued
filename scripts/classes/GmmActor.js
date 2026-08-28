@@ -391,10 +391,10 @@ const GmmActor = (function () {
 			actor._gmmRollData.saveDc = monsterData.attack_dcs.primary.value + monsterData.ability_modifiers.max.value;
 		}
 
-		// init.mod is wholly the artifact's, so total and score follow it by the same amount.
+		// By delta, not the node: _foldActorBonuses has already put init.bonus on that and the roll adds it itself.
 		const initiativeDelta = monsterData.initiative.value - builtInitiative;
 		if (initiativeDelta) {
-			actorData.attributes.init.mod = monsterData.initiative.value;
+			actorData.attributes.init.mod += initiativeDelta;
 			actorData.attributes.init.total += initiativeDelta;
 			actorData.attributes.init.score += initiativeDelta;
 		}
