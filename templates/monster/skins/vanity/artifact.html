@@ -145,8 +145,8 @@
                         <div class="block__title" data-action="open-config" data-config="damage-per-action">{{localize 'gmm.monster.artifact.blocks.damage.title'}}</div>
                         <div class="block__contents">
                             <div class="block__content static">
-                                <button type="button" class="block__value button--text button--static-damage length-{{strlen gmm.monster.damage_per_action.value}}" title="{{{parseSources gmm.monster.damage_per_action.sources}}}" data-action="open-modal" data-modal="modal_basic_damage">
-                                    <i class="fas fa-fire"></i> {{gmm.monster.damage_per_action.value}}
+                                <button type="button" class="block__value button--text button--static-damage length-{{strlen gmm.monster.damage_per_action.display}}" title="{{{parseSources gmm.monster.damage_per_action.sources}}}" data-action="open-modal" data-modal="modal_basic_damage">
+                                    <i class="fas fa-fire"></i> {{gmm.monster.damage_per_action.display}}
                                 </button>
                                 {{#unless gmm.monster.damage_per_action.type}}
                                 <div class="block__description">
@@ -155,8 +155,8 @@
                                 {{/unless}}
                             </div>
                             <div class="block__content random">
-                                <button type="button" class="block__value button--text button--random-damage length-{{strlen gmm.monster.damage_per_action.dice}}" data-action="open-modal" data-modal="modal_basic_damage">
-                                    <i class="fas fa-dice"></i> <span class="roll">{{gmm.monster.damage_per_action.dice}}</span>
+                                <button type="button" class="block__value button--text button--random-damage length-{{strlen gmm.monster.damage_per_action.display_dice}}" data-action="open-modal" data-modal="modal_basic_damage">
+                                    <i class="fas fa-dice"></i> <span class="roll">{{gmm.monster.damage_per_action.display_dice}}</span>
                                 </button>
                                 {{#unless gmm.monster.damage_per_action.type}}
                                 <div class="block__description">

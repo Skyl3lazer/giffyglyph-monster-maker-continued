@@ -371,19 +371,19 @@
 									<label class="radio damage">
 										<input type="radio" name="bonus" value="static" class="radio--static" checked/>
 										<span>
-											<span class="damage__value">{{gmm.monster.damage_per_action.value}}</span>
+											<span class="damage__value">{{gmm.monster.damage_per_action.display}}</span>
 											<span class="damage__title">{{localize 'gmm.modal.basic_damage.static'}}</span>
 										</span>
 									</label>
 									<label class="radio damage">
 										<input type="radio" name="bonus" value="random" class="radio--random"/>
 										<span>
-											<span class="damage__value">{{gmm.monster.damage_per_action.dice}}</span>
+											<span class="damage__value">{{gmm.monster.damage_per_action.display_dice}}</span>
 											<span class="damage__title">{{localize 'gmm.modal.basic_damage.random'}}</span>
 										</span>
 									</label>
-									<input type="hidden" name="static" value="{{gmm.monster.damage_per_action.value}}"/>
-									<input type="hidden" name="random" value="{{gmm.monster.damage_per_action.dice}}"/>
+									<input type="hidden" name="static" value="{{gmm.monster.damage_per_action.display}}"/>
+									<input type="hidden" name="random" value="{{gmm.monster.damage_per_action.display_dice}}"/>
 								</div>
 							</div>
 						</div>

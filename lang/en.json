@@ -366,6 +366,8 @@
   "gmm.common.derived_source.expertise": "expertise",
   "gmm.common.derived_source.fixed_modifier": "fixed modifier",
   "gmm.common.derived_source.from": "{value} from {source}",
+  "gmm.common.derived_source.global_attack_bonus": "global attack bonus",
+  "gmm.common.derived_source.global_damage_bonus": "global damage bonus",
   "gmm.common.derived_source.half_proficiency": "half proficiency",
   "gmm.common.derived_source.in_play": "in play",
   "gmm.common.derived_source.minimum_allowed": "minimum allowed",

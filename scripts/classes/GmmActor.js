@@ -166,9 +166,26 @@ const GmmActor = (function () {
 			+ (Number.isNumeric(init.prof.term) ? init.prof.flat : 0);
 		init.score = (CONFIG.DND5E.skillPassive?.base ?? 10) + init.total
 			+ ((init.roll?.mode ?? 0) * (CONFIG.DND5E.skillPassive?.modifier ?? 5));
+	}
 
-		// Display-only: the roll gets these per action type from Activities.buildAttackToHitTerms.
-		monsterData.attack_bonus.display = monsterData.attack_bonus.value + _getGlobalAttackBonus(actorData, rollData);
+	/* Siblings the stat block reads and the shortcodes do not. The roll already has both: attack from
+	 * Activities.buildAttackToHitTerms, damage from dnd5e's own _processDamagePart. */
+	function _applyGlobalBonusDisplay(actor) {
+		const actorData = actor.system;
+		const monsterData = actor.flags.gmm.monster.data;
+		const rollData = actor.getRollData({ deterministic: true });
+
+		const attack = _getGlobalAttackBonus(actorData, rollData);
+		monsterData.attack_bonus.display = monsterData.attack_bonus.value + attack;
+		monsterData.attack_bonus.note(attack, game.i18n.format('gmm.common.derived_source.global_attack_bonus'));
+
+		const damage = monsterData.damage_per_action;
+		const bonus = _getGlobalDamageBonus(actorData, rollData);
+		damage.display = Math.ceil(damage.value + bonus.average);
+		damage.display_dice = (bonus.formula && Roll.validate(damage.dice))
+			? _appendFormula(damage.dice, bonus.formula)
+			: damage.dice;
+		damage.note(bonus.average, game.i18n.format('gmm.common.derived_source.global_damage_bonus'));
 	}
 
 	/* A block that reads "to Attacks/Spells" can only show what every action type gets, so an
@@ -176,6 +193,32 @@ const GmmActor = (function () {
 	function _getGlobalAttackBonus(actorData, rollData) {
 		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => dnd5e.utils.simplifyBonus(actorData.bonuses?.[x]?.attack, rollData));
 		return Math.min(...bonuses);
+	}
+
+	/* dnd5e pushes this onto the first damage part of an activity's roll, so the same least-common rule
+	 * applies. The formula travels with the average because the dice face can print it verbatim. */
+	function _getGlobalDamageBonus(actorData, rollData) {
+		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => {
+			const formula = String(actorData.bonuses?.[x]?.damage ?? "").trim();
+			return { formula: formula, average: _averageOf(formula, rollData) };
+		});
+		return bonuses.reduce((a, b) => (b.average < a.average) ? b : a);
+	}
+
+	/* simplifyBonus reports 0 for the dice a damage bonus is most often written as, and the static face
+	 * is an average already, so the midpoint is what belongs on it. */
+	function _averageOf(formula, rollData) {
+		if (!formula || /^0+$/.test(formula)) return 0;
+		try {
+			return (new Roll(formula, rollData).evaluateSync({ minimize: true }).total
+				+ new Roll(formula, rollData).evaluateSync({ maximize: true }).total) / 2;
+		} catch (error) {
+			return 0;
+		}
+	}
+
+	function _appendFormula(base, formula) {
+		return /^[+-]/.test(formula) ? `${base} ${formula}` : `${base} + ${formula}`;
 	}
 
 	/* dnd5e keys every global attack bonus per action type; DAE's `system.bonuses.All-Attacks` writes all four. */
@@ -399,6 +442,12 @@ const GmmActor = (function () {
 		try {
 			_foldActorBonuses(actor);
 			_reparseSettledDependents(actor, monsterData);
+		} catch (error) {
+			console.error(error);
+		}
+
+		try {
+			_applyGlobalBonusDisplay(actor);
 		} catch (error) {
 			console.error(error);
 		}
