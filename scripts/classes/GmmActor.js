@@ -185,7 +185,7 @@ const GmmActor = (function () {
 		damage.display_dice = (bonus.formula && Roll.validate(damage.dice))
 			? _appendFormula(damage.dice, bonus.formula)
 			: damage.dice;
-		damage.note(bonus.average, game.i18n.format('gmm.common.derived_source.global_damage_bonus'));
+		damage.note(damage.display - damage.value, game.i18n.format('gmm.common.derived_source.global_damage_bonus'));
 	}
 
 	/* A block that reads "to Attacks/Spells" can only show what every action type gets, so an
