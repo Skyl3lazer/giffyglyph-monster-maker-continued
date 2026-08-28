@@ -7,7 +7,7 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
-## v2.0.1.2
+## v2.0.1.3
 
 ### Resources
 * Using a limited action now actually spends a use. An action authored `1/day` or `recharge 5-6` used to print the number and never touch it, so the count on the stat block was decoration and a GM who trusted it was tracking a resource nothing enforced. That number is now real.
