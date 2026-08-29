@@ -1078,7 +1078,8 @@ const MonsterForge = (function () {
         createBaseRollData: createBaseRollData,
         createRollData: createRollData,
         reconcileWithSettledActor: reconcileWithSettledActor,
-        reparseSettledDependents: reparseSettledDependents
+        reparseSettledDependents: reparseSettledDependents,
+        settledSource: _settledSource
     };
 })();
 

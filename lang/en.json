@@ -362,7 +362,6 @@
   "gmm.common.derived_source.active_effects": "{count} active effects",
   "gmm.common.derived_source.base": "base",
   "gmm.common.derived_source.check_bonus": "check bonus",
-  "gmm.common.derived_source.effects": "effects",
   "gmm.common.derived_source.expertise": "expertise",
   "gmm.common.derived_source.fixed_modifier": "fixed modifier",
   "gmm.common.derived_source.from": "{value} from {source}",

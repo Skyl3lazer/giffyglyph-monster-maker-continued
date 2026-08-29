@@ -450,8 +450,9 @@ const GmmActor = (function () {
 		}
 		const hitPoints = monsterData.hit_points;
 
+		// An NPC has no hp.bonuses, so every Change that can move the maximum lands on this one key.
 		const delta = (hp.max ?? 0) - hitPoints.maximum.value;
-		if (delta) hitPoints.maximum.add(delta, game.i18n.format('gmm.common.derived_source.effects'));
+		if (delta) hitPoints.maximum.add(delta, MonsterForge.settledSource(actor, "system.attributes.hp.max"));
 		hitPoints.natural_maximum = hp.max;
 		hitPoints.effective_maximum = hp.effectiveMax;
 		hitPoints.temporary_maximum = hp.tempmax;
