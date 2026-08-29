@@ -106,8 +106,15 @@ const GmmActor = (function () {
 		const state = actor._gmmSpellDc;
 		if (!state || state.applied) return;
 		state.applied = true;
-		const relative = state.modifier?.override ? 0 : (Number(state.modifier?.value) || 0);
-		if (relative) GMM_5E_ABILITIES.forEach((x) => { actor.system.abilities[x].dc += relative; });
+		const authored = state.modifier?.value;
+		// DerivedAttribute#applyModifier ignores anything else, so honoring it here would print one DC and roll another.
+		if (typeof authored !== "number") return;
+		if (state.modifier.override) {
+			const spellDcBonus = dnd5e.utils.simplifyBonus(actor.system.bonuses?.spell?.dc, actor.getRollData({ deterministic: true }));
+			GMM_5E_ABILITIES.forEach((x) => { actor.system.abilities[x].dc = authored + spellDcBonus; });
+		} else if (authored) {
+			GMM_5E_ABILITIES.forEach((x) => { actor.system.abilities[x].dc += authored; });
+		}
 	}
 
 	/* A FormulaField can already hold something a GM typed, so an amount joins it rather than landing on it. */
