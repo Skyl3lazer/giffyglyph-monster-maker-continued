@@ -608,6 +608,14 @@ const MonsterForge = (function () {
         })).filter((x) => x.delta);
         skillDeltas.forEach((x) => movedKeys.push(`system.skills.${x.skill.foundry}.value`));
 
+        /* Only the multiplier moved here: the bonus behind it is already folded through savingThrows. */
+        const saveProfDeltas = GMM_5E_ABILITIES.map((x) => ({
+            ability: x,
+            delta: ((Number(settled.saveProficiencies?.[x]) || 0) - (blueprint.data.trained_saves[x]?.trained ? 1 : 0))
+                * settledProficiency.value
+        })).filter((x) => x.delta);
+        saveProfDeltas.forEach((x) => movedKeys.push(`system.abilities.${x.ability}.proficient`));
+
         if (!movedKeys.length) return;
 
         // The schema's score is canonical, so an UPGRADE to an odd one is not rounded away here.
@@ -643,6 +651,7 @@ const MonsterForge = (function () {
         GMM_5E_ABILITIES.forEach((x) => {
             fold(monsterData.saving_throws?.[x], (settledParse.savingThrows[x]?.value ?? 0) - (built.savingThrows[x]?.value ?? 0));
         });
+        saveProfDeltas.forEach(({ ability, delta }) => fold(monsterData.saving_throws?.[ability], delta));
         skillDeltas.forEach(({ skill, delta }) => {
             fold(monsterData.skills.find((y) => y.code == skill.name), delta);
             // The forge's own floor and Modifier are deliberately not re-applied over the settled number.

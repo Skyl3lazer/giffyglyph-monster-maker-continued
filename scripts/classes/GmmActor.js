@@ -381,15 +381,20 @@ const GmmActor = (function () {
 		// All three are stamped together, so any one missing means the base pass never ran for this actor.
 		if (!Number.isFinite(actor._gmmBaseProf) || !actor._gmmBaseAbilityMods || !actor._gmmBaseSkillValue) return;
 
+		const blueprint = actor.flags.gmm.blueprint;
 		const abilityModifiers = {};
-		GMM_5E_ABILITIES.forEach((x) => { abilityModifiers[x] = Number(actorData.abilities[x]?.mod) || 0; });
+		const saveProficiencies = {};
+		GMM_5E_ABILITIES.forEach((x) => {
+			abilityModifiers[x] = Number(actorData.abilities[x]?.mod) || 0;
+			saveProficiencies[x] = Number(actorData.abilities[x]?.saveProf?.multiplier) || 0;
+		});
 		// effectValue is the multiplier a Change left behind, before prepareSkill collapsed it.
 		const moved = proficiency !== actor._gmmBaseProf
 			|| GMM_5E_ABILITIES.some((x) => abilityModifiers[x] !== actor._gmmBaseAbilityMods[x])
+			|| GMM_5E_ABILITIES.some((x) => saveProficiencies[x] !== (blueprint.data.trained_saves[x]?.trained ? 1 : 0))
 			|| GMM_5E_SKILLS.some((x) => (actorData.skills[x.foundry]?.effectValue ?? 0) !== actor._gmmBaseSkillValue[x.foundry]);
 		if (!moved) return;
 
-		const blueprint = actor.flags.gmm.blueprint;
 		const builtInitiative = monsterData.initiative.value;
 
 		/* dnd5e built each Proficiency from the bonus it held in the derived pass, and nothing rebuilds
@@ -406,7 +411,8 @@ const GmmActor = (function () {
 		});
 
 		try {
-			MonsterForge.reparseSettledDependents(monsterData, blueprint, { proficiency: proficiency, abilityModifiers: abilityModifiers }, actor);
+			MonsterForge.reparseSettledDependents(monsterData, blueprint,
+				{ proficiency: proficiency, abilityModifiers: abilityModifiers, saveProficiencies: saveProficiencies }, actor);
 		} catch (error) {
 			console.error(error);
 			return;
@@ -429,7 +435,7 @@ const GmmActor = (function () {
 
 		GMM_5E_ABILITIES.forEach((x) => {
 			const ability = actorData.abilities[x];
-			ability.saveProf = new Proficiency(proficiency, blueprint.data.trained_saves[x].trained ? 1 : 0);
+			ability.saveProf = new Proficiency(proficiency, saveProficiencies[x], ability.saveProf.rounding !== "up");
 			ability.attack = ability.mod + proficiency;
 			// saveBonus already carries the forge's excess, so recomputing cannot lose it.
 			ability.save.value = ability.mod + ability.saveBonus
