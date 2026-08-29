@@ -247,8 +247,7 @@ const GmmActor = (function () {
 
 	const GMM_PERCEPTION = GMM_5E_SKILLS.find((x) => x.name == "perception");
 
-	/* GMMC writes each of these after both change phases, so a Change on one is dead and names its input.
-	 * A field dnd5e recomputes is absent: a scaler is no different from a vanilla NPC there. */
+	/* A Change on one of these never reaches what the stat block prints. Each names the input that does. */
 	const GMM_UNSUPPORTED_EFFECT_TARGETS = new Map([
 		["flags.gmm.blueprint", { key: "gmm.effect.unsupported.blueprint" }],
 		["system.attributes.hp.effectiveMax", { key: "gmm.effect.unsupported.hp_effective_max" }],
@@ -259,6 +258,8 @@ const GmmActor = (function () {
 		["system.attributes.spellcasting", { key: "gmm.effect.unsupported.spellcasting" }],
 		["system.attributes.spell.level", { key: "gmm.effect.unsupported.spell_level" }],
 		["system.attributes.spell.dc", { key: "gmm.effect.unsupported.spell_dc" }],
+		...GMM_5E_ABILITIES.map((x) => [`system.abilities.${x}.dc`,
+			{ key: "gmm.effect.unsupported.ability_dc" }]),
 		...GMM_5E_SKILLS.map((x) => [`system.skills.${x.foundry}.passive`,
 			{ key: "gmm.effect.unsupported.skill_passive", data: { target: `system.skills.${x.foundry}.bonuses.passive` } }])
 	]);

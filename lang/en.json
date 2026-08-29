@@ -750,6 +750,7 @@
   "gmm.effect.unsupported.spellcasting": "The forge assigns it after effects apply. Set the spellcasting ability on the Forge sheet instead.",
   "gmm.effect.unsupported.spell_level": "The forge assigns it after effects apply. Set the spellcasting level on the Forge sheet instead.",
   "gmm.effect.unsupported.spell_dc": "The forge assigns it after effects apply. Target system.bonuses.spell.dc instead.",
+  "gmm.effect.unsupported.ability_dc": "The printed Spell DC is built from the blueprint and never reads this field. Target system.bonuses.spell.dc instead, which moves the row and the field.",
   "gmm.effect.unsupported.skill_passive": "The forge assigns it after effects apply; target {target} instead.",
   "gmm.condition.bleeding.spent": "{name} loses a hit die to Bleeding.",
   "gmm.condition.cursed.died": "{name} is Cursed and dies at 0 hit points.",
