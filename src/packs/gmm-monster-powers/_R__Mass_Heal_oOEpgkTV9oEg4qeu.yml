@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Allies of your choice within the area regain hit points equal to twice
-      your combat level.</p>
+      your combat level.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +81,7 @@ flags:
           image: icons/magic/life/cross-beam-green.webp
           text: >-
             <p>Allies of your choice within the area regain hit points equal to
-            twice your combat level.</p>
+            twice your combat level.</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

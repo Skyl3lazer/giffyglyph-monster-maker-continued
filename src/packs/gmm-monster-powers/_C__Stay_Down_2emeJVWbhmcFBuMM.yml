@@ -3,7 +3,9 @@ type: feat
 img: icons/skills/melee/strike-blade-hooked-blue-red.webp
 system:
   description:
-    value: <p>The target is restrained until the end of your next turn.</p>
+    value: >-
+      <p>The target is restrained until the end of your next
+      turn.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: JVWbhmcFBuMM2eme
+    name: Restrained
+    img: systems/dnd5e/icons/svg/statuses/restrained.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - restrained
+    sort: 0
+    _key: '!items.effects!2emeJVWbhmcFBuMM.JVWbhmcFBuMM2eme'
 folder: RvLPH8AFqBXXZ1tK
 flags:
   core:
@@ -75,7 +93,9 @@ flags:
         description:
           name: (C) Stay Down
           image: icons/skills/melee/strike-blade-hooked-blue-red.webp
-          text: <p>The target is restrained until the end of your next turn.</p>
+          text: >-
+            <p>The target is restrained until the end of your next
+            turn.</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

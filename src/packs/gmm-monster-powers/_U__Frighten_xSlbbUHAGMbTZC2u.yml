@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/death/projectile-skull-fire-orange.webp
 system:
   description:
-    value: <p>The target is frightened of you (save ends).</p>
+    value: >-
+      <p>The target is frightened of you (save ends).</p><p><em>Core
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: bUHAGMbTZC2uxSlb
+    name: Frightened
+    img: systems/dnd5e/icons/svg/statuses/frightened.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - frightened
+    sort: 0
+    _key: '!items.effects!xSlbbUHAGMbTZC2u.bUHAGMbTZC2uxSlb'
 folder: JdLpxPrJ9Fvv9fSl
 flags:
   core:
@@ -75,7 +93,9 @@ flags:
         description:
           name: (U) Frighten
           image: icons/magic/death/projectile-skull-fire-orange.webp
-          text: <p>The target is frightened of you (save ends).</p>
+          text: >-
+            <p>The target is frightened of you (save ends).</p><p><em>Core
+            automation</em></p>
         activation:
           type: action
           cost: null

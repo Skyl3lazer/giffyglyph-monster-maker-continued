@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Whenever you hit a creature with an attack while you have advantage,
-      you deal additional damage equal to your combat level ([level]).</p>
+      you deal additional damage equal to your combat level
+      ([level]).^</p><p><em>^ AC5e automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +65,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: ZC5qLzMusbE0jDKa
+    name: Sneak Attack
+    img: icons/skills/melee/strike-dagger-blood-red.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.automated-conditions-5e.damage.bonus
+          type: ac5e
+          value: bonus=@gmm.level; hasAdvantage
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!jDKaZC5qLzMusbE0.ZC5qLzMusbE0jDKa'
 folder: RvLPH8AFqBXXZ1tK
 flags:
   core:
@@ -80,7 +98,7 @@ flags:
           text: >-
             <p>Whenever you hit a creature with an attack while you have
             advantage, you deal additional damage equal to your combat level
-            ([level]).</p>
+            ([level]).^</p><p><em>^ AC5e automation</em></p>
         activation:
           type: ''
           cost: null

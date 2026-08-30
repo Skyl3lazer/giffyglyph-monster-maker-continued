@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>You can't move during your turn. Make your next attack roll with
-      advantage.</p>
+      advantage.^</p><p><em>^ AC5e automation</em></p><p><em>Nothing enforces
+      standing still.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +65,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: uk9gwpsmMdLLCE7V
+    name: Take Aim
+    img: icons/skills/ranged/target-bullseye-arrow-blue.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: flags.automated-conditions-5e.attack.advantage
+          type: ac5e
+          value: 1; once
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!CE7Vuk9gwpsmMdLL.uk9gwpsmMdLLCE7V'
 folder: Tnf0D7n9MHPnMz8r
 flags:
   core:
@@ -79,7 +97,8 @@ flags:
           image: icons/skills/targeting/crosshair-pointed-orange.webp
           text: >-
             <p>You can't move during your turn. Make your next attack roll with
-            advantage.</p>
+            advantage.^</p><p><em>^ AC5e automation</em></p><p><em>Nothing
+            enforces standing still.</em></p>
         activation:
           type: bonus
           cost: null

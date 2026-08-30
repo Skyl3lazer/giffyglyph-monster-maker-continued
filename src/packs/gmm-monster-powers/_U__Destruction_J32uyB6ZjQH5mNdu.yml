@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Whenever a creature starts their turn in or enters the area for the
-      first time, make a ranged spell attack against them.</p>
+      first time, make a ranged spell attack against them.</p><p><em>Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -82,7 +83,8 @@ flags:
           image: icons/magic/fire/flame-burning-creature-skeleton.webp
           text: >-
             <p>Whenever a creature starts their turn in or enters the area for
-            the first time, make a ranged spell attack against them.</p>
+            the first time, make a ranged spell attack against
+            them.</p><p><em>Midi automation</em></p>
         activation:
           type: action
           cost: null

@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/movement/trail-streak-impact-blue.webp
 system:
   description:
-    value: <p>Choose one ally. They gain +10 speed.</p>
+    value: >-
+      <p>Choose one ally. They gain +10 speed.</p><p><em>Core
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -63,7 +65,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: AHuf8bg4jwBczeXM
+    name: Haste
+    img: icons/magic/movement/trail-streak-zigzag-yellow.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: system.attributes.movement.walk
+          type: add
+          value: '10'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!zeXMAHuf8bg4jwBc.AHuf8bg4jwBczeXM'
 folder: oxiwC5PP7UQyllNb
 flags:
   core:
@@ -76,7 +95,9 @@ flags:
         description:
           name: (U) Haste
           image: icons/magic/movement/trail-streak-impact-blue.webp
-          text: <p>Choose one ally. They gain +10 speed.</p>
+          text: >-
+            <p>Choose one ally. They gain +10 speed.</p><p><em>Core
+            automation</em></p>
         activation:
           type: bonus
           cost: null

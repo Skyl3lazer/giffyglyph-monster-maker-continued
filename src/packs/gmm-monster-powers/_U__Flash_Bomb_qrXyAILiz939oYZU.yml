@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/light/explosion-star-glow-orange.webp
 system:
   description:
-    value: <p>Targets are blinded until the end of their next turn.</p>
+    value: >-
+      <p>Targets are blinded until the end of their next turn.</p><p><em>Core
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: AILiz939oYZUqrXy
+    name: Blinded
+    img: systems/dnd5e/icons/svg/statuses/blinded.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - blinded
+    sort: 0
+    _key: '!items.effects!qrXyAILiz939oYZU.AILiz939oYZUqrXy'
 folder: I1k31uWaaHvV64D1
 flags:
   core:
@@ -75,7 +93,9 @@ flags:
         description:
           name: (U) Flash Bomb
           image: icons/magic/light/explosion-star-glow-orange.webp
-          text: <p>Targets are blinded until the end of their next turn.</p>
+          text: >-
+            <p>Targets are blinded until the end of their next
+            turn.</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

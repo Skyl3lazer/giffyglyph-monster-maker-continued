@@ -3,7 +3,7 @@ type: feat
 img: icons/skills/melee/shield-block-bash-yellow.webp
 system:
   description:
-    value: <p>The target falls prone.</p>
+    value: <p>The target falls prone.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +62,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: jBEPC1P7VrZKolXH
+    name: Prone
+    img: systems/dnd5e/icons/svg/statuses/prone.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - prone
+    sort: 0
+    _key: '!items.effects!olXHjBEPC1P7VrZK.jBEPC1P7VrZKolXH'
 folder: JdLpxPrJ9Fvv9fSl
 flags:
   core:
@@ -75,7 +91,7 @@ flags:
         description:
           name: (C) Knockdown
           image: icons/skills/melee/shield-block-bash-yellow.webp
-          text: <p>The target falls prone.</p>
+          text: <p>The target falls prone.</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

@@ -6,7 +6,7 @@ system:
     value: >-
       <p>At the start of each of the creature's turns, the target makes a saving
       throw (DC [durationSaveDc]). On a failed save, the target takes this
-      damage again.</p>
+      damage again.</p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -83,7 +83,7 @@ flags:
           text: >-
             <p>At the start of each of the creature's turns, the target makes a
             saving throw (DC [durationSaveDc]). On a failed save, the target
-            takes this damage again.</p>
+            takes this damage again.</p><p><em>Midi automation</em></p>
         activation:
           type: action
           cost: null

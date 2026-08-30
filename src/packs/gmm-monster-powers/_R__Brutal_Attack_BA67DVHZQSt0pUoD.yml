@@ -3,7 +3,7 @@ type: feat
 img: icons/skills/melee/strike-axe-blood-red.webp
 system:
   description:
-    value: ''
+    value: <p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -77,7 +77,7 @@ flags:
         description:
           name: (R) Brutal Attack
           image: icons/skills/melee/strike-axe-blood-red.webp
-          text: ''
+          text: <p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

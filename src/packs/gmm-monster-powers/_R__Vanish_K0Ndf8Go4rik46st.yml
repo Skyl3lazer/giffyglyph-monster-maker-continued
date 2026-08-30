@@ -4,8 +4,9 @@ img: icons/magic/perception/silhouette-stealth-shadow.webp
 system:
   description:
     value: >-
-      <p>You become invisible. Making an attack or casting a spell ends this
-      effect.</p>
+      <p>You become invisible.* Making an attack or casting a spell ends this
+      effect.</p><p><em>* Core automation</em></p><p><em>Remove the effect by
+      hand when you attack or cast.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +65,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: f8Go4rik46stK0Nd
+    name: Invisible
+    img: systems/dnd5e/icons/svg/statuses/invisible.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - invisible
+    sort: 0
+    _key: '!items.effects!K0Ndf8Go4rik46st.f8Go4rik46stK0Nd'
 folder: I1k31uWaaHvV64D1
 flags:
   core:
@@ -78,8 +95,9 @@ flags:
           name: (R) Vanish
           image: icons/magic/perception/silhouette-stealth-shadow.webp
           text: >-
-            <p>You become invisible. Making an attack or casting a spell ends
-            this effect.</p>
+            <p>You become invisible.* Making an attack or casting a spell ends
+            this effect.</p><p><em>* Core automation</em></p><p><em>Remove the
+            effect by hand when you attack or cast.</em></p>
         activation:
           type: action
           cost: null

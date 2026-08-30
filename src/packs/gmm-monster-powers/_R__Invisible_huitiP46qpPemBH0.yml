@@ -4,8 +4,10 @@ img: icons/magic/light/explosion-star-glow-silhouette.webp
 system:
   description:
     value: >-
-      <p>Until the end of your next turn, you are invisible. This effect ends if
-      you make an attack or cast a spell.</p>
+      <p>Until the end of your next turn, you are invisible.* This effect ends
+      if you make an attack or cast a spell.</p><p><em>* Core
+      automation</em></p><p><em>Remove the effect by hand when you attack or
+      cast.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +66,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: iP46qpPemBH0huit
+    name: Invisible
+    img: systems/dnd5e/icons/svg/statuses/invisible.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - invisible
+    sort: 0
+    _key: '!items.effects!huitiP46qpPemBH0.iP46qpPemBH0huit'
 folder: VqB9rwwWhncr3hhU
 flags:
   core:
@@ -78,8 +96,10 @@ flags:
           name: (R) Invisible
           image: icons/magic/light/explosion-star-glow-silhouette.webp
           text: >-
-            <p>Until the end of your next turn, you are invisible. This effect
-            ends if you make an attack or cast a spell.</p>
+            <p>Until the end of your next turn, you are invisible.* This effect
+            ends if you make an attack or cast a spell.</p><p><em>* Core
+            automation</em></p><p><em>Remove the effect by hand when you attack
+            or cast.</em></p>
         activation:
           type: bonus
           cost: null

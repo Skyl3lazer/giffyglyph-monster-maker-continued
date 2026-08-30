@@ -4,8 +4,10 @@ img: icons/magic/life/ankh-gold-blue.webp
 system:
   description:
     value: >-
-      <p>You are immune to one damage type or one condition of your choice until
-      the end of your next turn.</p>
+      <p>You are immune to one damage type* or one condition* of your choice
+      until the end of your next turn.</p><p><em>* Core
+      automation</em></p><p><em>Set one of the two changes to your choice and
+      delete the other.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +66,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: VGhuxg72pOUVOs4l
+    name: Immunity
+    img: icons/magic/defensive/shield-barrier-glowing-blue.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: system.traits.di.value
+          type: add
+          value: ''
+        - key: system.traits.ci.value
+          type: add
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!Os4lVGhuxg72pOUV.VGhuxg72pOUVOs4l'
 folder: S3EEbaut6Bd4J1U8
 flags:
   core:
@@ -78,8 +100,10 @@ flags:
           name: (U) Immunity
           image: icons/magic/life/ankh-gold-blue.webp
           text: >-
-            <p>You are immune to one damage type or one condition of your choice
-            until the end of your next turn.</p>
+            <p>You are immune to one damage type* or one condition* of your
+            choice until the end of your next turn.</p><p><em>* Core
+            automation</em></p><p><em>Set one of the two changes to your choice
+            and delete the other.</em></p>
         activation:
           type: bonus
           cost: null

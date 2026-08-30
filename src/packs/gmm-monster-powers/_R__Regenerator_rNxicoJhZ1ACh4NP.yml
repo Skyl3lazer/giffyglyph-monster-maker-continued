@@ -6,7 +6,7 @@ system:
     value: >-
       <p>The target regains hit points equal to twice your combat level
       ([level*2]), and does so again at the beginning of each of their
-      turns.</p>
+      turns.</p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -84,7 +84,7 @@ flags:
           text: >-
             <p>The target regains hit points equal to twice your combat level
             ([level*2]), and does so again at the beginning of each of their
-            turns.</p>
+            turns.</p><p><em>Midi automation</em></p>
         activation:
           type: ''
           cost: null

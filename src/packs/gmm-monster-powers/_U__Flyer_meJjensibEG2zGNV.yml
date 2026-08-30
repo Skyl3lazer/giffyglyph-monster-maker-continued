@@ -3,7 +3,9 @@ type: feat
 img: icons/skills/movement/feet-winged-boots-blue.webp
 system:
   description:
-    value: <p>You gain flying speed equal to half of your walk speed.</p>
+    value: >-
+      <p>You gain flying speed equal to half of your walk speed.</p><p><em>Core
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -63,7 +65,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: ensibEG2zGNVmeJj
+    name: Flyer
+    img: icons/magic/air/wind-vortex-swirl-blue.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: system.attributes.movement.fly
+          type: override
+          value: '@attributes.movement.walk / 2'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!meJjensibEG2zGNV.ensibEG2zGNVmeJj'
 folder: JioHFjoz2kGHufGK
 flags:
   core:
@@ -76,7 +95,9 @@ flags:
         description:
           name: (U) Flyer
           image: icons/skills/movement/feet-winged-boots-blue.webp
-          text: <p>You gain flying speed equal to half of your walk speed.</p>
+          text: >-
+            <p>You gain flying speed equal to half of your walk
+            speed.</p><p><em>Core automation</em></p>
         activation:
           type: bonus
           cost: null

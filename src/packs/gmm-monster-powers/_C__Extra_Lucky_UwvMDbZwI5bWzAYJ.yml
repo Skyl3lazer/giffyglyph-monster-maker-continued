@@ -4,8 +4,9 @@ img: icons/commodities/currency/coin-inset-skull-gold.webp
 system:
   description:
     value: >-
-      <p>If you make an attack roll and roll a natural 1 or 2, reroll it. You
-      must use the new result.</p>
+      <p>If you make an attack roll and roll a natural 1* or 2, reroll it. You
+      must use the new result.</p><p><em>* Core automation</em></p><p><em>Only
+      the natural 1 is rerolled.</em></p>
     chat: ''
   source: {}
   activation:
@@ -65,7 +66,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: DbZwI5bWzAYJUwvM
+    name: Extra Lucky
+    img: icons/magic/control/hypnosis-mesmerism-eye.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.dnd5e.halflingLucky
+          type: override
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!UwvMDbZwI5bWzAYJ.DbZwI5bWzAYJUwvM'
 folder: Tnf0D7n9MHPnMz8r
 flags:
   core:
@@ -79,8 +97,9 @@ flags:
           name: (C) Extra Lucky
           image: icons/commodities/currency/coin-inset-skull-gold.webp
           text: >-
-            <p>If you make an attack roll and roll a natural 1 or 2, reroll it.
-            You must use the new result.</p>
+            <p>If you make an attack roll and roll a natural 1* or 2, reroll it.
+            You must use the new result.</p><p><em>* Core
+            automation</em></p><p><em>Only the natural 1 is rerolled.</em></p>
         activation:
           type: bonus
           cost: null

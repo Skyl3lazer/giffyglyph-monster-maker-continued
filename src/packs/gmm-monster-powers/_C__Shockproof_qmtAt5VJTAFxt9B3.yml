@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Until the end of your next turn, any critical hit made against you
-      counts as a normal hit.</p>
+      counts as a normal hit.+</p><p><em>+ Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: t5VJTAFxt9B3qmtA
+    name: Shockproof
+    img: icons/magic/defensive/shield-barrier-flaming-diamond-blue.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.grants.noCritical.all
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!qmtAt5VJTAFxt9B3.t5VJTAFxt9B3qmtA'
 folder: S3EEbaut6Bd4J1U8
 flags:
   core:
@@ -79,7 +96,7 @@ flags:
           image: icons/equipment/shield/heater-steel-crystal-red.webp
           text: >-
             <p>Until the end of your next turn, any critical hit made against
-            you counts as a normal hit.</p>
+            you counts as a normal hit.+</p><p><em>+ Midi automation</em></p>
         activation:
           type: bonus
           cost: null

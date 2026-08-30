@@ -4,8 +4,9 @@ img: icons/magic/light/projectile-smoke-blue-white.webp
 system:
   description:
     value: >-
-      <p>You are banished. When this effect ends, you reappear in an unoccupied
-      space within 30 ft.</p>
+      <p>You are banished.* When this effect ends, you reappear in an unoccupied
+      space within 30 ft.</p><p><em>* Core automation</em></p><p><em>Move the
+      token by hand.</em></p>
     chat: ''
   source: {}
   activation:
@@ -65,7 +66,25 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: QYWApN7VmLwZGFsN
+    name: Banished
+    img: icons/magic/movement/abstract-ribbons-red-orange.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: >-
+      <p><strong>Rare Condition</strong></p><ul><li><p>You are banished to a
+      harmless plane of existence</p></li><li><p>When this condition ends, you
+      reappear in either a) the space you left or b) the nearest unoccupied
+      space.</p></li></ul>
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!GFsNQYWApN7VmLwZ.QYWApN7VmLwZGFsN'
 folder: VqB9rwwWhncr3hhU
 flags:
   core:
@@ -79,8 +98,9 @@ flags:
           name: (R) Relocate
           image: icons/magic/light/projectile-smoke-blue-white.webp
           text: >-
-            <p>You are banished. When this effect ends, you reappear in an
-            unoccupied space within 30 ft.</p>
+            <p>You are banished.* When this effect ends, you reappear in an
+            unoccupied space within 30 ft.</p><p><em>* Core
+            automation</em></p><p><em>Move the token by hand.</em></p>
         activation:
           type: bonus
           cost: null

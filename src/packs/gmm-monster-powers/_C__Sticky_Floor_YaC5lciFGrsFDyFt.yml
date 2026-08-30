@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>The targeted area is difficult terrain until the end of your next
-      turn.</p>
+      turn.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -78,8 +78,8 @@ flags:
           name: (C) Sticky Floor
           image: icons/creatures/slimes/slime-bubble-green.webp
           text: >-
-            <p>The targeted area is difficult terrain until the end of your
-            next turn.</p>
+            <p>The targeted area is difficult terrain until the end of your next
+            turn.</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Choose one ally. They gain temporary hit points equal to three times
-      your combat level.</p>
+      your combat level.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +81,7 @@ flags:
           image: icons/magic/defensive/barrier-shield-dome-deflect-teal.webp
           text: >-
             <p>Choose one ally. They gain temporary hit points equal to three
-            times your combat level.</p>
+            times your combat level.</p><p><em>Core automation</em></p>
         activation:
           type: ''
           cost: null

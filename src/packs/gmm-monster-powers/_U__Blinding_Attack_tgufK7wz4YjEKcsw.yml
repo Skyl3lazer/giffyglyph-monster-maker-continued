@@ -3,7 +3,7 @@ type: feat
 img: icons/magic/light/explosion-star-glow-yellow.webp
 system:
   description:
-    value: <p>The target is blinded (save ends).</p>
+    value: <p>The target is blinded (save ends).</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +62,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: K7wz4YjEKcswtguf
+    name: Blinded
+    img: systems/dnd5e/icons/svg/statuses/blinded.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - blinded
+    sort: 0
+    _key: '!items.effects!tgufK7wz4YjEKcsw.K7wz4YjEKcswtguf'
 folder: JdLpxPrJ9Fvv9fSl
 flags:
   core:
@@ -75,7 +91,9 @@ flags:
         description:
           name: (U) Blinding Attack
           image: icons/magic/light/explosion-star-glow-yellow.webp
-          text: <p>The target is blinded (save ends).</p>
+          text: >-
+            <p>The target is blinded (save ends).</p><p><em>Core
+            automation</em></p>
         activation:
           type: action
           cost: null

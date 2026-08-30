@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/unholy/hand-claw-fire-green.webp
 system:
   description:
-    value: <p>Targets gain one level of exhaustion.</p>
+    value: >-
+      <p>Targets gain one level of exhaustion.</p><p><em>Core
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: q71bSOoVaJI9nsMp
+    name: Exhaustion
+    img: systems/dnd5e/icons/svg/statuses/exhaustion.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: system.attributes.exhaustion
+          type: add
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!nsMpq71bSOoVaJI9.q71bSOoVaJI9nsMp'
 folder: 4SmCnaZJSBwCUCqK
 flags:
   core:
@@ -75,7 +94,9 @@ flags:
         description:
           name: (R) Drain Life
           image: icons/magic/unholy/hand-claw-fire-green.webp
-          text: <p>Targets gain one level of exhaustion.</p>
+          text: >-
+            <p>Targets gain one level of exhaustion.</p><p><em>Core
+            automation</em></p>
         activation:
           type: action
           cost: null

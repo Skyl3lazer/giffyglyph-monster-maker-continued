@@ -3,7 +3,9 @@ type: feat
 img: icons/skills/melee/unarmed-punch-fist.webp
 system:
   description:
-    value: <p>The target is paralyzed until the end of your next turn.</p>
+    value: >-
+      <p>The target is paralyzed until the end of your next turn.</p><p><em>Core
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: poLeD34QKlievcaq
+    name: Paralyzed
+    img: systems/dnd5e/icons/svg/statuses/paralyzed.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - paralyzed
+    sort: 0
+    _key: '!items.effects!vcaqpoLeD34QKlie.poLeD34QKlievcaq'
 folder: RvLPH8AFqBXXZ1tK
 flags:
   core:
@@ -75,7 +93,9 @@ flags:
         description:
           name: (U) Pressure Point
           image: icons/skills/melee/unarmed-punch-fist.webp
-          text: <p>The target is paralyzed until the end of your next turn.</p>
+          text: >-
+            <p>The target is paralyzed until the end of your next
+            turn.</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

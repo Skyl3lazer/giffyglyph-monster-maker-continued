@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>You can't be surprised and hidden creatures don't gain advantage on
-      attack rolls against you.</p>
+      attack rolls against you.+</p><p><em>+ Midi automation</em></p><p><em>The
+      surprise clause is not automated.</em></p>
     chat: ''
   source: {}
   activation:
@@ -65,7 +66,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: TLiY4cvq8jxa7m8y
+    name: Always on Duty
+    img: icons/magic/perception/eye-ringed-glow-angry-small-red.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.grants.noAdvantage.attack.all
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!7m8yTLiY4cvq8jxa.TLiY4cvq8jxa7m8y'
 folder: J8E4I6WUVdsFmJFl
 flags:
   core:
@@ -80,7 +98,9 @@ flags:
           image: icons/skills/targeting/crosshair-mark-rough-pink.webp
           text: >-
             <p>You can't be surprised and hidden creatures don't gain advantage
-            on attack rolls against you.</p>
+            on attack rolls against you.+</p><p><em>+ Midi
+            automation</em></p><p><em>The surprise clause is not
+            automated.</em></p>
         activation:
           type: bonus
           cost: null

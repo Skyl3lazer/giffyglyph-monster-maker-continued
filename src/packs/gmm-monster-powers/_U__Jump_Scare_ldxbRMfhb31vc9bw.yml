@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/death/projectile-skull-fire-purple.webp
 system:
   description:
-    value: <p>The target is stunned until the end of your next turn.</p>
+    value: >-
+      <p>The target is stunned until the end of your next turn.</p><p><em>Core
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: RMfhb31vc9bwldxb
+    name: Stunned
+    img: systems/dnd5e/icons/svg/statuses/stunned.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - stunned
+    sort: 0
+    _key: '!items.effects!ldxbRMfhb31vc9bw.RMfhb31vc9bwldxb'
 folder: RvLPH8AFqBXXZ1tK
 flags:
   core:
@@ -75,7 +93,9 @@ flags:
         description:
           name: (U) Jump Scare
           image: icons/magic/death/projectile-skull-fire-purple.webp
-          text: <p>The target is stunned until the end of your next turn.</p>
+          text: >-
+            <p>The target is stunned until the end of your next
+            turn.</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

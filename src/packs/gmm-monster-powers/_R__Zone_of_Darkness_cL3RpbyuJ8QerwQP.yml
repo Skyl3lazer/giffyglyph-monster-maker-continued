@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/perception/shadow-stealth-eyes-purple.webp
 system:
   description:
-    value: <p>The area is filled with magical darkness.</p>
+    value: >-
+      <p>The area is filled with magical darkness.</p><p><em>Core
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -76,7 +78,9 @@ flags:
         description:
           name: (R) Zone of Darkness
           image: icons/magic/perception/shadow-stealth-eyes-purple.webp
-          text: <p>The area is filled with magical darkness.</p>
+          text: >-
+            <p>The area is filled with magical darkness.</p><p><em>Core
+            automation</em></p>
         activation:
           type: bonus
           cost: null

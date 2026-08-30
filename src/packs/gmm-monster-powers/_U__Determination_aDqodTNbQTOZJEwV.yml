@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You gain temporary hit points equal to twice your combat level
-      ([level*2])</p>
+      ([level*2])</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/life/heart-shadow-red.webp
           text: >-
             <p>You gain temporary hit points equal to twice your combat level
-            ([level*2])</p>
+            ([level*2])</p><p><em>Core automation</em></p>
         activation:
           type: bonus
           cost: null
@@ -95,7 +95,7 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
+          type: heal
           related_stat: str
           bonus: ''
           defense: ''
@@ -103,6 +103,11 @@ flags:
             percentage: null
           versatile:
             damage: ''
+          hit:
+            damage:
+              '0':
+                formula: '[level*2]'
+                type: temphp
         duration:
           units: ''
           value: ''

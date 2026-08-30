@@ -3,7 +3,7 @@ type: feat
 img: icons/magic/sonic/explosion-impact-shock-wave.webp
 system:
   description:
-    value: <p>The target is stunned (save ends).</p>
+    value: <p>The target is stunned (save ends).</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +62,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 2RgrgUDdhQ2zMu7y
+    name: Stunned
+    img: systems/dnd5e/icons/svg/statuses/stunned.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - stunned
+    sort: 0
+    _key: '!items.effects!Mu7y2RgrgUDdhQ2z.2RgrgUDdhQ2zMu7y'
 folder: JdLpxPrJ9Fvv9fSl
 flags:
   core:
@@ -75,7 +91,9 @@ flags:
         description:
           name: (R) Concussion
           image: icons/magic/sonic/explosion-impact-shock-wave.webp
-          text: <p>The target is stunned (save ends).</p>
+          text: >-
+            <p>The target is stunned (save ends).</p><p><em>Core
+            automation</em></p>
         activation:
           type: action
           cost: null

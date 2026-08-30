@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Allies in the area may change their attack damage type to one of your
-      choosing.</p>
+      choosing.^</p><p><em>^ AC5e automation</em></p><p><em>Set the override on
+      the Damage Type Override change to your chosen type.</em></p>
     chat: ''
   source: {}
   activation:
@@ -65,7 +66,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: osfvvI02OamDtnTU
+    name: Enchanter
+    img: icons/magic/fire/projectile-arrow-yellow.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: flags.automated-conditions-5e.damage.typeOverride
+          type: ac5e
+          value: override=
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!tnTUosfvvI02OamD.osfvvI02OamDtnTU'
 folder: oxiwC5PP7UQyllNb
 flags:
   core:
@@ -80,7 +98,9 @@ flags:
           image: icons/weapons/ammunition/arrowhead-glowing-blue.webp
           text: >-
             <p>Allies in the area may change their attack damage type to one of
-            your choosing.</p>
+            your choosing.^</p><p><em>^ AC5e automation</em></p><p><em>Set the
+            override on the Damage Type Override change to your chosen
+            type.</em></p>
         activation:
           type: bonus
           cost: null

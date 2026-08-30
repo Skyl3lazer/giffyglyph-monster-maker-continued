@@ -3,7 +3,7 @@ type: feat
 img: icons/skills/melee/strike-chain-whip-blue.webp
 system:
   description:
-    value: <p>The target is grappled by you.</p>
+    value: <p>The target is grappled by you.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +62,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: k8I38PkJK5GyPmm9
+    name: Grappled
+    img: systems/dnd5e/icons/svg/statuses/grappled.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - grappled
+    sort: 0
+    _key: '!items.effects!Pmm9k8I38PkJK5Gy.k8I38PkJK5GyPmm9'
 folder: 5eUEcvRR7XG9ty5T
 flags:
   core:
@@ -75,7 +91,7 @@ flags:
         description:
           name: (C) Stick Around
           image: icons/skills/melee/strike-chain-whip-blue.webp
-          text: <p>The target is grappled by you.</p>
+          text: <p>The target is grappled by you.</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

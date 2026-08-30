@@ -3,7 +3,7 @@ type: feat
 img: icons/magic/perception/hand-eye-black.webp
 system:
   description:
-    value: <p>You gain tremorsense 30 ft.</p>
+    value: <p>You gain tremorsense 30 ft.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -63,7 +63,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: wqTf4BnfDURfxkbT
+    name: Tremorsense
+    img: icons/magic/earth/projectile-boulder-debris.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: system.attributes.senses.ranges.tremorsense
+          type: upgrade
+          value: '30'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!xkbTwqTf4BnfDURf.wqTf4BnfDURfxkbT'
 folder: J8E4I6WUVdsFmJFl
 flags:
   core:
@@ -76,7 +93,7 @@ flags:
         description:
           name: (U) Subtle Vibrations
           image: icons/magic/perception/hand-eye-black.webp
-          text: <p>You gain tremorsense 30 ft.</p>
+          text: <p>You gain tremorsense 30 ft.</p><p><em>Core automation</em></p>
         activation:
           type: bonus
           cost: null

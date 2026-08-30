@@ -3,7 +3,9 @@ type: feat
 img: icons/skills/melee/strike-axe-red.webp
 system:
   description:
-    value: <p>A space within your reach is difficult terrain to enemies.</p>
+    value: >-
+      <p>A space within your reach is difficult terrain to
+      enemies.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -76,7 +78,9 @@ flags:
         description:
           name: (C) Difficult Space
           image: icons/skills/melee/strike-axe-red.webp
-          text: <p>A space within your reach is difficult terrain to enemies.</p>
+          text: >-
+            <p>A space within your reach is difficult terrain to
+            enemies.</p><p><em>Core automation</em></p>
         activation:
           type: bonus
           cost: null

@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Until the end of your next turn, your critical hit range increases by
-      1. In addition, you make your next attack roll with advantage.</p>
+      1.^ In addition, you make your next attack roll with
+      advantage.^</p><p><em>^ AC5e automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +65,41 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: oPZgzsvgvqB1m8qN
+    name: Aggression
+    img: icons/skills/melee/strike-flail-spiked-pink.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: flags.automated-conditions-5e.attack.criticalThreshold
+          type: ac5e
+          value: threshold=-1
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!m8qNoPZgzsvgvqB1.oPZgzsvgvqB1m8qN'
+  - _id: zsvgvqB1m8qNoPZg
+    name: Aggression (Advantage)
+    img: icons/skills/melee/strike-flail-spiked-pink.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: flags.automated-conditions-5e.attack.advantage
+          type: ac5e
+          value: 1; once
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!m8qNoPZgzsvgvqB1.zsvgvqB1m8qNoPZg'
 folder: EjqZPJ9sccgXUfgK
 flags:
   core:
@@ -79,8 +114,8 @@ flags:
           image: icons/skills/melee/maneuver-greatsword-yellow.webp
           text: >-
             <p>Until the end of your next turn, your critical hit range
-            increases by 1. In addition, you make your next attack roll with
-            advantage.</p>
+            increases by 1.^ In addition, you make your next attack roll with
+            advantage.^</p><p><em>^ AC5e automation</em></p>
         activation:
           type: bonus
           cost: null
