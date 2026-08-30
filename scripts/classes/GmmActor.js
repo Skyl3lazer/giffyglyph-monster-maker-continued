@@ -222,10 +222,11 @@ const GmmActor = (function () {
 	}
 
 	/* dnd5e pushes this onto the first damage part of an activity's roll, so the same least-common rule
-	 * applies. The formula travels with the average because the dice face can print it verbatim. */
+	 * applies. References resolve here because nothing downstream that prints or rolls the formula has roll data. */
 	function _getGlobalDamageBonus(actorData, rollData) {
 		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => {
-			const formula = String(actorData.bonuses?.[x]?.damage ?? "").trim();
+			const raw = String(actorData.bonuses?.[x]?.damage ?? "").trim();
+			const formula = Roll.replaceFormulaData(raw, rollData ?? {}, { missing: "0" });
 			return { formula: formula, average: _averageOf(formula, rollData) };
 		});
 		return bonuses.reduce((a, b) => (b.average < a.average) ? b : a);
