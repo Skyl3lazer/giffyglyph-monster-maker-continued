@@ -4,9 +4,9 @@ img: icons/equipment/shield/targe-steel-blue.webp
 system:
   description:
     value: >-
-      <p>You gain +2 AC* and advantage on one saving throw of your choice until
-      the end of your next turn.</p><p><em>* Core automation</em></p><p><em>The
-      saving throw advantage is not automated.</em></p>
+      <p>You gain +2 AC* and advantage on one saving throw of your choice+ until
+      the end of your next turn.</p><p><em>* Core automation</em></p><p><em>+
+      Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -78,6 +78,15 @@ effects:
         - key: system.attributes.ac.bonus
           type: add
           value: '2'
+        - key: flags.midi-qol.optional.RaiseShield.save.all
+          type: custom
+          value: reroll-kh
+        - key: flags.midi-qol.optional.RaiseShield.count
+          type: custom
+          value: '1'
+        - key: flags.midi-qol.optional.RaiseShield.label
+          type: custom
+          value: Raise Shield
     flags:
       dae:
         stackable: noneName
@@ -96,10 +105,9 @@ flags:
           name: (U) Raise Shield
           image: icons/equipment/shield/targe-steel-blue.webp
           text: >-
-            <p>You gain +2 AC* and advantage on one saving throw of your choice
+            <p>You gain +2 AC* and advantage on one saving throw of your choice+
             until the end of your next turn.</p><p><em>* Core
-            automation</em></p><p><em>The saving throw advantage is not
-            automated.</em></p>
+            automation</em></p><p><em>+ Midi automation</em></p>
         activation:
           type: bonus
           cost: null
