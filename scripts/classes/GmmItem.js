@@ -110,18 +110,20 @@ const GmmItem = (function () {
     }
 
 
-    /* The button datasets are generated from the DC, so a zero here ships a broken card. */
+    /* The use runs against an item clone, which never sees the owning actor's derived pass. */
     function _onPreUseActivity(activity, _usageConfig, _dialogConfig, _messageConfig) {
         try {
-            if (!Activities.isGmmActivityId(activity?.id)) return;
-            if (activity?.type !== "save") return;
-            const item = activity.item;
+            const item = activity?.item;
             if (!_isGmmActionItem(item)) return;
             const monsterData = item.getOwningGmmMonster?.();
             if (!monsterData) return;
-            _computeAndApplySaveDc(activity, monsterData, null);
+            item.prepareShortcodes?.();
+            // The button datasets are generated from the DC, so a zero here ships a broken card.
+            if (Activities.isGmmActivityId(activity.id) && activity.type === "save") {
+                _computeAndApplySaveDc(activity, monsterData, null);
+            }
         } catch (e) {
-            console.warn("GMM | preUseActivity save DC normalize failed", e);
+            console.warn("GMM | preUseActivity clone preparation failed", e);
         }
     }
 
