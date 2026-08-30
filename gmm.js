@@ -9,6 +9,7 @@ import ParagonPower from './scripts/classes/ParagonPower.js';
 import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
 import Auras from './scripts/classes/Auras.js';
 import Conditions from './scripts/classes/Conditions.js';
+import Rolls from './scripts/classes/Rolls.js';
 import Deferrals from './scripts/classes/Deferrals.js';
 import Durations from './scripts/classes/Durations.js';
 import Areas from './scripts/classes/Areas.js';
@@ -66,6 +67,7 @@ Hooks.once("init", function() {
 	}
 
 	Conditions.registerApi();
+	Rolls.registerApi();
 
 	// Patch ActivityField to sanitise legacy shortcode formulas pre-validation; persistent cleanup runs in migrateWorld().
 	if (!Activities.patchActivityField()) {

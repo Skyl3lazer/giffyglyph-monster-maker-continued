@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When you make an attack roll, treat it as a natural 11.+ You may decide
-      this after seeing the initial result.</p><p><em>+ Midi automation</em></p>
+      this after seeing the initial result.</p><p><em>+ Midi
+      automation</em></p><p><em>Offered only when the attack misses.</em></p>
     chat: ''
   source: {}
   activation:
@@ -74,9 +75,9 @@ effects:
     description: ''
     system:
       changes:
-        - key: flags.midi-qol.optional.ReliableAttacker.attack.all
+        - key: flags.midi-qol.optional.ReliableAttacker.attack.fail.all
           type: custom
-          value: replace 11
+          value: function.gmmc.rolls.reliableAttacker
         - key: flags.midi-qol.optional.ReliableAttacker.count
           type: custom
           value: ItemUses.exactNameMatch.(U) Reliable Attacker
@@ -103,7 +104,8 @@ flags:
           text: >-
             <p>When you make an attack roll, treat it as a natural 11.+ You may
             decide this after seeing the initial result.</p><p><em>+ Midi
-            automation</em></p>
+            automation</em></p><p><em>Offered only when the attack
+            misses.</em></p>
         activation:
           type: ''
           cost: null
