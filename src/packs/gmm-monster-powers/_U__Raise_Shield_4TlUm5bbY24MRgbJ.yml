@@ -78,6 +78,20 @@ effects:
         - key: system.attributes.ac.bonus
           type: add
           value: '2'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!4TlUm5bbY24MRgbJ.m5bbY24MRgbJ4TlU'
+  - _id: Y24MRgbJ4TlUm5bb
+    name: Raise Shield (Save)
+    img: icons/equipment/shield/heater-steel-worn.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
         - key: flags.midi-qol.optional.RaiseShield.save.all
           type: custom
           value: reroll-kh
@@ -91,7 +105,7 @@ effects:
       dae:
         stackable: noneName
     sort: 0
-    _key: '!items.effects!4TlUm5bbY24MRgbJ.m5bbY24MRgbJ4TlU'
+    _key: '!items.effects!4TlUm5bbY24MRgbJ.Y24MRgbJ4TlUm5bb'
 folder: S3EEbaut6Bd4J1U8
 flags:
   core:
