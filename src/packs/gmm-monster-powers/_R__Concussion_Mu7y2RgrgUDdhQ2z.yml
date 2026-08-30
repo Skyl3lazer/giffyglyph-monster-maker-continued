@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/sonic/explosion-impact-shock-wave.webp
 system:
   description:
-    value: <p>The target is stunned (save ends).</p><p><em>Core automation</em></p>
+    value: >-
+      <p>The target is stunned (DC [durationSaveDc] Constitution save
+      ends).</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -92,8 +94,8 @@ flags:
           name: (R) Concussion
           image: icons/magic/sonic/explosion-impact-shock-wave.webp
           text: >-
-            <p>The target is stunned (save ends).</p><p><em>Core
-            automation</em></p>
+            <p>The target is stunned (DC [durationSaveDc] Constitution save
+            ends).</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

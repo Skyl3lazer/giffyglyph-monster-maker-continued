@@ -5,9 +5,8 @@ system:
   description:
     value: >-
       <p>Until the end of your next turn, you are invisible.* This effect ends
-      if you make an attack or cast a spell.</p><p><em>* Core
-      automation</em></p><p><em>Remove the effect by hand when you attack or
-      cast.</em></p>
+      if you make an attack or cast a spell.+</p><p><em>* Core
+      automation</em></p><p><em>+ Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,6 +78,9 @@ effects:
     flags:
       dae:
         stackable: noneName
+        specialDuration:
+          - 1Attack
+          - 1Spell
     statuses:
       - invisible
     sort: 0
@@ -97,9 +99,8 @@ flags:
           image: icons/magic/light/explosion-star-glow-silhouette.webp
           text: >-
             <p>Until the end of your next turn, you are invisible.* This effect
-            ends if you make an attack or cast a spell.</p><p><em>* Core
-            automation</em></p><p><em>Remove the effect by hand when you attack
-            or cast.</em></p>
+            ends if you make an attack or cast a spell.+</p><p><em>* Core
+            automation</em></p><p><em>+ Midi automation</em></p>
         activation:
           type: bonus
           cost: null

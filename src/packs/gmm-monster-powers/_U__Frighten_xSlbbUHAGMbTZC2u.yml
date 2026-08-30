@@ -4,8 +4,8 @@ img: icons/magic/death/projectile-skull-fire-orange.webp
 system:
   description:
     value: >-
-      <p>The target is frightened of you (save ends).</p><p><em>Core
-      automation</em></p>
+      <p>The target is frightened of you (DC [durationSaveDc] Wisdom save
+      ends).</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -94,8 +94,8 @@ flags:
           name: (U) Frighten
           image: icons/magic/death/projectile-skull-fire-orange.webp
           text: >-
-            <p>The target is frightened of you (save ends).</p><p><em>Core
-            automation</em></p>
+            <p>The target is frightened of you (DC [durationSaveDc] Wisdom save
+            ends).</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null

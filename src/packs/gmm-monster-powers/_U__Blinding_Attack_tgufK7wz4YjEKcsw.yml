@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/light/explosion-star-glow-yellow.webp
 system:
   description:
-    value: <p>The target is blinded (save ends).</p><p><em>Core automation</em></p>
+    value: >-
+      <p>The target is blinded (DC [durationSaveDc] Constitution save
+      ends).</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -92,8 +94,8 @@ flags:
           name: (U) Blinding Attack
           image: icons/magic/light/explosion-star-glow-yellow.webp
           text: >-
-            <p>The target is blinded (save ends).</p><p><em>Core
-            automation</em></p>
+            <p>The target is blinded (DC [durationSaveDc] Constitution save
+            ends).</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null
