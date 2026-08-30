@@ -102,7 +102,7 @@ const GmmActor = (function () {
 
 	/* prepareAbilities cannot know about the authored Modifier, and Item5e#prepareFinalAttributes reads
 	   the field it lands on before the settled pass runs. */
-	function _stampSpellDcModifier(actor) {
+	function _stampSpellDcModifier(actor, rollData) {
 		const state = actor._gmmSpellDc;
 		if (!state || state.applied) return;
 		state.applied = true;
@@ -110,7 +110,7 @@ const GmmActor = (function () {
 		// DerivedAttribute#applyModifier ignores anything else, so honoring it here would print one DC and roll another.
 		if (typeof authored !== "number") return;
 		if (state.modifier.override) {
-			const spellDcBonus = dnd5e.utils.simplifyBonus(actor.system.bonuses?.spell?.dc, actor.getRollData({ deterministic: true }));
+			const spellDcBonus = dnd5e.utils.simplifyBonus(actor.system.bonuses?.spell?.dc, rollData ?? actor.getRollData({ deterministic: true }));
 			GMM_5E_ABILITIES.forEach((x) => { actor.system.abilities[x].dc = authored + spellDcBonus; });
 		} else if (authored) {
 			GMM_5E_ABILITIES.forEach((x) => { actor.system.abilities[x].dc += authored; });
@@ -140,12 +140,11 @@ const GmmActor = (function () {
 		actor._gmmAppliedMovement = Object.fromEntries(GMM_5E_SPEEDS.map((x) => [x, movement[x]]));
 	}
 
-	function _foldActorBonuses(actor) {
+	function _foldActorBonuses(actor, rollData) {
 		const actorData = actor.system;
 		const monsterBlueprint = actor.flags.gmm.blueprint;
 		const monsterArtifact = actor.flags.gmm.monster;
 		const monsterData = monsterArtifact.data;
-		const rollData = actor.getRollData({ deterministic: true });
 		const globalSkillBonus = dnd5e.utils.simplifyBonus(actorData.bonuses?.abilities?.skill, rollData);
 		GMM_5E_SKILLS.forEach((x) => {
 			const skill = actorData.skills[x.foundry];
@@ -198,10 +197,9 @@ const GmmActor = (function () {
 
 	/* Siblings the stat block reads and the shortcodes do not. The roll already has both: attack from
 	 * Activities.buildAttackToHitTerms, damage from dnd5e's own _processDamagePart. */
-	function _applyGlobalBonusDisplay(actor) {
+	function _applyGlobalBonusDisplay(actor, rollData) {
 		const actorData = actor.system;
 		const monsterData = actor.flags.gmm.monster.data;
-		const rollData = actor.getRollData({ deterministic: true });
 
 		const attack = _getGlobalAttackBonus(actorData, rollData);
 		monsterData.attack_bonus.display = monsterData.attack_bonus.value + attack;
@@ -354,11 +352,12 @@ const GmmActor = (function () {
 				heavilyEncumbered: (2 / 3)
 			}
 		};
-		_stampSpellDcModifier(actor);
+		const rollData = actor.getRollData({ deterministic: true });
+		_stampSpellDcModifier(actor, rollData);
 
 		/* dnd5e folds this into every ability's dc, so the printed row carries it or the two disagree. */
 		monsterData.spellbook.spellcasting.dc.add(
-			dnd5e.utils.simplifyBonus(actorData.bonuses?.spell?.dc, actor.getRollData({ deterministic: true })),
+			dnd5e.utils.simplifyBonus(actorData.bonuses?.spell?.dc, rollData),
 			game.i18n.format('gmm.common.derived_source.spell_dc_bonus')
 		);
 
@@ -369,7 +368,7 @@ const GmmActor = (function () {
 		actorData.attributes.spell.level = monsterData.spellbook.spellcasting.level;
 		actorData.attributes.spell.dc = monsterData.spellbook.spellcasting.dc.value;
 
-		return monsterData;
+		return { monsterData: monsterData, rollData: rollData };
 	}
 
 	/* The forge builds every node below from the blueprint's proficiency bonus and ability modifiers,
@@ -455,8 +454,9 @@ const GmmActor = (function () {
 		hp.pct = CompatibilityHelpers.clamped(hp.effectiveMax ? (hp.value / hp.effectiveMax) * 100 : 0, 0, 100);
 
 		let monsterData;
+		let rollData;
 		try {
-			monsterData = _forgeSettledArtifact(actor);
+			({ monsterData, rollData } = _forgeSettledArtifact(actor));
 		} catch (error) {
 			console.error(error);
 			return;
@@ -473,14 +473,14 @@ const GmmActor = (function () {
 		if (actor._gmmRollData) actor._gmmRollData.naturalMax = hp.max;
 
 		try {
-			_foldActorBonuses(actor);
+			_foldActorBonuses(actor, rollData);
 			_reparseSettledDependents(actor, monsterData);
 		} catch (error) {
 			console.error(error);
 		}
 
 		try {
-			_applyGlobalBonusDisplay(actor);
+			_applyGlobalBonusDisplay(actor, rollData);
 		} catch (error) {
 			console.error(error);
 		}

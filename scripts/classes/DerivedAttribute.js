@@ -6,6 +6,14 @@ class DerivedAttribute {
 		this.has_modifier = false;
 	}
 
+	clone() {
+		const copy = new DerivedAttribute();
+		copy.value = this.value;
+		copy.sources = this.sources.slice();
+		copy.has_modifier = this.has_modifier;
+		return copy;
+	}
+
 	add(value, source) {
 		if (value == 0) return;
 		this.value += value;

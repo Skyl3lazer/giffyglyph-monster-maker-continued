@@ -90,10 +90,7 @@ const MonsterForge = (function () {
         );
         const proficiency = _parseProficiency(derivedAttributes, blueprint.data.proficiency_bonus);
         const abilityModifiers = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
-        _parseSavingThrows(
-            blueprint.data.trained_saves, proficiency, abilityModifiers,
-            blueprint.data.ability_modifiers.ranking, derivedAttributes.trainedSavingThrowCount
-        );
+        _resolveTrainedSaves(blueprint.data.trained_saves, blueprint.data.ability_modifiers.ranking, derivedAttributes.trainedSavingThrowCount);
 
         return {
             ability_modifiers: abilityModifiers,
@@ -309,13 +306,12 @@ const MonsterForge = (function () {
         });
     }
 
-    /* Hands back the instances derivedAttributes holds rather than copies, and mutates them. Two calls
-       against one getDerivedAttributes result therefore produce one bundle, not two. */
+    /* Copies, so two calls against one getDerivedAttributes result give two independent bundles. */
     function _parseAbilityModifiers(derivedAttributes, abilityModifiers) {
         const ams = {};
         GMM_5E_ABILITIES.forEach((x) => {
             let ranking = abilityModifiers.ranking.indexOf(x);
-            ams[x] = derivedAttributes.abilityModifiers[ranking];
+            ams[x] = derivedAttributes.abilityModifiers[ranking].clone();
             if (ranking === 0)
                 ams["max"] = ams[x];
         });
@@ -355,25 +351,27 @@ const MonsterForge = (function () {
         return modifiers;
     }
 
+    /* The trained flag is a `sync`/`custom-unique` output, and the base pass needs it without parsing a save. */
+    function _resolveTrainedSaves(savingThrows, abilityRankings, tst) {
+        if (savingThrows.method !== "sync" && savingThrows.method !== "custom-unique") return;
+        const trained = new Set((savingThrows.method === "sync") ? abilityRankings.slice(0, tst) : []);
+        GMM_5E_ABILITIES.forEach((x) => {
+            if (savingThrows[x]) savingThrows[x].trained = trained.has(x);
+        });
+    }
+
     function _parseSavingThrows(savingThrows, pb, abilityModifiers, abilityRankings, tst) {
         const sts = {};
         const isUnique = savingThrows.method === "custom-unique";
+        const isProficient = savingThrows.method === "custom" || savingThrows.method === "sync";
         const modifiers = _parseModifierList(savingThrows.modifier.value);
+        _resolveTrainedSaves(savingThrows, abilityRankings, tst);
         GMM_5E_ABILITIES.forEach(function (attrName) {
             if (savingThrows[attrName]) {
                 sts[attrName] = new DerivedAttribute();
                 sts[attrName].value = 0;
-                if (savingThrows.method === "custom" && savingThrows[attrName].trained) {
+                if (isProficient && savingThrows[attrName].trained) {
                     sts[attrName].applyModifier(pb.value, savingThrows[attrName].modifier.override);
-                } else if (savingThrows.method === "sync") {
-                    if (abilityRankings.slice(0, tst).includes(attrName)) {
-                        savingThrows[attrName].trained = true;
-                        sts[attrName].applyModifier(pb.value, savingThrows[attrName].modifier.override);
-                    } else {
-                        savingThrows[attrName].trained = false;
-                    }
-                } else if (isUnique) {
-                    savingThrows[attrName].trained = false;
                 }
                 if (!isUnique) {
                     sts[attrName].applyModifier(abilityModifiers[attrName].value, savingThrows[attrName].modifier.override);
@@ -573,14 +571,13 @@ const MonsterForge = (function () {
     /* The difference between two bundles, not between a parse and the node: measuring against the node
        erases the bonuses _foldActorBonuses had already folded into it. */
     function reparseSettledDependents(monsterData, blueprint, settled, actor) {
-        const derive = () => MonsterHelpers.getDerivedAttributes(
+        const derivedAttributes = MonsterHelpers.getDerivedAttributes(
             blueprint.data.combat.level,
             blueprint.data.combat.rank,
             blueprint.data.combat.role
         );
-        const derivedAttributes = derive();
-        const builtAbilities = _parseAbilityModifiers(derive(), blueprint.data.ability_modifiers);
-        const settledAbilities = _parseAbilityModifiers(derive(), blueprint.data.ability_modifiers);
+        const builtAbilities = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
+        const settledAbilities = _parseAbilityModifiers(derivedAttributes, blueprint.data.ability_modifiers);
         const movedKeys = [];
 
         GMM_5E_ABILITIES.forEach((x) => {
