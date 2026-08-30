@@ -77,7 +77,7 @@ const MonsterBlueprint = (function () {
 
 	// Everything the base pass derives, none of it synced from actor data.
 	const BASE_SUBTREES = [
-		"combat", "armor_class", "hit_points",
+		"combat", "armor_class", "hit_points", "trained_saves", "skills", "challenge_rating", "xp",
 		"ability_modifiers", "proficiency_bonus", "attack_bonus", "attack_dcs", "damage_per_action"
 	];
 
@@ -195,7 +195,7 @@ const MonsterBlueprint = (function () {
 				// Blueprint is up-to-date and requires no changes.
 				return blueprint;
 			default:
-				console.error(`This monster blueprint has an invalid version id [${blueprint?.vid}] and can't be verified.`, blueprint);
+				console.error(game.i18n.format("gmm.monster.errors.invalid_version", { vid: blueprint?.vid }), blueprint);
 				return null;
 		}
 	}

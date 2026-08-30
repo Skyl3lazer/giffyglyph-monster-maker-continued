@@ -6,9 +6,23 @@ class DerivedAttribute {
 		this.has_modifier = false;
 	}
 
+	clone() {
+		const copy = new DerivedAttribute();
+		copy.value = this.value;
+		copy.sources = this.sources.slice();
+		copy.has_modifier = this.has_modifier;
+		return copy;
+	}
+
 	add(value, source) {
+		if (value == 0) return;
+		this.value += value;
+		this.note(value, source);
+	}
+
+	/* A line for a display sibling, which carries the amount where value deliberately does not. */
+	note(value, source) {
 		if (value != 0) {
-			this.value += value;
 			this.sources.push({ value: (value >= 0) ? `+${value}` : `-${Math.abs(value)}`, source: source});
 		}
 	}

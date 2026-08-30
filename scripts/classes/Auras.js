@@ -12,9 +12,16 @@ const Auras = (function () {
 	let afterReady = false;
 
 	function _inertModel() {
-		return class InertAuraData extends foundry.data.ActiveEffectTypeDataModel {
+		const Base = foundry.data?.ActiveEffectTypeDataModel;
+		return class InertAuraData extends (Base ?? foundry.abstract.TypeDataModel) {
+			static defineSchema() {
+				return Base ? super.defineSchema() : {};
+			}
+
 			/* Aura fields this shim knows nothing about survive, so installing the module later finds them intact. */
 			static cleanData(data, options = {}, state) {
+				/* v13 deletes unknown keys and has no prune option. Not cleaning is the only way to keep them. */
+				if (!Base) return data;
 				return super.cleanData(data, { ...options, prune: false }, state);
 			}
 
@@ -34,7 +41,12 @@ const Auras = (function () {
 		const uuid = effect.uuid;
 		if (!uuid || reported.has(uuid)) return;
 		reported.add(uuid);
-		console.warn(`GMM | Aura effect "${effect.name}" on ${effect.parent?.documentName} "${effect.parent?.name}" is switched off: the ${AURA_MODULE_ID} module is not active.`);
+		console.warn(`GMM | ${game.i18n.format("gmm.aura.effect_suppressed", {
+			effect: effect.name,
+			document: effect.parent?.documentName,
+			parent: effect.parent?.name,
+			module: AURA_MODULE_ID
+		})}`);
 		if (afterReady) _banner("gmm.aura.suppressed", reported.size);
 	}
 
