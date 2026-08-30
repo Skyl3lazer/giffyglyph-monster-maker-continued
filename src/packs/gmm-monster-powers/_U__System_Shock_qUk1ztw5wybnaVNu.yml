@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Whenever you reduce a target to 0 hit points, it gains one level of
-      exhaustion.</p>
+      exhaustion.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/skills/melee/sword-stuck-glowing-pink.webp
           text: >-
             <p>Whenever you reduce a target to 0 hit points, it gains one level
-            of exhaustion.</p>
+            of exhaustion.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

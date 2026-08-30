@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Choose an ally you can see. They may roll a saving throw against an
-      ongoing effect.</p>
+      ongoing effect.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/life/heart-area-circle-red-green.webp
           text: >-
             <p>Choose an ally you can see. They may roll a saving throw against
-            an ongoing effect.</p>
+            an ongoing effect.</p><p><em>No automation</em></p>
         activation:
           type: action
           cost: null

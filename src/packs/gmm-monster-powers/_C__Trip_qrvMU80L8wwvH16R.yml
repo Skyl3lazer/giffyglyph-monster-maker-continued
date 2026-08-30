@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Whenever you hit a target with an opportunity attack, that creature
-      falls prone.</p>
+      falls prone.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/skills/melee/strike-sword-stabbed-brown.webp
           text: >-
             <p>Whenever you hit a target with an opportunity attack, that
-            creature falls prone.</p>
+            creature falls prone.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

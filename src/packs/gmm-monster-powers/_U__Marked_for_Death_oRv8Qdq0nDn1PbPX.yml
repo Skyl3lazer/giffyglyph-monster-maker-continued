@@ -5,8 +5,10 @@ system:
   description:
     value: >-
       <p>Whenever you hit a creature within 30' that has 50% hp or more, that
-      creature is <em>Marked for Death</em>. While marked, if the creature is
-      reduced to 0 hit points it suffers instant death.</p>
+      creature is <em>Marked for Death</em>.* While marked, if the creature is
+      reduced to 0 hit points it suffers instant death.+</p><p><em>* Core
+      automation</em></p><p><em>+ Midi automation</em></p><p><em>Use it when you
+      hit a target above half hit points.</em></p>
     chat: ''
   source: {}
   activation:
@@ -65,7 +67,28 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: Qdq0nDn1PbPXoRv8
+    name: Marked for Death
+    img: icons/magic/acid/dissolve-bone-skull.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.onUseMacroName
+          type: custom
+          value: function.gmmc.conditions.cursed,isDamaged
+    flags:
+      dae:
+        stackable: noneName
+      gmm:
+        condition: cursed
+    statuses:
+      - marked
+    sort: 0
+    _key: '!items.effects!oRv8Qdq0nDn1PbPX.Qdq0nDn1PbPXoRv8'
 folder: oCn6YWsz0qjuGvFL
 flags:
   core:
@@ -80,8 +103,11 @@ flags:
           image: icons/magic/acid/dissolve-bone-skull.webp
           text: >-
             <p>Whenever you hit a creature within 30' that has 50% hp or more,
-            that creature is <em>Marked for Death</em>. While marked, if the
-            creature is reduced to 0 hit points it suffers instant death.</p>
+            that creature is <em>Marked for Death</em>.* While marked, if the
+            creature is reduced to 0 hit points it suffers instant
+            death.+</p><p><em>* Core automation</em></p><p><em>+ Midi
+            automation</em></p><p><em>Use it when you hit a target above half
+            hit points.</em></p>
         activation:
           type: ''
           cost: null
@@ -97,7 +123,7 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
+          type: util
           related_stat: str
           bonus: ''
           defense: ''
@@ -109,14 +135,14 @@ flags:
           units: ''
           value: ''
         range:
-          units: ''
-          value: null
+          units: ft
+          value: 30
           long: null
         recharge:
           value: null
           is_charged: false
         target:
-          type: ''
+          type: creature
           units: ''
           value: null
           width: null

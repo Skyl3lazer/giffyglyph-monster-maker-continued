@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Whenever you critically strike a creature with a weapon attack, that
-      creature gains one failed death saving throw.</p>
+      creature gains one failed death saving throw.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/acid/dissolve-arm-flesh.webp
           text: >-
             <p>Whenever you critically strike a creature with a weapon attack,
-            that creature gains one failed death saving throw.</p>
+            that creature gains one failed death saving throw.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

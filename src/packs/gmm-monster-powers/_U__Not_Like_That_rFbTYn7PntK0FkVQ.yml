@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>When an ally you can see and who can hear you misses with an attack,
-      they may reroll the attack with advantage.</p>
+      they may reroll the attack with advantage.+</p><p><em>+ Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +65,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: Yn7PntK0FkVQrFbT
+    name: Not Like That
+    img: icons/magic/time/clock-spinning-gold-pink.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.optional.NotLikeThat.attack.fail.all
+          type: custom
+          value: reroll-kh
+        - key: flags.midi-qol.optional.NotLikeThat.label
+          type: custom
+          value: Not Like That
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!rFbTYn7PntK0FkVQ.Yn7PntK0FkVQrFbT'
 folder: C9CcFxosfvN1MhYb
 flags:
   core:
@@ -79,7 +100,8 @@ flags:
           image: icons/magic/time/clock-spinning-gold-pink.webp
           text: >-
             <p>When an ally you can see and who can hear you misses with an
-            attack, they may reroll the attack with advantage.</p>
+            attack, they may reroll the attack with advantage.+</p><p><em>+ Midi
+            automation</em></p>
         activation:
           type: reaction
           cost: null

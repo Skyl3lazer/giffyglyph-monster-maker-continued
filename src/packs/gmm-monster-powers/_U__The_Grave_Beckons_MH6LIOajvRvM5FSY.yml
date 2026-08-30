@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/death/gallows-hanged-humanoid.webp
 system:
   description:
-    value: <p>The target loses one unspent hit die.</p>
+    value: >-
+      <p>The target loses one unspent hit die.+</p><p><em>+ Midi
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: IOajvRvM5FSYMH6L
+    name: The Grave Beckons
+    img: icons/magic/death/hand-withered-gray.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: macro.execute
+          type: custom
+          value: function.gmmc.conditions.bleeding
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!MH6LIOajvRvM5FSY.IOajvRvM5FSYMH6L'
 folder: oCn6YWsz0qjuGvFL
 flags:
   core:
@@ -75,7 +94,9 @@ flags:
         description:
           name: (U) The Grave Beckons
           image: icons/magic/death/gallows-hanged-humanoid.webp
-          text: <p>The target loses one unspent hit die.</p>
+          text: >-
+            <p>The target loses one unspent hit die.+</p><p><em>+ Midi
+            automation</em></p>
         activation:
           type: action
           cost: null

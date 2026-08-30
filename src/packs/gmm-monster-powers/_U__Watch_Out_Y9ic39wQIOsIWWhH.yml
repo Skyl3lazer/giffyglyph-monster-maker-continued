@@ -4,8 +4,10 @@ img: icons/magic/perception/eye-ringed-glow-angry-red.webp
 system:
   description:
     value: >-
-      <p>Grant that creature +5 AC against the attack. You must be able to see
-      the source of the attack, and your ally must be able to hear you.</p>
+      <p>Grant that creature +5 AC against the attack.+ You must be able to see
+      the source of the attack, and your ally must be able to hear
+      you.</p><p><em>+ Midi automation</em></p><p><em>Line of sight and hearing
+      are not checked.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +66,26 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 39wQIOsIWWhHY9ic
+    name: Watch Out
+    img: icons/magic/perception/eye-ringed-glow-angry-red.webp
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: system.attributes.ac.bonus
+          type: add
+          value: '5'
+    flags:
+      dae:
+        stackable: noneName
+        specialDuration:
+          - isAttacked
+    sort: 0
+    _key: '!items.effects!Y9ic39wQIOsIWWhH.39wQIOsIWWhHY9ic'
 folder: J8E4I6WUVdsFmJFl
 flags:
   core:
@@ -78,9 +99,10 @@ flags:
           name: (U) Watch Out
           image: icons/magic/perception/eye-ringed-glow-angry-red.webp
           text: >-
-            <p>Grant that creature +5 AC against the attack. You must be able to
-            see the source of the attack, and your ally must be able to hear
-            you.</p>
+            <p>Grant that creature +5 AC against the attack.+ You must be able
+            to see the source of the attack, and your ally must be able to hear
+            you.</p><p><em>+ Midi automation</em></p><p><em>Line of sight and
+            hearing are not checked.</em></p>
         activation:
           type: reaction
           cost: null

@@ -6,7 +6,7 @@ system:
     value: >-
       <p>Choose one ally. Until the end of their turn, the ally's attacks ignore
       resistance to one damage type and treat immunity as if it were
-      resistance.</p>
+      resistance.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -81,7 +81,7 @@ flags:
           text: >-
             <p>Choose one ally. Until the end of their turn, the ally's attacks
             ignore resistance to one damage type and treat immunity as if it
-            were resistance.</p>
+            were resistance.</p><p><em>No automation</em></p>
         activation:
           type: action
           cost: null

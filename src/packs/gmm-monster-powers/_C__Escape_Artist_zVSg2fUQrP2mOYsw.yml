@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>When you are grappled or restrained nonmagically, you can immediately
-      escape or end the effect.</p>
+      escape or end the effect.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,8 @@ flags:
           image: icons/magic/movement/trail-streak-zigzag-yellow.webp
           text: >-
             <p>When you are grappled or restrained nonmagically, you can
-            immediately escape or end the effect.</p>
+            immediately escape or end the effect.</p><p><em>No
+            automation</em></p>
         activation:
           type: reaction
           cost: null

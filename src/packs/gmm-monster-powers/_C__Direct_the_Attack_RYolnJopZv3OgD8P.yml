@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>The target is marked until the end of your next turn. Allies have
-      advantage on their first attack roll made against the marked creature.</p>
+      advantage on their first attack roll made against the marked
+      creature.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>The target is marked until the end of your next turn. Allies have
             advantage on their first attack roll made against the marked
-            creature.</p>
+            creature.</p><p><em>No automation</em></p>
         activation:
           type: ''
           cost: null

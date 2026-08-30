@@ -4,8 +4,9 @@ img: icons/skills/melee/unarmed-punch-fist-yellow-red.webp
 system:
   description:
     value: >-
-      <p>The creature is marked. A marked creature has disadvantage on any
-      attack roll that doesn't include you.</p>
+      <p>The creature is marked.* A marked creature has disadvantage on any
+      attack roll that doesn't include you.^</p><p><em>* Core
+      automation</em></p><p><em>^ AC5e automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -65,7 +66,26 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 1v9karsoajFS9vDn
+    name: Marked
+    img: systems/dnd5e/icons/svg/statuses/marked.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes:
+        - key: flags.automated-conditions-5e.attack.disadvantage
+          type: ac5e
+          value: effectOriginActor && opponentActorUuid !== effectOriginActor.uuid
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - marked
+    sort: 0
+    _key: '!items.effects!9vDn1v9karsoajFS.1v9karsoajFS9vDn'
 folder: zrWoCiSJhQY5KH6q
 flags:
   core:
@@ -79,8 +99,9 @@ flags:
           name: (C) Hit Me
           image: icons/skills/melee/unarmed-punch-fist-yellow-red.webp
           text: >-
-            <p>The creature is marked. A marked creature has disadvantage on any
-            attack roll that doesn't include you.</p>
+            <p>The creature is marked.* A marked creature has disadvantage on
+            any attack roll that doesn't include you.^</p><p><em>* Core
+            automation</em></p><p><em>^ AC5e automation</em></p>
         activation:
           type: action
           cost: null

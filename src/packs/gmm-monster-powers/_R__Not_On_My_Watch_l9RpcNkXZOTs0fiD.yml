@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>When an ally would be reduced to 0 hit points, they are reduced to 1
-      hit point instead.</p>
+      hit point instead.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/magic/life/heart-hand-gold-green.webp
           text: >-
             <p>When an ally would be reduced to 0 hit points, they are reduced
-            to 1 hit point instead.</p>
+            to 1 hit point instead.</p><p><em>No automation</em></p>
         activation:
           type: reaction
           cost: null

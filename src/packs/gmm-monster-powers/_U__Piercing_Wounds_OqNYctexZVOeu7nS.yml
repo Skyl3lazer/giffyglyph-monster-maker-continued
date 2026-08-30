@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Choose one damage type. Until the end of your next turn, your abilities
-      ignore resistance to this damage and treat immunity as resistance.</p>
+      ignore resistance to this damage and treat immunity as
+      resistance.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>Choose one damage type. Until the end of your next turn, your
             abilities ignore resistance to this damage and treat immunity as
-            resistance.</p>
+            resistance.</p><p><em>No automation</em></p>
         activation:
           type: bonus
           cost: null

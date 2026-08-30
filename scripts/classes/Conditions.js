@@ -17,16 +17,7 @@ const Conditions = (function () {
 		return actor.system?.attributes?.hd?.classes?.find?.((x) => x.system?.hd?.value > 0) ?? null;
 	}
 
-	/* Bleeding: at the end of your turn, you lose 1 unspent hit die.
-	 * OverTime builds its synthetic item under the effect's *origin* actor, so the target leads. */
-	async function bleeding(macroData = {}) {
-		const actor = _getBearer("bleeding", [
-			...(macroData?.workflow?.targets ?? []),
-			macroData?.token,
-			macroData?.actor
-		]);
-		if (!actor) return;
-
+	async function _spendHitDie(actor, source) {
 		// Characters hold hit dice on their class items; everything else holds a single actor-level pool.
 		const cls = _getSpendableClass(actor);
 		if (cls) {
@@ -37,7 +28,37 @@ const Conditions = (function () {
 			await actor.update({ "system.attributes.hd.spent": (hd.spent ?? 0) + 1 });
 		}
 
-		ui.notifications?.info(game.i18n.format("gmm.condition.bleeding.spent", { name: actor.name }));
+		ui.notifications?.info(game.i18n.format("gmm.condition.bleeding.spent", { name: actor.name, source: source }));
+	}
+
+	/* Bleeding: at the end of your turn, you lose 1 unspent hit die. */
+	async function bleeding(...args) {
+		if (typeof args[0] === "string") return _bleedOnce(args);
+
+		// OverTime builds its synthetic item under the effect's *origin* actor, so the target leads.
+		const macroData = args[0] ?? {};
+		const actor = _getBearer("bleeding", [
+			...(macroData?.workflow?.targets ?? []),
+			macroData?.token,
+			macroData?.actor
+		]);
+		if (!actor) return;
+
+		const carrier = actor.appliedEffects.find((x) => x.flags?.gmm?.condition === "bleeding");
+		await _spendHitDie(actor, carrier?.name ?? "");
+	}
+
+	/* DAE runs the macro for the effect's own bearer, so there is nothing to guess. */
+	async function _bleedOnce(args) {
+		if (args[0] !== "on") return;
+
+		const context = args[args.length - 1];
+		const effect = fromUuidSync(context?.effectUuid);
+		const actor = fromUuidSync(context?.actorUuid);
+		if (actor) await _spendHitDie(actor, effect?.name ?? "");
+
+		// A one-shot rider carries nothing once the die is spent.
+		await effect?.delete();
 	}
 
 	/* Cursed: if you are reduced to 0 hit points, you die.

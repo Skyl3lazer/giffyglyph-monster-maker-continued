@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Choose one ally. They may immediately recharge one exhausted uncommon
-      feature.</p>
+      feature.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/weapons/ammunition/arrow-broadhead-glowing-orange.webp
           text: >-
             <p>Choose one ally. They may immediately recharge one exhausted
-            uncommon feature.</p>
+            uncommon feature.</p><p><em>No automation</em></p>
         activation:
           type: bonus
           cost: null

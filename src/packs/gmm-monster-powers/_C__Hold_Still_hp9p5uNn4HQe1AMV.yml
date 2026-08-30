@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Whenever you hit a creature that has moved 10 ft. or less since your
-      last turn, that creature falls prone.</p>
+      last turn, that creature falls prone.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,8 @@ flags:
           image: icons/magic/death/bones-crossed-orange.webp
           text: >-
             <p>Whenever you hit a creature that has moved 10 ft. or less since
-            your last turn, that creature falls prone.</p>
+            your last turn, that creature falls prone.</p><p><em>No
+            automation</em></p>
         activation:
           type: ''
           cost: null

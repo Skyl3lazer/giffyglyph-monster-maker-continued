@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Choose one of your uncommon features and then a) reduce the cooldown by
-      1, b) reroll a recharge, or c) gain 1 charge</p>
+      1, b) reroll a recharge, or c) gain 1 charge</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/commodities/tech/tube-chamber-lightning.webp
           text: >-
             <p>Choose one of your uncommon features and then a) reduce the
-            cooldown by 1, b) reroll a recharge, or c) gain 1 charge</p>
+            cooldown by 1, b) reroll a recharge, or c) gain 1
+            charge</p><p><em>No automation</em></p>
         activation:
           type: bonus
           cost: null

@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/unholy/orb-swirling-teal.webp
 system:
   description:
-    value: <p>Targets lose their lower unspent spell slot.</p>
+    value: >-
+      <p>Targets lose their lower unspent spell slot.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (U) Void Magic
           image: icons/magic/unholy/orb-swirling-teal.webp
-          text: <p>Targets lose their lower unspent spell slot.</p>
+          text: >-
+            <p>Targets lose their lower unspent spell slot.</p><p><em>No
+            automation</em></p>
         activation:
           type: action
           cost: null

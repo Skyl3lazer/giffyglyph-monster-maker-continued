@@ -3,7 +3,9 @@ type: feat
 img: icons/skills/melee/shield-block-fire-orange.webp
 system:
   description:
-    value: <p>Adjacent allies count as having three-quarters cover.</p>
+    value: >-
+      <p>Adjacent allies count as having three-quarters cover.</p><p><em>Core
+      and Aura Effects automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -63,7 +65,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 9TKlKKkR9DvP5hZu
+    name: Three-Quarters Cover
+    img: systems/dnd5e/icons/svg/statuses/cover-three-quarters.svg
+    type: auraeffects.aura
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+      applyToSelf: false
+      combatOnly: true
+      distanceFormula: '5'
+      disposition: 1
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - coverThreeQuarters
+    sort: 0
+    _key: '!items.effects!5hZu9TKlKKkR9DvP.9TKlKKkR9DvP5hZu'
 folder: zrWoCiSJhQY5KH6q
 flags:
   core:
@@ -76,7 +98,9 @@ flags:
         description:
           name: (U) Get Behind Me
           image: icons/skills/melee/shield-block-fire-orange.webp
-          text: <p>Adjacent allies count as having three-quarters cover.</p>
+          text: >-
+            <p>Adjacent allies count as having three-quarters
+            cover.</p><p><em>Core and Aura Effects automation</em></p>
         activation:
           type: bonus
           cost: null

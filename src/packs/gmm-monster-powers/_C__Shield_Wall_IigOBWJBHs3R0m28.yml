@@ -4,8 +4,10 @@ img: icons/skills/melee/shield-block-gray-yellow.webp
 system:
   description:
     value: >-
-      <p>You grant an adjacent target total cover until the start of your next
-      turn. You must remain adjacent to the target to maintain this cover.</p>
+      <p>You grant an adjacent target total cover+ until the start of your next
+      turn. You must remain adjacent to the target to maintain this
+      cover.</p><p><em>+ Midi automation</em></p><p><em>Adjacency is not
+      tracked.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +66,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: BWJBHs3R0m28IigO
+    name: Total Cover
+    img: systems/dnd5e/icons/svg/statuses/cover-total.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - coverTotal
+    sort: 0
+    _key: '!items.effects!IigOBWJBHs3R0m28.BWJBHs3R0m28IigO'
 folder: zrWoCiSJhQY5KH6q
 flags:
   core:
@@ -78,9 +96,10 @@ flags:
           name: (C) Shield Wall
           image: icons/skills/melee/shield-block-gray-yellow.webp
           text: >-
-            <p>You grant an adjacent target total cover until the start of your
+            <p>You grant an adjacent target total cover+ until the start of your
             next turn. You must remain adjacent to the target to maintain this
-            cover.</p>
+            cover.</p><p><em>+ Midi automation</em></p><p><em>Adjacency is not
+            tracked.</em></p>
         activation:
           type: bonus
           cost: null
