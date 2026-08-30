@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Choose one ally you can see. They may spend their reaction to make a
-      basic attack against a target of your choice.</p>
+      basic attack against a target of your choice.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/sundries/gaming/chess-king-gray.webp
           text: >-
             <p>Choose one ally you can see. They may spend their reaction to
-            make a basic attack against a target of your choice.</p>
+            make a basic attack against a target of your choice.</p><p><em>No
+            automation</em></p>
         activation:
           type: action
           cost: null

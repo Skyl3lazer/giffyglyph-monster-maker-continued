@@ -48,6 +48,7 @@
 	* Also in v14, there are basic automations for the conditions, utilizing both base effects, *MidiQOL*, and *Automated Conditions 5e*.
 	* Dropped the *DFreds Convenient Effects* importable file and the leftover Convenient Effects data on the conditions.
 * Updated compendiums to include proper appropriate effects, etc, to let them function with as much automation as has been built. The entries will indicate in their description how they're automated.
+	* This includes all of the power, attacks, traits, and conditions
 
 ### Effect Updates
 * More attributes are handled correctly now though effects and visually displayed as changed on the sheet when effects are active. This includes (temp)max HP, initiative, skill modifiers, attribute modifiers, global mods (i.e. +2 to all checks), and proficiency.

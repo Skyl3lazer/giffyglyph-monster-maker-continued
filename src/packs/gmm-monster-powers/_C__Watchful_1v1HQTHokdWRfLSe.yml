@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Until the end of your next turn, creatures always provoke opportunity
-      attacks from you (even if they disengage before leaving your reach).</p>
+      attacks from you (even if they disengage before leaving your
+      reach).</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>Until the end of your next turn, creatures always provoke
             opportunity attacks from you (even if they disengage before leaving
-            your reach).</p>
+            your reach).</p><p><em>No automation</em></p>
         activation:
           type: bonus
           cost: null

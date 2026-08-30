@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Choose allies within the area. Each ally is teleported to an unoccupied
-      space of your choice within 40 ft. of their original position.</p>
+      space of your choice within 40 ft. of their original
+      position.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -80,7 +81,7 @@ flags:
           text: >-
             <p>Choose allies within the area. Each ally is teleported to an
             unoccupied space of your choice within 40 ft. of their original
-            position.</p>
+            position.</p><p><em>No automation</em></p>
         activation:
           type: action
           cost: null

@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Until the end of your next turn, you don't reveal yourself or your
-      place of hiding if you make an attack while hidden.</p>
+      place of hiding if you make an attack while hidden.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/magic/unholy/silhouette-robe-evil-power.webp
           text: >-
             <p>Until the end of your next turn, you don't reveal yourself or
-            your place of hiding if you make an attack while hidden.</p>
+            your place of hiding if you make an attack while
+            hidden.</p><p><em>No automation</em></p>
         activation:
           type: bonus
           cost: null

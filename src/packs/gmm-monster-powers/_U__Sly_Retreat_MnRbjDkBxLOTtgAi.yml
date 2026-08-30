@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Move up to half your speed. This movement does not provoke opportunity
-      attacks.</p>
+      attacks.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +79,7 @@ flags:
           image: icons/skills/movement/ball-spinning-blue.webp
           text: >-
             <p>Move up to half your speed. This movement does not provoke
-            opportunity attacks.</p>
+            opportunity attacks.</p><p><em>No automation</em></p>
         activation:
           type: reaction
           cost: null

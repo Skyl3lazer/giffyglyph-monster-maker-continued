@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/movement/trail-streak-zigzag-yellow.webp
 system:
   description:
-    value: <p>You suffer no movement penalty when squeezing through a space.</p>
+    value: >-
+      <p>You suffer no movement penalty when squeezing through a
+      space.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -78,7 +80,7 @@ flags:
           image: icons/magic/movement/trail-streak-zigzag-yellow.webp
           text: >-
             <p>You suffer no movement penalty when squeezing through a
-            space.</p>
+            space.</p><p><em>No automation</em></p>
         activation:
           type: bonus
           cost: null

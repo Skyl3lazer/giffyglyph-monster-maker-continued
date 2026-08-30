@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>You move both yourself and the target 5 ft. in any direction. This
-      movement doesn't trigger opportunity attacks.</p>
+      movement doesn't trigger opportunity attacks.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/sundries/gaming/playing-cards.webp
           text: >-
             <p>You move both yourself and the target 5 ft. in any direction.
-            This movement doesn't trigger opportunity attacks.</p>
+            This movement doesn't trigger opportunity attacks.</p><p><em>No
+            automation</em></p>
         activation:
           type: action
           cost: null

@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>Choose one ally you can see. You may move them up to 10 ft. in a
-      direction. This movement does not provoke opportunity attacks.</p>
+      direction. This movement does not provoke opportunity
+      attacks.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -79,7 +80,8 @@ flags:
           image: icons/sundries/gaming/chess-knight-white-glass.webp
           text: >-
             <p>Choose one ally you can see. You may move them up to 10 ft. in a
-            direction. This movement does not provoke opportunity attacks.</p>
+            direction. This movement does not provoke opportunity
+            attacks.</p><p><em>No automation</em></p>
         activation:
           type: action
           cost: null

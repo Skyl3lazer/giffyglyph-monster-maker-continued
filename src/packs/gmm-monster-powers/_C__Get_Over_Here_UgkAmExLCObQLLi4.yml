@@ -3,7 +3,9 @@ type: feat
 img: icons/skills/melee/strike-blade-blood-red.webp
 system:
   description:
-    value: <p>The target is pulled up to 10ft towards you.</p>
+    value: >-
+      <p>The target is pulled up to 10ft towards you.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (C) Get Over Here
           image: icons/skills/melee/strike-blade-blood-red.webp
-          text: <p>The target is pulled up to 10ft towards you.</p>
+          text: >-
+            <p>The target is pulled up to 10ft towards you.</p><p><em>No
+            automation</em></p>
         activation:
           type: action
           cost: null

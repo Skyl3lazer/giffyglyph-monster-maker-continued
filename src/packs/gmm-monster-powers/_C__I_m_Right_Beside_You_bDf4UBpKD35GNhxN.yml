@@ -3,7 +3,9 @@ type: feat
 img: icons/skills/melee/shield-block-bash-yellow.webp
 system:
   description:
-    value: <p>Move up to half of your movement towards that ally.</p>
+    value: >-
+      <p>Move up to half of your movement towards that ally.</p><p><em>No
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (C) I'm Right Beside You
           image: icons/skills/melee/shield-block-bash-yellow.webp
-          text: <p>Move up to half of your movement towards that ally.</p>
+          text: >-
+            <p>Move up to half of your movement towards that ally.</p><p><em>No
+            automation</em></p>
         activation:
           type: reaction
           cost: null

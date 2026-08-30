@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/fire/flame-burning-fist-strike.webp
 system:
   description:
-    value: <p>Targets are pushed 20 ft. away from the center of the area.</p>
+    value: >-
+      <p>Targets are pushed 20 ft. away from the center of the
+      area.</p><p><em>No automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -75,7 +77,9 @@ flags:
         description:
           name: (U) Explosive Force
           image: icons/magic/fire/flame-burning-fist-strike.webp
-          text: <p>Targets are pushed 20 ft. away from the center of the area.</p>
+          text: >-
+            <p>Targets are pushed 20 ft. away from the center of the
+            area.</p><p><em>No automation</em></p>
         activation:
           type: action
           cost: null
