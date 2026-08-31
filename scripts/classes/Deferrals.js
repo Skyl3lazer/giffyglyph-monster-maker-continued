@@ -49,9 +49,12 @@ const Deferrals = (function () {
 		try {
 			if (activity?.id !== Activities.GMM_ACTIVITY_ID) return;
 			const captured = _drainTemplates(activity.uuid);
+			const placed = (results?.templates ?? []).flat().map(_regionUuid).filter(_ => _);
+			const templateUuids = Array.from(new Set([...placed, ...captured]));
 
 			const item = activity.item;
 			const deferral = Activities.readDeferral(item?.flags?.gmm?.blueprint);
+			if (deferral?.type === "dooming") return void _sweepGateTemplates(activity, item, templateUuids);
 			if (deferral?.type !== "delayed") return;
 
 			const deferredId = Activities.GMM_DEFERRED_ACTIVITY_ID;
@@ -63,8 +66,7 @@ const Deferrals = (function () {
 				return void await _useDeferredActivity(item);
 			}
 
-			const placed = (results?.templates ?? []).flat().map(_regionUuid).filter(_ => _);
-			await _plantClock(item, deferral, Array.from(new Set([...placed, ...captured])), inCombat);
+			await _plantClock(item, deferral, templateUuids, inCombat);
 		} catch (error) {
 			console.error("GMM | Deferral activation failed", error);
 		}
@@ -80,6 +82,22 @@ const Deferrals = (function () {
 		const uuids = _pendingTemplates.get(origin) ?? [];
 		_pendingTemplates.delete(origin);
 		return uuids;
+	}
+
+	/* The gate's duration is `spec`, so midi's instantaneous sweep can never see it. GMMC runs midi's rule instead. */
+	function _sweepGateTemplates(activity, item, uuids) {
+		if (!uuids.length) return;
+		if (!globalThis.MidiQOL?.configSettings?.()?.autoRemoveInstantaneousTemplate) return;
+		const delivery = item?.system?.activities?.get?.(Activities.GMM_DEFERRED_ACTIVITY_ID);
+		if (delivery?.duration?.units !== "inst") return;
+
+		// Not `postUseActivity`: midi has not targeted off the area yet when that fires.
+		const sweep = (workflow) => {
+			if (workflow?.activity?.uuid !== activity.uuid) return;
+			Hooks.off("midi-qol.RollComplete", sweep);
+			_deleteTemplates(uuids).catch(e => console.warn("GMM | Doom gate template cleanup failed", e));
+		};
+		Hooks.on("midi-qol.RollComplete", sweep);
 	}
 
 	/* The gate applied the clock, so this is where GMMC first sees it and the only place its source is resolvable. */
@@ -155,7 +173,6 @@ const Deferrals = (function () {
 
 	/* A template can land before its clock or after it. midi auto-places inside `use()`. A GM draws one later. */
 	function _onCreateRegionTemplate(region, _options, userId) {
-		if (!_isEnabled()) return;
 		const origin = region.getFlag("dnd5e", "origin");
 		if (typeof origin !== "string" || !origin.endsWith(`.Activity.${Activities.GMM_ACTIVITY_ID}`)) return;
 

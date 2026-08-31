@@ -1126,6 +1126,14 @@ const Activities = (function () {
         return item?.effects?.get?.(GMM_DOOM_CLOCK_EFFECT_ID) ?? null;
     }
 
+    /* Keyed to the authored type. With automation off nothing is
+     * built and the live carrier is disabled. */
+    function strandedDurationCarrier(item) {
+        const type = Durations.read(item?.flags?.gmm?.blueprint).type;
+        if (Durations.TYPES[type]?.applies) return null;
+        return item?.effects?.get?.(Durations.GMM_DURATION_EFFECT_ID) ?? null;
+    }
+
     function _mergeForeignFields(item, activityId, data) {
         return AutomationHelpers.preserveForeignActivityFields(
             item, activityId, data, GMM_OWNED_ACTIVITY_FIELDS
@@ -1815,6 +1823,7 @@ const Activities = (function () {
         GMM_FORGED_EFFECT_IDS,
         isGmmActivityId,
         strandedDoomClock,
+        strandedDurationCarrier,
         readDeferral,
         isAutomatedDeferral,
         isDelayedDeferral,

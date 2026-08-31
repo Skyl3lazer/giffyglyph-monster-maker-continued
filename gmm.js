@@ -146,15 +146,20 @@ Hooks.once("init", function() {
 		}
 	});
 
-	/* No builder can delete an embedded document, so a clock whose deferral is gone is disposed of here.
-	   Gated on the acting client, so two owners do not race the same deletion. */
+	/* No builder can delete an embedded document, so a forged effect the blueprint no longer asks for is
+	   disposed of here. Gated on the acting client, so two owners do not race the same deletion. */
 	Hooks.on("updateItem", (item, _change, _options, userId) => {
 		if (game.user.id !== userId) return;
 		try {
-			const clock = Activities.strandedDoomClock(item);
-			if (clock) clock.delete().catch(e => console.warn("GMM | stranded doom-clock cleanup failed", e));
+			const ids = [Activities.strandedDoomClock(item), Activities.strandedDurationCarrier(item)]
+				.filter(effect => effect)
+				.map(effect => effect.id);
+			if (ids.length) {
+				item.deleteEmbeddedDocuments("ActiveEffect", ids)
+					.catch(e => console.warn("GMM | stranded forged-effect cleanup failed", e));
+			}
 		} catch (e) {
-			console.warn("GMM | stranded doom-clock check failed", e);
+			console.warn("GMM | stranded forged-effect check failed", e);
 		}
 	});
 

@@ -78,8 +78,8 @@ effects:
         - key: flags.midi-qol.advantage.attack.mwak
           type: custom
           value: >-
-            targetActor.system.attributes.hp.value <=
-            targetActor.system.attributes.hp.max / 2
+            target.system.attributes.hp.value <=
+            target.system.attributes.hp.max / 2
     flags:
       dae:
         stackable: noneName

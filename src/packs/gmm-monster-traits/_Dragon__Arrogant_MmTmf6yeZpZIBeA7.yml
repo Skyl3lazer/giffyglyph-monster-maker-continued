@@ -75,8 +75,8 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.rollModifiers.damage.all.all
-          type: custom
-          value: ro<3
+          type: override
+          value: r<3
     flags:
       dae:
         stackable: noneName

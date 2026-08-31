@@ -76,7 +76,9 @@ effects:
       changes:
         - key: flags.midi-qol.grants.noCritical.all
           type: custom
-          value: system.attributes.hp.value > system.attributes.hp.max / 2
+          value: >-
+            target.system.attributes.hp.value >
+            target.system.attributes.hp.max / 2
     flags:
       dae:
         stackable: noneName
