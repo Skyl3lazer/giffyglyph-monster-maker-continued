@@ -753,6 +753,7 @@
   "gmm.effect.unsupported.skill_passive": "The forge assigns it after effects apply; target {target} instead.",
   "gmm.condition.bleeding.spent": "{name} loses a hit die to {source}.",
   "gmm.condition.cursed.died": "{name} is Cursed and dies at 0 hit points.",
+  "gmm.condition.exhaustion.gained": "{source} takes {name} to exhaustion level {level}.",
   "gmm.terrain.unstable.prone": "{name} ends their turn on Unstable ground and falls prone.",
   "gmm.monster.artifact.paragon_actions.depleted": "{name} has no paragon actions remaining.",
   "gmm.monster.artifact.paragon_actions.maximum": "Maximum",

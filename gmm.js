@@ -9,6 +9,7 @@ import ParagonPower from './scripts/classes/ParagonPower.js';
 import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
 import Auras from './scripts/classes/Auras.js';
 import Conditions from './scripts/classes/Conditions.js';
+import Exhaustion from './scripts/classes/Exhaustion.js';
 import Rolls from './scripts/classes/Rolls.js';
 import Deferrals from './scripts/classes/Deferrals.js';
 import Durations from './scripts/classes/Durations.js';
@@ -52,6 +53,7 @@ Hooks.once("init", function() {
 	Areas.init();
 	Auras.init();
 	MissDamage.init();
+	Exhaustion.init();
 
 	// Backward-compatible API used by legacy migration scripts/macros.
 	const moduleRef = game.modules.get(GMM_MODULE_TITLE);

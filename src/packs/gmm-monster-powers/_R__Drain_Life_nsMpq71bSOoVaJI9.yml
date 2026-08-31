@@ -73,13 +73,10 @@ effects:
     transfer: false
     description: ''
     system:
-      changes:
-        - key: system.attributes.exhaustion
-          type: add
-          value: '1'
+      changes: []
     flags:
-      dae:
-        stackable: noneName
+      gmm:
+        exhaustion: 1
     sort: 0
     _key: '!items.effects!nsMpq71bSOoVaJI9.q71bSOoVaJI9nsMp'
 folder: 4SmCnaZJSBwCUCqK
