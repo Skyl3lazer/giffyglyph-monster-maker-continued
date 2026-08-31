@@ -78,7 +78,7 @@ effects:
       changes:
         - key: flags.automated-conditions-5e.attack.disadvantage
           type: ac5e
-          value: effectOriginActor && opponentActorUuid !== effectOriginActor.uuid
+          value: effectOriginActor.uuid && opponentActorUuid !== effectOriginActor.uuid
     flags:
       dae:
         stackable: noneName

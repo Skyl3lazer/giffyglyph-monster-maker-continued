@@ -33,7 +33,8 @@ const Conditions = (function () {
 
 	/* Bleeding: at the end of your turn, you lose 1 unspent hit die. */
 	async function bleeding(...args) {
-		if (typeof args[0] === "string") return _bleedOnce(args);
+		const passed = Array.isArray(args[0]?.args) ? args[0].args : args;
+		if (typeof passed[0] === "string") return _bleedOnce(passed);
 
 		// OverTime builds its synthetic item under the effect's *origin* actor, so the target leads.
 		const macroData = args[0] ?? {};
