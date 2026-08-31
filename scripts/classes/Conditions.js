@@ -31,6 +31,14 @@ const Conditions = (function () {
 		ui.notifications?.info(game.i18n.format("gmm.condition.bleeding.spent", { name: actor.name, source: source }));
 	}
 
+	/* Empty on a workflow that rolls no save, so a condition standing on its own never skips. */
+	function _madeTheSave(workflow, actor) {
+		for (const saved of workflow?.saves ?? []) {
+			if ((saved?.actor ?? saved)?.uuid === actor.uuid) return true;
+		}
+		return false;
+	}
+
 	/* Bleeding: at the end of your turn, you lose 1 unspent hit die. */
 	async function bleeding(...args) {
 		const passed = Array.isArray(args[0]?.args) ? args[0].args : args;
@@ -44,6 +52,7 @@ const Conditions = (function () {
 			macroData?.actor
 		]);
 		if (!actor) return;
+		if (_madeTheSave(macroData?.workflow, actor)) return;
 
 		const carrier = actor.appliedEffects.find((x) => x.flags?.gmm?.condition === "bleeding");
 		await _spendHitDie(actor, carrier?.name ?? "");
@@ -58,8 +67,8 @@ const Conditions = (function () {
 		const actor = fromUuidSync(context?.actorUuid);
 		if (actor) await _spendHitDie(actor, effect?.name ?? "");
 
-		// A one-shot rider carries nothing once the die is spent.
-		await effect?.delete();
+		// A bare rider carries nothing once the die is spent. A condition is the payload itself and stays.
+		if (!effect?.flags?.gmm?.condition) await effect?.delete();
 	}
 
 	/* Cursed: if you are reduced to 0 hit points, you die.

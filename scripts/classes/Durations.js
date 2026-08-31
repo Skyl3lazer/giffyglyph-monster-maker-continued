@@ -152,7 +152,7 @@ const Durations = (function () {
 
 	/* Separated with `#` because a damage formula may legally contain a comma. The `,` separator applies
 	 * only when no `#` is present. */
-	function _overTimeChanges(duration, rules, damage, saveDc) {
+	function _overTimeChanges(duration, rules, damage, saveDc, saveMacros) {
 		const changes = [];
 
 		if (rules.hasSave) {
@@ -162,7 +162,9 @@ const Durations = (function () {
 				`saveAbility=${duration.saveAbility}`,
 				// A DC nobody can derive is left unsaid. midi then builds no save, rather than a wrong one.
 				...(saveDc ? [`saveDC=${saveDc}`] : []),
-				"saveCount=1-"
+				"saveCount=1-",
+				// midi runs these inside the save's own workflow, which is the only place the result is readable.
+				...(saveMacros?.length ? [`macro=${saveMacros.join(",")}`] : [])
 			];
 			// Ongoing's damage is the failure branch of its own save, not a separate tick.
 			if (rules.saveTurn === "start" && damage?.formula) {
@@ -186,7 +188,7 @@ const Durations = (function () {
 
 	/* Forged even when the action inflicts no condition, because a purely recurring damage effect would
 	 * otherwise have no document to hang its flags on. */
-	function buildEffectData(blueprint, { name, img, damage, saveDc } = {}) {
+	function buildEffectData(blueprint, { name, img, damage, saveDc, saveMacros } = {}) {
 		const duration = read(blueprint);
 		const rules = _rules(duration.type);
 		if (!rules.applies || !isSupported() || !isEnabled()) return null;
@@ -197,7 +199,7 @@ const Durations = (function () {
 			img: img || GMM_DURATION_IMG,
 			// v14 moved effect changes off the document and into its type data.
 			system: {
-				changes: _overTimeChanges(duration, rules, damage, saveDc)
+				changes: _overTimeChanges(duration, rules, damage, saveDc, saveMacros)
 			},
 			duration: _effectDuration(duration, rules),
 			transfer: false,

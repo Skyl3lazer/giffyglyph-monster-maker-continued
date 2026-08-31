@@ -648,14 +648,24 @@ const Activities = (function () {
         };
     }
 
-    function buildDurationEffectData(blueprint) {
+    /* An authored payload names its macro rather than carrying an over-time entry of its own. Two entries
+       on the same turn land in whichever order they were applied in, and only one of them is behind the save. */
+    function _saveMacros(item) {
+        return [...(item?.effects ?? [])]
+            .filter(effect => !GMM_FORGED_EFFECT_IDS.has(effect.id))
+            .map(effect => effect.flags?.gmm?.saveMacro)
+            .filter(macro => typeof macro === "string" && macro);
+    }
+
+    function buildDurationEffectData(item, blueprint) {
         const blueprintData = blueprint?.data ?? blueprint ?? {};
         const first = _normalizeBlueprintDamage(blueprintData.attack?.hit?.damage)[0];
         return Durations.buildEffectData(blueprintData, {
             name: blueprintData.description?.name || "",
             img: blueprintData.description?.image,
             saveDc: buildDurationSaveDcFormula(blueprintData),
-            damage: first ? { formula: first.formula, type: first.type } : null
+            damage: first ? { formula: first.formula, type: first.type } : null,
+            saveMacros: _saveMacros(item)
         });
     }
 
@@ -1012,7 +1022,7 @@ const Activities = (function () {
     /* ForcedReplacement so a type swap leaves no stale sub-fields. */
     function buildActivityUpdate(item, blueprint) {
         const update = { "system.uses": _buildUses(blueprint?.data ?? blueprint ?? {}) };
-        const duration = buildDurationEffectData(blueprint);
+        const duration = buildDurationEffectData(item, blueprint);
 
         const primary = _mergeForeignFields(item, GMM_ACTIVITY_ID, buildActivityData(blueprint));
         const deferredData = buildDeferredActivityData(blueprint);
@@ -1462,7 +1472,7 @@ const Activities = (function () {
     /* Read from `_source`, because `Durations.resolveEffectFormulas` substitutes shortcodes into the
        prepared copy in place. Comparing that copy would rebuild the item on every load forever. */
     function _durationEffectStale(item, blueprint) {
-        const fresh = buildDurationEffectData(blueprint);
+        const fresh = buildDurationEffectData(item, blueprint);
         if (!fresh) return false;
         const stored = item?._source?.effects?.find?.(e => e?._id === Durations.GMM_DURATION_EFFECT_ID);
         if (!stored) return true;

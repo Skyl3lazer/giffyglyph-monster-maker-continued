@@ -7,8 +7,7 @@ system:
       <p>The target loses one unspent hit die.+ At the start of each of the
       creature's turns, the target makes a saving throw (DC [durationSaveDc]).
       On a failed save, the target loses another hit die.+</p><p><em>+ Midi
-      automation</em></p><p><em>The hit die is spent on every turn the effect
-      survives.</em></p>
+      automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -77,14 +76,15 @@ effects:
     description: ''
     system:
       changes:
-        - key: flags.midi-qol.OverTime
+        - key: macro.execute
           type: custom
-          value: turn=start,label=Bleeding,macro=function.gmmc.conditions.bleeding
+          value: function.gmmc.conditions.bleeding
     flags:
       dae:
         stackable: noneName
       gmm:
         condition: bleeding
+        saveMacro: function.gmmc.conditions.bleeding
     sort: 0
     _key: '!items.effects!KN0ABfvjknThO8m2.BfvjknThO8m2KN0A'
 folder: EjqZPJ9sccgXUfgK
@@ -103,8 +103,7 @@ flags:
             <p>The target loses one unspent hit die.+ At the start of each of
             the creature's turns, the target makes a saving throw (DC
             [durationSaveDc]). On a failed save, the target loses another hit
-            die.+</p><p><em>+ Midi automation</em></p><p><em>The hit die is
-            spent on every turn the effect survives.</em></p>
+            die.+</p><p><em>+ Midi automation</em></p>
         activation:
           type: action
           cost: null
