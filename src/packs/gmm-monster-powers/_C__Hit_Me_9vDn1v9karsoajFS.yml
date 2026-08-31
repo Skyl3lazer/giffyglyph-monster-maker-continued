@@ -126,8 +126,13 @@ flags:
           versatile:
             damage: ''
         duration:
+          type: timed
           units: hour
           value: '1'
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         range:
           units: ''
           value: null

@@ -114,8 +114,13 @@ flags:
                 formula: '[damage, damageDie]'
                 type: ''
         duration:
+          type: timed
           units: minute
           value: '10'
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         range:
           units: ft
           value: 100

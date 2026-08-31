@@ -59,7 +59,7 @@ const Durations = (function () {
 	function read(blueprint) {
 		const d = blueprint?.data?.duration ?? blueprint?.duration ?? {};
 		return {
-			type: TYPES[d.type] ? d.type : "instant",
+			type: TYPES[d.type] ? d.type : fromUnits(d.units, d.value).type,
 			units: d.units ?? "",
 			value: d.value ?? "",
 			saveAbility: d.save?.ability ?? "",

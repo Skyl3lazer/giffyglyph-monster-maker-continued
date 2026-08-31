@@ -115,8 +115,13 @@ flags:
               - formula: '[level]'
                 type: ''
         duration:
+          type: timed
           units: minute
           value: '10'
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         range:
           units: ft
           value: 50
