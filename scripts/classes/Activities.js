@@ -1530,8 +1530,7 @@ const Activities = (function () {
 
     /* The pre-type shape carried no `type` key at all. Only _source still shows that absence, because
        the prepared blueprint is default-filled. */
-    function _buildDurationBlueprintMigration(item) {
-        const duration = item?._source?.flags?.gmm?.blueprint?.data?.duration;
+    function _buildDurationBlueprintMigration(duration) {
         if (!duration || duration.type) return null;
         return {
             ...duration,
@@ -1546,15 +1545,16 @@ const Activities = (function () {
         const purge = buildForeignActivityPurge(item);
         let blueprint = item.flags.gmm.blueprint;
 
-        const duration = _buildDurationBlueprintMigration(item);
+        const duration = _buildDurationBlueprintMigration(item?._source?.flags?.gmm?.blueprint?.data?.duration);
         if (duration) {
             blueprint = foundry.utils.deepClone(blueprint);
             blueprint.data.duration = duration;
         }
 
-        const rebuild = !!duration || needsActivityRebuild(item, blueprint);
+        /* Not `|| !!duration`. `Durations.read` default-fills the same values. */
+        const rebuild = needsActivityRebuild(item, blueprint);
         const cleanup = buildSourceFormulaCleanup(item);
-        if (!rebuild && foundry.utils.isEmpty(purge) && !cleanup) return null;
+        if (!rebuild && !duration && foundry.utils.isEmpty(purge) && !cleanup) return null;
         const update = { ...purge };
         if (cleanup) Object.assign(update, cleanup);
         if (duration) update["flags.gmm.blueprint.data.duration"] = duration;
@@ -1567,10 +1567,19 @@ const Activities = (function () {
     function buildPreCreateUpdate(data, item) {
         const sheetClass = data?.flags?.core?.sheetClass;
         if (typeof sheetClass !== "string" || !sheetClass.endsWith(".ActionSheet")) return null;
-        const blueprint = data?.flags?.gmm?.blueprint;
+        let blueprint = data?.flags?.gmm?.blueprint;
         if (!blueprint) return null;
         const purge = buildForeignActivityPurge(item ?? data);
         const source = item?._source?.system?.activities ?? data?.system?.activities ?? {};
+
+        const duration = _buildDurationBlueprintMigration(
+            item?._source?.flags?.gmm?.blueprint?.data?.duration ?? blueprint.data?.duration
+        );
+        if (duration) {
+            blueprint = foundry.utils.deepClone(blueprint);
+            blueprint.data.duration = duration;
+        }
+
         const wantsDeferred = isAutomatedDeferral(blueprint);
         const rebuild = !source[GMM_ACTIVITY_ID]
             || (wantsDeferred !== !!source[GMM_DEFERRED_ACTIVITY_ID])
@@ -1578,8 +1587,9 @@ const Activities = (function () {
             || !!source[GMM_ZONE_ACTIVITY_ID]?.duration?.concentration
             || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint))
             || _poolTargetMismatch(blueprint, source[GMM_ACTIVITY_ID]);
-        if (!rebuild && foundry.utils.isEmpty(purge)) return null;
+        if (!rebuild && !duration && foundry.utils.isEmpty(purge)) return null;
         const update = { ...purge };
+        if (duration) update["flags.gmm.blueprint.data.duration"] = duration;
         if (rebuild) Object.assign(update, buildActivityUpdate(item, blueprint));
         return update;
     }
