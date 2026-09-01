@@ -44,6 +44,17 @@ const AutomationHelpers = (function () {
 		return itemId ? (carrier.parent?.items?.get?.(itemId) ?? null) : null;
 	}
 
+	/* Only an actor that carries the effect is eligible, so a bad guess is a no-op rather than the
+	 * wrong creature paying. `candidates` is ordered by which source midi makes authoritative. */
+	function effectBearer(flagPath, name, candidates) {
+		for (const candidate of candidates) {
+			const actor = candidate?.actor ?? candidate;
+			const effect = actor?.appliedEffects?.find((x) => foundry.utils.getProperty(x, flagPath) === name);
+			if (effect) return { actor: actor, effect: effect };
+		}
+		return null;
+	}
+
 	/* A concentration effect names its feature on a flag rather than through `origin`. */
 	function concentrationFor(actor, itemId) {
 		if (!actor || !itemId) return null;
@@ -53,6 +64,7 @@ const AutomationHelpers = (function () {
 
 	return {
 		concentrationFor: concentrationFor,
+		effectBearer: effectBearer,
 		activitySource: activitySource,
 		preserveForeignActivityFields: preserveForeignActivityFields,
 		resolveSourceItem: resolveSourceItem

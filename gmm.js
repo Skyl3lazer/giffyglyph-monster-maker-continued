@@ -9,6 +9,7 @@ import ParagonPower from './scripts/classes/ParagonPower.js';
 import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
 import Auras from './scripts/classes/Auras.js';
 import Conditions from './scripts/classes/Conditions.js';
+import Boons from './scripts/classes/Boons.js';
 import Exhaustion from './scripts/classes/Exhaustion.js';
 import Rolls from './scripts/classes/Rolls.js';
 import Deferrals from './scripts/classes/Deferrals.js';
@@ -69,6 +70,7 @@ Hooks.once("init", function() {
 	}
 
 	Conditions.registerApi();
+	Boons.registerApi();
 	Rolls.registerApi();
 
 	// The persistent cleanup is migrateWorld's job. This only keeps a stored shortcode from throwing at load.

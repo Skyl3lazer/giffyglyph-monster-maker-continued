@@ -1,16 +1,11 @@
+import AutomationHelpers from './AutomationHelpers.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
 /* Function macros for the pack effects midi drives. Reached by name as `function.gmmc.conditions.*`. */
 const Conditions = (function () {
 
-	/* Only an actor that carries the condition is eligible, so a bad guess is a no-op rather than the
-	 * wrong creature paying. `candidates` is ordered by which source midi makes authoritative. */
 	function _getBearer(condition, candidates) {
-		for (const candidate of candidates) {
-			const actor = candidate?.actor ?? candidate;
-			if (actor?.appliedEffects?.some((x) => x.flags?.gmm?.condition === condition)) return actor;
-		}
-		return null;
+		return AutomationHelpers.effectBearer("flags.gmm.condition", condition, candidates);
 	}
 
 	function _getSpendableClass(actor) {
@@ -39,23 +34,22 @@ const Conditions = (function () {
 		return false;
 	}
 
-	/* Bleeding: at the end of your turn, you lose 1 unspent hit die. */
+
 	async function bleeding(...args) {
 		const passed = Array.isArray(args[0]?.args) ? args[0].args : args;
 		if (typeof passed[0] === "string") return _bleedOnce(passed);
 
 		// OverTime builds its synthetic item under the effect's *origin* actor, so the target leads.
 		const macroData = args[0] ?? {};
-		const actor = _getBearer("bleeding", [
+		const bearer = _getBearer("bleeding", [
 			...(macroData?.workflow?.targets ?? []),
 			macroData?.token,
 			macroData?.actor
 		]);
-		if (!actor) return;
-		if (_madeTheSave(macroData?.workflow, actor)) return;
+		if (!bearer) return;
+		if (_madeTheSave(macroData?.workflow, bearer.actor)) return;
 
-		const carrier = actor.appliedEffects.find((x) => x.flags?.gmm?.condition === "bleeding");
-		await _spendHitDie(actor, carrier?.name ?? "");
+		await _spendHitDie(bearer.actor, bearer.effect.name ?? "");
 	}
 
 	/* DAE runs the macro for the effect's own bearer, so there is nothing to guess. */
@@ -71,10 +65,9 @@ const Conditions = (function () {
 		if (!effect?.flags?.gmm?.condition) await effect?.delete();
 	}
 
-	/* Cursed: if you are reduced to 0 hit points, you die.
-	 * midi fires isDamaged once per target, so the target set would name the wrong one of two Cursed victims. */
+	/* Midi fires isDamaged once per target, so the target set would name the wrong one of two Cursed victims. */
 	async function cursed(macroData = {}) {
-		const actor = _getBearer("cursed", [macroData?.token, macroData?.actor]);
+		const actor = _getBearer("cursed", [macroData?.token, macroData?.actor])?.actor;
 		if (!actor) return;
 
 		/* midi's isDamaged pass runs before the damage is written. */
@@ -94,7 +87,7 @@ const Conditions = (function () {
 			...(macroData?.workflow?.targets ?? []),
 			macroData?.token,
 			macroData?.actor
-		]);
+		])?.actor;
 		if (!actor) return;
 		if (actor.statuses?.has("prone")) return;
 

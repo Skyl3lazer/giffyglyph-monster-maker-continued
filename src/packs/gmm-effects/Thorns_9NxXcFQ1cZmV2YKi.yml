@@ -5,13 +5,16 @@ img: icons/consumables/plants/thorned-curled-vine-green.webp
 description: >-
   <p><strong>Rare Boon</strong></p><ul><li><p>You reflect half of any damage
   you take onto your attacker.</p></li></ul><p><em>Applies to a creature you
-  empower.</em></p><p><em>No automation</em></p>
+  empower.</em></p><p><em>Midi automation</em></p>
 disabled: false
 transfer: false
 folder: gmmBoons00000000
 sort: 0
 system:
-  changes: []
+  changes:
+    - key: flags.midi-qol.onUseMacroName
+      type: custom
+      value: function.gmmc.boons.thorns,isDamaged
 flags:
   dae:
     stackable: noneName
