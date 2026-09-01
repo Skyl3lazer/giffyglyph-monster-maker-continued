@@ -5,6 +5,7 @@ import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
 const GMM_DEFERRALS_SETTING = "automateDeferrals";
 const GMM_CLOCK_FLAG = "deferral";
+const GMM_ACTIVATION_FLAG = "deferralActivation";
 const GMM_MESSAGE_FLAG = "deferralResolution";
 
 /* GMMC counts the turns itself: an effect's duration measures elapsed rounds, not turns its bearer has taken. */
@@ -13,7 +14,12 @@ const Deferrals = (function () {
 	/* Templates placed before their clock exists, keyed by the activity uuid stamped on them. */
 	const _pendingTemplates = new Map();
 
+	/* Activations in flight, so a template one of them places can be told from a GM drawing onto a running clock. */
+	const _activationsInFlight = new Set();
+
 	function init() {
+		Hooks.on("dnd5e.preActivityConsumption", _onPreActivityConsumption);
+		Hooks.on("dnd5e.preCreateActivityTemplate", _onPreCreateActivityTemplate);
 		Hooks.on("dnd5e.postUseActivity", _onPostUseActivity);
 		Hooks.on("createActiveEffect", _onCreateActiveEffect);
 		Hooks.on("deleteActiveEffect", _onDeleteActiveEffect);
@@ -49,6 +55,7 @@ const Deferrals = (function () {
 	async function _onPostUseActivity(activity, _usageConfig, results) {
 		try {
 			if (activity?.id !== Activities.GMM_ACTIVITY_ID) return;
+			_activationsInFlight.delete(activity.uuid);
 			const captured = _drainTemplates(activity.uuid);
 			const placed = (results?.templates ?? []).flat().map(_regionUuid).filter(_ => _);
 			const templateUuids = Array.from(new Set([...placed, ...captured]));
@@ -77,6 +84,16 @@ const Deferrals = (function () {
 	function _regionUuid(template) {
 		if (!template?.id) return null;
 		return template.parent?.regions?.get(template.id)?.uuid ?? template.uuid ?? null;
+	}
+
+	function _onPreActivityConsumption(activity) {
+		if (activity?.id === Activities.GMM_ACTIVITY_ID) _activationsInFlight.add(activity.uuid);
+	}
+
+	/* The marker rides the document, so every client reaches the same verdict on a placement without a socket. */
+	function _onPreCreateActivityTemplate(activity, templateData) {
+		if (!_activationsInFlight.has(activity?.uuid)) return;
+		foundry.utils.setProperty(templateData, `flags.${GMM_MODULE_TITLE}.${GMM_ACTIVATION_FLAG}`, activity.uuid);
 	}
 
 	function _drainTemplates(origin) {
@@ -184,7 +201,9 @@ const Deferrals = (function () {
 		const origin = region.getFlag("dnd5e", "origin");
 		if (typeof origin !== "string" || !origin.endsWith(`.Activity.${Activities.GMM_ACTIVITY_ID}`)) return;
 
-		const effect = _clockFor(origin);
+		/* Two uses of one action share an origin, so an activation's own template must never reach the append
+		   branch: `_clockFor` would hand it the earlier use's countdown. */
+		const effect = region.getFlag(GMM_MODULE_TITLE, GMM_ACTIVATION_FLAG) ? null : _clockFor(origin);
 		if (!effect) {
 			// Whoever placed it is whoever will drain it: `postUseActivity` fires only on that client.
 			if (userId === game.user.id) {
