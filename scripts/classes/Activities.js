@@ -635,6 +635,8 @@ const Activities = (function () {
             // The gate applies it to whoever it landed on, so it must not also ride the scaler.
             transfer: false,
             flags: {
+                // A clock carries no duration. Without this dnd5e files it as passive and draws no icon.
+                dnd5e: { isTemporary: true },
                 [GMM_MODULE_TITLE]: {
                     deferral: {
                         kind: "dooming",

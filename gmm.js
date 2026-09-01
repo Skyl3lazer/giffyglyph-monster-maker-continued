@@ -13,6 +13,8 @@ import Boons from './scripts/classes/Boons.js';
 import Exhaustion from './scripts/classes/Exhaustion.js';
 import Rolls from './scripts/classes/Rolls.js';
 import Deferrals from './scripts/classes/Deferrals.js';
+import DeferralCountdown from './scripts/classes/DeferralCountdown.js';
+import DeferralCountdownSettings from './scripts/classes/DeferralCountdownSettings.js';
 import Durations from './scripts/classes/Durations.js';
 import Areas from './scripts/classes/Areas.js';
 import MissDamage from './scripts/classes/MissDamage.js';
@@ -21,6 +23,11 @@ import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
 import { GMM_MODULE_TITLE } from "./scripts/consts/GmmModuleTitle.js";
+import {
+	GMM_DEFERRAL_COUNTDOWN_DEFAULTS,
+	GMM_DEFERRAL_COUNTDOWN_MENU,
+	GMM_DEFERRAL_COUNTDOWN_SETTING
+} from "./scripts/consts/GmmDeferralCountdown.js";
 
 Hooks.once("init", function() {
 	console.log(`Giffyglyph's 5e Monster Maker Continued | Initializing`);
@@ -50,6 +57,7 @@ Hooks.once("init", function() {
 	ParagonPower.init();
 	ParagonDefenses.init();
 	Deferrals.init();
+	DeferralCountdown.init();
 	Durations.init();
 	Areas.init();
 	Auras.init();
@@ -523,6 +531,24 @@ function _registerSettings() {
 		config: true,
 		default: true,
 		type: Boolean
+	});
+
+	game.settings.registerMenu(GMM_MODULE_TITLE, GMM_DEFERRAL_COUNTDOWN_MENU, {
+		name: "gmm.settings.deferral_countdown.name",
+		hint: "gmm.settings.deferral_countdown.hint",
+		label: "gmm.settings.deferral_countdown.label",
+		icon: "fas fa-stopwatch",
+		type: DeferralCountdownSettings,
+		restricted: true
+	});
+
+	game.settings.register(GMM_MODULE_TITLE, GMM_DEFERRAL_COUNTDOWN_SETTING, {
+		scope: "world",
+		config: false,
+		default: { ...GMM_DEFERRAL_COUNTDOWN_DEFAULTS },
+		type: Object,
+		// Nothing marks a token dirty when a setting changes. Every client has to follow the GM's.
+		onChange: () => DeferralCountdown.repaintAll()
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "automateDurations", {

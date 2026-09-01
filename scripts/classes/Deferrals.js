@@ -162,7 +162,7 @@ const Deferrals = (function () {
 
 	async function _plantClock(item, deferral, templateUuids, { combat, combatant }) {
 		const effectData = {
-			name: game.i18n.format("gmm.deferral.clock.name", { name: item.name }),
+			name: game.i18n.format("gmm.deferral.clock.name", { name: item.name, rounds: deferral.timer }),
 			img: item.img,
 			origin: item.uuid,
 			/* No duration, matching the doom clock. One that carries a duration can expire on its own,
@@ -177,6 +177,8 @@ const Deferrals = (function () {
 			},
 			// Creation data is not expanded, so a dotted flag key would be stored as one literal key.
 			flags: {
+				// A clock carries no duration. Without this dnd5e files it as passive and draws no icon.
+				dnd5e: { isTemporary: true },
 				[GMM_MODULE_TITLE]: {
 					[GMM_CLOCK_FLAG]: {
 						kind: "delayed",
@@ -246,8 +248,8 @@ const Deferrals = (function () {
 
 				const remaining = current - 1;
 				const update = { flags: { [GMM_MODULE_TITLE]: { [GMM_CLOCK_FLAG]: { ...clock, remaining, lastTick: tick } } } };
-				// The doom clock's own name is the only number a player can trust, so it moves in the same write.
-				if (_clockKind(clock) === "dooming") update.name = _doomClockName(effect, clock, remaining);
+				// The name is where the count reaches the effects list, which is the one surface a badge cannot serve.
+				update.name = _clockName(effect, clock, remaining);
 				await effect.update(update);
 
 				if (remaining > 0) _postCountdown(actor, effect, clock, remaining);
@@ -263,8 +265,9 @@ const Deferrals = (function () {
 		return clock?.name || _sourceItem(effect, clock)?.name || effect.name;
 	}
 
-	function _doomClockName(effect, clock, remaining) {
-		return game.i18n.format("gmm.deferral.clock.doomed", {
+	function _clockName(effect, clock, remaining) {
+		const key = _clockKind(clock) === "dooming" ? "gmm.deferral.clock.doomed" : "gmm.deferral.clock.name";
+		return game.i18n.format(key, {
 			name: _featureName(effect, clock),
 			rounds: remaining
 		});
