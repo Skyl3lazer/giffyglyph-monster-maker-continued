@@ -1,0 +1,35 @@
+name: Destroyer
+type: base
+_id: nS73Ixc5ZHJNMvoB
+img: icons/magic/control/buff-strength-muscle-damage-red.webp
+description: >-
+  <p><strong>Uncommon Boon</strong></p><ul><li><p>You deal additional damage
+  equal to the combat level of whoever empowered you, of a damage type they
+  choose.</p></li></ul><p><em>Applies to a creature you
+  empower.</em></p><p><em>Midi automation</em></p><p><em>Without midi-qol the
+  bonus reads your own combat level instead of the empowerer's. Set the damage
+  type in each change, replacing fire.</em></p>
+disabled: false
+transfer: false
+folder: gmmBoons00000000
+sort: 0
+system:
+  changes:
+    - key: system.bonuses.mwak.damage
+      type: add
+      value: '@gmm.level[fire]'
+    - key: system.bonuses.rwak.damage
+      type: add
+      value: '@gmm.level[fire]'
+    - key: system.bonuses.msak.damage
+      type: add
+      value: '@gmm.level[fire]'
+    - key: system.bonuses.rsak.damage
+      type: add
+      value: '@gmm.level[fire]'
+flags:
+  dae:
+    stackable: noneName
+  gmm:
+    rarity: uncommon
+_key: '!effects!nS73Ixc5ZHJNMvoB'
