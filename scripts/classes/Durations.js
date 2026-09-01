@@ -8,6 +8,11 @@ const Durations = (function () {
 
 	const GMM_DURATIONS_SETTING = "automateDurations";
 	const GMM_DURATION_FLAG = "duration";
+	const GMM_APPLICATION_FLAG = "durationApplication";
+
+	/* Two uses of one feature share an item, an origin, and every flag GMMC forges. Only the create call
+	 * they arrive in tells them apart. */
+	const GMM_APPLICATION_OPTION = "gmmDurationApplication";
 
 	const GMM_DURATION_EFFECT_ID = (typeof dnd5e !== "undefined" && dnd5e?.utils?.staticID)
 		? dnd5e.utils.staticID("gmmduration")
@@ -241,12 +246,29 @@ const Durations = (function () {
 		}
 	}
 
+	function _applicationOf(effect) {
+		return effect?.flags?.[GMM_MODULE_TITLE]?.[GMM_APPLICATION_FLAG] ?? null;
+	}
+
+	/* Stamped on carrier and payload alike, so either end of the pair can name the other. */
+	function _stampApplication(effect, item, options) {
+		if (!options || !item.effects?.get?.(GMM_DURATION_EFFECT_ID)) return;
+		options[GMM_APPLICATION_OPTION] ??= foundry.utils.randomID();
+		effect.updateSource({
+			[`flags.${GMM_MODULE_TITLE}.${GMM_APPLICATION_FLAG}`]: options[GMM_APPLICATION_OPTION]
+		});
+	}
+
 	/* The tray applies `effect.toObject()`, a clone of _source that the resolution above never touched.
 	 * This is the last point at which the scaler is still reachable. */
-	function _onPreCreateActiveEffect(effect, data) {
-		if (!isDurationEffect(effect)) return;
+	function _onPreCreateActiveEffect(effect, data, options) {
+		if (!isSupported() || !isEnabled()) return;
 		const item = AutomationHelpers.resolveSourceItem(effect.origin);
-		const monsterData = item?.getOwningGmmMonster?.();
+		if (!item) return;
+		_stampApplication(effect, item, options);
+
+		if (!isDurationEffect(effect)) return;
+		const monsterData = item.getOwningGmmMonster?.();
 		if (!monsterData) return;
 
 		const resolve = (value) => (typeof value === "string" && value.includes("["))
@@ -336,8 +358,17 @@ const Durations = (function () {
 	function _carrierFor(effect) {
 		const itemId = _sourceItemIdOf(effect);
 		if (!itemId) return null;
-		return [...(effect.parent?.effects ?? [])]
-			.find(e => isDurationEffect(e) && _sourceItemIdOf(e) === itemId) ?? null;
+		const carriers = [...(effect.parent?.effects ?? [])]
+			.filter(e => isDurationEffect(e) && _sourceItemIdOf(e) === itemId);
+		const application = _applicationOf(effect);
+		return carriers.find(e => application && _applicationOf(e) === application) ?? carriers[0] ?? null;
+	}
+
+	function _claimedElsewhere(carrier, payload) {
+		const application = _applicationOf(payload);
+		if (!application) return false;
+		return [...(carrier.parent?.effects ?? [])]
+			.some(e => e.id !== carrier.id && isDurationEffect(e) && _applicationOf(e) === application);
 	}
 
 	/* A doom clock from a second use of the same feature is machinery rather than payload. Ending this
@@ -350,7 +381,8 @@ const Durations = (function () {
 			&& !isDurationEffect(e)
 			&& !e.flags?.[GMM_MODULE_TITLE]?.deferral
 			&& !e.flags?.[GMM_MODULE_TITLE]?.areaClock
-			&& _sourceItemIdOf(e) === itemId);
+			&& _sourceItemIdOf(e) === itemId
+			&& !_claimedElsewhere(carrier, e));
 	}
 
 	/* An authored effect carries whatever lifetime the GM gave it in the native config. The blueprint's
