@@ -575,7 +575,7 @@ const Activities = (function () {
             activation: { type: "", value: null, condition: "", override: false },
             consumption: { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false },
             description: { chatFlavor: "" },
-            duration: _buildDuration(blueprintData),
+            duration: _buildDuration(blueprintData, { concentration: false }),
             range: _buildRange(blueprintData),
             // The primary already placed the template; a second would be planted here.
             target: _buildTarget(blueprintData, { template: false }),
@@ -1500,15 +1500,13 @@ const Activities = (function () {
         if (_poolTargetMismatch(blueprint, primary)) return true;
         if (_durationEffectStale(item, blueprint)) return true;
         if (_onSaveStale(activities, blueprint)) return true;
-        // Predates the concentration strip, so its first trigger would take its own area with it.
         if (activities.get(GMM_ZONE_ACTIVITY_ID)?.duration?.concentration) return true;
+        if (activities.get(GMM_DEFERRED_ACTIVITY_ID)?.duration?.concentration) return true;
         if (isDoomingDeferral(blueprint)) {
-            // A dooming primary that still carries damage predates the gate/delivery split.
             if (primary?.damage?.parts?.length) return true;
             if (!primary?.effects?.some?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID)) return true;
             return _deliveryNeedsMidiFlags(activities.get(GMM_DEFERRED_ACTIVITY_ID));
         }
-        // Compared explicitly because presence and type alone would let a stale announcement duration survive.
         return wantsDeferred && (primary?.duration?.units !== GMM_PLANT_DURATION_UNITS);
     }
 

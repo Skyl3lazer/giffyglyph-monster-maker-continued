@@ -220,6 +220,11 @@ const Durations = (function () {
 		return !!effect?.flags?.[GMM_MODULE_TITLE]?.[GMM_DURATION_FLAG];
 	}
 
+	/* An instant payload forges nothing. Neither does a world with the automation off. */
+	function forgesCarrier(blueprint) {
+		return !!buildEffectData(blueprint);
+	}
+
 	/* The stored change values still carry shortcodes. Only the owning scaler can resolve them. */
 	function resolveEffectFormulas(item, monsterData) {
 		if (!monsterData) return;
@@ -381,20 +386,23 @@ const Durations = (function () {
 
 	/* Only a deferred feature's concentration lacks an expiry. Only it needs ending by hand. The
 	 * dependents check keeps a multi-target feature concentrating until the last carrier is gone. */
+	async function releaseConcentration(item, { ignore = null } = {}) {
+		const concentration = AutomationHelpers.concentrationFor(item?.actor, item?.id);
+		// v14 prepares a blank value to Infinity, so only a finite one is a real expiry.
+		if (!concentration || Number.isFinite(concentration.duration?.value)) return;
+		// An area is a dependent too, and it never leaves while the concentration holds.
+		if (concentration.getDependents().some(d => d.id !== ignore && _isPayload(d))) return;
+		await concentration.delete();
+	}
+
 	async function _onDeleteActiveEffect(effect) {
 		if (!game.users.activeGM?.isSelf || !isDurationEffect(effect)) return;
 
 		const payload = _payloadOf(effect).map(e => e.id);
 		if (payload.length) await effect.parent?.deleteEmbeddedDocuments("ActiveEffect", payload);
 
-		const source = _sourceActorOf(effect);
-		const itemId = AutomationHelpers.resolveSourceItem(effect.origin)?.id ?? null;
-		const concentration = AutomationHelpers.concentrationFor(source, itemId);
-		// v14 prepares a blank value to Infinity, so only a finite one is a real expiry.
-		if (!concentration || Number.isFinite(concentration.duration?.value)) return;
-		// An area is a dependent too, and it never leaves while the concentration holds.
-		if (concentration.getDependents().some(d => d.id !== effect.id && _isPayload(d))) return;
-		await concentration.delete();
+		const item = AutomationHelpers.resolveSourceItem(effect.origin);
+		await releaseConcentration(item, { ignore: effect.id });
 	}
 
 	/* A world left on the default expiry action marks a carrier rather than deleting it. The payload is
@@ -428,6 +436,8 @@ const Durations = (function () {
 		isDurationEffect,
 		buildActivityDuration,
 		buildEffectData,
+		forgesCarrier,
+		releaseConcentration,
 		areaLifetime,
 		resolveEffectFormulas,
 		init

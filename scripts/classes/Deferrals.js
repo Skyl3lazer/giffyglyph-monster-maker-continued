@@ -1,5 +1,6 @@
 import Activities from './Activities.js';
 import AutomationHelpers from './AutomationHelpers.js';
+import Durations from './Durations.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
 const GMM_DEFERRALS_SETTING = "automateDeferrals";
@@ -129,6 +130,13 @@ const Deferrals = (function () {
 
 	function _clockKind(clock) {
 		return clock?.kind ?? (clock ? "delayed" : null);
+	}
+
+	/* Only a carrier's deletion ends the gate's concentration. An exit reached without one ends it here. */
+	function _releaseConcentration(effect, clock) {
+		const item = _sourceItem(effect, clock);
+		if (!item) return Promise.resolve();
+		return Durations.releaseConcentration(item, { ignore: effect.id });
 	}
 
 	function _bearerTokens(effect) {
@@ -312,7 +320,7 @@ const Deferrals = (function () {
 		const targets = _clockKind(clock) === "dooming"
 			? _bearerTokens(effect)
 			: (await _templateTargets(clock)).tokens;
-		await _cancel(effect, { silent: true });
+		await _cancel(effect, { silent: true, release: false });
 		await _useDeferredActivity(item, { targets });
 	}
 
@@ -334,9 +342,11 @@ const Deferrals = (function () {
 		} else {
 			await activity.use({}, {}, message);
 		}
+
+		if (!Durations.forgesCarrier(item.flags?.gmm?.blueprint)) await Durations.releaseConcentration(item);
 	}
 
-	async function _cancel(effect, { silent = false } = {}) {
+	async function _cancel(effect, { silent = false, release = true } = {}) {
 		const clock = _readClock(effect);
 		const actor = effect.parent;
 		if (!silent) {
@@ -348,6 +358,7 @@ const Deferrals = (function () {
 			});
 		}
 		await effect.delete();
+		if (release) await _releaseConcentration(effect, clock);
 	}
 
 	/* An effect destroyed with its parent fires no delete hook, and `pre` is where its flags are still readable. */
@@ -368,6 +379,7 @@ const Deferrals = (function () {
 				_deleteTemplates(clock.templateUuids).catch(e => console.warn("GMM | Deferral template cleanup failed", e));
 			}
 			if (andEffects) effect.delete().catch(e => console.warn("GMM | Deferral clock cleanup failed", e));
+			_releaseConcentration(effect, clock).catch(e => console.warn("GMM | Deferral concentration release failed", e));
 		}
 	}
 
@@ -388,7 +400,10 @@ const Deferrals = (function () {
 			if (!actor || seen.has(actor.uuid)) continue;
 			seen.add(actor.uuid);
 			for (const effect of _clockEffects(actor)) {
-				effect.delete().catch(e => console.warn("GMM | Deferral cleanup on combat end failed", e));
+				const clock = _readClock(effect);
+				effect.delete()
+					.then(() => _releaseConcentration(effect, clock))
+					.catch(e => console.warn("GMM | Deferral cleanup on combat end failed", e));
 			}
 		}
 	}
