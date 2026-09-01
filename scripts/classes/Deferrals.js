@@ -114,7 +114,7 @@ const Deferrals = (function () {
 
 			// A countdown in the bearer's turns is meaningless without turns, so resolve rather than leave it sitting.
 			if (_isEnabled() && _isSupported() && _combatantFor(effect.parent)) return;
-			await effect.delete();
+			await _cancel(effect, { silent: true, release: false });
 			if (item) await _useDeferredActivity(item, { targets: _bearerTokens(effect) });
 		} catch (error) {
 			console.error("GMM | Doom clock setup failed", error);
@@ -357,7 +357,8 @@ const Deferrals = (function () {
 				})}</em></p>`
 			});
 		}
-		await effect.delete();
+		// midi ends a concentration the moment its last dependent goes.
+		await effect.delete({ noConcentrationCheck: !release });
 		if (release) await _releaseConcentration(effect, clock);
 	}
 
