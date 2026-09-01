@@ -42,7 +42,7 @@ const ActionBlueprint = (function () {
                 }
             });
 
-            // A deferral splits these across two activities; falling back to the primary covers an unmigrated item.
+            // A deferral splits these across two activities. Falling back to the primary covers an unmigrated item.
             const activities = item.system?.activities;
             const primaryActivity = activities?.get?.(Activities.GMM_ACTIVITY_ID);
             const gateActivity = activities?.get?.(Activities.gateActivityId(blueprint)) ?? primaryActivity;

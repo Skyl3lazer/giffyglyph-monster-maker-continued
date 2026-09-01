@@ -22,7 +22,7 @@ import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
 import { GMM_MODULE_TITLE } from "./scripts/consts/GmmModuleTitle.js";
 
 Hooks.once("init", function() {
-	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialising`);
+	console.log(`Giffyglyph's 5e Monster Maker Continued | Initializing`);
 
 	_applyTokenCompatibilityShim();
 
@@ -71,9 +71,9 @@ Hooks.once("init", function() {
 	Conditions.registerApi();
 	Rolls.registerApi();
 
-	// Patch ActivityField to sanitise legacy shortcode formulas pre-validation; persistent cleanup runs in migrateWorld().
+	// The persistent cleanup is migrateWorld's job. This only keeps a stored shortcode from throwing at load.
 	if (!Activities.patchActivityField()) {
-		console.warn("GMM | dnd5e ActivityField not found at init; activity-source sanitisation patch was not installed.");
+		console.warn("GMM | dnd5e ActivityField not found at init; activity-source sanitization patch was not installed.");
 	}
 
 	Hooks.on("updateSetting", (setting, data, options, userId) => {
@@ -84,7 +84,7 @@ Hooks.once("init", function() {
 		}
 	});
 
-	// v13+ sidebar directories are ApplicationV2, so the hook signature is `(app, element)` - not the old `html` jQuery arg.
+	// v13+ sidebar directories are ApplicationV2, so the hook signature is `(app, element)`, not the old `html` jQuery arg.
 	Hooks.on("renderActorDirectory", (app, element) => {
 		if (game.user.isGM) {
 			_hookActorDirectory(element);
@@ -103,7 +103,6 @@ Hooks.once("init", function() {
 
 	_registerSettings();
 
-	// Seed/repair GMM activities for legacy scaling actions and drop dnd5e auto-seeded non-GMM ones.
 	Hooks.on("preCreateItem", (item, data, _options, _userId) => {
 		try {
 			const update = Activities.buildPreCreateUpdate(data, item);
@@ -117,7 +116,6 @@ Hooks.once("init", function() {
 	Hooks.on("preUpdateItem", (item, change, options, _userId) => {
 		if (options?.gmmConvertingFromVanilla || options?.gmmRevertingToVanilla) return;
 		try {
-			// Switching AWAY: restore the saved vanilla activities, keeping the GMM flags for a later toggle back.
 			if (_isSheetSwitchFromGmm(item, change)) {
 				_revertToVanilla(item, change, options).catch(e => {
 					console.warn("GMM | GMMC->vanilla revert failed", e);
@@ -125,7 +123,7 @@ Hooks.once("init", function() {
 				return false;
 			}
 			if (_isSheetSwitchToGmm(item, change)) {
-				// A reverted item still has a blueprint; re-convert from it instead of re-deriving from vanilla.
+				// A reverted item still has a blueprint. Re-convert from it instead of re-deriving from vanilla.
 				if (item.flags?.gmm?.blueprint) {
 					_reconvertToScaling(item, change, options).catch(e => {
 						console.warn("GMM | GMMC re-conversion failed", e);
@@ -163,7 +161,7 @@ Hooks.once("init", function() {
 		}
 	});
 
-	// Re-render the owning monster sheet when an embedded ActiveEffect changes, keeping the forge's effect lists in sync.
+	// The forge's effect lists are built at render time, so nothing else brings them up to date.
 	const _rerenderForEffect = (effect) => {
 		try {
 			const parent = effect?.parent;
@@ -213,7 +211,7 @@ Hooks.once("init", function() {
 		_syncScalingMonsterHp(actor, { force: true }).catch(e => console.warn("GMM | HP sync on create failed", e));
 		_syncParagonDefenses(actor).catch(e => console.warn("GMM | Paragon defense sync on create failed", e));
 	});
-	// Foundry auto-follows a synced prototype-token image on an actor rename, but not the name; mirror that here.
+	// Foundry auto-follows a synced prototype-token image on an actor rename, but not the name. Mirror that here.
 	Hooks.on("preUpdateActor", (actor, change) => {
 		if (!_isGmmMonster(actor)) return;
 		const nextName = change?.name;
@@ -224,13 +222,13 @@ Hooks.once("init", function() {
 	});
 	Hooks.on("updateActor", (actor, change, _options, userId) => {
 		if (game.userId !== userId) return;
-		// A sheet-class switch to the monster sheet is a conversion; force current HP to full.
+		// A sheet-class switch to the monster sheet is a conversion. Force current HP to full.
 		const convertedToGmm = foundry.utils.getProperty(change ?? {}, "flags.core.sheetClass") === `${GMM_MODULE_TITLE}.MonsterSheet`;
 		_syncScalingMonsterHp(actor, { force: convertedToGmm }).catch(e => console.warn("GMM | HP sync on update failed", e));
 		_syncParagonDefenses(actor).catch(e => console.warn("GMM | Paragon defense sync on update failed", e));
 	});
 
-	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialised`);
+	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialized`);
 });
 
 
@@ -267,7 +265,6 @@ function _isSheetSwitchFromGmm(item, change) {
 	// Reset-to-default forms: `flags.core.-=sheetClass` or the whole `flags.core` being cleared.
 	if (foundry.utils.getProperty(c, "flags.core.-=sheetClass") === null) return true;
 	if (foundry.utils.getProperty(c, "flags.core") === null) return true;
-	// Explicit switch to a different (or empty/default) sheet.
 	const newSheet = foundry.utils.getProperty(c, "flags.core.sheetClass");
 	if (newSheet === undefined) return false;
 	return newSheet !== target;
@@ -275,7 +272,7 @@ function _isSheetSwitchFromGmm(item, change) {
 
 /* First-time conversion: everything lands in one update so the hook is not re-entered. */
 async function _confirmAndConvertVanillaItem(item, originalChange, originalOptions, isDestructive = true) {
-	// Only prompt when there are activities to replace; trait items with none convert silently.
+	// Only prompt when there are activities to replace. Trait items with none convert silently.
 	if (isDestructive) {
 		const ConfirmDialog = foundry?.applications?.api?.DialogV2;
 		let confirmed = false;
@@ -414,7 +411,7 @@ function _applyTokenCompatibilityShim() {
 
 		const desc = Object.getOwnPropertyDescriptor(globalThis, "Token");
 		if (desc?.value === TokenClass) return;
-		// Some runtimes expose `Token` as a locked global; treat that as already handled.
+		// Some runtimes expose `Token` as a locked global. Treat that as already handled.
 		if (desc && !desc.configurable) return;
 
 		try { Reflect.deleteProperty(globalThis, "Token"); } catch (_e) { /* ignore */ }
@@ -429,7 +426,6 @@ function _applyTokenCompatibilityShim() {
 	}
 }
 
-/* Find where to insert the GMM "create" button row in a sidebar directory header (before search, else append). */
 function _findDirectoryInsertionPoint(root) {
 	if (!root?.querySelector) return null;
 	const header = root.querySelector(".directory-header");

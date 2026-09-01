@@ -185,14 +185,13 @@ const MonsterBlueprint = (function () {
 
 	function _verifyBlueprint(blueprint) {
 		// Direct-leaf writes via `document.update({ "flags.gmm.blueprint.data.<x>": v })` can leave
-		// data present but no version id; backfill it so the blueprint verifies.
+		// data present but no version id. Backfill it so the blueprint verifies.
 		if (blueprint && blueprint.vid === undefined && blueprint.data) {
 			blueprint.vid = 1;
 			if (!blueprint.type) blueprint.type = "monster";
 		}
 		switch (blueprint?.vid) {
 			case 1:
-				// Blueprint is up-to-date and requires no changes.
 				return blueprint;
 			default:
 				console.error(game.i18n.format("gmm.monster.errors.invalid_version", { vid: blueprint?.vid }), blueprint);
@@ -222,7 +221,7 @@ const MonsterBlueprint = (function () {
 			// Initiative advantage moved from `flags.dnd5e.initiativeAdv` (boolean) to
 			// `system.attributes.init.roll.mode` (number, 1 = advantage, -1 = disadvantage).
 			blueprintData.initiative.advantage = stored.system?.attributes?.init?.roll?.mode === 1;
-			// dnd5e no longer stores legact/legres remaining; derive "current remaining" as max - spent.
+			// dnd5e no longer stores legact/legres remaining. Derive "current remaining" as max - spent.
 			const legact = stored.system?.resources?.legact ?? {};
 			blueprintData.legendary_actions.current = (legact.max ?? 0) - (legact.spent ?? 0);
 			const legres = stored.system?.resources?.legres ?? {};
@@ -235,7 +234,7 @@ const MonsterBlueprint = (function () {
 			blueprintData.senses.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.senses.units)?.name;
 			blueprintData.speeds.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.movement.units)?.name;
 			blueprintData.spellbook.spellcasting.ability = (stored.system.attributes.spellcasting) ? stored.system.attributes.spellcasting : "int";
-			// First-time conversion: vanilla NPCs with spell items usually have spell.level=0; mirror combat level so casters scale.
+			// First-time conversion: vanilla NPCs with spell items usually have spell.level=0. Mirror combat level so casters scale.
 			if (!stored.flags?.gmm
 				&& !blueprintData.spellbook.spellcasting.level
 				&& actor.items?.some?.(i => i.type === "spell")) {
@@ -307,7 +306,6 @@ const MonsterBlueprint = (function () {
 								break;
 							default: {
 								// dnd5e v5+ moved `system.activation` off the item onto each activity.
-								// Walk the activities and treat any "reaction*" activation type as a reaction, else an action.
 								const activations = item.system?.activities?.contents?.map(a => a.activation?.type).filter(_ => _) ?? [];
 								const isSpecialReaction = activations.some(t =>
 									t === "reactiondamage" || t === "reactionmanual" || t === "reactionpreattack"
@@ -371,7 +369,6 @@ const MonsterBlueprint = (function () {
 				bRarity = 3;
 				break;
 		}
-		//Rarity descending, name ascending
 		let sortValue = bRarity - aRarity || a.name.localeCompare(b.name);
 		return sortValue;
 	}
@@ -431,8 +428,7 @@ const MonsterBlueprint = (function () {
 		_convertTraits(blueprint, actorData, GMM_5E_CONDITIONS, "condition_immunities", "ci");
 		_convertTraits(blueprint, actorData, GMM_5E_LANGUAGES, "languages", "languages");
 
-		// Legendary actions/resistances are now stored as `spent` (used count) rather than `value` (remaining count)
-		// Translate the blueprint's "current remaining" into the dnd5e "spent" representation when writing back to the actor
+		// Legendary actions and resistances store `spent` rather than the remaining count the blueprint models.
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "legendary_actions.current")
 			&& CompatibilityHelpers.hasProperty(blueprint.data, "legendary_actions.maximum")) {
 			const max = Number(blueprint.data.legendary_actions.maximum) || 0;

@@ -4,8 +4,8 @@ import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 const GMM_PARAGON_ACTIONS_SETTING = "trackParagonActions";
 const GMM_PARAGON_ACTIONS_KEY = "flags.gmm.blueprint.data.paragon_actions.current";
 
-/* Paragon Power tracking. Nothing declares that an action costs paragon power the way a legendary
- * action does, so the cost is inferred - hence a warning rather than a block, and an off switch. */
+/* Nothing declares that an action costs paragon power the way a legendary action does, so the cost
+ * is inferred. That is why this warns rather than blocks, and why it can be switched off. */
 const ParagonPower = (function () {
 
 	function init() {

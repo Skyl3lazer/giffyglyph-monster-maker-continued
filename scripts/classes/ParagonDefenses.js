@@ -112,8 +112,8 @@ const ParagonDefenses = (function () {
 		}
 	}
 
-	/* midi converts the save itself off the plain "success" keyword, and the only trace it leaves is a
-	 * marker on the roll - a macro cannot be used here, because its DummyWorkflow has no item. */
+	/* midi converts the save off the plain "success" keyword and leaves only a marker on the roll.
+	 * A macro cannot be used here, because its DummyWorkflow has no item. */
 	async function _onPostCheckSaves(workflow) {
 		if (!_isEnabled()) return;
 
@@ -206,7 +206,7 @@ const ParagonDefenses = (function () {
 
 		content.querySelector("button")?.addEventListener("click", async () => {
 			if (await spendParagonDefense({ actor: actor }) !== "success") return;
-			// forceSuccess is what marks the total as a success; the marker is what renames the line below.
+			// forceSuccess is what marks the total as a success. The marker is what renames the line below.
 			await message.update({
 				"flags.dnd5e.roll.forceSuccess": true,
 				[`flags.${GMM_MODULE_TITLE}.${GMM_MESSAGE_FLAG}`]: true

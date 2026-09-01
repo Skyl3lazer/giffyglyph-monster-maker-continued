@@ -22,7 +22,7 @@ export function formatTargetLabel(target, range) {
 		case "enemy":
 		case "creature":
 		case "object": {
-			// A distance in the size field turns an affiliation into a self-centred area ("all creatures within 10 feet").
+			// A distance in the size field turns an affiliation into a self-centered area ("all creatures within 10 feet").
 			if (["ft", "mi"].includes(target.units) && target.width) {
 				const affected = (target.value >= 1)
 					? game.i18n.format(`gmm.action.labels.target.${target.type}.${target.value > 1 ? "multiple" : "single"}`,

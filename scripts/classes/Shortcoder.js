@@ -2,8 +2,7 @@ import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import { formatTargetLabel, formatRangeLabel } from "./Labels.js";
 import { buildSaveDcFormula, buildDurationSaveDcFormula } from "./SaveDc.js";
 const Shortcoder = (function () {
-    /* `{ code, data?, type?, resolver? }`. `data` = dotted path on monsterData; `resolver(monsterData, itemContext)`
-     * overrides `data` (return `undefined` to leave token intact); `type: "string"` strips the brackets after sub. */
+    /* A resolver returning `undefined` leaves the token intact, and `type: "string"` strips the brackets after substitution. */
     const SHORTCODES = [
         { code: "level", data: "level.value" },
         { code: "attackBonus", data: "attack_bonus.value" },
@@ -72,7 +71,6 @@ const Shortcoder = (function () {
         {
             code: "range",
             type: "string",
-            // Item-scoped: blueprint range label, with reach wording for mwak/msak.
             resolver: (_monsterData, itemContext) => {
                 if (!itemContext) return undefined;
                 const blueprintData = itemContext?.flags?.gmm?.blueprint?.data;
@@ -173,7 +171,7 @@ const Shortcoder = (function () {
                 if(e.message.startsWith("Undefined symbol") || e.message.startsWith("Value expected") || e.name === "SyntaxError") return token;
                 console.error(e);
             }
-            //Indicates a problem with a damage shortcode, which needs to fail
+            // An unresolved damage shortcode has to produce nothing rather than a wrong formula.
             if (isDamage && token.includes("["))
                 return "";
             return token;

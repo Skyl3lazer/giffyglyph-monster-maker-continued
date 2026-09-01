@@ -8,7 +8,7 @@ import { GMM_ZONE_TRIGGERS } from "../consts/GmmZoneTriggers.js";
 import { GMM_ZONE_PAYLOADS } from "../consts/GmmZonePayloads.js";
 import { GMM_ZONE_AUDIENCES } from "../consts/GmmZoneAudiences.js";
 
-/* The blueprint is the authored source of truth; every activity here is a generated mirror of it. */
+/* The blueprint is the authored source of truth. Every activity here is a generated mirror of it. */
 const Activities = (function () {
 
     /* `staticID` gives the deterministic 16-char form Foundry requires of a fixed id. */
@@ -16,7 +16,7 @@ const Activities = (function () {
         ? dnd5e.utils.staticID("gmmprimary")
         : "gmmprimary000000";
 
-    /* Carries the payload of a deferred action; the primary only announces it. */
+    /* Carries the payload of a deferred action. The primary only announces it. */
     const GMM_DEFERRED_ACTIVITY_ID = (typeof dnd5e !== "undefined" && dnd5e?.utils?.staticID)
         ? dnd5e.utils.staticID("gmmdeferred")
         : "gmmdeferred00000";
@@ -68,7 +68,7 @@ const Activities = (function () {
         return readDeferral(blueprint)?.type ?? null;
     }
 
-    /* Both types build two activities; they differ in which one carries the roll. */
+    /* Both types build two activities. They differ in which one carries the roll. */
     function isAutomatedDeferral(blueprint) {
         const type = deferralType(blueprint);
         return type === "delayed" || type === "dooming";
@@ -436,7 +436,7 @@ const Activities = (function () {
         return { formula, type: types[0] ?? "" };
     }
 
-    /* Only an attack roll or a save can gate a doom; anything else lands the clock without a roll. */
+    /* Only an attack roll or a save can gate a doom. Anything else lands the clock without a roll. */
     function gateTypeFor(blueprintAttackType) {
         const type = activityTypeFor(blueprintAttackType);
         return (type === "attack" || type === "save") ? type : "utility";
@@ -448,7 +448,7 @@ const Activities = (function () {
         return _collectDamageParts(blueprintData).length ? "damage" : "utility";
     }
 
-    /* What the GM clicks. Delayed leaves it a `utility`; dooming leaves it the roll without the payload. */
+    /* What the GM clicks. Delayed leaves it a `utility`. Dooming leaves it the roll without the payload. */
     function buildActivityData(blueprint) {
         const blueprintData = blueprint?.data ?? blueprint ?? {};
         const blueprintAttack = blueprintData.attack ?? {};
@@ -524,7 +524,7 @@ const Activities = (function () {
         if (type === "attack") {
             data.attack = {
                 ability: blueprintAttack.related_stat || "",
-                // FormulaField validates via `new Roll`; store the sanitised form so a shortcoded bonus doesn't fail.
+                // FormulaField validates via `new Roll`. Store the sanitized form so a shortcoded bonus doesn't fail.
                 bonus: _sanitizeFormulaForActivity(blueprintAttack.bonus || ""),
                 critical: { threshold: null },
                 // `flat` suppresses dnd5e's own mod/prof/actorBonus, which GMM supplies at roll time instead.
@@ -577,7 +577,7 @@ const Activities = (function () {
             description: { chatFlavor: "" },
             duration: _buildDuration(blueprintData, { concentration: false }),
             range: _buildRange(blueprintData),
-            // The primary already placed the template; a second would be planted here.
+            // The primary already placed the template. A second would be planted here.
             target: _buildTarget(blueprintData, { template: false }),
             uses: { ...GMM_EMPTY_ACTIVITY_USES },
             midiProperties: { automationOnly: true }
@@ -587,7 +587,7 @@ const Activities = (function () {
         return data;
     }
 
-    /* Not the primary, whose area a region behaviour triggering it would place a second time. */
+    /* Not the primary, whose area a region behavior triggering it would place a second time. */
     function buildZoneActivityData(blueprint) {
         if (!hasZoneActivity(blueprint)) return null;
         const blueprintData = blueprint?.data ?? blueprint ?? {};
@@ -805,7 +805,7 @@ const Activities = (function () {
             charges: "itemUses",
             hitDice: "hitDice"
         };
-        // Ammo already decrements through the AttackActivity pipeline; a target here would double it.
+        // Ammo already decrements through the AttackActivity pipeline. A target here would double it.
         if (rc.type && (rc.type !== "ammo") && !ownPool) {
             targets.push({
                 type: typeMap[rc.type] ?? "itemUses",
@@ -832,7 +832,7 @@ const Activities = (function () {
         return entries.map(damagePartFromBlueprint);
     }
 
-    /* Three scopes because a deferral splits them across two activities; exactly one supplies each.
+    /* Three scopes because a deferral splits them across two activities. Exactly one supplies each.
        `authoredType` is the _source duration type, absent on the pre-type shape. */
     function readActivityIntoBlueprintData(activity, blueprintData, { shared = true, gate = true, damage = true, authoredType = null } = {}) {
         if (!activity) return;
@@ -906,7 +906,7 @@ const Activities = (function () {
         if (type === "attack" && obj.attack) {
             const attackTypeKey = _findAttackTypeKey(obj.attack.type);
             if (attackTypeKey) blueprintData.attack.type = attackTypeKey;
-            // The activity holds only the sanitised copy, so an authored shortcode would be lost.
+            // The activity holds only the sanitized copy, so an authored shortcode would be lost.
             const existingBonus = blueprintData.attack.bonus;
             if (!(typeof existingBonus === "string" && existingBonus.includes("["))) {
                 blueprintData.attack.bonus = obj.attack.bonus ?? null;
@@ -1012,7 +1012,7 @@ const Activities = (function () {
         return null;
     }
 
-    /* Fields not listed here belong to dnd5e or another module; ForcedReplacement would reset them.
+    /* Fields not listed here belong to dnd5e or another module. ForcedReplacement would reset them.
      * `effects` is owned by `_setEffectMembership` */
     const GMM_OWNED_ACTIVITY_FIELDS = new Set([
         "_id", "type", "name", "sort", "activation", "consumption", "description",
@@ -1074,7 +1074,7 @@ const Activities = (function () {
         const gateId = isDoomingDeferral(blueprint) ? gateActivityId(blueprint) : null;
         const authored = _authoredEffectEntries(item);
 
-        // The zone activity is listed so it is emptied: its Effects payload rides the region behaviour.
+        // The zone activity is listed so it is emptied: its Effects payload rides the region behavior.
         for (const [activityId, data] of [[GMM_ACTIVITY_ID, primary], [GMM_DEFERRED_ACTIVITY_ID, deferred], [GMM_ZONE_ACTIVITY_ID, zone]]) {
             if (!data) continue;
             const entries = [];
@@ -1175,7 +1175,7 @@ const Activities = (function () {
 
         const blueprintData = item?.flags?.gmm?.blueprint?.data;
 
-        // The stored value is the sanitised placeholder, so the blueprint is the only real source.
+        // The stored value is the sanitized placeholder, so the blueprint is the only real source.
         if (activity.attack) {
             const rawBonus = blueprintData?.attack?.bonus;
             if (typeof rawBonus === "string" && rawBonus.includes("[")) {
@@ -1349,7 +1349,7 @@ const Activities = (function () {
         config.data.gmm = { ...(config.data.gmm ?? {}), ammoBonus: bonus };
     }
 
-    /* Roll time, because a part can arrive as a raw marker or as a sanitised `0`. */
+    /* Roll time, because a part can arrive as a raw marker or as a sanitized `0`. */
     function resolveDamageRollFormulas(rollConfig, monsterData) {
         if (!rollConfig?.rolls?.length || !monsterData) return;
         const activity = rollConfig.subject;
@@ -1667,7 +1667,7 @@ const Activities = (function () {
         return total;
     }
 
-    /* An empty string means trait. Attack activities need three fallbacks; the rest map directly. */
+    /* An empty string means trait. Attack activities need three fallbacks. The rest map directly. */
     function inferAttackType(item, activity) {
         if (!activity) return "";
         const obj = (typeof activity.toObject === "function") ? activity.toObject() : activity;
@@ -1771,7 +1771,7 @@ const Activities = (function () {
         return payloadActivityId(item?.flags?.gmm?.blueprint);
     }
 
-    /* Raw source entries, not prepared documents; null when the activity is absent. */
+    /* Raw source entries, not prepared documents. Null when the activity is absent. */
     function _gmmActivityEffectSource(item) {
         const activity = item?.system?.activities?.get?.(effectHostActivityId(item));
         if (!activity) return null;

@@ -29,8 +29,7 @@ import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Activities from "./Activities.js";
 import Durations from "./Durations.js";
 
-/* GMM scaling-action item sheet, rebuilt on the dnd5e v5.x ApplicationV2 ItemSheet5e base.
- * Form submission is intercepted in _processFormData to translate `gmm.blueprint.*` fields into flags. */
+/* The Forge UI replaces the stock item parts entirely, so much of this class undoes inherited chrome. */
 export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
     constructor(options = {}) {
         super(options);
@@ -56,8 +55,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }
     };
 
-    /* Replace the inherited ItemSheet5e PARTS with a single "forge" part.
-     * Static class fields aren't merged across the inheritance chain, so this fully supplants the parent. */
+    /* PARTS is not merged across the inheritance chain, so this supplants the parent outright. */
     static PARTS = {
         forge: {
             template: "modules/giffyglyph-monster-maker-continued/templates/action/forge.html",
@@ -65,12 +63,10 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }
     };
 
-    /* The dnd5e ItemSheet5e inherits `static TABS` for its tab strip;
-     * clear it so the framework doesn't render a tab navigation for parts we never declare. */
+    /* Clear the inherited `static TABS` so the framework doesn't try to render a `tabs` part we never declare. */
     static TABS = [];
 
-    /* Class names inherited from the dnd5e v5.x item-sheet chain that apply heavy visual styling
-     * (gold borders, generic input/button chrome, etc.) we strip so the Forge UI can style itself. */
+    /* Inherited dnd5e styling, kept out because the markup it targets is no longer rendered. */
     static #STRIPPED_CLASSES = new Set([
         "dnd5e2",
         "item",
@@ -160,8 +156,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             }
         }
 
-        // Populate `effects` (categorized) so the blueprint template's <dnd5e-effects> block can render.
-        // dnd5e only does this from _preparePartContext("effects"); we have a single "forge" part.
+        // dnd5e populates this from `_preparePartContext("effects")`, which the single forge part never hits.
         try {
             await this._prepareEffectsContext(context, options);
             this._gmmEnrichEffectModes(context);
@@ -190,8 +185,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }
     }
 
-    /* Build the dropdown options for the consumption-target picker, driven by the blueprint's resource type.
-     * dnd5e v5.x dropped the legacy `item.system.consume.*` schema in favour of per-activity consumption. */
+    /* The legacy `item.system.consume.*` schema that used to drive this picker is gone from dnd5e v5.x. */
     _getActionConsumptionTargets(item) {
         try {
             const blueprintType = item?.flags?.gmm?.blueprint?.data?.resource_consumption?.type;
@@ -236,8 +230,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return targets;
     }
 
-    /* Material consumption:
- * list `consumable` and `loot` items on the actor */
     _gmmMaterialTargets(actor, currentItem) {
         const targets = {};
         for (const i of actor.items ?? []) {
@@ -274,8 +266,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return targets;
     }
 
-    /* Suppress the dnd5e "mode slider" (`<slide-toggle class="mode-slider">`) from the window header;
-     * GMM's Forge UI is always editable and exposes its own controls. */
+    /* Suppress the dnd5e "mode slider" (`.mode-slider`): GMM's Forge UI is always editable and exposes its own controls. */
     _renderModeToggle() {
         const toggle = this.element?.querySelector(".window-header .mode-slider");
         if (toggle) toggle.remove();
@@ -302,7 +293,6 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         this.element?.querySelector(".header-elements .source-book")?.remove();
 
         // Bridge the GMM Gui controller (still jQuery-based) to the V2 root element.
-        // `this.element` is the form created by DocumentSheetV2 (`tag: "form"`).
         const $el = $(this.element);
         try {
             this._gui.activateListeners($el);
@@ -312,7 +302,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }
     }
 
-    /* @inheritDoc @see MonsterSheet#_onChangeForm */
+    /* Modal forms commit through their own roll buttons and must not submit the sheet. @inheritDoc */
     _onChangeForm(formConfig, event) {
         if (event?.target?.closest?.(".gmm-modal")) return;
         return super._onChangeForm(formConfig, event);
@@ -320,8 +310,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
 
     /** @inheritDoc */
     _processFormData(event, form, formData) {
-        // The forge template embeds GMM modals inside the root form, so their inputs would otherwise
-        // be submitted; drop any form field whose input lives inside a `.gmm-modal`.
+        // The embedded modals sit inside the root form, so their named fields would submit as item updates.
         for (const name of Object.keys(formData.object)) {
             const input = form.querySelector(`[name="${CSS.escape(name)}"]`);
             if (input?.closest(".gmm-modal")) delete formData.object[name];
@@ -339,7 +328,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             }
         }
 
-        // Messy but new validation makes this weird with dropdowns.
+        // These blueprint fields are strings, and an emptied input submits null rather than "".
         if (expanded.gmm?.blueprint?.duration?.value === null) {
             expanded.gmm.blueprint.duration.value = "";
         } else if (expanded.gmm?.blueprint?.duration?.value !== undefined) {
@@ -349,8 +338,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             expanded.gmm.blueprint.uses.max = "";
         }
 
-        // Mirror the editor's `flags.gmm.blueprint.data.description.text` onto the blueprint path so the
-        // repackaging below captures it.
+        // The editor writes under `flags.*`, so the repackaging below would otherwise miss the description.
         const descText = expanded.flags?.gmm?.blueprint?.data?.description?.text;
         if (descText !== undefined) {
             CompatibilityHelpers.setProperty(expanded, "gmm.blueprint.description.text", descText);
@@ -368,16 +356,14 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
                 ui.notifications?.warn(game.i18n.localize("gmm.action.blueprint.activation_cost.charges_no_pool"));
             }
 
-            // Pass `this.item` so ActionBlueprint can emit a paired `-=<id>` activity
-            // deletion when the user changes attack.type (and the activity type swaps).
+            // `this.item` lets ActionBlueprint pair a `-=<id>` deletion when an attack.type change swaps the activity.
             $.extend(true, expanded, ActionBlueprint.getItemDataFromBlueprint(expanded.flags.gmm.blueprint, this.item));
         }
 
         return expanded;
     }
 
-    /* @this {ActionSheet} Append an empty damage part to the blueprint and rebuild the activity.
-     * See #mutateBlueprintDamage for why this drives off the flag rather than the activity. */
+    /** @this {ActionSheet} */
     static async #actionAddDamage(event, target) {
         event.preventDefault();
         return ActionSheet.#mutateBlueprintDamage.call(this, entries => {
@@ -397,8 +383,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         });
     }
 
-    /* Apply a mutation to the blueprint's `attack.hit.damage` list and persist both the flag and the
-     * rebuilt activity. The blueprint flag is the UI source of truth. */
+    /* The blueprint flag is the UI source of truth, so a mutation drives off it rather than the activity. */
     static async #mutateBlueprintDamage(mutate) {
         const stored = this.item.flags?.gmm?.blueprint;
         const blueprint = foundry.utils.deepClone(stored ?? { vid: 1, type: "action", data: {} });
@@ -406,8 +391,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         blueprint.type = "action";
         blueprint.data ??= {};
 
-        // Normalise the existing damage list into a plain array of `{formula, type}` entries, whether
-        // the flag stored an array or a legacy dotted-object shape (`{"0":{...},"1":{...}}`).
+        // An earlier submit can have left the flag as a dotted-object shape (`{"0":{...},"1":{...}}`).
         const raw = foundry.utils.getProperty(blueprint.data, "attack.hit.damage");
         let entries;
         if (Array.isArray(raw)) {
@@ -424,14 +408,13 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         mutate(entries);
         foundry.utils.setProperty(blueprint.data, "attack.hit.damage", entries);
 
-        // Mirror onto the activity via the same pipeline as the form-submit path, so flag and activity stay in sync.
-        // We also overwrite the flag wholesale to flatten any legacy dotted-object shape into the clean array form.
+        // The flag is rewritten wholesale, because a merge would leave a legacy dotted-object shape in place.
         const update = ActionBlueprint.getItemDataFromBlueprint(blueprint, this.item);
         update["flags.gmm.blueprint"] = blueprint;
         return this.item.update(update);
     }
 
-    /* Normalised for the template, so a dotted-object shape left by an earlier submit still draws its rows. */
+    /* Normalized for the template, so a dotted-object shape left by an earlier submit still draws its rows. */
     _getZoneContext(blueprintData) {
         return {
             ...Activities.readZoneLists(blueprintData),
@@ -506,7 +489,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         const effectType = li.dataset.effectType;
         const isEnchantment = effectType.startsWith("enchantment");
 
-        // A temporary effect wants the chat card's Apply Effect button; a passive one wants to transfer.
+        // A temporary effect wants the chat card's Apply Effect button. A passive one wants to transfer.
         const defaultOnUse = effectType === "temporary";
         const created = await this.document.createEmbeddedDocuments("ActiveEffect", [{
             name: game.i18n.localize("DND5E.EffectNew"),
@@ -558,8 +541,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             current,
             callback: path => {
                 const update = { [field]: path };
-                // When writing into the blueprint flag, also stamp the envelope's `vid`/`type`;
-                // without this, `_verifyBlueprint` sees a missing `vid` on the next render.
+                // Without the envelope's `vid`, `_verifyBlueprint` rejects the blueprint on the next render.
                 if (field.startsWith("flags.gmm.blueprint.")) {
                     update["flags.gmm.blueprint.vid"] = 1;
                     update["flags.gmm.blueprint.type"] = "action";

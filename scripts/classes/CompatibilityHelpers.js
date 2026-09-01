@@ -8,13 +8,12 @@ const CompatibilityHelpers = (function () {
 			libWrapper.register(GMM_MODULE_TITLE, target, fn, type);
 			return true;
 		} catch (error) {
-			// Missing lib-wrapper is expected (the ready hook warns the user); any other failure means
+			// Missing lib-wrapper is expected (the ready hook warns the user). Any other failure means
 			// a wrap target changed in this dnd5e version, which has to surface loudly.
 			console[game.modules.get('lib-wrapper')?.active ? "error" : "warn"](`GMM | libWrapper hook for "${target}" was not registered: ${error.message}`);
 			return false;
 		}
 	}
-	//fv14 - Property management moved to foundry.utils
 	function hasProperty(...args) {
 		if (game.version >= 12) {
 			return foundry.utils.hasProperty(...args);
@@ -33,7 +32,6 @@ const CompatibilityHelpers = (function () {
 		}
 		return globalThis.getProperty(...args);
 	}
-	//v14 - clamped becomes clamp
 	function clamped(...args) {
 		if (game.version >= 12) {
 			return Math.clamp(...args);
@@ -95,7 +93,7 @@ const CompatibilityHelpers = (function () {
 	function rollMessageOptions(mode) {
 		const generation = game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
 		if (generation < 14) return { rollMode: mode };
-		// A literal "roll"/unknown is left unset so toMessage falls back to the world default; passing
+		// A literal "roll"/unknown is left unset so toMessage falls back to the world default. Passing
 		// "roll" as a messageMode would fail applyMode's CONFIG.ChatMessage.modes lookup.
 		const messageMode = { publicroll: "public", gmroll: "gm", blindroll: "blind", selfroll: "self" }[mode];
 		return messageMode ? { messageMode } : {};

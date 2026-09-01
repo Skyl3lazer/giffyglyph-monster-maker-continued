@@ -1,6 +1,6 @@
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
-/* Function macros for the pack effects midi drives; reached by name as `function.gmmc.conditions.*`. */
+/* Function macros for the pack effects midi drives. Reached by name as `function.gmmc.conditions.*`. */
 const Conditions = (function () {
 
 	/* Only an actor that carries the condition is eligible, so a bad guess is a no-op rather than the
@@ -18,7 +18,7 @@ const Conditions = (function () {
 	}
 
 	async function _spendHitDie(actor, source) {
-		// Characters hold hit dice on their class items; everything else holds a single actor-level pool.
+		// Characters hold hit dice on their class items. Everything else holds a single actor-level pool.
 		const cls = _getSpendableClass(actor);
 		if (cls) {
 			await cls.update({ "system.hd.spent": cls.system.hd.spent + 1 });

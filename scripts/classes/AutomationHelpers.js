@@ -1,7 +1,7 @@
-/* Interop with the third-party automation stack (midi-qol, DAE); each function no-ops without them. */
+/* Interop with the third-party automation stack (midi-qol, DAE). Each function no-ops without them. */
 const AutomationHelpers = (function () {
 
-	/* Raw data for one activity, from a prepared item or from creation data; neither shape can be assumed. */
+	/* Raw data for one activity, from a prepared item or from creation data. Neither shape can be assumed. */
 	function activitySource(item, activityId) {
 		const activity = item?.system?.activities?.get?.(activityId);
 		const existing = activity

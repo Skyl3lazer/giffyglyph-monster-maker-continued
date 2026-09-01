@@ -24,7 +24,7 @@ import Templates from "./Templates.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Activities from "./Activities.js";
 
-/* The Forge UI replaces the stock NPC parts entirely, so much of this class undoes inherited behaviour. */
+/* The Forge UI replaces the stock NPC parts entirely, so much of this class undoes inherited behavior. */
 export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet {
 
     constructor(options = {}) {
@@ -406,7 +406,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             data: {
                 activation: {
                     cost: null,
-                    // "trait" actions have no activation type; everything else uses the dataset value.
+                    // "trait" actions have no activation type. Everything else uses the dataset value.
                     type: activationType === "trait" ? null : activationType,
                     condition: null
                 },

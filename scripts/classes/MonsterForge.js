@@ -771,7 +771,7 @@ const MonsterForge = (function () {
         if (size == stored.traits?.size && swarm == stored.details?.type?.swarm) return;
 
         const settled = $.extend(true, {}, blueprintDescription);
-        // An unmappable size keeps the authored one; an empty swarm is a creature that stopped being one.
+        // An unmappable size keeps the authored one. An empty swarm is a creature that stopped being one.
         settled.size = sizeName(size) ?? settled.size;
         settled.type.swarm = sizeName(swarm) ?? "";
         monsterData.description = {

@@ -70,7 +70,7 @@ const Zones = (function () {
 		return seen;
 	}
 
-	function _terrainBehaviours(item, zone, uuids) {
+	function _terrainBehaviors(item, zone, uuids) {
 		const out = [];
 		const routes = _routes(zone);
 
@@ -83,7 +83,7 @@ const Zones = (function () {
 			}));
 		}
 
-		// Both darkness modifiers reach the same behaviour, so two of them are still one document.
+		// Both darkness modifiers reach the same behavior, so two of them are still one document.
 		if (routes.has("darkness")) {
 			out.push(_stamped({
 				type: "adjustDarknessLevel",
@@ -106,7 +106,7 @@ const Zones = (function () {
 		return out;
 	}
 
-	function _midiBehaviour(item, zone, rules, activity) {
+	function _midiBehavior(item, zone, rules, activity) {
 		const resolved = [];
 		for (const rule of rules) {
 			for (const trigger of rule.triggers) {
@@ -143,7 +143,7 @@ const Zones = (function () {
 	}
 
 	/* ERB rolls against the victim's roll data, so the scaler's numbers have to be settled here. */
-	function _erbBehaviour(item, rules, activity) {
+	function _erbBehavior(item, rules, activity) {
 		const parts = activity?.damage?.parts ?? [];
 		if (!parts.length) return null;
 		const damage = parts.map(p => Activities.damagePartToBlueprint(p).formula).filter(f => f).join(" + ");
@@ -172,7 +172,7 @@ const Zones = (function () {
 		return _stamped({ type: `${ERB_ID}.Trap`, name: _named(item, "rules"), system });
 	}
 
-	/* Once: a second pass would double every behaviour on the area. */
+	/* Once: a second pass would double every behavior on the area. */
 	async function attach(region, activityUuid) {
 		if (!game.users.activeGM?.isSelf || !activityUuid) return;
 		if ([...(region?.behaviors ?? [])].some(b => b.getFlag?.(GMM_MODULE_TITLE, "zone"))) return;
@@ -187,11 +187,11 @@ const Zones = (function () {
 		const rules = Activities.zoneRules(item.flags.gmm.blueprint);
 		const activity = item.system?.activities?.get?.(Activities.GMM_ZONE_ACTIVITY_ID) ?? null;
 
-		const data = _terrainBehaviours(item, zone, await _terrainEffectUuids(documents));
+		const data = _terrainBehaviors(item, zone, await _terrainEffectUuids(documents));
 		// midi is the better provider of the two, so ERB only answers where midi is absent.
 		const carried = _active(MIDI_ID)
-			? _midiBehaviour(item, zone, rules, activity)
-			: (_active(ERB_ID) ? _erbBehaviour(item, rules, activity) : null);
+			? _midiBehavior(item, zone, rules, activity)
+			: (_active(ERB_ID) ? _erbBehavior(item, rules, activity) : null);
 		if (carried) data.push(carried);
 
 		if (!data.length) return;

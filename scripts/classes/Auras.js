@@ -76,7 +76,7 @@ const Auras = (function () {
 		ui.notifications?.warn(game.i18n.format(key, { count: count }));
 	}
 
-	/* Give a better error when a GM loads an aura automation without Aura Effects */
+	/* Foundry's own error names the unregistered subtype and not the module that would register it. */
 	function _explainRejections() {
 		CompatibilityHelpers.safeWrap("Hooks.onError", function (wrapped, location, error, options = {}) {
 			if (!String(error?.message ?? "").includes(AURA_TYPE)) return wrapped(location, error, options);

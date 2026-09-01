@@ -248,7 +248,7 @@ const GmmActor = (function () {
 		return /^[+-]/.test(formula) ? `${base} ${formula}` : `${base} + ${formula}`;
 	}
 
-	/* dnd5e keys every global attack bonus per action type; DAE's `system.bonuses.All-Attacks` writes all four. */
+	/* dnd5e keys every global attack bonus per action type. DAE's `system.bonuses.All-Attacks` writes all four. */
 	const GMM_5E_ATTACK_ACTION_TYPES = ["mwak", "rwak", "msak", "rsak"];
 
 	const GMM_PERCEPTION = GMM_5E_SKILLS.find((x) => x.name == "perception");
@@ -307,7 +307,7 @@ const GmmActor = (function () {
 		});
 	}
 
-	/* A rolled total is the creature's own maximum once it exists; until then the scaled average stands in for it. */
+	/* A rolled total is the creature's own maximum once it exists. Until then the scaled average stands in for it. */
 	function _resolveMaximumHitPoints(blueprint, attributes) {
 		const rolled = Number(blueprint.data.hit_points.rolled_max) || 0;
 		return (attributes.hit_points.use_formula && rolled) ? rolled : attributes.hit_points.maximum.value;

@@ -1,6 +1,6 @@
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
-/* Function macros for the pack effects midi drives; reached by name as `function.gmmc.rolls.*`.
+/* Function macros for the pack effects midi drives. Reached by name as `function.gmmc.rolls.*`.
  * Spelled "rolls" because midi withholds an optional prompt on a fumble unless the value contains "roll". */
 const Rolls = (function () {
 

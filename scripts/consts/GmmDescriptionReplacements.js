@@ -1,6 +1,4 @@
-/* Replacements applied once during vanilla -> GMMC conversion (see ActionBlueprint.deriveFromVanillaItem).
- * `{ pattern, replacement, note? }`; `replacement` accepts a string or `(match, ...captures) => string`.
- * Applied in order — earlier rules can shape input for later ones. */
+/* Order matters: an earlier rule can shape the input a later one matches. */
 export const GMM_DESCRIPTION_REPLACEMENTS = [
 	{
 		// `[[lookup @name lowercase]]{monster}` -> `[name]`
@@ -28,7 +26,7 @@ export const GMM_DESCRIPTION_REPLACEMENTS = [
 		replacement: "target"
 	},
 	{
-		// `[[lookup @target.affects.special [activity=<id>]]]` -> literal "target" (not a shortcode)
+		// `[[lookup @target.affects.type [activity=<id>]]]` -> literal "creature" (not a shortcode)
 		pattern: /\[\[lookup\s+@target\.affects\.type(?:\s+activity=[^\s\]]+)?\]\]/gi,
 		replacement: "creature"
 	},
@@ -45,8 +43,7 @@ export const GMM_DESCRIPTION_REPLACEMENTS = [
 	}
 ];
 
-/* True when only whitespace, HTML scaffolding, or punctuation remains — used to clear the
- * description instead of leaving an empty `<p></p>` shell post-replacement. */
+/* Punctuation and HTML scaffolding count as empty, because substitution can leave both behind. */
 export function isDescriptionEffectivelyEmpty(text) {
 	if (typeof text !== "string" || !text.length) return true;
 	const stripped = text

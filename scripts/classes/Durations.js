@@ -73,7 +73,7 @@ const Durations = (function () {
 		};
 	}
 
-	/* Reapplication stays off. The pre-type field was a label. Reading it as a behaviour would turn every
+	/* Reapplication stays off. The pre-type field was a label. Reading it as a behavior would turn every
 	 * timed damage action into a damage-over-time. */
 	function fromUnits(units, value) {
 		switch (units) {
@@ -371,9 +371,8 @@ const Durations = (function () {
 			.some(e => e.id !== carrier.id && isDurationEffect(e) && _applicationOf(e) === application);
 	}
 
-	/* A doom clock from a second use of the same feature is machinery rather than payload. Ending this
-	 * carrier would cancel a payload that has not landed yet. An area clock is machinery too, and
-	 * sweeping it would take the area off the canvas. */
+	/* A second use's doom clock and an area clock are both machinery rather than payload. Sweeping
+	 * either would cancel a payload still in flight or take the area off the canvas. */
 	function _payloadOf(carrier) {
 		const itemId = _sourceItemIdOf(carrier);
 		if (!itemId) return [];

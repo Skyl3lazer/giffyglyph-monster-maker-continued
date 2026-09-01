@@ -139,7 +139,7 @@ const Deferrals = (function () {
 	}
 
 
-	/* A delayed clock rides the item's own actor; a doom clock rides someone else's. */
+	/* A delayed clock rides the item's own actor. A doom clock rides someone else's. */
 	function _sourceItem(effect, clock) {
 		if (clock?.sourceUuid) return fromUuidSync(clock.sourceUuid) ?? null;
 		return effect?.parent?.items?.get?.(clock?.itemId) ?? null;
@@ -238,7 +238,7 @@ const Deferrals = (function () {
 			try {
 				const clock = _readClock(effect);
 				const current = Number(clock.remaining ?? clock.timer ?? 1);
-				// The card is already out; ticking again would re-post it every turn.
+				// The card is already out. Ticking again would re-post it every turn.
 				if (!(current > 0)) continue;
 
 				const tick = `${combat.id}:${combat.round}`;
@@ -343,7 +343,7 @@ const Deferrals = (function () {
 		await _useDeferredActivity(item, { targets });
 	}
 
-	/* midi drives its whole workflow from `completeActivityUse`; core dnd5e has no equivalent entry point. */
+	/* midi drives its whole workflow from `completeActivityUse`. Core dnd5e has no equivalent entry point. */
 	async function _useDeferredActivity(item, { targets = null } = {}) {
 		const activity = item.system?.activities?.get?.(Activities.GMM_DEFERRED_ACTIVITY_ID);
 		if (!activity) return;
