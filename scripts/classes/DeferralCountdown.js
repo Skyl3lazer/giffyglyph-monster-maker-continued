@@ -6,14 +6,20 @@ import {
 
 const GMM_CLOCK_FLAG = "deferral";
 const GMM_BADGE_PROPERTY = "gmmDeferralBadge";
+const GMM_REGION_REMAINING = "gmmDeferralRemaining";
 const GMM_BADGE_EXTRA_STROKE = 1;
 
 /* No socket and no write of its own. The effect update each tick already performs repaints every client. */
 const DeferralCountdown = (function () {
 
 	function init() {
-		Hooks.on("drawToken", _paint);
-		Hooks.on("refreshToken", _paint);
+		Hooks.on("drawToken", _paintToken);
+		Hooks.on("refreshToken", _paintToken);
+		Hooks.on("drawRegion", _resolveRegion);
+		Hooks.on("refreshRegion", _renderRegion);
+		Hooks.on("createActiveEffect", _onClockChanged);
+		Hooks.on("updateActiveEffect", _onClockChanged);
+		Hooks.on("deleteActiveEffect", _onClockChanged);
 	}
 
 	/* A stored object predating a new control is missing its key, so every read lands on the defaults first. */
@@ -37,7 +43,7 @@ const DeferralCountdown = (function () {
 		return style;
 	}
 
-	/* A percentage of the smaller side, so a badge can never outgrow the token carrying it. */
+	/* A percentage of the smaller side, so a badge can never outgrow the token or area carrying it. */
 	function fontSizeFor(config, width, height) {
 		return Math.max(1, Math.min(width, height) * (Number(config.size) || 0) / 100);
 	}
@@ -47,30 +53,64 @@ const DeferralCountdown = (function () {
 	}
 
 	function repaintAll() {
-		for (const token of canvas?.tokens?.placeables ?? []) _paint(token);
+		for (const token of canvas?.tokens?.placeables ?? []) _paintToken(token);
+		for (const region of canvas?.regions?.placeables ?? []) _resolveRegion(region);
 	}
 
-	function _paint(token) {
-		try {
-			const remaining = _lowestRemaining(token?.actor);
-			const config = getSettings();
-			// Core hides a secret token's effects from anyone but an observer. A countdown is one of them.
-			const show = config.enabled && (remaining !== null) && !token.document.isSecret;
+	function _paintToken(token) {
+		// Core hides a secret token's effects from anyone but an observer. A countdown is one of them.
+		const remaining = token.document.isSecret ? null : _lowestRemaining(token.actor);
+		const config = getSettings();
+		// Anchored to the chosen edge rather than inset from it, so a large badge cannot hang off the token.
+		const anchorX = { left: 0, center: 0.5, right: 1 }[config.horizontal] ?? 0.5;
+		const anchorY = { top: 0, center: 0.5, bottom: 1 }[config.vertical] ?? 0.5;
+		_render(token, remaining, {
+			width: token.w,
+			height: token.h,
+			x: token.w * anchorX,
+			y: token.h * anchorY,
+			anchorX,
+			anchorY
+		});
+	}
 
-			let badge = token[GMM_BADGE_PROPERTY];
-			if (!show) {
+	/* Resolving walks a uuid and an effect list, so a refresh reuses what the last draw worked out. */
+	function _resolveRegion(region) {
+		region[GMM_REGION_REMAINING] = _remainingOf(_clockForRegion(region));
+		_renderRegion(region);
+	}
+
+	/* An area is any shape, so the position controls cannot apply to it. */
+	function _renderRegion(region) {
+		const bounds = region.bounds;
+		const center = region.center;
+		_render(region, region[GMM_REGION_REMAINING] ?? null, {
+			width: bounds.width,
+			height: bounds.height,
+			x: center.x,
+			y: center.y,
+			anchorX: 0.5,
+			anchorY: 0.5
+		});
+	}
+
+	function _render(placeable, remaining, layout) {
+		try {
+			const config = getSettings();
+			let badge = placeable[GMM_BADGE_PROPERTY];
+			if (!config.enabled || (remaining === null)) {
 				if (badge && !badge.destroyed) badge.visible = false;
 				return;
 			}
 
 			if (!badge || badge.destroyed) {
 				const text = new foundry.canvas.containers.PreciseText("", CONFIG.canvasTextStyle.clone());
-				badge = token[GMM_BADGE_PROPERTY] = token.addChild(text);
+				badge = placeable[GMM_BADGE_PROPERTY] = placeable.addChild(text);
 			}
 
 			const due = !(remaining > 0);
-			const fontSize = fontSizeFor(config, token.w, token.h);
-			// A refresh runs every animation frame a token moves. Assigning a style re-rasterizes the glyph.
+			const fontSize = fontSizeFor(config, layout.width, layout.height);
+			// A refresh runs every animation frame a placeable moves. Assigning a style re-rasterizes the glyph.
 			const signature = `${config.font}|${fontSize}|${due ? config.dueColor : config.color}`;
 			if (badge.gmmStyleSignature !== signature) {
 				badge.style = buildStyle(config, { fontSize, due });
@@ -78,29 +118,49 @@ const DeferralCountdown = (function () {
 			}
 
 			badge.text = labelFor(remaining);
-			_anchor(token, badge, config);
+			badge.anchor.set(layout.anchorX, layout.anchorY);
+			badge.position.set(layout.x, layout.y);
 			badge.visible = true;
 		} catch (error) {
 			console.error("GMM | Drawing a deferral countdown failed", error);
 		}
 	}
 
-	/* Anchored to the chosen edge rather than inset from it, so a large badge cannot hang off the token. */
-	function _anchor(token, badge, config) {
-		const x = { left: 0, center: 0.5, right: 1 }[config.horizontal] ?? 0.5;
-		const y = { top: 0, center: 0.5, bottom: 1 }[config.vertical] ?? 0.5;
-		badge.anchor.set(x, y);
-		badge.position.set(token.w * x, token.h * y);
+	function _onClockChanged(effect) {
+		const clock = effect?.getFlag?.(GMM_MODULE_TITLE, GMM_CLOCK_FLAG);
+		for (const uuid of clock?.templateUuids ?? []) {
+			const region = fromUuidSync(uuid)?.object;
+			if (region) _resolveRegion(region);
+		}
+	}
+
+	/* `templateUuids` is the only link that survives two uses of one action sharing an origin. */
+	function _clockForRegion(region) {
+		const document = region?.document;
+		if (!document) return null;
+		// dnd5e 6.0 repurposes `origin` to the casting token and moves the activity onto its own flag.
+		const origin = document.getFlag("dnd5e", "activity") ?? document.getFlag("dnd5e", "origin");
+		if (typeof origin !== "string") return null;
+
+		const actor = fromUuidSync(origin)?.item?.actor;
+		for (const effect of actor?.effects ?? []) {
+			const clock = effect.getFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG);
+			if (clock?.templateUuids?.includes(document.uuid)) return clock;
+		}
+		return null;
+	}
+
+	function _remainingOf(clock) {
+		const remaining = Number(clock?.remaining ?? clock?.timer);
+		return (Number.isFinite(remaining) && (remaining >= 0)) ? remaining : null;
 	}
 
 	/* The nearest clock is the only one the book's countdown is about. */
 	function _lowestRemaining(actor) {
 		let lowest = null;
 		for (const effect of actor?.effects ?? []) {
-			const clock = effect.getFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG);
-			if (!clock) continue;
-			const remaining = Number(clock.remaining ?? clock.timer);
-			if (!Number.isFinite(remaining) || remaining < 0) continue;
+			const remaining = _remainingOf(effect.getFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG));
+			if (remaining === null) continue;
 			if ((lowest === null) || (remaining < lowest)) lowest = remaining;
 		}
 		return lowest;
