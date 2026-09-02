@@ -166,6 +166,8 @@
   "gmm.action.blueprint.attack.type": "Attack Type",
   "gmm.action.blueprint.attack.stat": "Related Ability",
   "gmm.action.blueprint.attack.bonus": "Attack Modifier",
+  "gmm.action.blueprint.attack.bonus_doubles_attack": "The Attack Modifier is added on top of the to-hit bonus this action already builds. [{code}] here is counted twice.",
+  "gmm.action.blueprint.attack.bonus_doubles_dc": "The Attack Modifier is added on top of the save DC this action already builds. [{code}] here is counted twice.",
   "gmm.action.blueprint.description.title": "Description",
   "gmm.action.blueprint.deferral.title": "Deferral",
   "gmm.action.blueprint.deferral.type": "Deferral Type",

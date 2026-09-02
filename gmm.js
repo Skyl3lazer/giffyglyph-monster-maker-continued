@@ -154,6 +154,15 @@ Hooks.once("init", function() {
 		}
 	});
 
+	Hooks.on("preUpdateItem", (item, change, options, _userId) => {
+		if (options?.gmmConvertingFromVanilla || options?.gmmRevertingToVanilla) return;
+		try {
+			_warnAboutDoubledBonus(item, change);
+		} catch (e) {
+			console.warn("GMM | doubled-bonus check failed", e);
+		}
+	});
+
 	/* No builder can delete an embedded document, so a forged effect the blueprint no longer asks for is
 	   disposed of here. Gated on the acting client, so two owners do not race the same deletion. */
 	Hooks.on("updateItem", (item, _change, _options, userId) => {
@@ -278,6 +287,41 @@ function _isSheetSwitchFromGmm(item, change) {
 	const newSheet = foundry.utils.getProperty(c, "flags.core.sheetClass");
 	if (newSheet === undefined) return false;
 	return newSheet !== target;
+}
+
+/* The authored Attack Modifier lands on top of the to-hit or the DC GMMC already built from the monster.
+   A shortcode for a term already in there is therefore counted twice. */
+function _doubledBonusCodes(activityType, relatedStat) {
+	const mod = `${relatedStat || "max"}Mod`;
+	if (activityType === "save") return ["dcPrimaryBonus", "saveDc", mod];
+	// A blank stat leaves the ability mod to dnd5e, which this field does not land on top of.
+	if (activityType === "attack") return relatedStat ? ["attackBonus", mod] : ["attackBonus"];
+	return [];
+}
+
+function _warnAboutDoubledBonus(item, change) {
+	const readAttack = (field) => {
+		const path = `flags.gmm.blueprint.data.attack.${field}`;
+		const incoming = foundry.utils.getProperty(change ?? {}, path);
+		return (incoming === undefined) ? foundry.utils.getProperty(item, path) : incoming;
+	};
+
+	const bonus = foundry.utils.getProperty(change ?? {}, "flags.gmm.blueprint.data.attack.bonus");
+	if ((typeof bonus !== "string") || !bonus.includes("[")) return;
+	// The sheet submits the whole blueprint every time. An unchanged field would otherwise warn on every save.
+	if (bonus === (item?.flags?.gmm?.blueprint?.data?.attack?.bonus ?? "")) return;
+
+	const typed = Shortcoder.findShortcodes(bonus);
+	const activityType = Activities.activityTypeFor(readAttack("type"));
+	for (const code of _doubledBonusCodes(activityType, readAttack("related_stat"))) {
+		if (!typed.includes(code)) continue;
+		const message = game.i18n.format(
+			`gmm.action.blueprint.attack.bonus_doubles_${activityType === "save" ? "dc" : "attack"}`,
+			{ code: code }
+		);
+		ui.notifications?.warn(message);
+		console.warn(`GMM | ${message}`);
+	}
 }
 
 /* First-time conversion: everything lands in one update so the hook is not re-entered. */
