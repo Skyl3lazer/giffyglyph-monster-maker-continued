@@ -1092,11 +1092,12 @@ const Activities = (function () {
     /* Read from the item, not from the objects being built, so an entry on an activity this save is
      * about to delete is still found. Whole entries: `AppliedEffectField` also carries a level range. */
     function _authoredEffectEntries(item) {
+        const stashed = _readSnapshotFlag(item, "savedGmmActivities");
         const seen = new Set();
         const entries = [];
         let forged = false;
         for (const activityId of GMM_ACTIVITY_IDS) {
-            const existing = AutomationHelpers.activitySource(item, activityId);
+            const existing = AutomationHelpers.activitySource(item, activityId) ?? stashed[activityId];
             if (existing) forged = true;
             for (const entry of (Array.isArray(existing?.effects) ? existing.effects : [])) {
                 const id = entry?._id;
@@ -1137,8 +1138,9 @@ const Activities = (function () {
     }
 
     function _mergeForeignFields(item, activityId, data) {
+        const stashed = _readSnapshotFlag(item, "savedGmmActivities")[activityId];
         return AutomationHelpers.preserveForeignActivityFields(
-            item, activityId, data, GMM_OWNED_ACTIVITY_FIELDS
+            item, activityId, data, GMM_OWNED_ACTIVITY_FIELDS, stashed
         );
     }
 
@@ -1427,19 +1429,41 @@ const Activities = (function () {
     }
 
     /* Both the JSON-string and raw-object forms exist in stored data. */
-    function _readSavedActivities(item) {
-        const raw = item?.flags?.gmm?.savedActivities;
+    function _readSnapshotFlag(item, key) {
+        const raw = item?.flags?.gmm?.[key];
         if (!raw) return {};
         if (typeof raw === "string") {
             try {
                 const parsed = JSON.parse(raw);
                 return (parsed && typeof parsed === "object") ? parsed : {};
             } catch (e) {
-                console.warn("GMM | savedActivities snapshot is not valid JSON", e);
+                console.warn(`GMM | ${key} snapshot is not valid JSON`, e);
                 return {};
             }
         }
         return (typeof raw === "object") ? raw : {};
+    }
+
+    /* `effects` is kept though GMMC owns it: membership is the GM's choice, not the blueprint's.
+       Every other owned field is dropped so a rebuild cannot resurrect one the blueprint has changed. */
+    function _stashableActivityFields(source) {
+        const stash = {};
+        for (const [key, value] of Object.entries(source)) {
+            if (GMM_OWNED_ACTIVITY_FIELDS.has(key) && (key !== "effects")) continue;
+            stash[key] = value;
+        }
+        return stash;
+    }
+
+    /* The GMM activities have no `savedActivities` equivalent, so a revert destroys the only source
+       the rebuild's preserve step can read. */
+    function _snapshotGmmActivities(item) {
+        const snapshot = {};
+        for (const activityId of GMM_ACTIVITY_IDS) {
+            const source = AutomationHelpers.activitySource(item, activityId);
+            if (source) snapshot[activityId] = _stashableActivityFields(source);
+        }
+        return snapshot;
     }
 
     /* The GMM flags are left intact, so the item can be toggled back. */
@@ -1447,12 +1471,13 @@ const Activities = (function () {
         const update = {};
         const ForcedReplacement = foundry.data?.operators?.ForcedReplacement;
 
+        update["flags.gmm.savedGmmActivities"] = JSON.stringify(_snapshotGmmActivities(item));
         for (const activityId of GMM_ACTIVITY_IDS) {
             Object.assign(update, _buildActivityDeletion(item, activityId));
         }
 
         // ForcedReplacement, so each fully replaces any same-id remnant.
-        const saved = _readSavedActivities(item);
+        const saved = _readSnapshotFlag(item, "savedActivities");
         for (const [id, data] of Object.entries(saved)) {
             if (typeof id !== "string" || id.startsWith("-=") || isGmmActivityId(id)) continue;
             if (!data || typeof data !== "object") continue;

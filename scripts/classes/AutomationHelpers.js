@@ -10,10 +10,11 @@ const AutomationHelpers = (function () {
 		return (existing && typeof existing === "object") ? existing : null;
 	}
 
-	/* Anything outside `ownedFields` was written by another module and a forced replacement would reset it. */
-	function preserveForeignActivityFields(item, activityId, newData, ownedFields) {
-		const existing = activitySource(item, activityId);
-		if (!existing) return newData;
+	/* Anything outside `ownedFields` was written by another module and a forced replacement would reset it.
+	 * `fallback` stands in when the activity was deleted before the rebuild that reads it. */
+	function preserveForeignActivityFields(item, activityId, newData, ownedFields, fallback = null) {
+		const existing = activitySource(item, activityId) ?? fallback;
+		if (!existing || (typeof existing !== "object")) return newData;
 
 		const merged = { ...newData };
 		for (const [key, value] of Object.entries(existing)) {
