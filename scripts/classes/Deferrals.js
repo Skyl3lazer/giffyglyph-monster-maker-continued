@@ -70,7 +70,7 @@ const Deferrals = (function () {
 
 			// A countdown in the scaler's turns is meaningless without turns, so resolve rather than plant one.
 			const inCombat = _combatantFor(item.actor);
-			if (!_isEnabled() || !_isSupported() || !inCombat) {
+			if (!_isEnabled() || !_isSupported() || !inCombat || !game.users.activeGM) {
 				return void await _useDeferredActivity(item);
 			}
 
