@@ -127,7 +127,7 @@
 							</div>
 							<div class="form-group__body">
 								<select class="select--skill" name="skill">
-									<option value="" selected="">—</option>
+									<option value="" selected="">&mdash;</option>
 									{{#each gmm.enums.skills}}
 										<option value="{{.}}">{{localize (concat 'gmm.common.skill.' .)}} {{#if (getSkillProficiency ../gmm.monster.skills . ../gmm.monster.role)}}({{numberFormat (getSkillProficiency ../gmm.monster.skills .) sign=true}}){{/if}}</option>
 									{{/each}}

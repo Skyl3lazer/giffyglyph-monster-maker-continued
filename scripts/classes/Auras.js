@@ -64,7 +64,8 @@ const Auras = (function () {
 		let count = 0;
 		for (const actor of _actors()) {
 			for (const effect of actor.effects ?? []) {
-				if (effect.getFlag?.(AURA_MODULE_ID, "fromAura")) count += 1;
+				/* getFlag throws on a scope belonging to an inactive module, and this only ever runs in that state. */
+				if (effect.flags?.[AURA_MODULE_ID]?.fromAura) count += 1;
 			}
 		}
 		return count;

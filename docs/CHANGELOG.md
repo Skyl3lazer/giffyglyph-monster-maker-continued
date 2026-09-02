@@ -29,6 +29,7 @@
 
 ### Automation *(v14 only)*
 * Deferral automation! Deferred abilities will now properly wait before rolling attacks or applying effects where appropriate. This is compatible with *MidiQOL*, but some amount of the automation works without it.
+	* There are settings to customize the display, but you'll get cool countdown numbers for deferred activities.
 * Zones! An area action can now change the space it is dropped on instead of only describing it. Pick an area shape under Target and the Zone controls appear there. Author the Change Terrain modifiers it carries and/or rules that fires part of the action on entering, leaving, or the start or end of a turn.
 	* GMMC picks the best automation your world has, including *MidiQOL* and *Enhanced Region Behaviors*.
 	* The seven shipped Zone powers are re-authored to use it: Barrier, Zone of Darkness, Zone of Pain, Sticky Floor, Difficult Space, Smoke Bomb and Destruction.
