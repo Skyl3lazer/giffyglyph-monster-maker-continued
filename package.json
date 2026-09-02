@@ -10,8 +10,11 @@
     "test": "echo \"hi\"",
     "unpack": "node tools/packs.mjs unpack",
     "pack": "node tools/packs.mjs pack",
-    "postinstall": "node tools/packs.mjs pack",
-    "prepare": "git config core.hooksPath .githooks"
+    "postinstall": "node tools/packs.mjs pack && npm run symlinks",
+    "prepare": "git config core.hooksPath .githooks",
+    "symlinks": "node tools/create-symlinks.mjs",
+    "foundry:v13": "node tools/create-symlinks.mjs v13",
+    "foundry:v14": "node tools/create-symlinks.mjs v14"
   },
   "author": "Skyl3lazer",
   "license": "ISC",
@@ -21,6 +24,7 @@
     "gulp": "^4.0.2",
     "gulp-sass": "^5.1.0",
     "gulp-using": "^0.1.1",
+    "js-yaml": "^4.1.0",
     "sass": "^1.63.3"
   }
 }
