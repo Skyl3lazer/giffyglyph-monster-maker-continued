@@ -374,7 +374,7 @@ async function _reconvertToScaling(item, originalChange, originalOptions) {
 	const update = foundry.utils.mergeObject(
 		foundry.utils.deepClone(originalChange ?? {}),
 		{
-			// Emptied in the same update that consumes it, so a later rebuild cannot read a stale one.
+			// A later rebuild must not read a stash this update has already consumed.
 			flags: { gmm: { savedActivities, savedGmmActivities: "{}" } },
 			...Activities.buildActivityUpdate(item, blueprint),
 			...Activities.buildForeignActivityPurge(item)

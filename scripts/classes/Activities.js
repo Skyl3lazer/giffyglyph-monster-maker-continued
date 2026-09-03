@@ -579,8 +579,7 @@ const Activities = (function () {
             range: _buildRange(blueprintData),
             // The primary already placed the template. A second would be planted here.
             target: _buildTarget(blueprintData, { template: false }),
-            uses: { ...GMM_EMPTY_ACTIVITY_USES },
-            midiProperties: { automationOnly: true }
+            uses: { ...GMM_EMPTY_ACTIVITY_USES }
         };
 
         _applyPayloadFields(data, blueprintData, type);
@@ -608,8 +607,7 @@ const Activities = (function () {
             duration: _buildDuration(blueprintData, { concentration: false }),
             range: _buildRange(blueprintData),
             target: _buildTarget(blueprintData, { template: false }),
-            uses: { ...GMM_EMPTY_ACTIVITY_USES },
-            midiProperties: { automationOnly: true }
+            uses: { ...GMM_EMPTY_ACTIVITY_USES }
         };
 
         _applyPayloadFields(data, blueprintData, type);
@@ -1031,25 +1029,11 @@ const Activities = (function () {
         const deferred = deferredData
             ? _mergeForeignFields(item, GMM_DEFERRED_ACTIVITY_ID, deferredData)
             : null;
-        if (deferred) {
-            // Declared in the builder they would suppress the preserve step and drop the GM's midi config.
-            deferred.midiProperties = {
-                ...(deferred.midiProperties ?? {}),
-                automationOnly: true,
-                // Left true, midi adopts this as the gate's other activity and suspends waiting for its damage.
-                otherActivityCompatible: false
-            };
-        }
+        if (deferred) _forceAutomationOnly(deferred);
 
         const zoneData = buildZoneActivityData(blueprint);
         const zone = zoneData ? _mergeForeignFields(item, GMM_ZONE_ACTIVITY_ID, zoneData) : null;
-        if (zone) {
-            zone.midiProperties = {
-                ...(zone.midiProperties ?? {}),
-                automationOnly: true,
-                otherActivityCompatible: false
-            };
-        }
+        if (zone) _forceAutomationOnly(zone);
 
         _setEffectMembership(item, blueprint, { primary, deferred, zone, duration: !!duration });
 
@@ -1067,6 +1051,17 @@ const Activities = (function () {
         if (effects.length) update.effects = effects;
 
         return update;
+    }
+
+    /* The only writer of `midiProperties`, and it runs on the merged object.
+     * A builder declaring the key makes the preserve step skip it, dropping the GM's own midi config. */
+    function _forceAutomationOnly(data) {
+        data.midiProperties = {
+            ...(data.midiProperties ?? {}),
+            automationOnly: true,
+            // Left true, midi adopts this as the gate's other activity and suspends waiting for its damage.
+            otherActivityCompatible: false
+        };
     }
 
     /* Placed, not carried: membership rides the host so nothing applies a turn before its payload, and
