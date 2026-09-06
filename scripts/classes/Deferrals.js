@@ -398,10 +398,10 @@ const Deferrals = (function () {
 		if (!game.users.activeGM?.isSelf || !actor) return;
 		for (const effect of _clockEffects(actor)) {
 			const clock = _readClock(effect);
-			if (clock?.templateUuids?.length) {
+			if (andEffects) effect.delete().catch(e => console.warn("GMM | Deferral clock cleanup failed", e));
+			else if (clock?.templateUuids?.length) {
 				_deleteTemplates(clock.templateUuids).catch(e => console.warn("GMM | Deferral template cleanup failed", e));
 			}
-			if (andEffects) effect.delete().catch(e => console.warn("GMM | Deferral clock cleanup failed", e));
 			_releaseConcentration(effect, clock).catch(e => console.warn("GMM | Deferral concentration release failed", e));
 		}
 	}
@@ -484,7 +484,13 @@ const Deferrals = (function () {
 	async function _deleteTemplates(uuids) {
 		for (const uuid of uuids ?? []) {
 			const template = await fromUuid(uuid);
-			if (template) await template.delete();
+			if (!template) continue;
+			try {
+				await template.delete();
+			} catch (error) {
+				// Foundry rejects the loser of a delete race
+				if (!/does not exist/i.test(error?.message ?? "")) throw error;
+			}
 		}
 	}
 
