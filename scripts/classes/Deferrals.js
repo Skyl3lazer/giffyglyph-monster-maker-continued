@@ -175,10 +175,10 @@ const Deferrals = (function () {
 				round: combat.round ?? null,
 				turn: combat.turn ?? null
 			},
+			// CONDITIONAL draws no icon for a clock, which carries no duration.
+			showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON?.ALWAYS,
 			// Creation data is not expanded, so a dotted flag key would be stored as one literal key.
 			flags: {
-				// A clock carries no duration. Without this dnd5e files it as passive and draws no icon.
-				dnd5e: { isTemporary: true },
 				[GMM_MODULE_TITLE]: {
 					[GMM_CLOCK_FLAG]: {
 						kind: "delayed",

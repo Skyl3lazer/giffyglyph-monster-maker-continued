@@ -632,9 +632,10 @@ const Activities = (function () {
                 : "",
             // The gate applies it to whoever it landed on, so it must not also ride the scaler.
             transfer: false,
+            // CONDITIONAL draws no icon for a clock, which carries no duration.
+            showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON?.ALWAYS,
             flags: {
-                // A clock carries no duration. Without this dnd5e files it as passive and draws no icon.
-                dnd5e: { isTemporary: true },
+                dnd5e: { isTemporary: false },
                 [GMM_MODULE_TITLE]: {
                     deferral: {
                         kind: "dooming",
@@ -1510,6 +1511,12 @@ const Activities = (function () {
         return Object.keys(fresh.duration).some(k => (stored.duration?.[k] ?? null) !== fresh.duration[k]);
     }
 
+    /* A clock forged before the flag was retired still carries it. */
+    function _doomClockTemporary(item) {
+        const stored = item?._source?.effects?.find?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID);
+        return !!stored?.flags?.dnd5e?.isTemporary;
+    }
+
     /* True when the item's GMM activities do not match the shape its blueprint asks for. */
     function needsActivityRebuild(item, blueprint) {
         const activities = item?.system?.activities;
@@ -1527,6 +1534,7 @@ const Activities = (function () {
         if (isDoomingDeferral(blueprint)) {
             if (primary?.damage?.parts?.length) return true;
             if (!primary?.effects?.some?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID)) return true;
+            if (_doomClockTemporary(item)) return true;
             return _deliveryNeedsMidiFlags(activities.get(GMM_DEFERRED_ACTIVITY_ID));
         }
         return wantsDeferred && (primary?.duration?.units !== GMM_PLANT_DURATION_UNITS);
