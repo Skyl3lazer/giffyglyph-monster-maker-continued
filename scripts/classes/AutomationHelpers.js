@@ -63,8 +63,36 @@ const AutomationHelpers = (function () {
 			.find(e => e.getFlag("dnd5e", "item")?.id === itemId) ?? null;
 	}
 
+	/* Midi resolves an ItemUses count by name inside the acting actor, so renaming the copy strands its budget. */
+	function rebindSelfItemUses(itemData) {
+		const sheetClass = itemData?.flags?.core?.sheetClass;
+		if (typeof sheetClass !== "string" || !sheetClass.endsWith(".ActionSheet")) return null;
+		if (!Array.isArray(itemData.effects) || !itemData.effects.length) return null;
+
+		const selfValues = new Set([
+			`ItemUses.${itemData.name}`,
+			`ItemUses.exactNameMatch.${itemData.name}`
+		]);
+		/* A copy carried in from elsewhere re-binds, so two copies on one actor never share a pool. */
+		const identifier = itemData.system?.identifier;
+		if (identifier) selfValues.add(`ItemUses.identifier.${identifier}`);
+
+		let boundIdentifier = null;
+		const effects = foundry.utils.deepClone(itemData.effects);
+		for (const effect of effects) {
+			for (const change of (effect?.system?.changes ?? effect?.changes ?? [])) {
+				if (!selfValues.has(change?.value)) continue;
+				boundIdentifier ??= foundry.utils.randomID();
+				change.value = `ItemUses.identifier.${boundIdentifier}`;
+			}
+		}
+		if (!boundIdentifier) return null;
+		return { system: { identifier: boundIdentifier }, effects: effects };
+	}
+
 	return {
 		concentrationFor: concentrationFor,
+		rebindSelfItemUses: rebindSelfItemUses,
 		effectBearer: effectBearer,
 		activitySource: activitySource,
 		preserveForeignActivityFields: preserveForeignActivityFields,

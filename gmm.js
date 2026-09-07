@@ -19,6 +19,7 @@ import Durations from './scripts/classes/Durations.js';
 import Areas from './scripts/classes/Areas.js';
 import MissDamage from './scripts/classes/MissDamage.js';
 import Shortcoder from './scripts/classes/Shortcoder.js';
+import AutomationHelpers from './scripts/classes/AutomationHelpers.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
@@ -119,6 +120,33 @@ Hooks.once("init", function() {
 			if (update) item.updateSource(foundry.utils.expandObject(update));
 		} catch (e) {
 			console.warn("GMM | preCreateItem activity-seed failed", e);
+		}
+	});
+
+	Hooks.on("preCreateItem", (item, _data, _options, _userId) => {
+		try {
+			const rebind = AutomationHelpers.rebindSelfItemUses(item._source);
+			if (rebind) item.updateSource(rebind);
+		} catch (e) {
+			console.warn("GMM | ItemUses rebind failed", e);
+		}
+	});
+
+	// Items embedded during actor creation never reach preCreateItem.
+	Hooks.on("preCreateActor", (actor, _data, _options, _userId) => {
+		try {
+			const items = actor._source?.items;
+			if (!Array.isArray(items) || !items.length) return;
+			let bound = false;
+			const rebound = items.map(itemData => {
+				const rebind = AutomationHelpers.rebindSelfItemUses(itemData);
+				if (!rebind) return itemData;
+				bound = true;
+				return foundry.utils.mergeObject(itemData, rebind, { inplace: false });
+			});
+			if (bound) actor.updateSource({ items: rebound });
+		} catch (e) {
+			console.warn("GMM | ItemUses rebind failed", e);
 		}
 	});
 
