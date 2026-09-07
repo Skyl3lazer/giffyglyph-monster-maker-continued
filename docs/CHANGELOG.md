@@ -9,11 +9,21 @@
 
 ## v2.0.1.4
 
+### Automation Update Highlights
+
+- This is a huge update, with one primary goal: Every function and dial in the GMM pdf is available to the GM, and works with automation tools.
+- Every compendium, including the new Effects compendium, utilizes built-in or module-based automation where possible.
+- Modules include (so far) MidiQOL/DAE, Aura Effects, Automated Conditions 5e, and Coven's Automation Toolkit
+  - Individual items will list what modules, if any, are used in their automation.
+- Scaler attributes are also exposed to effects, so you can use things like @gmm.level when writing your own effects. Every shortcode can be accessed in this way!
+
+**NOTE**: While many of these do work in v13, this work is targeted at v14. I know it's not super widely adopted yet, but there were several significant changes that I would have had to write custom v13 stuff for, which wouldn't be used a few months from now.
+
+
 ### Resources
-* Using a limited action now actually spends a use. An action authored `1/day` or `recharge 5-6` used to print the number and never touch it, so the count on the stat block was decoration and a GM who trusted it was tracking a resource nothing enforced. That number is now real.
-	* You get dnd5e's usual "use this" prompt on a limited action, the same one a vanilla monster feature gets. Untick the box in it to fire the action without paying for it.
+* Using a limited action now actually spends a use. An action authored `1/day` or `recharge 5-6` used to print the number and never touch it, so the count on the stat block was decoration and a GM who trusted it was tracking a resource nothing enforced.
+	* You get dnd5e's usual "use this" prompt on a limited action, the same one a vanilla monster feature gets. 
 	* An action with nothing left refuses to fire and says why. Recharge it, rest, untick the box, or type a new remaining count on the sheet.
-	* A `recharge 5-6` action is spent when you use it, and the d6 button brings it back. The charged marker follows what actually happened instead of waiting to be ticked by hand.
 	* The count now lives on the action itself rather than inside its generated activity, which is where the rest of Foundry looks for it. A scaler switched to the vanilla NPC sheet shows its uses and its recharge button there too. Existing monsters are converted for you when the world loads.
 	* Setting an action's cost to "charges" against itself used to refuse the action outright. It works now, and it takes the quantity you asked for.
 * Short rest and long rest buttons on the Forge sheet. They run the same rest a vanilla NPC sheet does, so everything that recovers on a rest now actually recovers: paragon defenses refill on a long rest, and an action set to recharge on a short rest, long rest or day gets its uses back.
@@ -24,7 +34,7 @@
 * Paragon defenses are now offered on a failed saving throw. With MidiQOL installed you get a prompt before damage is applied. Without Midi the failed-save card gets a button similar to the Legendary Resistance button. Either way it spends the hit point cost and one defense, never spends hit points it cannot survive, and never eats temporary hit points. The pool refills on a long rest.
 * Paragon actions are now tracked in combat: taking a full action outside its own turn spends one, and the pool refills at the start of its turn and at the start of a fight. You'll get a warning if you take an action with no paragon actions available.
 * The Legendary Resistance button now follows the stat block: if paragon defenses have replaced the legendary resistances section on the sheet, the button stops appearing too. Tick "always show" on legendary resistances to see both if you really want to.
-* The paragon defenses maximum now has its "is fixed" toggle, so the modifier can override the rank-derived value instead of only adding to it
+* The Paragon Defenses maximum now has its "is fixed" toggle, so the modifier can override the rank-derived value instead of only adding to it
 * Module settings for Paragon Defense and Action automation.
 
 ### Automation *(v14 only)*
