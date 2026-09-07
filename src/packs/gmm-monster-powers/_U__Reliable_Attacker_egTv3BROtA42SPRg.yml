@@ -6,7 +6,8 @@ system:
     value: >-
       <p>When you make an attack roll, treat it as a natural 11.+ You may decide
       this after seeing the initial result.</p><p><em>+ Midi
-      automation</em></p><p><em>Offered only when the attack misses.</em></p>
+      automation</em></p><p><em>Shown when the attack misses on a die
+      below 11.</em></p>
     chat: ''
   source: {}
   activation:
@@ -78,6 +79,9 @@ effects:
         - key: flags.midi-qol.optional.ReliableAttacker.attack.fail.all
           type: custom
           value: function.gmmc.rolls.reliableAttacker
+        - key: flags.midi-qol.optional.ReliableAttacker.activation
+          type: custom
+          value: workflow.diceRoll < 11
         - key: flags.midi-qol.optional.ReliableAttacker.count
           type: custom
           value: ItemUses.exactNameMatch.(U) Reliable Attacker
@@ -104,8 +108,8 @@ flags:
           text: >-
             <p>When you make an attack roll, treat it as a natural 11.+ You may
             decide this after seeing the initial result.</p><p><em>+ Midi
-            automation</em></p><p><em>Offered only when the attack
-            misses.</em></p>
+            automation</em></p><p><em>Shown when the attack misses on a
+            die below 11.</em></p>
         activation:
           type: ''
           cost: null
