@@ -7,7 +7,7 @@ system:
       <p>Whenever you hit a creature within 30' that has 50% hp or more, that
       creature is <em>Marked for Death</em>.* While marked, if the creature is
       reduced to 0 hit points it suffers instant death.+</p><p><em>* Core
-      automation</em></p><p><em>+ Midi automation</em></p><p><em>Use it when you
+      automation</em></p><p><em>+ Core automation</em></p><p><em>Use it when you
       hit a target above half hit points.</em></p>
     chat: ''
   source: {}
@@ -76,10 +76,7 @@ effects:
     transfer: false
     description: ''
     system:
-      changes:
-        - key: flags.midi-qol.onUseMacroName
-          type: custom
-          value: function.gmmc.conditions.cursed,isDamaged
+      changes: []
     flags:
       dae:
         stackable: noneName
@@ -105,7 +102,7 @@ flags:
             <p>Whenever you hit a creature within 30' that has 50% hp or more,
             that creature is <em>Marked for Death</em>.* While marked, if the
             creature is reduced to 0 hit points it suffers instant
-            death.+</p><p><em>* Core automation</em></p><p><em>+ Midi
+            death.+</p><p><em>* Core automation</em></p><p><em>+ Core
             automation</em></p><p><em>Use it when you hit a target above half
             hit points.</em></p>
         activation:

@@ -65,19 +65,32 @@ const Conditions = (function () {
 		if (!effect?.flags?.gmm?.condition) await effect?.delete();
 	}
 
-	/* Midi fires isDamaged once per target, so the target set would name the wrong one of two Cursed victims. */
+	/* Kept for effects authored against the macro pass. An unowned bearer is left to the damage hook
+	 * rather than failing on permissions here. */
 	async function cursed(macroData = {}) {
 		const actor = _getBearer("cursed", [macroData?.token, macroData?.actor])?.actor;
-		if (!actor) return;
+		if (!actor?.isOwner) return;
 
 		/* midi's isDamaged pass runs before the damage is written. */
 		const pending = macroData?.damageItem ?? macroData?.workflow?.damageItem;
 		const hp = pending?.actorUuid === actor.uuid ? pending.newHP : actor.system?.attributes?.hp?.value;
+		await _dieAtZero(actor, hp);
+	}
+
+	/* midi's own wounded pass may already have marked the bearer, and toggling a live status clears it. */
+	async function _dieAtZero(actor, hp) {
 		if (!(Number(hp) <= 0)) return;
 		if (actor.statuses?.has("dead")) return;
 
 		await actor.toggleStatusEffect("dead", { active: true, overlay: true });
 		ui.notifications?.info(game.i18n.format("gmm.condition.cursed.died", { name: actor.name }));
+	}
+
+	/* Fires on whichever client wrote the damage, so that client may write the status too. The bearer's
+	 * settled hit points decide the death, rather than a total the workflow computed elsewhere. */
+	async function _onApplyDamage(actor) {
+		if (!actor?.isOwner || !_getBearer("cursed", [actor])) return;
+		await _dieAtZero(actor, actor.system?.attributes?.hp?.value);
 	}
 
 	/* Unstable terrain: when a creature ends their turn within the area, they fall prone.
@@ -95,6 +108,10 @@ const Conditions = (function () {
 		ui.notifications?.info(game.i18n.format("gmm.terrain.unstable.prone", { name: actor.name }));
 	}
 
+	function init() {
+		Hooks.on("dnd5e.applyDamage", _onApplyDamage);
+	}
+
 	function registerApi() {
 		const api = { bleeding: bleeding, cursed: cursed, unstable: unstable };
 		// midi resolves `function.<path>` as a bare dotted global, so the short alias is the callable one.
@@ -109,6 +126,7 @@ const Conditions = (function () {
 	}
 
 	return {
+		init: init,
 		registerApi: registerApi,
 		bleeding: bleeding,
 		cursed: cursed,

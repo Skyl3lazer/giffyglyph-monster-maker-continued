@@ -761,6 +761,7 @@
   "gmm.condition.cursed.died": "{name} is Cursed and dies at 0 hit points.",
   "gmm.condition.exhaustion.gained": "{source} takes {name} to exhaustion level {level}.",
   "gmm.terrain.unstable.prone": "{name} ends their turn on Unstable ground and falls prone.",
+  "gmm.routing.failed": "Monster Maker needed the GM to finish this and could not. Check the console for details.",
   "gmm.monster.artifact.paragon_actions.depleted": "{name} has no paragon actions remaining.",
   "gmm.monster.artifact.paragon_actions.maximum": "Maximum",
   "gmm.monster.artifact.paragon_actions.title": "Paragon Actions",

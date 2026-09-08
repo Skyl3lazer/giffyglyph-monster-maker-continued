@@ -1,4 +1,5 @@
 import CompatibilityHelpers from './CompatibilityHelpers.js';
+import GmRouting from './GmRouting.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
 
 const GMM_PARAGON_DEFENSES_SETTING = "trackParagonDefenses";
@@ -9,11 +10,13 @@ const GMM_MIDI_OPTIONALS_USED = "flags.midi-qol.optionalsUsed";
 const GMM_MIDI_OPTIONAL_NAME = "gmmParagonDefense";
 const GMM_MESSAGE_FLAG = "paragonDefense";
 const GMM_SPEND_MARKER = "gmmParagonDefense";
+const GMM_SPEND_OPERATION = "spendParagonDefense";
 
 /* Two surfaces, because dnd5e's `forceSuccess` only repaints the card while midi can still change the outcome. */
 const ParagonDefenses = (function () {
 
 	function init() {
+		GmRouting.register(GMM_SPEND_OPERATION, _spendAsGm);
 		Hooks.on("dnd5e.renderChatMessage", _onRenderChatMessage);
 		Hooks.on("dnd5e.preRestCompleted", _onPreRestCompleted);
 		Hooks.on("dnd5e.preApplyDamage", _onPreApplyDamage);
@@ -130,18 +133,20 @@ const ParagonDefenses = (function () {
 
 	async function spendParagonDefense(options = {}) {
 		const actor = options?.actor;
-		try {
-			const spendable = _getSpendable(actor);
-			if (!spendable) return undefined;
+		if (!_getSpendable(actor)) return undefined;
+		return GmRouting.run(GMM_SPEND_OPERATION, { actorUuid: actor.uuid }, actor);
+	}
 
-			// Pool first: a half-failure that skips the payment is bounded, one that skips the decrement is not.
-			await actor.update({ [GMM_PARAGON_DEFENSES_KEY]: spendable.remaining - 1 });
-			await actor.applyDamage(spendable.cost, { [GMM_SPEND_MARKER]: true });
-			return "success";
-		} catch (error) {
-			console.error(`GMM | Could not spend a paragon defense: ${error.message}`);
-			return undefined;
-		}
+	/* Re-derived from the actor rather than read out of the request, so a stale client cannot overspend. */
+	async function _spendAsGm(data) {
+		const actor = fromUuidSync(data?.actorUuid);
+		const spendable = _getSpendable(actor);
+		if (!spendable) return undefined;
+
+		// Pool first: a half-failure that skips the payment is bounded, one that skips the decrement is not.
+		await actor.update({ [GMM_PARAGON_DEFENSES_KEY]: spendable.remaining - 1 });
+		await actor.applyDamage(spendable.cost, { [GMM_SPEND_MARKER]: true });
+		return "success";
 	}
 
 	function _onPreApplyDamage(actor, amount, updates, options) {

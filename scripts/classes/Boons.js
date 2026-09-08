@@ -1,11 +1,22 @@
 import AutomationHelpers from './AutomationHelpers.js';
+import GmRouting from './GmRouting.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
+
+const GMM_DELETE_BOON_OPERATION = "deleteBoonEffect";
 
 /* Function macros for the pack Boons midi drives. Reached by name as `function.gmmc.boons.*`. */
 const Boons = (function () {
 
 	function _getBearer(boon, candidates) {
 		return AutomationHelpers.effectBearer("flags.gmm.boon", boon, candidates);
+	}
+
+	/* Gated on the boon flag, so the route cannot be turned on an unrelated effect. */
+	async function _deleteBoonAsGm(data) {
+		const effect = fromUuidSync(data?.effectUuid);
+		if (!effect?.flags?.gmm?.boon) return false;
+		await effect.delete();
+		return true;
 	}
 
 	async function lucky(macroData = {}) {
@@ -57,7 +68,7 @@ const Boons = (function () {
 		damageItem.newHP = 1;
 
 		// A zeroHP expiry never fires for a bearer this left on 1, so the one use is spent here.
-		await bearer.effect.delete();
+		await GmRouting.run(GMM_DELETE_BOON_OPERATION, { effectUuid: bearer.effect.uuid }, bearer.effect);
 		ui.notifications?.info(game.i18n.format("gmm.boon.deflector.survived", { name: bearer.actor.name }));
 	}
 
@@ -83,6 +94,7 @@ const Boons = (function () {
 	}
 
 	function registerApi() {
+		GmRouting.register(GMM_DELETE_BOON_OPERATION, _deleteBoonAsGm);
 		const api = { lucky: lucky, deflector: deflector, thorns: thorns };
 		// midi resolves `function.<path>` as a bare dotted global, so the short alias is the callable one.
 		globalThis.gmmc ??= {};
