@@ -1118,10 +1118,14 @@ const Activities = (function () {
             .map(e => ({ _id: e._id }));
     }
 
+    function _isGmmcActionSheet(item) {
+        return item?.getSheetId?.() === `${GMM_MODULE_TITLE}.ActionSheet`;
+    }
+
     /* The clock document outlives the deferral that forged it: no builder can delete an embedded
      * document, so the caller does it once the update has landed. */
     function strandedDoomClock(item) {
-        if (isDoomingDeferral(item?.flags?.gmm?.blueprint)) return null;
+        if (_isGmmcActionSheet(item) && isDoomingDeferral(item?.flags?.gmm?.blueprint)) return null;
         return item?.effects?.get?.(GMM_DOOM_CLOCK_EFFECT_ID) ?? null;
     }
 
@@ -1129,7 +1133,7 @@ const Activities = (function () {
      * built and the live carrier is disabled. */
     function strandedDurationCarrier(item) {
         const type = Durations.read(item?.flags?.gmm?.blueprint).type;
-        if (Durations.TYPES[type]?.applies) return null;
+        if (_isGmmcActionSheet(item) && Durations.TYPES[type]?.applies) return null;
         return item?.effects?.get?.(Durations.GMM_DURATION_EFFECT_ID) ?? null;
     }
 
