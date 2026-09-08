@@ -1531,11 +1531,13 @@ const Activities = (function () {
         if (_onSaveStale(activities, blueprint)) return true;
         if (activities.get(GMM_ZONE_ACTIVITY_ID)?.duration?.concentration) return true;
         if (activities.get(GMM_DEFERRED_ACTIVITY_ID)?.duration?.concentration) return true;
+        // Both secondaries are forced, so either can have lost the flags to a world that had midi off.
+        if (_missingMidiFlags(activities.get(GMM_DEFERRED_ACTIVITY_ID))) return true;
+        if (_missingMidiFlags(activities.get(GMM_ZONE_ACTIVITY_ID))) return true;
         if (isDoomingDeferral(blueprint)) {
             if (primary?.damage?.parts?.length) return true;
             if (!primary?.effects?.some?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID)) return true;
-            if (_doomClockTemporary(item)) return true;
-            return _deliveryNeedsMidiFlags(activities.get(GMM_DEFERRED_ACTIVITY_ID));
+            return _doomClockTemporary(item);
         }
         return wantsDeferred && (primary?.duration?.units !== GMM_PLANT_DURATION_UNITS);
     }
@@ -1551,9 +1553,9 @@ const Activities = (function () {
 
     /* Guarded on midi being active: without it the schema drops `midiProperties`, and an unguarded
        check would rebuild the item on every load forever. */
-    function _deliveryNeedsMidiFlags(delivery) {
-        if (!delivery || !_midiActive()) return false;
-        const p = delivery.midiProperties;
+    function _missingMidiFlags(activity) {
+        if (!activity || !_midiActive()) return false;
+        const p = activity.midiProperties;
         return !p || p.automationOnly !== true || p.otherActivityCompatible !== false;
     }
 
