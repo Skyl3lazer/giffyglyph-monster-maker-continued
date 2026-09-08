@@ -131,7 +131,7 @@ const Deferrals = (function () {
 
 			// A countdown in the bearer's turns is meaningless without turns, so resolve rather than leave it sitting.
 			if (_isEnabled() && _isSupported() && _combatantFor(effect.parent)) return;
-			await _cancel(effect, { silent: true, release: false });
+			if (!await _cancel(effect, { silent: true, release: false })) return;
 			if (item) await _useDeferredActivity(item, { targets: _bearerTokens(effect) });
 		} catch (error) {
 			console.error("GMM | Doom clock setup failed", error);
@@ -321,29 +321,50 @@ const Deferrals = (function () {
 		const flag = message.getFlag(GMM_MODULE_TITLE, GMM_MESSAGE_FLAG);
 		if (!flag?.effectUuid) return;
 
-		for (const button of html.querySelectorAll("[data-gmm-deferral]")) {
+		const buttons = [...html.querySelectorAll("[data-gmm-deferral]")];
+		for (const button of buttons) {
 			button.addEventListener("click", async () => {
+				// Tested and set before the first await, which two clicks on one client would both clear.
+				if (buttons.some(b => b.disabled)) return;
+				for (const b of buttons) b.disabled = true;
+
 				const effect = await fromUuid(flag.effectUuid);
 				// The clock is gone, so the card has already been answered.
-				if (!effect) return void ui.notifications?.warn(game.i18n.localize("gmm.deferral.already_resolved"));
-				for (const b of html.querySelectorAll("[data-gmm-deferral]")) b.disabled = true;
-				if (button.dataset.gmmDeferral === "resolve") await _resolve(effect);
-				else await _cancel(effect);
+				if (!effect) return void _warnAnswered();
+				const answered = (button.dataset.gmmDeferral === "resolve")
+					? await _resolve(effect)
+					: await _cancel(effect);
+				if (!answered) _warnAnswered();
 			});
+		}
+	}
+
+	function _warnAnswered() {
+		ui.notifications?.warn(game.i18n.localize("gmm.deferral.already_resolved"));
+	}
+
+	async function _claimClock(effect, options) {
+		try {
+			await effect.delete(options);
+			return true;
+		} catch (error) {
+			console.warn("GMM | A deferral clock was already answered on another client", error);
+			return false;
 		}
 	}
 
 	async function _resolve(effect) {
 		const clock = _readClock(effect);
 		const item = _sourceItem(effect, clock);
-		if (!item) return void await _cancel(effect, { silent: true });
+		if (!item) return await _cancel(effect, { silent: true });
 
 		// Targets first: deleting the clock takes the template with it.
 		const targets = _clockKind(clock) === "dooming"
 			? _bearerTokens(effect)
 			: (await _templateTargets(clock)).tokens;
-		await _cancel(effect, { silent: true, release: false });
+		if (!await _cancel(effect, { silent: true, release: false })) return false;
 		await _useDeferredActivity(item, { targets });
+		return true;
 	}
 
 	/* midi drives its whole workflow from `completeActivityUse`. Core dnd5e has no equivalent entry point. */
@@ -371,17 +392,17 @@ const Deferrals = (function () {
 	async function _cancel(effect, { silent = false, release = true } = {}) {
 		const clock = _readClock(effect);
 		const actor = effect.parent;
+		const name = _featureName(effect, clock);
+		// midi ends a concentration the moment its last dependent goes.
+		if (!await _claimClock(effect, { noConcentrationCheck: !release })) return false;
 		if (!silent) {
 			await ChatMessage.create({
 				speaker: ChatMessage.getSpeaker({ actor }),
-				content: `<p><em>${game.i18n.format("gmm.deferral.cancelled", {
-					name: _featureName(effect, clock)
-				})}</em></p>`
+				content: `<p><em>${game.i18n.format("gmm.deferral.cancelled", { name })}</em></p>`
 			});
 		}
-		// midi ends a concentration the moment its last dependent goes.
-		await effect.delete({ noConcentrationCheck: !release });
 		if (release) await _releaseConcentration(effect, clock);
+		return true;
 	}
 
 	/* An effect destroyed with its parent fires no delete hook, and `pre` is where its flags are still readable. */
