@@ -17,8 +17,12 @@ const Deferrals = (function () {
 	/* Activations in flight, so a template one of them places can be told from a GM drawing onto a running clock. */
 	const _activationsInFlight = new Set();
 
+	/* The listeners waiting to sweep one gate's templates, so a second use cannot leave the first's behind. */
+	const _gateSweeps = new Map();
+
 	function init() {
 		Hooks.on("dnd5e.preActivityConsumption", _onPreActivityConsumption);
+		Hooks.on("dnd5e.postActivityConsumption", _onPostActivityConsumption);
 		Hooks.on("dnd5e.preCreateActivityTemplate", _onPreCreateActivityTemplate);
 		Hooks.on("dnd5e.postUseActivity", _onPostUseActivity);
 		Hooks.on("createActiveEffect", _onCreateActiveEffect);
@@ -86,7 +90,12 @@ const Deferrals = (function () {
 		return template.parent?.regions?.get(template.id)?.uuid ?? template.uuid ?? null;
 	}
 
+	/* A use that dies before it commits leaves its mark behind, so a fresh one starts by dropping it. */
 	function _onPreActivityConsumption(activity) {
+		if (activity?.id === Activities.GMM_ACTIVITY_ID) _activationsInFlight.delete(activity.uuid);
+	}
+
+	function _onPostActivityConsumption(activity) {
 		if (activity?.id === Activities.GMM_ACTIVITY_ID) _activationsInFlight.add(activity.uuid);
 	}
 
@@ -109,13 +118,31 @@ const Deferrals = (function () {
 		const delivery = item?.system?.activities?.get?.(Activities.GMM_DEFERRED_ACTIVITY_ID);
 		if (delivery?.duration?.units !== "inst") return;
 
-		// Not `postUseActivity`: midi has not targeted off the area yet when that fires.
-		const sweep = (workflow) => {
-			if (workflow?.activity?.uuid !== activity.uuid) return;
-			Hooks.off("midi-qol.RollComplete", sweep);
+		// A roll that never finishes leaves the previous use's listeners waiting here.
+		_dropGateSweep(activity.uuid);
+
+		const sweep = () => {
+			_dropGateSweep(activity.uuid);
 			_deleteTemplates(uuids).catch(e => console.warn("GMM | Doom gate template cleanup failed", e));
 		};
-		Hooks.on("midi-qol.RollComplete", sweep);
+		// Not `postUseActivity`: midi has not targeted off the area yet when that fires.
+		const onComplete = (workflow) => {
+			if (workflow?.activity?.uuid === activity.uuid) sweep();
+		};
+		// An aborted workflow is never rolled complete, and midi reads a `false` from here as an abort.
+		const onAbort = () => { sweep(); };
+		const abortHook = `midi-qol.preAbort.${activity.uuid}`;
+		_gateSweeps.set(activity.uuid, { onComplete, onAbort, abortHook });
+		Hooks.on("midi-qol.RollComplete", onComplete);
+		Hooks.on(abortHook, onAbort);
+	}
+
+	function _dropGateSweep(activityUuid) {
+		const entry = _gateSweeps.get(activityUuid);
+		if (!entry) return;
+		_gateSweeps.delete(activityUuid);
+		Hooks.off("midi-qol.RollComplete", entry.onComplete);
+		Hooks.off(entry.abortHook, entry.onAbort);
 	}
 
 	/* The gate applied the clock, so this is where GMMC first sees it and the only place its source is resolvable. */
