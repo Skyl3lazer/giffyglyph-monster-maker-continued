@@ -853,7 +853,7 @@ const Activities = (function () {
                `reapplies`. Run against an authored blueprint it degrades one to timed. */
             if (!authoredType) {
                 Object.assign(blueprintData.duration, Durations.fromUnits(obj.duration.units, obj.duration.value));
-            } else if (Durations.TYPES[authoredType]?.hasPeriod) {
+            } else if (Durations.TYPES[authoredType]?.hasPeriod && Durations.isPeriodUnits(obj.duration.units)) {
                 blueprintData.duration.value = obj.duration.value ?? "";
                 blueprintData.duration.units = obj.duration.units ?? "";
             }

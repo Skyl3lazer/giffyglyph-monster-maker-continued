@@ -87,6 +87,11 @@ const Durations = (function () {
 		}
 	}
 
+	/* `inst`, `perm` and `spec` are a type, not a number */
+	function isPeriodUnits(units) {
+		return !!EFFECT_UNITS[units];
+	}
+
 	/* Read by the sheet and never written back. That keeps a blueprint portable into a world with a
 	 * different module set. */
 	function describe(blueprint) {
@@ -463,6 +468,7 @@ const Durations = (function () {
 		isSupported,
 		read,
 		fromUnits,
+		isPeriodUnits,
 		describe,
 		isDurationEffect,
 		buildActivityDuration,
