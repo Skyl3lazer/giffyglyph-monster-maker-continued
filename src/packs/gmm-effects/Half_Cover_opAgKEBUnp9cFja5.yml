@@ -19,4 +19,5 @@ flags:
     stackable: noneName
   gmm:
     rarity: common
+    terrain: half_cover
 _key: '!effects!opAgKEBUnp9cFja5'

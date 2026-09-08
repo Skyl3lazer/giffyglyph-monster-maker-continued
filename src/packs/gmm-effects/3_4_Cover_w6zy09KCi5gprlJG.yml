@@ -19,4 +19,5 @@ flags:
     stackable: noneName
   gmm:
     rarity: uncommon
+    terrain: three_quarters_cover
 _key: '!effects!w6zy09KCi5gprlJG'

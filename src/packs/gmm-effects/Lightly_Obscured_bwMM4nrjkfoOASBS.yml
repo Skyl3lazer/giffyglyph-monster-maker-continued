@@ -24,4 +24,5 @@ flags:
     stackable: noneName
   gmm:
     rarity: common
+    terrain: lightly_obscured
 _key: '!effects!bwMM4nrjkfoOASBS'

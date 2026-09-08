@@ -22,4 +22,5 @@ flags:
     stackable: noneName
   gmm:
     rarity: rare
+    terrain: total_cover
 _key: '!effects!l26jvJK7kvO0eLgb'

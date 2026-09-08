@@ -20,5 +20,6 @@ flags:
     stackable: noneName
   gmm:
     rarity: common
+    terrain: unstable
     condition: unstable
 _key: '!effects!R9kVBRTNa7T9weUq'

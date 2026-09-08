@@ -20,4 +20,5 @@ flags:
     stackable: noneName
   gmm:
     rarity: common
+    terrain: uncomfortable
 _key: '!effects!K5cPpBaWegzaArTw'
