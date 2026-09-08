@@ -6,8 +6,8 @@ const GMM_PARAGON_DEFENSES_SETTING = "trackParagonDefenses";
 const GMM_PARAGON_DEFENSES_KEY = "flags.gmm.blueprint.data.paragon_defenses.current";
 const GMM_LEGENDARY_RESISTANCES_KEY = "system.resources.legres.value";
 const GMM_MIDI_OPTIONAL_KEY = "flags.midi-qol.optional.gmmParagonDefense";
-const GMM_MIDI_OPTIONALS_USED = "flags.midi-qol.optionalsUsed";
 const GMM_MIDI_OPTIONAL_NAME = "gmmParagonDefense";
+const GMM_MIDI_SPEND_MACRO = "function.gmmc.paragon.spend";
 const GMM_MESSAGE_FLAG = "paragonDefense";
 const GMM_SPEND_MARKER = "gmmParagonDefense";
 const GMM_SPEND_OPERATION = "spendParagonDefense";
@@ -17,10 +17,13 @@ const ParagonDefenses = (function () {
 
 	function init() {
 		GmRouting.register(GMM_SPEND_OPERATION, _spendAsGm);
+		// midi resolves `function.<path>` as a bare dotted global, so the short alias is the callable one.
+		globalThis.gmmc ??= {};
+		globalThis.gmmc.paragon = { spend: _onMidiOptionalUsed };
+
 		Hooks.on("dnd5e.renderChatMessage", _onRenderChatMessage);
 		Hooks.on("dnd5e.preRestCompleted", _onPreRestCompleted);
 		Hooks.on("dnd5e.preApplyDamage", _onPreApplyDamage);
-		Hooks.on("midi-qol.postCheckSaves", _onPostCheckSaves);
 		Hooks.on("renderRollModifyDialog", _onRenderRollModifyDialog);
 		Hooks.on("dnd5e.getUnknownAttributeLabel", _onGetUnknownAttributeLabel);
 	}
@@ -96,7 +99,9 @@ const ParagonDefenses = (function () {
 		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.save.fail.all`, "success");
 		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.count`, spendable.remaining);
 		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.label`, _getSpendLabel(actor, spendable.cost));
-		// Otherwise the fabricated 99 is posted a second time as a before/after card.
+		/* midi consumes a count only for an optional granted by an ActiveEffect, so the pool above stays
+		 * GMMC's to keep, and this is what tells GMMC a charge was used. */
+		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.macroToCall`, GMM_MIDI_SPEND_MACRO);
 		CompatibilityHelpers.setProperty(actor, `${GMM_MIDI_OPTIONAL_KEY}.displayBonusRolls`, false);
 	}
 
@@ -115,20 +120,17 @@ const ParagonDefenses = (function () {
 		}
 	}
 
-	/* midi converts the save off the plain "success" keyword and leaves only a marker on the roll.
-	 * A macro cannot be used here, because its DummyWorkflow has no item. */
-	async function _onPostCheckSaves(workflow) {
+	/* Called by midi on whichever client accepted the offer, which is a client that owns the monster.
+	 * Anything returned here would stand in for the bonus midi is about to apply, so nothing is. */
+	async function _onMidiOptionalUsed(macroData = {}) {
 		if (!_isEnabled()) return;
 
-		for (const [uuid, roll] of Object.entries(workflow?.tokenSaves ?? {})) {
-			const used = CompatibilityHelpers.getProperty(roll ?? {}, GMM_MIDI_OPTIONALS_USED);
-			if (!used?.some?.((x) => String(x).startsWith(GMM_MIDI_OPTIONAL_KEY))) continue;
-
-			// Dropping our entry stops a second pass over the same roll charging twice.
-			CompatibilityHelpers.setProperty(roll, GMM_MIDI_OPTIONALS_USED,
-				used.filter((x) => !String(x).startsWith(GMM_MIDI_OPTIONAL_KEY)));
-			await spendParagonDefense({ actor: fromUuidSync(uuid)?.actor });
+		const actor = macroData?.actor ?? macroData?.scope?.actor;
+		if (!actor?.isGmmMonster?.()) {
+			console.warn("GMM | A paragon defense was accepted for a monster this client could not resolve");
+			return;
 		}
+		await spendParagonDefense({ actor: actor });
 	}
 
 	async function spendParagonDefense(options = {}) {

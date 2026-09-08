@@ -75,7 +75,7 @@ Hooks.once("init", function() {
 			const activity = Activities.buildActivityData({ data: blueprintData });
 			return activity ? [activity] : [];
 		};
-		// midi reaches this by name through a `function.` optional-bonus flag, so it is API, not internal.
+		// Reachable from a macro, so it is API. midi calls the gmmc.paragon alias rather than this one.
 		moduleRef.api.spendParagonDefense = ParagonDefenses.spendParagonDefense;
 	}
 
