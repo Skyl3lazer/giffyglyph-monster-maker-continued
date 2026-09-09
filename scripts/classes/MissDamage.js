@@ -24,6 +24,20 @@ const MissDamage = (function () {
 		return (percentage > 0 && percentage < 100) ? percentage : null;
 	}
 
+	/* Flooring each part on its own loses a point the once-floored total keeps, so the running remainder
+	 * is carried into the next part instead. */
+	function _distribute(details, field, factor) {
+		let scaled = 0;
+		let assigned = 0;
+		for (const detail of details) {
+			if (typeof detail?.[field] !== "number") continue;
+			scaled += detail[field];
+			const running = Math.floor(scaled * factor);
+			detail[field] = running - assigned;
+			assigned = running;
+		}
+	}
+
 	/* Scales what midi already computed rather than the raw roll, so resistance, immunity and a
 	   Super Saver's own zero all survive untouched. */
 	function _scale(damageItem, factor) {
@@ -38,10 +52,9 @@ const MissDamage = (function () {
 		const absorbedByTemp = Math.min(oldTempHP, scaledTotal);
 		const hpDamage = Math.min(scaledTotal - absorbedByTemp, oldHP);
 
-		for (const detail of damageItem.damageDetail ?? []) {
-			if (typeof detail?.value === "number") detail.value = Math.floor(detail.value * factor);
-			if (typeof detail?.damage === "number") detail.damage = Math.floor(detail.damage * factor);
-		}
+		const details = damageItem.damageDetail ?? [];
+		_distribute(details, "value", factor);
+		_distribute(details, "damage", factor);
 		damageItem.totalDamage = scaledTotal;
 		damageItem.healingAdjustedTotalDamage = scaledTotal;
 		damageItem.hpDamage = hpDamage;
