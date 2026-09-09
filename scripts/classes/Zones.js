@@ -7,6 +7,9 @@ const MIDI_ID = "midi-qol";
 const ERB_ID = "enhanced-region-behavior";
 const TERRAIN_PACK = `${GMM_MODULE_TITLE}.gmm-effects`;
 
+const MIDI_BEHAVIOR = `${MIDI_ID}.regionActivity`;
+const ERB_BEHAVIOR = `${ERB_ID}.Trap`;
+
 const MIDI_TRIGGERS = { enter: "entry", exit: "exit", turn_start: "turnStart", turn_end: "turnEnd" };
 const REGION_EVENTS = { enter: "tokenEnter", exit: "tokenExit", turn_start: "tokenTurnStart", turn_end: "tokenTurnEnd" };
 
@@ -107,6 +110,8 @@ const Zones = (function () {
 	}
 
 	function _midiBehavior(item, zone, rules, activity) {
+		if (!CONFIG.RegionBehavior?.dataModels?.[MIDI_BEHAVIOR]) return null;
+
 		const resolved = [];
 		for (const rule of rules) {
 			for (const trigger of rule.triggers) {
@@ -123,7 +128,7 @@ const Zones = (function () {
 		if (!resolved.length) return null;
 
 		return _stamped({
-			type: `${MIDI_ID}.regionActivity`,
+			type: MIDI_BEHAVIOR,
 			name: _named(item, "rules"),
 			system: {
 				sourceItemUuid: item?.uuid ?? "",
@@ -144,6 +149,8 @@ const Zones = (function () {
 
 	/* ERB rolls against the victim's roll data, so the scaler's numbers have to be settled here. */
 	function _erbBehavior(item, rules, activity) {
+		if (!CONFIG.RegionBehavior?.dataModels?.[ERB_BEHAVIOR]) return null;
+
 		const parts = activity?.damage?.parts ?? [];
 		if (!parts.length) return null;
 		const damage = parts.map(p => Activities.damagePartToBlueprint(p).formula).filter(f => f).join(" + ");
@@ -169,7 +176,7 @@ const Zones = (function () {
 		};
 		if (type && CONFIG.DND5E?.damageTypes?.[type]) system.damageType = type;
 
-		return _stamped({ type: `${ERB_ID}.Trap`, name: _named(item, "rules"), system });
+		return _stamped({ type: ERB_BEHAVIOR, name: _named(item, "rules"), system });
 	}
 
 	/* Once: a second pass would double every behavior on the area. */
