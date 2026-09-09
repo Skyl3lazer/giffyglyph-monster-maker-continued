@@ -81,6 +81,9 @@ const Shortcoder = (function () {
         }
     ];
 
+    /* mathjs resolves `range` from its own scope, so an unresolved shortcode would evaluate to its source text. */
+    const SHORTCODE_WORDS = new RegExp(`\\b(${SHORTCODES.map((x) => x.code).join("|")})\\b`, "i");
+
     /* What to write instead when a shortcode turns up in an effect change value. `maxMod` and
      * `dcPrimaryBonus` are absent because each is one term of the save DC with no path of its own. */
     const ROLL_DATA_EQUIVALENTS = Object.assign({
@@ -189,8 +192,11 @@ const Shortcoder = (function () {
 
 
     function _numberToRandom(token, value, die, maximumDice) {
+        if (SHORTCODE_WORDS.test(value)) return token;
         try {
             let valueMath = math.evaluate(value);
+            // Any other bare mathjs function name resolves the same way `range` does.
+            if (typeof valueMath === "function") return token;
             if (die != undefined) {
                 let scale = (Number(die) + 1) / 2;
                 let dice = (maximumDice) ? Math.min(Math.floor(valueMath / scale), maximumDice) : Math.floor(valueMath / scale);
