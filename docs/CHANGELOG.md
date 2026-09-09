@@ -24,11 +24,10 @@
 * Using a limited action now actually spends a use. An action authored `1/day` or `recharge 5-6` used to print the number and never touch it, so the count on the stat block was decoration and a GM who trusted it was tracking a resource nothing enforced.
 	* You get dnd5e's usual "use this" prompt on a limited action, the same one a vanilla monster feature gets. 
 	* An action with nothing left refuses to fire and says why. Recharge it, rest, untick the box, or type a new remaining count on the sheet.
-	* The count now lives on the action itself rather than inside its generated activity, which is where the rest of Foundry looks for it. A scaler switched to the vanilla NPC sheet shows its uses and its recharge button there too. Existing monsters are converted for you when the world loads.
-	* Setting an action's cost to "charges" against itself used to refuse the action outright. It works now, and it takes the quantity you asked for.
+	* The count now lives on the action itself rather than inside its generated activity, which is where the rest of Foundry looks for it.
+	* Setting an action's cost to "charges" against itself used to refuse the action outright. It works now.
 * Short rest and long rest buttons on the Forge sheet. They run the same rest a vanilla NPC sheet does, so everything that recovers on a rest now actually recovers: paragon defenses refill on a long rest, and an action set to recharge on a short rest, long rest or day gets its uses back.
 	* "Day" uses come back on a long rest that is a new day.
-	* The long rest card now names the paragon defense pool it refilled instead of printing the internal flag path.
 
 ### Paragon/Legendary Features
 * Paragon defenses are now offered on a failed saving throw. With MidiQOL installed you get a prompt before damage is applied. Without Midi the failed-save card gets a button similar to the Legendary Resistance button. Either way it spends the hit point cost and one defense, never spends hit points it cannot survive, and never eats temporary hit points. The pool refills on a long rest.
@@ -49,9 +48,7 @@
 	* Automated Conditions 5e
 	* Aura Effects
 	* Coven's Automation Toolkit
-* An active effect on a scaler's maximum hit points now works in either effect phase. A DAE effect set to apply in the *final* phase used to move only the raw maximum. The token bar, the healing cap and the Bloodied line all stayed where they were. A `+5` maximum bought the creature nothing. All four now follow the effect.
-	* The Forge sheet's Maximum cell and `[hpMax]` are read a moment before the final phase. Under a final-phase effect they still show the unbuffed number while the token bar shows the buffed one. The token bar is the number the game uses. Author the effect in the initial phase if you want the sheet to agree.
-	* A final-phase effect that lowers the maximum below the creature's current hit points now brings the current value down with it. That matches what dnd5e does on a vanilla monster.
+* An active effect on a scaler's maximum hit points now works. The token bar, the healing cap and the Bloodied line all stayed where they were previously.
 * GMM conditions are now a real compendium of effects. Foundry v14 lets a module ship active effects directly, so the eighteen expanded conditions live in a new **GMM Effects** compendium, instead of being hidden on a placeholder actor you had to open first. You can browse, search, and drag them straight onto a token.
 	* Each condition now states its rarity the way the book does. This will be used later to try to estimate Scaler point values!
 	* This needs Foundry v14. On v13 the new compendium cannot exist at all, so the old **GMM Conditions (Legacy)** compendium is still there with the same conditions on its placeholder actor. It is frozen and won't get any updates, namely automation.
