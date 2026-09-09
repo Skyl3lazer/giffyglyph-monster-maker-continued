@@ -40,7 +40,7 @@ flags:
                 formula: '[damage * 1.5, damageDie]'
                 type: piercing
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

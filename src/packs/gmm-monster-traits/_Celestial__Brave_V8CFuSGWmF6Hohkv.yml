@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/light/torch-fire-hand-orange.webp
 system:
   description:
-    value: <p>You have advantage on saving throws against being frightened.</p>
+    value: >-
+      <p>You have advantage on saving throws against being
+      frightened.</p><p><em>CAT automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: uSGWmF6HohkvV8CF
+    name: Brave
+    img: icons/magic/light/torch-fire-hand-orange.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.cat.CR.frightened
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!V8CFuSGWmF6Hohkv.uSGWmF6HohkvV8CF'
 folder: r0yJRhYh7Fs0Mmc1
 flags:
   core:
@@ -75,7 +94,9 @@ flags:
         description:
           name: (Celestial) Brave
           image: icons/magic/light/torch-fire-hand-orange.webp
-          text: <p>You have advantage on saving throws against being frightened.</p>
+          text: >-
+            <p>You have advantage on saving throws against being
+            frightened.</p><p><em>CAT automation</em></p>
         activation:
           type: ''
           cost: null
@@ -96,7 +117,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

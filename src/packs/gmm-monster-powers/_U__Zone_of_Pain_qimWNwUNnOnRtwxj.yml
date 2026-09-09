@@ -7,7 +7,8 @@ system:
       <p>When a creature enters or starts their turn within the area, they take
       damage equal to your combat level ([level]).</p>
 
-      <p>When a creature ends their turn within the area, they fall prone.</p>
+      <p>When a creature ends their turn within the area, they fall
+      prone.</p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -85,7 +86,7 @@ flags:
             take damage equal to your combat level ([level]).</p>
 
             <p>When a creature ends their turn within the area, they fall
-            prone.</p>
+            prone.</p><p><em>Midi automation</em></p>
         activation:
           type: action
           cost: null
@@ -106,12 +107,21 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
+          hit:
+            damage:
+              - formula: '[level]'
+                type: ''
         duration:
+          type: timed
           units: minute
           value: '10'
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         range:
           units: ft
           value: 50
@@ -128,6 +138,15 @@ flags:
           value: 3
           max: 3
           per: lr
+        zone:
+          terrain:
+            - category: damaging
+              custom: ''
+            - category: unstable
+              custom: ''
+          rules: []
+          audience: any
+          once_per_turn: true
         display:
           layout: ''
           skin:

@@ -136,19 +136,24 @@ const ActionForge = (function() {
 		}
 	}
 
+	/* An instant effect is the assumption. It prints nothing, as the rulebook does. */
 	function _parseDuration(duration) {
-		if (duration.units) {
-			switch (duration.units) {
-				case "perm":
-				case "spec":
-				case "inst":
-					return game.i18n.format(`gmm.action.artifact.duration.${duration.units}`);
-				default:
-					return game.i18n.format(`gmm.action.artifact.duration.${duration.units}.${duration.value > 1 ? "multiple" : "single"}`, { quantity: duration.value});
-			}
-		} else {
-			return "";
-		}
+		const type = duration?.type ?? (duration?.units ? "timed" : "instant");
+		if (type === "instant") return "";
+
+		const span = (duration.units && duration.value)
+			? game.i18n.format(`gmm.action.artifact.duration.${duration.units}.${duration.value > 1 ? "multiple" : "single"}`, { quantity: duration.value })
+			: "";
+		if (type === "timed") return span;
+
+		const label = game.i18n.localize(`gmm.common.duration_type.${type}`).toLowerCase();
+		const save = (duration.save?.ability && (type === "ongoing" || type === "save_ends"))
+			? game.i18n.format("gmm.action.artifact.duration.save", {
+				ability: game.i18n.localize(`gmm.common.ability.${duration.save.ability}.code`)
+			})
+			: "";
+		const detail = [label, save].filter(x => x).join(", ");
+		return span ? `${span} (${detail})` : detail;
 	}
 
 	function _parseUses(uses) {

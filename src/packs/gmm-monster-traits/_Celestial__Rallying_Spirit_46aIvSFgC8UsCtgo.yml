@@ -3,7 +3,9 @@ type: feat
 img: icons/magic/holy/prayer-hands-glowing-yellow-green.webp
 system:
   description:
-    value: <p>Allied creatures within 30 ft. of you can't be frightened.</p>
+    value: >-
+      <p>Allied creatures within 30 ft. of you can't be
+      frightened.</p><p><em>Core and Aura Effects automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -62,7 +64,28 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: vSFgC8UsCtgo46aI
+    name: Rallying Spirit
+    img: icons/magic/holy/prayer-hands-glowing-yellow-green.webp
+    type: auraeffects.aura
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: system.traits.ci.value
+          type: add
+          value: frightened
+      applyToSelf: false
+      combatOnly: true
+      distanceFormula: '30'
+      disposition: 1
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!46aIvSFgC8UsCtgo.vSFgC8UsCtgo46aI'
 folder: r0yJRhYh7Fs0Mmc1
 flags:
   core:
@@ -75,7 +98,9 @@ flags:
         description:
           name: (Celestial) Rallying Spirit
           image: icons/magic/holy/prayer-hands-glowing-yellow-green.webp
-          text: <p>Allied creatures within 30 ft. of you can't be frightened.</p>
+          text: >-
+            <p>Allied creatures within 30 ft. of you can't be
+            frightened.</p><p><em>Core and Aura Effects automation</em></p>
         activation:
           type: ''
           cost: null
@@ -96,7 +121,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

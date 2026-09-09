@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>You shed bright light for 15 ft. and dim light for an additional 15
-      ft.</p>
+      ft.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 6hfaJfhskZUTSXaJ
+    name: Bioluminescence
+    img: icons/creatures/eyes/slime-cluster-green.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: token.light.bright
+          type: override
+          value: '15'
+        - key: token.light.dim
+          type: override
+          value: '30'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!SXaJ6hfaJfhskZUT.6hfaJfhskZUTSXaJ'
 folder: ULF0u3oEC8EufxRm
 flags:
   core:
@@ -79,7 +99,7 @@ flags:
           image: icons/creatures/eyes/slime-cluster-green.webp
           text: >-
             <p>You shed bright light for 15 ft. and dim light for an additional
-            15 ft.</p>
+            15 ft.</p><p><em>Core automation</em></p>
         activation:
           type: ''
           cost: null
@@ -100,7 +120,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

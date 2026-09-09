@@ -5,13 +5,33 @@ import ActionSheet from './scripts/classes/ActionSheet.js';
 import Templates from './scripts/classes/Templates.js';
 import Activities from './scripts/classes/Activities.js';
 import ActionBlueprint from './scripts/classes/ActionBlueprint.js';
+import ParagonPower from './scripts/classes/ParagonPower.js';
+import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
+import Auras from './scripts/classes/Auras.js';
+import Conditions from './scripts/classes/Conditions.js';
+import Boons from './scripts/classes/Boons.js';
+import Exhaustion from './scripts/classes/Exhaustion.js';
+import Rolls from './scripts/classes/Rolls.js';
+import Deferrals from './scripts/classes/Deferrals.js';
+import DeferralCountdown from './scripts/classes/DeferralCountdown.js';
+import DeferralCountdownSettings from './scripts/classes/DeferralCountdownSettings.js';
+import Durations from './scripts/classes/Durations.js';
+import Areas from './scripts/classes/Areas.js';
+import MissDamage from './scripts/classes/MissDamage.js';
+import Shortcoder from './scripts/classes/Shortcoder.js';
+import AutomationHelpers from './scripts/classes/AutomationHelpers.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
 import { GMM_GUI_COLORS } from "./scripts/consts/GmmGuiColors.js";
 import { GMM_GUI_LAYOUTS } from "./scripts/consts/GmmGuiLayouts.js";
 import { GMM_MODULE_TITLE } from "./scripts/consts/GmmModuleTitle.js";
+import {
+	GMM_DEFERRAL_COUNTDOWN_DEFAULTS,
+	GMM_DEFERRAL_COUNTDOWN_MENU,
+	GMM_DEFERRAL_COUNTDOWN_SETTING
+} from "./scripts/consts/GmmDeferralCountdown.js";
 
 Hooks.once("init", function() {
-	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialising`);
+	console.log(`Giffyglyph's 5e Monster Maker Continued | Initializing`);
 
 	_applyTokenCompatibilityShim();
 
@@ -35,6 +55,16 @@ Hooks.once("init", function() {
 
 	GmmActor.patchActor5e();
 	GmmItem.patchItem5e();
+	ParagonPower.init();
+	ParagonDefenses.init();
+	Deferrals.init();
+	DeferralCountdown.init();
+	Durations.init();
+	Areas.init();
+	Auras.init();
+	MissDamage.init();
+	Exhaustion.init();
+	Conditions.init();
 
 	// Backward-compatible API used by legacy migration scripts/macros.
 	const moduleRef = game.modules.get(GMM_MODULE_TITLE);
@@ -45,14 +75,19 @@ Hooks.once("init", function() {
 			const activity = Activities.buildActivityData({ data: blueprintData });
 			return activity ? [activity] : [];
 		};
+		// Reachable from a macro, so it is API.
+		moduleRef.api.spendParagonDefense = ParagonDefenses.spendParagonDefense;
 	}
 
-	// Patch ActivityField to sanitise legacy shortcode formulas pre-validation; persistent cleanup runs in migrateWorld().
+	Conditions.registerApi();
+	Boons.registerApi();
+	Rolls.registerApi();
+
+	// The persistent cleanup is migrateWorld's job. This only keeps a stored shortcode from throwing at load.
 	if (!Activities.patchActivityField()) {
-		console.warn("GMM | dnd5e ActivityField not found at init; activity-source sanitisation patch was not installed.");
+		console.warn("GMM | dnd5e ActivityField not found at init; activity-source sanitization patch was not installed.");
 	}
 
-	// Reprepare actor/item data when the default sheet is changed
 	Hooks.on("updateSetting", (setting, data, options, userId) => {
 		if ( setting.key === "core.sheetClasses" ) {
 			game.actors.forEach(x => x.prepareData());
@@ -61,7 +96,7 @@ Hooks.once("init", function() {
 		}
 	});
 
-	// v13+ sidebar directories are ApplicationV2, so the hook signature is `(app, element)` - not the old `html` jQuery arg.
+	// v13+ sidebar directories are ApplicationV2, so the hook signature is `(app, element)`, not the old `html` jQuery arg.
 	Hooks.on("renderActorDirectory", (app, element) => {
 		if (game.user.isGM) {
 			_hookActorDirectory(element);
@@ -73,7 +108,6 @@ Hooks.once("init", function() {
 			_hookItemDirectory(element);
 		}
 	});
-	// DAE Autocomplete
 	const daeFlags = _generateFlags();
 	Hooks.on('dae.setFieldData', (fieldData) => {
 		fieldData.GMM = daeFlags;
@@ -81,7 +115,6 @@ Hooks.once("init", function() {
 
 	_registerSettings();
 
-	// Seed/repair GMM activities for legacy scaling actions and drop dnd5e auto-seeded non-GMM ones.
 	Hooks.on("preCreateItem", (item, data, _options, _userId) => {
 		try {
 			const update = Activities.buildPreCreateUpdate(data, item);
@@ -91,22 +124,45 @@ Hooks.once("init", function() {
 		}
 	});
 
-	// Sheet-swap conversion between vanilla and GMMC. Abort the in-flight update and re-issue a single
-	// combined update: convert to scaling (snapshotting originals), re-convert from a preserved blueprint,
-	// or revert to vanilla (restoring the snapshot). See the branch helpers below.
+	Hooks.on("preCreateItem", (item, _data, _options, _userId) => {
+		try {
+			const rebind = AutomationHelpers.rebindSelfItemUses(item._source);
+			if (rebind) item.updateSource(rebind);
+		} catch (e) {
+			console.warn("GMM | ItemUses rebind failed", e);
+		}
+	});
+
+	// Items embedded during actor creation never reach preCreateItem.
+	Hooks.on("preCreateActor", (actor, _data, _options, _userId) => {
+		try {
+			const items = actor._source?.items;
+			if (!Array.isArray(items) || !items.length) return;
+			let bound = false;
+			const rebound = items.map(itemData => {
+				const rebind = AutomationHelpers.rebindSelfItemUses(itemData);
+				if (!rebind) return itemData;
+				bound = true;
+				return foundry.utils.mergeObject(itemData, rebind, { inplace: false });
+			});
+			if (bound) actor.updateSource({ items: rebound });
+		} catch (e) {
+			console.warn("GMM | ItemUses rebind failed", e);
+		}
+	});
+
+	// One combined update, because re-issuing separately would re-trigger this hook.
 	Hooks.on("preUpdateItem", (item, change, options, _userId) => {
 		if (options?.gmmConvertingFromVanilla || options?.gmmRevertingToVanilla) return;
 		try {
-			// Switching AWAY: restore the saved vanilla activities, keeping the GMM flags for a later toggle back.
 			if (_isSheetSwitchFromGmm(item, change)) {
 				_revertToVanilla(item, change, options).catch(e => {
 					console.warn("GMM | GMMC->vanilla revert failed", e);
 				});
 				return false;
 			}
-			// Switching TO the GMMC ActionSheet.
 			if (_isSheetSwitchToGmm(item, change)) {
-				// A reverted item still has a blueprint; re-convert from it instead of re-deriving from vanilla.
+				// A reverted item still has a blueprint. Re-convert from it instead of re-deriving from vanilla.
 				if (item.flags?.gmm?.blueprint) {
 					_reconvertToScaling(item, change, options).catch(e => {
 						console.warn("GMM | GMMC re-conversion failed", e);
@@ -127,7 +183,33 @@ Hooks.once("init", function() {
 		}
 	});
 
-	// Re-render the owning monster sheet when an embedded ActiveEffect changes, keeping the forge's effect lists in sync.
+	Hooks.on("preUpdateItem", (item, change, options, _userId) => {
+		if (options?.gmmConvertingFromVanilla || options?.gmmRevertingToVanilla) return;
+		try {
+			_warnAboutDoubledBonus(item, change);
+		} catch (e) {
+			console.warn("GMM | doubled-bonus check failed", e);
+		}
+	});
+
+	/* No builder can delete an embedded document, so a forged effect the blueprint no longer asks for is
+	   disposed of here. Gated on the acting client, so two owners do not race the same deletion. */
+	Hooks.on("updateItem", (item, _change, _options, userId) => {
+		if (game.user.id !== userId) return;
+		try {
+			const ids = [Activities.strandedDoomClock(item), Activities.strandedDurationCarrier(item)]
+				.filter(effect => effect)
+				.map(effect => effect.id);
+			if (ids.length) {
+				item.deleteEmbeddedDocuments("ActiveEffect", ids)
+					.catch(e => console.warn("GMM | stranded forged-effect cleanup failed", e));
+			}
+		} catch (e) {
+			console.warn("GMM | stranded forged-effect check failed", e);
+		}
+	});
+
+	// The forge's effect lists are built at render time, so nothing else brings them up to date.
 	const _rerenderForEffect = (effect) => {
 		try {
 			const parent = effect?.parent;
@@ -144,12 +226,40 @@ Hooks.once("init", function() {
 	Hooks.on("updateActiveEffect", _rerenderForEffect);
 	Hooks.on("deleteActiveEffect", _rerenderForEffect);
 
+	// Anywhere but the forge's own duration carrier, a shortcode reaches the target verbatim.
+	const _warnAboutShortcodes = (effect, data) => {
+		try {
+			if (Durations.isDurationEffect(effect)) return;
+			const parent = effect?.parent;
+			const authoredOnScaler = (parent?.documentName === "Actor")
+				? _isGmmMonster(parent)
+				: (_isGmmMonster(parent?.actor) || parent?.getSheetId?.() === `${GMM_MODULE_TITLE}.ActionSheet`);
+			if (!authoredOnScaler) return;
+
+			for (const change of (data?.system?.changes ?? data?.changes ?? [])) {
+				for (const code of Shortcoder.findShortcodes(change?.value)) {
+					const suggestion = Shortcoder.suggestRollData(code);
+					const message = game.i18n.format(
+						suggestion ? "gmm.effect.shortcode_not_resolved" : "gmm.effect.shortcode_no_equivalent",
+						{ name: effect.name, key: change.key, code: code, suggestion: suggestion }
+					);
+					ui.notifications?.warn(message);
+					console.warn(`GMM | ${message}`);
+				}
+			}
+		} catch (e) {
+			console.warn("GMM | shortcode check on effect failed", e);
+		}
+	};
+	Hooks.on("preCreateActiveEffect", _warnAboutShortcodes);
+	Hooks.on("preUpdateActiveEffect", _warnAboutShortcodes);
+
 	Hooks.on("createActor", (actor, _options, userId) => {
 		if (game.userId !== userId) return;
 		_syncScalingMonsterHp(actor, { force: true }).catch(e => console.warn("GMM | HP sync on create failed", e));
 		_syncParagonDefenses(actor).catch(e => console.warn("GMM | Paragon defense sync on create failed", e));
 	});
-	// Foundry auto-follows a synced prototype-token image on an actor rename, but not the name; mirror that here.
+	// Foundry auto-follows a synced prototype-token image on an actor rename, but not the name. Mirror that here.
 	Hooks.on("preUpdateActor", (actor, change) => {
 		if (!_isGmmMonster(actor)) return;
 		const nextName = change?.name;
@@ -160,13 +270,13 @@ Hooks.once("init", function() {
 	});
 	Hooks.on("updateActor", (actor, change, _options, userId) => {
 		if (game.userId !== userId) return;
-		// A sheet-class switch to the monster sheet is a conversion; force current HP to full.
+		// A sheet-class switch to the monster sheet is a conversion. Force current HP to full.
 		const convertedToGmm = foundry.utils.getProperty(change ?? {}, "flags.core.sheetClass") === `${GMM_MODULE_TITLE}.MonsterSheet`;
 		_syncScalingMonsterHp(actor, { force: convertedToGmm }).catch(e => console.warn("GMM | HP sync on update failed", e));
 		_syncParagonDefenses(actor).catch(e => console.warn("GMM | Paragon defense sync on update failed", e));
 	});
 
-	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialised`);
+	console.log(`Giffyglyph's 5e Monster Maker Continued | Initialized`);
 });
 
 
@@ -177,7 +287,6 @@ Hooks.once('ready', async () => {
 		ui.notifications.error("Module Giffyglyph's Monster Maker Continued requires the 'libWrapper' module. Please install and activate it.");
 	}
 
-	// One-shot migration of legacy GMM scaling-action items onto the dnd5e v5.x activity model.
 	if (game.user.isGM) {
 		try {
 			await Activities.migrateWorld();
@@ -196,8 +305,7 @@ function _isSheetSwitchToGmm(item, change) {
 	return currentSheet !== target;
 }
 
-/* Inverse of _isSheetSwitchToGmm: true when a change moves the sheet away from the GMMC ActionSheet
- * (to another sheet, the default, or by deleting the flag). */
+/* Away means another sheet, the default, or the flag being deleted outright. */
 function _isSheetSwitchFromGmm(item, change) {
 	const target = `${GMM_MODULE_TITLE}.ActionSheet`;
 	if ((item?.flags?.core?.sheetClass) !== target) return false;
@@ -205,16 +313,49 @@ function _isSheetSwitchFromGmm(item, change) {
 	// Reset-to-default forms: `flags.core.-=sheetClass` or the whole `flags.core` being cleared.
 	if (foundry.utils.getProperty(c, "flags.core.-=sheetClass") === null) return true;
 	if (foundry.utils.getProperty(c, "flags.core") === null) return true;
-	// Explicit switch to a different (or empty/default) sheet.
 	const newSheet = foundry.utils.getProperty(c, "flags.core.sheetClass");
 	if (newSheet === undefined) return false;
 	return newSheet !== target;
 }
 
-/* First-time conversion path: prompt, then commit the sheet flag, a blueprint derived from the item's
- * activities, the GMM activity, the originals snapshot, and the foreign-activity purge in one update. */
+/* The authored Attack Modifier lands on top of the to-hit or the DC GMMC already built from the monster.
+   A shortcode for a term already in there is therefore counted twice. */
+function _doubledBonusCodes(activityType, relatedStat) {
+	const mod = `${relatedStat || "max"}Mod`;
+	if (activityType === "save") return ["dcPrimaryBonus", "saveDc", mod];
+	// A blank stat leaves the ability mod to dnd5e, which this field does not land on top of.
+	if (activityType === "attack") return relatedStat ? ["attackBonus", mod] : ["attackBonus"];
+	return [];
+}
+
+function _warnAboutDoubledBonus(item, change) {
+	const readAttack = (field) => {
+		const path = `flags.gmm.blueprint.data.attack.${field}`;
+		const incoming = foundry.utils.getProperty(change ?? {}, path);
+		return (incoming === undefined) ? foundry.utils.getProperty(item, path) : incoming;
+	};
+
+	const bonus = foundry.utils.getProperty(change ?? {}, "flags.gmm.blueprint.data.attack.bonus");
+	if ((typeof bonus !== "string") || !bonus.includes("[")) return;
+	// The sheet submits the whole blueprint every time. An unchanged field would otherwise warn on every save.
+	if (bonus === (item?.flags?.gmm?.blueprint?.data?.attack?.bonus ?? "")) return;
+
+	const typed = Shortcoder.findShortcodes(bonus);
+	const activityType = Activities.activityTypeFor(readAttack("type"));
+	for (const code of _doubledBonusCodes(activityType, readAttack("related_stat"))) {
+		if (!typed.includes(code)) continue;
+		const message = game.i18n.format(
+			`gmm.action.blueprint.attack.bonus_doubles_${activityType === "save" ? "dc" : "attack"}`,
+			{ code: code }
+		);
+		ui.notifications?.warn(message);
+		console.warn(`GMM | ${message}`);
+	}
+}
+
+/* First-time conversion: everything lands in one update so the hook is not re-entered. */
 async function _confirmAndConvertVanillaItem(item, originalChange, originalOptions, isDestructive = true) {
-	// Only prompt when there are activities to replace; trait items with none convert silently.
+	// Only prompt when there are activities to replace. Trait items with none convert silently.
 	if (isDestructive) {
 		const ConfirmDialog = foundry?.applications?.api?.DialogV2;
 		let confirmed = false;
@@ -232,13 +373,11 @@ async function _confirmAndConvertVanillaItem(item, originalChange, originalOptio
 		if (!confirmed) return;
 	}
 
-	// Snapshot originals for a later restore. JSON string so a re-snapshot replaces it wholesale instead of
-	// deep-merging (which would resurrect activities deleted while in vanilla mode).
+	// A JSON string, not an object: a deep-merged re-snapshot would resurrect deleted activities.
 	const savedActivities = JSON.stringify(Activities.snapshotActivities(item));
 
 	const blueprint = ActionBlueprint.deriveFromVanillaItem(item);
-	// Full blueprint mirror (name/img/description + GMM activity). buildActivityUpdate alone would skip the
-	// description rewrite, leaving the original `[[lookup …]]` markup in the converted item.
+	// `buildActivityUpdate` alone would skip the description rewrite and leave vanilla enricher markup.
 	const update = foundry.utils.mergeObject(
 		foundry.utils.deepClone(originalChange ?? {}),
 		{
@@ -257,16 +396,15 @@ async function _confirmAndConvertVanillaItem(item, originalChange, originalOptio
 	console.log(`GMM | Converted item ${item.name} (${item.id}) from vanilla to scaling action.`);
 }
 
-/* Re-conversion path: rebuild the GMM activity from the preserved blueprint (keeping scaling edits) and
- * re-snapshot the current activities (keeping vanilla edits). Item-level fields are read live by the sheet,
- * so they're left as-is. */
+/* Re-conversion keeps both sets of edits: the preserved blueprint and the current activities. */
 async function _reconvertToScaling(item, originalChange, originalOptions) {
 	const blueprint = item.flags.gmm.blueprint;
 	const savedActivities = JSON.stringify(Activities.snapshotActivities(item));
 	const update = foundry.utils.mergeObject(
 		foundry.utils.deepClone(originalChange ?? {}),
 		{
-			flags: { gmm: { savedActivities } },
+			// A later rebuild must not read a stash this update has already consumed.
+			flags: { gmm: { savedActivities, savedGmmActivities: "{}" } },
 			...Activities.buildActivityUpdate(item, blueprint),
 			...Activities.buildForeignActivityPurge(item)
 		},
@@ -281,8 +419,7 @@ async function _reconvertToScaling(item, originalChange, originalOptions) {
 	console.log(`GMM | Re-converted item ${item.name} (${item.id}) to scaling action from preserved blueprint.`);
 }
 
-/* Revert path: delete the GMM activity and restore the saved originals, keeping the GMM flags so the item
- * can toggle back. The sheet-class change rides along in the same update. */
+/* The GMM flags are kept, so the item can be toggled back. */
 async function _revertToVanilla(item, originalChange, originalOptions) {
 	const update = foundry.utils.mergeObject(
 		foundry.utils.deepClone(originalChange ?? {}),
@@ -298,22 +435,19 @@ async function _revertToVanilla(item, originalChange, originalOptions) {
 	console.log(`GMM | Reverted item ${item.name} (${item.id}) to vanilla; scaling data preserved in flags.`);
 }
 
-/* True when an actor is an NPC bound to the GMMC monster sheet (i.e. a scaling monster). */
 function _isGmmMonster(actor) {
-	return actor?.type === "npc" && actor.getSheetId?.() === `${GMM_MODULE_TITLE}.MonsterSheet`;
+	return !!actor?.isGmmMonster?.();
 }
 
-/* Refill a scaling monster's current HP to its (blueprint-derived, unstored) max on creation/conversion or
- * when the max changes. `appliedMax` tracks the last-synced max; it uses the module flag scope because the
- * `flags.gmm` object is rebuilt each prepareData. */
+/* `appliedMax` lives in the module flag scope because `flags.gmm` is rebuilt each prepareData. */
 async function _syncScalingMonsterHp(actor, { force = false } = {}) {
 	if (!_isGmmMonster(actor)) return;
-	const hp = actor.system?.attributes?.hp;
-	if (!hp) return;
+	if (!actor.system?.attributes?.hp) return;
 	// Formula HP is owned by the sheet's "Roll HP" button, which sets current and max together.
 	if (actor.flags?.gmm?.monster?.data?.hit_points?.use_formula) return;
+	if (!Number.isFinite(actor._gmmBaseMax)) return;
 
-	const max = Math.max(1, Number(hp.max) || 0);
+	const max = Math.max(1, actor._gmmBaseMax);
 	const appliedMax = actor.getFlag(GMM_MODULE_TITLE, "appliedMax");
 
 	if (force || (appliedMax !== undefined && appliedMax !== max)) {
@@ -346,14 +480,12 @@ async function _syncParagonDefenses(actor) {
 function _generateFlags() {
 	const moduleFlagScope = `flags.gmm`;
 	const moduleFlags = new Set([
-		//`${moduleFlagScope}.example`,
 	]);
 	return Array.from(moduleFlags).filter((key) => key.startsWith(`${moduleFlagScope}.`));
 }
 
 function _applyTokenCompatibilityShim() {
-	// FV13 shim: dnd5e SaveActivity uses the deprecated global `Token`; point it at the namespaced class
-	// so `instanceof Token` doesn't hit the deprecated getter.
+	// dnd5e SaveActivity still uses the global `Token`, whose getter is deprecated on v13.
 	try {
 		// Not needed on Foundry v14+ and can fail because global `Token` is non-configurable there.
 		if ((game.release?.generation ?? 0) >= 14) return;
@@ -363,7 +495,7 @@ function _applyTokenCompatibilityShim() {
 
 		const desc = Object.getOwnPropertyDescriptor(globalThis, "Token");
 		if (desc?.value === TokenClass) return;
-		// Some runtimes expose `Token` as a locked global; treat that as already handled.
+		// Some runtimes expose `Token` as a locked global. Treat that as already handled.
 		if (desc && !desc.configurable) return;
 
 		try { Reflect.deleteProperty(globalThis, "Token"); } catch (_e) { /* ignore */ }
@@ -378,7 +510,6 @@ function _applyTokenCompatibilityShim() {
 	}
 }
 
-/* Find where to insert the GMM "create" button row in a sidebar directory header (before search, else append). */
 function _findDirectoryInsertionPoint(root) {
 	if (!root?.querySelector) return null;
 	const header = root.querySelector(".directory-header");
@@ -449,8 +580,62 @@ async function _hookItemDirectory(html) {
 
 function _registerSettings() {
 
+	game.settings.register(GMM_MODULE_TITLE, "trackParagonActions", {
+		name: "gmm.settings.track_paragon_actions.name",
+		hint: "gmm.settings.track_paragon_actions.hint",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+
+	game.settings.register(GMM_MODULE_TITLE, "trackParagonDefenses", {
+		name: "gmm.settings.track_paragon_defenses.name",
+		hint: "gmm.settings.track_paragon_defenses.hint",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+
+	game.settings.register(GMM_MODULE_TITLE, "automateDeferrals", {
+		name: "gmm.settings.automate_deferrals.name",
+		hint: "gmm.settings.automate_deferrals.hint",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+
+	game.settings.registerMenu(GMM_MODULE_TITLE, GMM_DEFERRAL_COUNTDOWN_MENU, {
+		name: "gmm.settings.deferral_countdown.name",
+		hint: "gmm.settings.deferral_countdown.hint",
+		label: "gmm.settings.deferral_countdown.label",
+		icon: "fas fa-stopwatch",
+		type: DeferralCountdownSettings,
+		restricted: true
+	});
+
+	game.settings.register(GMM_MODULE_TITLE, GMM_DEFERRAL_COUNTDOWN_SETTING, {
+		scope: "world",
+		config: false,
+		default: { ...GMM_DEFERRAL_COUNTDOWN_DEFAULTS },
+		type: Object,
+		// Nothing marks a token dirty when a setting changes. Every client has to follow the GM's.
+		onChange: () => DeferralCountdown.repaintAll()
+	});
+
+	game.settings.register(GMM_MODULE_TITLE, "automateDurations", {
+		name: "gmm.settings.automate_durations.name",
+		hint: "gmm.settings.automate_durations.hint",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+
 	game.settings.register(GMM_MODULE_TITLE, "monsterLayout", {
-		name: "Monster Menu Layout",
+		name: "gmm.settings.monster_layout.name",
 		scope: "world",
 		config: true,
 		default: "slide-out",
@@ -459,7 +644,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterArtifactSkin", {
-		name: "Monster Artifact Skin",
+		name: "gmm.settings.monster_artifact_skin.name",
 		scope: "world",
 		config: true,
 		default: "vanity",
@@ -468,7 +653,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterBlueprintSkin", {
-		name: "Monster Blueprint Skin",
+		name: "gmm.settings.monster_blueprint_skin.name",
 		scope: "world",
 		config: true,
 		default: "vanity",
@@ -477,7 +662,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterPrimaryColor", {
-		name: "Monster Primary Color",
+		name: "gmm.settings.monster_primary_color.name",
 		scope: "world",
 		config: true,
 		default: "blue",
@@ -486,7 +671,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "monsterSecondaryColor", {
-		name: "Monster Secondary Color",
+		name: "gmm.settings.monster_secondary_color.name",
 		scope: "world",
 		config: true,
 		default: "orange",
@@ -495,7 +680,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionLayout", {
-		name: "Action Menu Layout",
+		name: "gmm.settings.action_layout.name",
 		scope: "world",
 		config: true,
 		default: "slide-out",
@@ -504,7 +689,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionArtifactSkin", {
-		name: "Action Artifact Skin",
+		name: "gmm.settings.action_artifact_skin.name",
 		scope: "world",
 		config: true,
 		default: "vanity",
@@ -513,7 +698,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionBlueprintSkin", {
-		name: "Action Blueprint Skin",
+		name: "gmm.settings.action_blueprint_skin.name",
 		scope: "world",
 		config: true,
 		default: "vanity",
@@ -522,7 +707,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionPrimaryColor", {
-		name: "Action Primary Color",
+		name: "gmm.settings.action_primary_color.name",
 		scope: "world",
 		config: true,
 		default: "blue-gray",
@@ -531,7 +716,7 @@ function _registerSettings() {
 	});
 
 	game.settings.register(GMM_MODULE_TITLE, "actionSecondaryColor", {
-		name: "Action Secondary Color",
+		name: "gmm.settings.action_secondary_color.name",
 		scope: "world",
 		config: true,
 		default: "amber",

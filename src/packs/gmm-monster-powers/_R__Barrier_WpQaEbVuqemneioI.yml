@@ -3,7 +3,10 @@ type: feat
 img: icons/magic/defensive/barrier-shield-dome-blue-purple.webp
 system:
   description:
-    value: <p>The area is impassable and grants total cover.</p>
+    value: >-
+      <p>The area is impassable and grants total cover.+</p><p><em>+ Midi
+      automation</em></p><p><em>The impassable clause is a wall the GM
+      draws.</em></p>
     chat: ''
   source: {}
   activation:
@@ -76,7 +79,10 @@ flags:
         description:
           name: (R) Barrier
           image: icons/magic/defensive/barrier-shield-dome-blue-purple.webp
-          text: <p>The area is impassable and grants total cover.</p>
+          text: >-
+            <p>The area is impassable and grants total cover.+</p><p><em>+ Midi
+            automation</em></p><p><em>The impassable clause is a wall the GM
+            draws.</em></p>
         activation:
           type: ''
           cost: null
@@ -97,12 +103,17 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:
+          type: timed
           units: minute
           value: '10'
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         range:
           units: ft
           value: 50
@@ -119,6 +130,15 @@ flags:
           value: 1
           max: 1
           per: lr
+        zone:
+          terrain:
+            - category: impassable
+              custom: ''
+            - category: total_cover
+              custom: ''
+          rules: []
+          audience: any
+          once_per_turn: true
         display:
           layout: ''
           skin:

@@ -37,7 +37,7 @@
 
 	color: var(--color-dark-2);
 
-	// (1) Direct overrides on form controls — beats `body.theme-dark input` because the selector matches the element i...
+	// (1) Direct overrides on form controls.
 	// Use a wide selector list so all form-control flavours are covered
 	input,
 	select,
@@ -147,8 +147,7 @@
 		background: none;
 		padding: 0;
 		border-radius: 1rem;
-		// V14's `.window-app .window-content` defaults to `overflow:
-		// hidden auto` which would clip the slide-out blueprint just like the application root does — keep it visible to p
+		// Keep this visible or V14's default overflow clips the slide-out blueprint
 		overflow: visible;
 		height: 0;
 		// V14's apps.less sets a backdrop-filter on `.window-content`

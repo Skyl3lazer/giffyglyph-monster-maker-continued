@@ -35,7 +35,7 @@ export const GMM_ACTION_BLUEPRINT = {
 		deferral: {
 			type: null,
 			timer: null,
-			respite: null
+			cancel: null
 		},
 		effects: {
 			always_show: false
@@ -43,8 +43,15 @@ export const GMM_ACTION_BLUEPRINT = {
 		target: {
 			value: null,
 			units: null,
-			type: null,
+			type: "creature",
 			width: null
+		},
+		// Top-level rather than inside `target`, which round-trips to the activity and would drop it.
+		zone: {
+			terrain: [],
+			rules: [],
+			audience: "any",
+			once_per_turn: true
 		},
 		range: {
 			value: null,
@@ -53,8 +60,18 @@ export const GMM_ACTION_BLUEPRINT = {
 		},
 		rarity: "common",
 		duration: {
+			type: "instant",
 			value: "",
-			units: ""
+			units: "",
+			save: {
+				ability: "",
+				modifier: {
+					value: "",
+					override: false
+				}
+			},
+			reapplies: "",
+			cancel: ""
 		},
 		uses: {
 			value: "",
@@ -83,8 +100,11 @@ export const GMM_ACTION_BLUEPRINT = {
 				formula: null,
 				type: null
 			},
+			miss: {
+				percentage: null
+			},
 			message: null,
-			related_stat: "str"
+			related_stat: "max"
 		}
 	}
 };

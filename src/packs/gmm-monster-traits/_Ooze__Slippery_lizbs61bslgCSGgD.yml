@@ -5,7 +5,9 @@ system:
   description:
     value: >-
       <p>You have advantage on ability checks and saving throws made to escape a
-      grapple.</p>
+      grapple.+</p><p><em>+ Midi automation, unfinished</em></p><p><em>Set the
+      change values to a condition that is true only for grapple
+      escapes.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +66,30 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: s61bslgCSGgDlizb
+    name: Slippery
+    img: icons/creatures/slimes/slime-bubble-green.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.save.str
+          type: custom
+          value: ''
+        - key: flags.midi-qol.advantage.check.str
+          type: custom
+          value: ''
+        - key: flags.midi-qol.advantage.check.dex
+          type: custom
+          value: ''
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!lizbs61bslgCSGgD.s61bslgCSGgDlizb'
 folder: Ufs5zJIug1CEB6LB
 flags:
   core:
@@ -79,7 +104,9 @@ flags:
           image: icons/creatures/slimes/slime-bubble-green.webp
           text: >-
             <p>You have advantage on ability checks and saving throws made to
-            escape a grapple.</p>
+            escape a grapple.+</p><p><em>+ Midi automation,
+            unfinished</em></p><p><em>Set the change values to a condition that
+            is true only for grapple escapes.</em></p>
         activation:
           type: ''
           cost: null
@@ -100,7 +127,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

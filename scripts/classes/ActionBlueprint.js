@@ -3,11 +3,10 @@ import { GMM_DESCRIPTION_REPLACEMENTS, isDescriptionEffectivelyEmpty } from "../
 import Activities from "./Activities.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 
-/* Translates between the user-authored GMM blueprint (`flags.gmm.blueprint.data`) and the underlying dnd5e item.
- * In v5.x the per-use fields (attack, save DC, damage, target/range/duration/uses/recharge) live on the activity. */
+/* In dnd5e v5.x the per-use fields live on the activity, so the blueprint mirrors two documents, not one. */
 const ActionBlueprint = (function () {
 
-    /* Item-level fields that still live on the document (not the activity) and need direct path-to-path bindings. */
+    /* The fields dnd5e v5.x left on the document rather than moving to the activity. */
     const itemMappings = [
         { from: "description.image", to: "img" },
         { from: "description.name", to: "name" },
@@ -20,8 +19,7 @@ const ActionBlueprint = (function () {
     }
 
     function _verifyBlueprint(blueprint) {
-        // Direct-leaf writes (e.g. `document.update({ "flags.gmm.blueprint.data.<x>": v })`) can leave
-        // the envelope without a `vid`, so backfill it when `data` is present.
+        // A direct-leaf write to `flags.gmm.blueprint.data.<x>` leaves the envelope without a `vid`.
         if (blueprint && blueprint.vid === undefined && blueprint.data) {
             blueprint.vid = 1;
             if (!blueprint.type) blueprint.type = "action";
@@ -30,7 +28,7 @@ const ActionBlueprint = (function () {
             case 1:
                 return blueprint;
             default:
-                console.error(`This action blueprint has an invalid version id [${blueprint?.vid}] and can't be verified.`, blueprint);
+                console.error(game.i18n.format("gmm.action.errors.invalid_version", { vid: blueprint?.vid }), blueprint);
                 return null;
         }
     }
@@ -38,19 +36,35 @@ const ActionBlueprint = (function () {
     function _syncItemDataToBlueprint(blueprint, item) {
         const blueprintData = blueprint.data;
         try {
-            // Pull item-level fields (img, name, description.value).
             itemMappings.forEach((x) => {
                 if (CompatibilityHelpers.hasProperty(item, x.to)) {
                     CompatibilityHelpers.setProperty(blueprintData, x.from, CompatibilityHelpers.getProperty(item, x.to));
                 }
             });
 
-            // Pull activity-driven fields (attack/save/damage/range/target/duration/ uses/consumption/concentration)
-            // Activities are the source of truth post dnd5e v3.x
-            const gmmActivity = item.system?.activities?.get?.(Activities.GMM_ACTIVITY_ID);
-            if (gmmActivity) {
-                Activities.readActivityIntoBlueprintData(gmmActivity, blueprintData);
+            // A deferral splits these across two activities. Falling back to the primary covers an unmigrated item.
+            const activities = item.system?.activities;
+            const primaryActivity = activities?.get?.(Activities.GMM_ACTIVITY_ID);
+            const gateActivity = activities?.get?.(Activities.gateActivityId(blueprint)) ?? primaryActivity;
+            const damageActivity = activities?.get?.(Activities.payloadActivityId(blueprint)) ?? primaryActivity;
+            if (primaryActivity) {
+                Activities.readActivityIntoBlueprintData(primaryActivity, blueprintData, {
+                    gate: gateActivity === primaryActivity,
+                    damage: damageActivity === primaryActivity,
+                    authoredType: item._source?.flags?.gmm?.blueprint?.data?.duration?.type ?? null
+                });
             }
+            if (gateActivity && gateActivity !== primaryActivity) {
+                Activities.readActivityIntoBlueprintData(gateActivity, blueprintData, {
+                    shared: false,
+                    damage: damageActivity === gateActivity
+                });
+            }
+            if (damageActivity && damageActivity !== primaryActivity && damageActivity !== gateActivity) {
+                Activities.readActivityIntoBlueprintData(damageActivity, blueprintData, { shared: false, gate: false });
+            }
+
+            Activities.readItemUsesIntoBlueprintData(item, blueprintData);
 
             return blueprint;
         } catch (error) {
@@ -59,8 +73,7 @@ const ActionBlueprint = (function () {
         }
     }
 
-    /* Build the partial item update derived from a saved blueprint
- * The result is a flat mix of nested item-level fields (img, name, system.description.value) and dotted path keys */
+    /* Returns a mix of nested item-level fields and dotted activity paths, not one uniform shape. */
     function getItemDataFromBlueprint(blueprint, item = null) {
         const itemData = {};
 
@@ -70,17 +83,12 @@ const ActionBlueprint = (function () {
             }
         });
 
-        // Blank descriptions
         if (!CompatibilityHelpers.hasProperty(blueprint.data, "description.text")) {
             CompatibilityHelpers.setProperty(itemData, "system.description.value", "");
         }
 
-        // Mirror the blueprint onto the GMM-managed activity
-        // `buildActivityUpdate` handles the type-swap deletion case when the activity's type changes
-        const activityUpdate = item
-            ? Activities.buildActivityUpdate(item, blueprint)
-            : { [`system.activities.${Activities.GMM_ACTIVITY_ID}`]: Activities.buildActivityData(blueprint) };
-        //  On v13 `item.update` silently drops a dotted `system.*` key when a nested `system` object is present
+        const activityUpdate = Activities.buildActivityUpdate(item, blueprint);
+        // On v13 `item.update` silently drops a dotted `system.*` key beside a nested `system` object.
         for (const [key, value] of Object.entries(activityUpdate)) {
             CompatibilityHelpers.setProperty(itemData, key, value);
         }
@@ -88,31 +96,24 @@ const ActionBlueprint = (function () {
         return itemData;
     }
 
-    /* Build a fresh GMM blueprint from a vanilla weapon/feat that has never been a GMM scaling
-     * action. Reads the item's primary dnd5e activity (chosen via Activities.pickPrimaryActivity)
-     * and patches anything still missing from the item-level fields dnd5e v5 keeps on the document
-     * itself. Returns a `{vid:1, type:"action", data:{...}}` envelope ready for `flags.gmm.blueprint`. */
+    /* For an item that has never been a scaling action, so nothing may be assumed already present. */
     function deriveFromVanillaItem(item) {
         const blueprint = $.extend(true, {}, GMM_ACTION_BLUEPRINT, { vid: 1, type: "action" });
         const blueprintData = blueprint.data;
 
-        // Item-level fields (img/name/description.value) via the same mappings used at sheet render.
         itemMappings.forEach((x) => {
             if (CompatibilityHelpers.hasProperty(item, x.to)) {
                 CompatibilityHelpers.setProperty(blueprintData, x.from, CompatibilityHelpers.getProperty(item, x.to));
             }
         });
 
-        // One-time rewrite pass over the imported description so vanilla dnd5e conventions like
-        // `[[lookup @name lowercase]]{monster}` are translated into GMMC shortcodes (`[name]`, …).
-        // See GMM_DESCRIPTION_REPLACEMENTS for the active rule set.
+        // An imported description carries vanilla enricher syntax that GMMC shortcodes have to replace.
         try {
             _applyDescriptionReplacements(blueprintData);
         } catch (e) {
             console.warn("GMM | deriveFromVanillaItem: description replacement pass failed", e);
         }
 
-        // Per-activity fields (attack/save/heal/damage/range/target/uses/duration/consumption).
         const primary = Activities.pickPrimaryActivity(item);
         if (primary) {
             try {
@@ -122,19 +123,18 @@ const ActionBlueprint = (function () {
             }
         }
 
-        // Document-level leftovers (range, weapon base damage) the activity didn't already cover.
+        try {
+            Activities.readItemUsesIntoBlueprintData(item, blueprintData);
+        } catch (e) {
+            console.warn("GMM | deriveFromVanillaItem: readItemUsesIntoBlueprintData failed", e);
+        }
+
         try {
             Activities.applyItemLevelFallbacks(item, blueprintData);
         } catch (e) {
             console.warn("GMM | deriveFromVanillaItem: applyItemLevelFallbacks failed", e);
         }
 
-        // Final pass: ensure the GMMC `attack.type` row is populated when the activity-read step
-        // left it blank (e.g. dnd5e attack activity missing `attack.type.classification`, or an
-        // unmapped value like "unarmed"). Inference reads range and item type as fallbacks.
-        // For every attack-typed conversion (mwak/msak/rwak/rsak), force `related_stat = "max"`
-        // so the converted action scales off the monster's highest ability modifier by default,
-        // matching the typical authoring intent for GMMC scaling actions.
         try {
             blueprintData.attack ??= {};
             const current = blueprintData.attack.type;
@@ -152,10 +152,7 @@ const ActionBlueprint = (function () {
         return blueprint;
     }
 
-    /* Apply the GMM_DESCRIPTION_REPLACEMENTS rule set in order to the blueprint's
-     * description text. After substitutions, if the remaining content is just whitespace,
-     * HTML scaffolding, or stray punctuation, clear the description entirely so the converted
-     * action doesn't render an empty `<p></p>` shell where vanilla button enrichers used to live. */
+    /* Substitution can leave only HTML scaffolding behind, which would render as an empty `<p></p>`. */
     function _applyDescriptionReplacements(blueprintData) {
         const text = blueprintData?.description?.text;
         if (typeof text !== "string" || !text.length) return;

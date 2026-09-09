@@ -108,7 +108,7 @@ flags:
           bonus: ''
           defense: dex
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
           hit:
@@ -147,7 +147,7 @@ flags:
         deferral:
           type: delayed
           timer: 1
-          respite: ''
+          cancel: ''
         properties:
           concentration:
             checked: false

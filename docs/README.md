@@ -28,11 +28,16 @@ Want to build new monsters for your [Foundry VTT](https://foundryvtt.com/) D&D 5
 * Premade attacks, traits and powers to easily create unique, thematic, and interesting monsters.
 * Easy-to-use shortcodes to make custom scaling features even easier.
 * Convert existing monsters in seconds by simply changing the active sheet.
+* 18 expanded conditions as ready-to-drag active effects for use on scaler or vanilla abilities.
 * Includes full stats from the **[Giffyglyph's Monster Maker PDF](https://giffyglyph.com/#giffyglyphs-monster-maker)**.
 
 ![Scaling Adult Dragon](./img/scaling-monster-level.gif)
 
 ## AI Disclaimer
+
+[![AI-DECLARATION: copilot](https://img.shields.io/badge/䷼%20AI--DECLARATION-copilot-fee2e2?labelColor=fee2e2)](https://ai-declaration.md)
+
+*This level comes from the use of AI in testing and deployment tasks, see [AI-DECLARATION.md](../AI-DECLARATION.md)*
 
 * The v14 refactor was written largely via Opus. I (skyl3lazer) have reviewed and tested this code over time to ensure its function and stability. That said, there is still code that was written by AI, even if I don't plan on continuing to use it after the refactoring stage.
 
@@ -58,8 +63,12 @@ These modules are required for GMMC to function.
 ### Recommended Modules
 These modules are optional, but may improve the experience of using GMMC.
 
-* [Midi QOL](https://foundryvtt.com/packages/midi-qol) - Provides automation, which some compendium items have built in already if Midi is active.
-* [Side Effects](https://foundryvtt.com/packages/side-effects) - Provides custom statuses, which the compendium will use.
+* [Midi QOL](https://foundryvtt.com/packages/midi-qol) - Provides core automation, which some compendium items have built in already if Midi is active.
+* [Side Effects](https://foundryvtt.com/packages/side-effects) - Adds a sidebar effect directory and lets you turn effects into token statuses. Works with GMM's conditions compendium - see [Conditions](#conditions). Needs Foundry v14.
+* [Automated Conditions 5E](https://foundryvtt.com/packages/automated-conditions-5e) - Adds more automation options. Needs Foundry v14.
+* [Coven's Automation Toolkit](https://foundryvtt.com/packages/cat) - Adds more automation options.
+* [Aura Effects](https://foundryvtt.com/packages/auraeffects) - Adds more automation options.
+* [Enhanced Region Behavior](https://foundryvtt.com/packages/enhanced-region-behavior) - Adds more automation options.
 
 ---
 
@@ -111,6 +120,13 @@ All of these use the same module id, so only **one can be installed on a Foundry
 3. Customise the action with some scaling features and shortcodes.
 
 ![Scaling Action](./img/frightful-presence.png)
+
+## Conditions
+
+The **GMM Effects** compendium holds the eighteen expanded conditions from the Monster Maker PDF -
+Banished, Bleeding, Bound, Cursed, Dazed, Decaying, Dehydrated, Disoriented, Fatigued, Feeble,
+Silenced, Slowed, Starving, Stinking, Swarmed, Transformed, Vulnerable and Exposed - in a
+`Conditions` folder. Drag one onto a token to apply it.
 
 ## Roadmap
 

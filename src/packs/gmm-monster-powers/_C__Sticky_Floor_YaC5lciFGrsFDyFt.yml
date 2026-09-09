@@ -4,8 +4,8 @@ img: icons/creatures/slimes/slime-bubble-green.webp
 system:
   description:
     value: >-
-      <p>The targeted area is difficult terrain until the start of your next
-      turn.</p>
+      <p>The targeted area is difficult terrain until the end of your next
+      turn.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -78,8 +78,8 @@ flags:
           name: (C) Sticky Floor
           image: icons/creatures/slimes/slime-bubble-green.webp
           text: >-
-            <p>The targeted area is difficult terrain until the start of your
-            next turn.</p>
+            <p>The targeted area is difficult terrain until the end of your next
+            turn.</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null
@@ -100,10 +100,11 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:
+          type: end_of_your_turn
           units: ''
           value: ''
         range:
@@ -122,6 +123,13 @@ flags:
           value: null
           max: ''
           per: ''
+        zone:
+          terrain:
+            - category: difficult
+              custom: ''
+          rules: []
+          audience: any
+          once_per_turn: true
         display:
           layout: ''
           skin:

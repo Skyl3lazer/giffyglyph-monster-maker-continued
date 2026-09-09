@@ -87,12 +87,17 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:
+          type: end_of_target_turn
           units: ''
           value: ''
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         properties:
           concentration:
             checked: false

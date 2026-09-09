@@ -14,6 +14,11 @@
 		color: var(--color-secondary-base) !important;
 	}
 
+	.value--moved {
+		text-decoration: underline dotted var(--color-secondary-base);
+		text-underline-offset: 0.125rem;
+	}
+
 	::-webkit-scrollbar {
 		width: 1rem;
 	}

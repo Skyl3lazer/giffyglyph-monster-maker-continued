@@ -2,7 +2,19 @@
     <div class="artifact__header monster__header">
         <div class="monster__image" data-action="open-config" data-config="description"><img src="{{gmm.monster.image}}"></div>
         <div class="monster__name" data-action="open-config" data-config="description">{{gmm.monster.name}}</div>
-        <div class="monster__description" data-action="open-config" data-config="description">{{gmm.monster.description}}</div>
+        <div class="monster__subtitle">
+            <div class="monster__description{{#if gmm.monster.description.moved}} value--moved{{/if}}" data-action="open-config" data-config="description" title="{{gmm.monster.description.source}}">{{gmm.monster.description.text}}</div>
+            {{#if showRests}}
+            <div class="monster__rests">
+                {{#each CONFIG.restTypes}}
+                <button type="button" class="button--rest" data-action="rest" data-type="{{@key}}"
+                        data-tooltip aria-label="{{localize label}}">
+                    <i class="{{icon}}" inert></i>
+                </button>
+                {{/each}}
+            </div>
+            {{/if}}
+        </div>
         <div class="monster__combat">
             <div class="level" data-action="open-config" data-config="combat">
                 <i class="fas fa-crown"></i> {{gmm.monster.level.label}}
@@ -50,19 +62,15 @@
                                 </div>
                             </div>
                             <div class="block__content hit-points__maximum">
-                                <div class="block__value length-{{strlen gmm.monster.hit_points.maximum.value}}" title="{{{parseSources gmm.monster.hit_points.maximum.sources}}}">
-                                    {{#if gmm.monster.hit_points.use_formula}}
-                                    <i class="fas fa-heartbeat"></i> {{gmm.blueprint.hit_points.rolled_max}}
-                                    {{else}}
-                                    <i class="fas fa-heartbeat"></i> {{gmm.monster.hit_points.maximum.value}}
-                                    {{/if}}
+                                <div class="block__value length-{{strlen gmm.monster.hit_points.effective_maximum}}" title="{{{parseSources gmm.monster.hit_points.maximum.sources}}}">
+                                    <i class="fas fa-heartbeat"></i> {{gmm.monster.hit_points.effective_maximum}}
                                 </div>
                                 <div class="block__description">
                                     {{#if gmm.monster.hit_points.use_formula}}
                                     <button type="button" data-action="roll-hp" data-formula="{{gmm.monster.hit_points.formula}}"><i class="fas fa-dice"></i> {{gmm.monster.hit_points.formula}}</button>
                                     {{else}}
                                     {{localize 'gmm.monster.artifact.blocks.hit_points.maximum'}}
-                                    {{/if}}
+                                    {{/if}}{{#if gmm.monster.hit_points.temporary_maximum}}<span title="{{localize 'gmm.monster.artifact.blocks.hit_points.temporary_maximum_flag'}}">*</span>{{/if}}
                                 </div>
                             </div>
                         </div>
@@ -103,8 +111,8 @@
                         <div class="block__title" data-action="open-config" data-config="attack-bonus">{{localize 'gmm.monster.artifact.blocks.attack_bonus.title'}}</div>
                         <div class="block__contents">
                             <div class="block__content">
-                                <button type="button" class="block__value button--text length-{{strlen (numberFormat gmm.monster.attack_bonus.value sign=true)}}" title="{{{parseSources gmm.monster.attack_bonus.sources}}}" data-action="open-modal" data-modal="modal_basic_attack_ac">
-                                    <i class="fas fa-crosshairs"></i> {{numberFormat gmm.monster.attack_bonus.value sign=true}}
+                                <button type="button" class="block__value button--text length-{{strlen (numberFormat gmm.monster.attack_bonus.display sign=true)}}" title="{{{parseSources gmm.monster.attack_bonus.sources}}}" data-action="open-modal" data-modal="modal_basic_attack_ac">
+                                    <i class="fas fa-crosshairs"></i> {{numberFormat gmm.monster.attack_bonus.display sign=true}}
                                 </button>
                                 <div class="block__description">
                                     {{#if gmm.monster.attack_bonus.type}}
@@ -137,8 +145,8 @@
                         <div class="block__title" data-action="open-config" data-config="damage-per-action">{{localize 'gmm.monster.artifact.blocks.damage.title'}}</div>
                         <div class="block__contents">
                             <div class="block__content static">
-                                <button type="button" class="block__value button--text button--static-damage length-{{strlen gmm.monster.damage_per_action.value}}" title="{{{parseSources gmm.monster.damage_per_action.sources}}}" data-action="open-modal" data-modal="modal_basic_damage">
-                                    <i class="fas fa-fire"></i> {{gmm.monster.damage_per_action.value}}
+                                <button type="button" class="block__value button--text button--static-damage length-{{strlen gmm.monster.damage_per_action.display}}" title="{{{parseSources gmm.monster.damage_per_action.sources}}}" data-action="open-modal" data-modal="modal_basic_damage">
+                                    <i class="fas fa-fire"></i> {{gmm.monster.damage_per_action.display}}
                                 </button>
                                 {{#unless gmm.monster.damage_per_action.type}}
                                 <div class="block__description">
@@ -147,8 +155,8 @@
                                 {{/unless}}
                             </div>
                             <div class="block__content random">
-                                <button type="button" class="block__value button--text button--random-damage length-{{strlen gmm.monster.damage_per_action.dice}}" data-action="open-modal" data-modal="modal_basic_damage">
-                                    <i class="fas fa-dice"></i> <span class="roll">{{gmm.monster.damage_per_action.dice}}</span>
+                                <button type="button" class="block__value button--text button--random-damage length-{{strlen gmm.monster.damage_per_action.display_dice}}" data-action="open-modal" data-modal="modal_basic_damage">
+                                    <i class="fas fa-dice"></i> <span class="roll">{{gmm.monster.damage_per_action.display_dice}}</span>
                                 </button>
                                 {{#unless gmm.monster.damage_per_action.type}}
                                 <div class="block__description">
@@ -249,7 +257,7 @@
                                     <div class="property__title" data-action="open-config" data-config="speed">{{localize 'gmm.monster.artifact.attributes.speeds.title'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.speeds as | speed |}}
-                                        <span title="{{{parseSources speed.sources}}}">{{speed.title}} {{#if speed.value}}{{localize (concat 'gmm.monster.artifact.attributes.speeds.' speed.units) distance=speed.value}}{{/if}}{{#if speed.detail}} ({{speed.detail}}){{/if}}</span>
+                                        <span class="{{#if speed.moved}}value--moved{{/if}}" title="{{#if speed.sources}}{{{parseSources speed.sources}}}{{else}}{{speed.source}}{{/if}}">{{speed.title}} {{#if (ne speed.value null)}}{{localize (concat 'gmm.monster.artifact.attributes.speeds.' speed.units) distance=speed.value}}{{/if}}{{#if speed.detail}} ({{speed.detail}}){{/if}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -262,7 +270,7 @@
                                     <div class="property__title" data-action="open-config" data-config="damage-vulnerabilities">{{localize 'gmm.monster.artifact.attributes.damage_vulnerabilities'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.damage_vulnerabilities}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -275,7 +283,7 @@
                                     <div class="property__title" data-action="open-config" data-config="damage-resistances">{{localize 'gmm.monster.artifact.attributes.damage_resistances'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.damage_resistances}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -288,7 +296,7 @@
                                     <div class="property__title" data-action="open-config" data-config="damage-immunities">{{localize 'gmm.monster.artifact.attributes.damage_immunities'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.damage_immunities}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -301,7 +309,7 @@
                                     <div class="property__title" data-action="open-config" data-config="condition-immunities">{{localize 'gmm.monster.artifact.attributes.condition_immunities'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.condition_immunities}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -314,7 +322,7 @@
                                     <div class="property__title" data-action="open-config" data-config="senses">{{localize 'gmm.monster.artifact.attributes.senses.title'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.senses as | sense |}}
-                                        <span>{{sense.title}}{{#if sense.value}} {{localize (concat 'gmm.monster.artifact.attributes.senses.' sense.units) distance=sense.value}}{{/if}}</span>
+                                        <span class="{{#if sense.moved}}value--moved{{/if}}" title="{{#if sense.sources}}{{{parseSources sense.sources}}}{{else}}{{sense.source}}{{/if}}">{{sense.title}}{{#if sense.value}} {{localize (concat 'gmm.monster.artifact.attributes.senses.' sense.units) distance=sense.value}}{{/if}}</span>
                                         {{/each}}
                                     </div>
                                 </div>
@@ -327,7 +335,7 @@
                                     <div class="property__title" data-action="open-config" data-config="languages">{{localize 'gmm.monster.artifact.attributes.languages'}}</div>
                                     <div class="property__value">
                                         {{#each gmm.monster.languages}}
-                                        <span>{{this}}</span>
+                                        <span class="{{#if this.moved}}value--moved{{/if}}" title="{{this.source}}">{{this.label}}</span>
                                         {{/each}}
                                     </div>
                                 </div>

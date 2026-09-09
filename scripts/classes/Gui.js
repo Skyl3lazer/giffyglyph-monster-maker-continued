@@ -57,6 +57,11 @@ export default class Gui {
 				this._expandWindow(event);
 			}
 			const section = forge.querySelector(`.gmm-blueprint [data-section="${target}"]`);
+			// Above the loop, which would otherwise close every open section before the deref throws.
+			if (!section) {
+				console.warn(`GMM | no blueprint section matches data-config="${target}"`);
+				return;
+			}
 			const accordion = forge.querySelectorAll(`.gmm-blueprint .accordion-section`);
 			[...accordion].forEach((x) => {
 				x.classList.remove("opened");

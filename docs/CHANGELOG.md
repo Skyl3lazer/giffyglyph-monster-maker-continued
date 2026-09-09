@@ -7,6 +7,97 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
+## v2.0.1.4
+
+### Automation Update Highlights
+
+- This is a huge update, with one primary goal: Every function and dial in the GMM pdf is available to the GM, and works with automation tools.
+- Every compendium, including the new Effects compendium, utilizes built-in or module-based automation where possible.
+- Modules include (so far) MidiQOL/DAE, Aura Effects, Automated Conditions 5e, and Coven's Automation Toolkit
+  - Individual items will list what modules, if any, are used in their automation.
+- Scaler attributes are also exposed to effects, so you can use things like @gmm.level when writing your own effects. Every shortcode can be accessed in this way!
+
+**NOTE**: While many of these do work in v13, this work is targeted at v14. I know it's not super widely adopted yet, but there were several significant changes that I would have had to write custom v13 stuff for, which wouldn't be used a few months from now.
+
+
+### Resources
+* Using a limited action now actually spends a use. An action authored `1/day` or `recharge 5-6` used to print the number and never touch it, so the count on the stat block was decoration and a GM who trusted it was tracking a resource nothing enforced.
+	* You get dnd5e's usual "use this" prompt on a limited action, the same one a vanilla monster feature gets. 
+	* An action with nothing left refuses to fire and says why. Recharge it, rest, untick the box, or type a new remaining count on the sheet.
+	* The count now lives on the action itself rather than inside its generated activity, which is where the rest of Foundry looks for it.
+	* Setting an action's cost to "charges" against itself used to refuse the action outright. It works now.
+* Short rest and long rest buttons on the Forge sheet. They run the same rest a vanilla NPC sheet does, so everything that recovers on a rest now actually recovers: paragon defenses refill on a long rest, and an action set to recharge on a short rest, long rest or day gets its uses back.
+	* "Day" uses come back on a long rest that is a new day.
+
+### Paragon/Legendary Features
+* Paragon defenses are now offered on a failed saving throw. With MidiQOL installed you get a prompt before damage is applied. Without Midi the failed-save card gets a button similar to the Legendary Resistance button. Either way it spends the hit point cost and one defense, never spends hit points it cannot survive, and never eats temporary hit points. The pool refills on a long rest.
+* Paragon actions are now tracked in combat: taking a full action outside its own turn spends one, and the pool refills at the start of its turn and at the start of a fight. You'll get a warning if you take an action with no paragon actions available.
+* The Legendary Resistance button now follows the stat block: if paragon defenses have replaced the legendary resistances section on the sheet, the button stops appearing too. Tick "always show" on legendary resistances to see both if you really want to.
+* The Paragon Defenses maximum now has its "is fixed" toggle, so the modifier can override the rank-derived value instead of only adding to it
+* Module settings for Paragon Defense and Action automation.
+
+### Automation *(v14 only)*
+* Deferral automation! Deferred abilities will now properly wait before rolling attacks or applying effects where appropriate. This is compatible with *MidiQOL*, but some amount of the automation works without it.
+	* There are settings to customize the display, but you'll get cool countdown numbers for deferred activities.
+* Zones! An area action can now change the space it is dropped on instead of only describing it. Pick an area shape under Target and the Zone controls appear there. Author the Change Terrain modifiers it carries and/or rules that fires part of the action on entering, leaving, or the start or end of a turn.
+	* GMMC picks the best automation your world has, including *MidiQOL* and *Enhanced Region Behaviors*.
+	* The seven shipped Zone powers are re-authored to use it: Barrier, Zone of Darkness, Zone of Pain, Sticky Floor, Difficult Space, Smoke Bomb and Destruction.
+	* With *MidiQOL* the editor gets a button to Midi's own region behaviour editor. Without Midi you can configure the area once you've placed it.
+* Began to add better support for automation modules using GMMC scalar effects. Utilized modules include:
+	* DAE/MidiQOL
+	* Automated Conditions 5e
+	* Aura Effects
+	* Coven's Automation Toolkit
+* An active effect on a scaler's maximum hit points now works. The token bar, the healing cap and the Bloodied line all stayed where they were previously.
+* GMM conditions are now a real compendium of effects. Foundry v14 lets a module ship active effects directly, so the eighteen expanded conditions live in a new **GMM Effects** compendium, instead of being hidden on a placeholder actor you had to open first. You can browse, search, and drag them straight onto a token.
+	* Each condition now states its rarity the way the book does. This will be used later to try to estimate Scaler point values!
+	* This needs Foundry v14. On v13 the new compendium cannot exist at all, so the old **GMM Conditions (Legacy)** compendium is still there with the same conditions on its placeholder actor. It is frozen and won't get any updates, namely automation.
+	* If you use the *Side Effects* module, you can point its effect compendium setting at GMM Effects, or copy the conditions into your own effect compendium.
+	* Also in v14, there are basic automations for the conditions, utilizing both base effects, *MidiQOL*, and *Automated Conditions 5e*.
+	* Dropped the *DFreds Convenient Effects* importable file and the leftover Convenient Effects data on the conditions.
+* Updated compendiums to include proper appropriate effects, etc, to let them function with as much automation as has been built. The entries will indicate in their description how they're automated.
+	* This includes all of the power, attacks, traits, and conditions
+
+### Effect Updates
+* More attributes are handled correctly now though effects and visually displayed as changed on the sheet when effects are active. This includes (temp)max HP, initiative, skill modifiers, attribute modifiers, global mods (i.e. +2 to all checks), and proficiency.
+* Active effects that change an ability score or modifier now reach the whole monster instead of only the die roll: the displayed modifier, spell save DC, initiative, passive perception, carrying capacity, shortcodes and generated activities all follow. Effects can target either the score or the modifier, and an effect that sets a score to a fixed value correctly does nothing to a monster whose scaled score is already higher. Hovering the modifier names the effect responsible.
+* Ability check, skill and initiative bonuses now reach the stat block instead of only the die roll. Skill totals and passive scores include them, an ability's check bonus shows up in the sheet's ability check roll, and passive perception counts them the way dnd5e does
+* Fixed skill totals and passive scores being assembled as text rather than added up, which made them wrong everywhere except the Forge sheet.
+* An active effect that grants a skill proficiency now reaches the whole monster instead of only the die roll. The skill total and the passive score include the proficiency bonus, and a skill the build left untrained appears in the Skills row of the stat block so you can click it and roll it. Hovering it names the effect that granted it. Expertise and half-proficiency work the same way, and the highest of what the build gives and what the effect gives wins rather than the two stacking.
+* An effect that changes a skill's proficiency now overrules the one a monster's Role grants, including an effect that takes it away entirely.
+* The Proficiency block on the artifact is now "To-Hit Bonus". By default that matches proficiency, but modifiers will now make sense.
+	* A global attack bonus from an effect now shows in that block, and in the basic attack roll dialog.
+* Active effects that target `flags.gmm.blueprint` now warn in the console instead of silently half-working. The blueprint is a monster's saved definition, read before effects are applied, so an effect aimed at it could change the hover breakdown of a stat without changing the stat itself. To buff a scaling monster, target the regular D&D field instead - for example an ability score rather than the monster's level.
+	* It's possible that I add keys later that are intended to work with active effects.
+
+### Saving Throw Fixes
+* The saving throw modifiers field now works, and applies to every saving throw method
+* Added a "Custom Unique" saving throw method, which starts every save at 0 so the modifiers field sets them outright
+* Renamed the "Custom TST" saving throw method to "Custom Trained Saves"
+* Saving throw rolls now honor whatever the forge derived, rather than only the ability modifier and proficiency
+* Saving throws now include the actor's global save bonus, which was previously dropped from the stat block
+* Fixed the saving throw, ability attack and spellcasting attack/modifier values a scaling monster reports to other modules and to the vanilla NPC sheet, which were left over from before scaling was applied. This probably doesn't have a visible consequence, but matters if other content reads info about a GMMC scalar.
+
+### Scaler Attributes/Conversion
+* Initiative is now correctly calculated based on rank and role - it was static before.
+* Fixed a scaling monster's initiative total and passive initiative score being derived from its unscaled ability modifier. This was visible if you use the "Fixed Initiative Score" setting, where a monster rolled a score that ignored its scaling
+* The "Custom" rank's "Attack Bonus" field is now "Ability Bonus", which is the modifier the real ranks actually carry (elite +1, paragon +2).
+* The sheet-converted level now reads the challenge rating directly instead of the experience value dnd5e works out from it. This lets stuff like the +1 CR "in lair" change matter. It also means that GMM's level/rank calculation can matter, so a CR14 isn't always a level 14 scaler if it's also an elite or paragon.
+	* This does leave a weird edge case I'm thinking about - a CR14 monster that doesn't have legendary or lair actions becomes a level 22 grunt. Is that OK? I'm not sure yet.
+	* A converted monster with no challenge rating at all now starts at level 1 rather than level -5.
+* Passive perception now includes the monster's Perception proficiency, the way a published stat block does. A monster with expertise in Perception used to have the same passive perception as one with no training at all. This changes the printed number on every scaler that has the skill.
+* A skill's passive score now includes every bonus that reaches the check. A passive bonus configured on a skill was previously dropped, and a monster with advantage on a skill did not get dnd5e's usual +5 to its passive score for it.
+* A skill a monster's Role grants now carries its proficiency bonus in rolls started outside the Forge sheet, such as from a macro or another module. The stat block was always right. The roll was not.
+
+### Shortcodes
+* Shortcodes are now available in the effects editor (including with *Dyamic Active Effects*). They can be accessed with `@gmm.*`, where * is the shortcode. This does not support roll formula shortcodes (things like `[damage, damageDie]`) since you can just either alter the outgoing damage with an effect, or alter `@gmm.damageDie` for the scaling ability.
+* New shortcodes: featureDc and durationSaveDc. These handle DCs for abilities that will show bonuses, and are very handy for descriptions. They're calculated from the related ability of a feature, proficiency, and bonuses. durationSaveDc exists for abilities that have duration effects with their own ongoing DCs that differ from the feature's normal DC.
+
+### Misc
+* [hpMax] now targets `effective_maximum`, so is modified by temporary max HP, and effects like 2014's exhaustion. A new [naturalMax] shortcode has been added to reference the monster's max hp ignoring temp max.
+* Dropping an item onto a scaling monster no longer strips its attunement requirement.
+* Removed optional dependencies - foundry was breaking and making them all required.
+
 ## v2.0.0.10
 
 * Fixed some remaining compendium oopsies.

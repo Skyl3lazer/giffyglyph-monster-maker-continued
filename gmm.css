@@ -228,6 +228,10 @@
   cursor: pointer;
   color: var(--color-secondary-base) !important;
 }
+.gmm-artifact .value--moved {
+  text-decoration: underline dotted var(--color-secondary-base);
+  text-underline-offset: 0.125rem;
+}
 .gmm-artifact ::-webkit-scrollbar {
   width: 1rem;
 }
@@ -593,10 +597,41 @@
   font-family: "Londrina Solid";
   line-height: 1.1;
 }
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__subtitle {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__description {
   font-weight: 600;
   font-size: larger;
-  grid-column: 2;
+  flex: 1;
+  min-width: 0;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__rests {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__rests .button--rest {
+  background: none;
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  flex: 0 0 auto;
+  line-height: 1;
+  margin: 0;
+  padding: 0.15rem 0.4rem;
+  width: auto;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__rests .button--rest i {
+  margin: 0;
+}
+.gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__rests .button--rest:hover {
+  color: var(--color-secondary-base);
 }
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__name,
 .gmm-artifact.artifact--monster.artifact--monster--vanity .monster__header .monster__description {
@@ -2166,6 +2201,31 @@
   display: inline-block;
   margin-right: 0.25rem;
 }
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--duration .form-group__body {
+  display: flex;
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--duration .form-group__body input {
+  flex: 0 0 5rem;
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--duration .form-group__body select {
+  flex: 1 1 auto;
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group__body--suffixed {
+  display: flex;
+  align-items: center;
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group__body--suffixed input {
+  flex: 0 0 5rem;
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group__body--suffixed .form-group__suffix {
+  padding-left: 0.5rem;
+  color: var(--color-primary-shade-2);
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--note .form-group__body {
+  padding: 0.5rem;
+  font-style: italic;
+  color: var(--color-primary-shade-2);
+}
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--damage + .form-group--damage {
   border-top: 1px solid var(--color-tint-1);
 }
@@ -2182,6 +2242,32 @@
   color: var(--color-primary-base);
 }
 .gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--damage .damage-formula button:hover {
+  box-shadow: none;
+  color: var(--color-secondary-base);
+  cursor: pointer;
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--terrain + .form-group--terrain,
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--terrain + .form-group--zone-rule,
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--zone-rule + .form-group--terrain,
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--zone-rule + .form-group--zone-rule {
+  border-top: 1px solid var(--color-tint-1);
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--terrain .zone-row,
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--zone-rule .zone-row {
+  display: flex;
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--terrain .zone-row button,
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--zone-rule .zone-row button {
+  background: none;
+  padding: 0;
+  margin: 0;
+  border: none;
+  width: 2rem;
+  text-align: center;
+  color: var(--color-primary-base);
+}
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--terrain .zone-row button:hover,
+.gmm-blueprint.blueprint--action.blueprint--action--vanity .form-group--zone-rule .zone-row button:hover {
   box-shadow: none;
   color: var(--color-secondary-base);
   cursor: pointer;
@@ -4510,4 +4596,29 @@
   border-left: none;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+}
+
+/* Exists only because a template part must render a single root. */
+.gmm-countdown-form {
+  display: contents;
+}
+
+.gmm-countdown-preview .form-fields {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.gmm-countdown-preview figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.gmm-countdown-preview canvas {
+  border: 1px solid #7a7971;
+  border-radius: 4px;
+}
+.gmm-countdown-preview figcaption {
+  font-size: 12px;
 }

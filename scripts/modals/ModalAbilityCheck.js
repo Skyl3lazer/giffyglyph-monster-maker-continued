@@ -26,6 +26,8 @@ const ModalAbilityCheck = (function() {
 		const skill = form.get("skill");
 		const abilityBonus = ability ? Number(form.get(`ability_${ability}`)) : 0;
 		const skillBonus = skill ? Number(form.get(`skill_${skill}`)) : 0;
+		// Kept out of the ability bonus so the rolled formula accounts for itself.
+		const checkBonus = ability ? Number(form.get(`check_${ability}`)) : 0;
 
 		const rollParts = [];
 		const messageParts = [];
@@ -54,6 +56,7 @@ const ModalAbilityCheck = (function() {
 		}
 		rollParts.push(abilityBonus);
 		rollParts.push(skillBonus);
+		if (checkBonus) rollParts.push(checkBonus);
 		let rollString = rollParts.join(" + ");
 
 		if (form.get("modifiers")) {

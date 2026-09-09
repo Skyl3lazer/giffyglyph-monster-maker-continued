@@ -4,8 +4,8 @@ img: icons/skills/melee/strike-dagger-white-orange.webp
 system:
   description:
     value: >-
-      <p>The target is restrained (DC [dcPrimaryBonus + maxMod] Strength save
-      ends).</p>
+      <p>The target is restrained (DC [durationSaveDc] Strength save
+      ends).</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,23 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: oGEuCXmVavNgetlI
+    name: Restrained
+    img: systems/dnd5e/icons/svg/statuses/restrained.svg
+    type: base
+    disabled: false
+    transfer: false
+    description: ''
+    system:
+      changes: []
+    flags:
+      dae:
+        stackable: noneName
+    statuses:
+      - restrained
+    sort: 0
+    _key: '!items.effects!etlIoGEuCXmVavNg.oGEuCXmVavNgetlI'
 folder: boXIHc9udZ2dmYt0
 flags:
   core:
@@ -78,8 +94,8 @@ flags:
           name: (U) Pinning Attack
           image: icons/skills/melee/strike-dagger-white-orange.webp
           text: >-
-            <p>The target is restrained (DC [dcPrimaryBonus + maxMod] Strength
-            save ends).</p>
+            <p>The target is restrained (DC [durationSaveDc] Strength save
+            ends).</p><p><em>Core automation</em></p>
         activation:
           type: action
           cost: null
@@ -100,12 +116,17 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:
+          type: save_ends
           units: ''
           value: ''
+          save:
+            ability: str
+          reapplies: ''
+          cancel: ''
         range:
           units: ft
           value: 5

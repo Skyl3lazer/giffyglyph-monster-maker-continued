@@ -1,8 +1,8 @@
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import { formatTargetLabel, formatRangeLabel } from "./Labels.js";
+import { buildSaveDcFormula, buildDurationSaveDcFormula } from "./SaveDc.js";
 const Shortcoder = (function () {
-    /* `{ code, data?, type?, resolver? }`. `data` = dotted path on monsterData; `resolver(monsterData, itemContext)`
-     * overrides `data` (return `undefined` to leave token intact); `type: "string"` strips the brackets after sub. */
+    /* A resolver returning `undefined` leaves the token intact, and `type: "string"` strips the brackets after substitution. */
     const SHORTCODES = [
         { code: "level", data: "level.value" },
         { code: "attackBonus", data: "attack_bonus.value" },
@@ -19,6 +19,23 @@ const Shortcoder = (function () {
                 const sum = Number(dc) + Number(mod);
                 return Number.isFinite(sum) ? sum : undefined;
             }
+        },
+        {
+            code: "featureDc",
+            // The value the card already prints, so authored text and card cannot disagree.
+            resolver: (monsterData, itemContext) => {
+                if (!itemContext) return undefined;
+                for (const activity of itemContext.system?.activities ?? []) {
+                    const value = Number(activity?.save?.dc?.value);
+                    if (Number.isFinite(value) && value > 0) return value;
+                }
+                return _resolveDcFormula(buildSaveDcFormula, monsterData, itemContext);
+            }
+        },
+        {
+            code: "durationSaveDc",
+            // No activity to read: an attack-type feature's recurring save lives only in the OverTime string.
+            resolver: (monsterData, itemContext) => _resolveDcFormula(buildDurationSaveDcFormula, monsterData, itemContext)
         },
         { code: "strMod", data: "ability_modifiers.str.value" },
         { code: "dexMod", data: "ability_modifiers.dex.value" },
@@ -37,13 +54,14 @@ const Shortcoder = (function () {
         { code: "xp", data: "xp.value" },
         { code: "cr", data: "challenge_rating.value" },
         { code: "ac", data: "armor_class.value" },
-        { code: "hpMax", data: "hit_points.maximum.value" },
+        { code: "hpMax", data: "hit_points.effective_maximum" },
+        { code: "naturalMax", data: "hit_points.natural_maximum" },
         { code: "damageDie", data: "damage_per_action.die_size" },
         { code: "name", data: "name", type: "string" },
         {
             code: "target",
             type: "string",
-            // Item-scoped: blueprint target label. No item context → preserve literal token.
+            // Without an item there is no blueprint to read, so the literal token is left in place.
             resolver: (_monsterData, itemContext) => {
                 if (!itemContext) return undefined;
                 const blueprintData = itemContext?.flags?.gmm?.blueprint?.data;
@@ -53,7 +71,6 @@ const Shortcoder = (function () {
         {
             code: "range",
             type: "string",
-            // Item-scoped: blueprint range label, with reach wording for mwak/msak.
             resolver: (_monsterData, itemContext) => {
                 if (!itemContext) return undefined;
                 const blueprintData = itemContext?.flags?.gmm?.blueprint?.data;
@@ -63,6 +80,58 @@ const Shortcoder = (function () {
             }
         }
     ];
+
+    /* mathjs resolves `range` from its own scope, so an unresolved shortcode would evaluate to its source text. */
+    const SHORTCODE_WORDS = new RegExp(`\\b(${SHORTCODES.map((x) => x.code).join("|")})\\b`, "i");
+
+    /* What to write instead when a shortcode turns up in an effect change value. `maxMod` and
+     * `dcPrimaryBonus` are absent because each is one term of the save DC with no path of its own. */
+    const ROLL_DATA_EQUIVALENTS = Object.assign({
+        level: "@gmm.level",
+        attackBonus: "@gmm.attackBonus",
+        saveDc: "@gmm.saveDc",
+        damage: "@gmm.damage",
+        naturalMax: "@gmm.naturalMax",
+        proficiency: "@attributes.prof",
+        cr: "@details.cr",
+        xp: "@details.xp.value",
+        hpMax: "@attributes.hp.effectiveMax",
+        ac: "@attributes.ac.value",
+        name: "@name"
+    }, ...["str", "dex", "con", "int", "wis", "cha"].map((x) => ({
+        [`${x}Mod`]: `@abilities.${x}.mod`,
+        [`${x}Save`]: `@abilities.${x}.save.value`
+    })));
+
+    /* `[isDamaged]` and `2d6[fire]` both ship in GMMC content without being shortcodes. */
+    function findShortcodes(text) {
+        if (typeof text !== "string" || !text.includes("[")) return [];
+        const found = new Set();
+        for (const token of text.match(/\[.*?\]/g) ?? []) {
+            if (/^\[\s*\//.test(token) || /^\[\[/.test(token)) continue;
+            SHORTCODES.forEach((x) => {
+                if (new RegExp(`\\b${x.code}\\b`, "i").test(token)) found.add(x.code);
+            });
+        }
+        return [...found];
+    }
+
+    function suggestRollData(code) {
+        return ROLL_DATA_EQUIVALENTS[code] ?? null;
+    }
+
+    /* Guarded because a DC shortcode typed into the Modifier field would otherwise recurse forever. */
+    let _resolvingDc = false;
+    function _resolveDcFormula(build, monsterData, itemContext) {
+        const blueprintData = itemContext?.flags?.gmm?.blueprint?.data;
+        if (!blueprintData || !monsterData || _resolvingDc) return undefined;
+        _resolvingDc = true;
+        try {
+            return replaceShortcodes(build(blueprintData), monsterData, false, itemContext);
+        } finally {
+            _resolvingDc = false;
+        }
+    }
 
     function _resolveShortcodeValue(entry, monsterData, itemContext) {
         if (typeof entry.resolver === "function") {
@@ -104,7 +173,7 @@ const Shortcoder = (function () {
                 if(e.message.startsWith("Undefined symbol") || e.message.startsWith("Value expected") || e.name === "SyntaxError") return token;
                 console.error(e);
             }
-            //Indicates a problem with a damage shortcode, which needs to fail
+            // An unresolved damage shortcode has to produce nothing rather than a wrong formula.
             if (isDamage && token.includes("["))
                 return "";
             return token;
@@ -123,15 +192,18 @@ const Shortcoder = (function () {
 
 
     function _numberToRandom(token, value, die, maximumDice) {
+        if (SHORTCODE_WORDS.test(value)) return token;
         try {
             let valueMath = math.evaluate(value);
+            // Any other bare mathjs function name resolves the same way `range` does.
+            if (typeof valueMath === "function") return token;
             if (die != undefined) {
                 let scale = (Number(die) + 1) / 2;
                 let dice = (maximumDice) ? Math.min(Math.floor(valueMath / scale), maximumDice) : Math.floor(valueMath / scale);
                 let modifier = valueMath - Math.floor(dice * scale);
 
                 if (dice > 0) {
-                    return dice + "d" + die + ((modifier != 0) ? (" " + ((modifier > 0) ? "+ " : "− ") + Math.abs(modifier)) : "");
+                    return dice + "d" + die + ((modifier != 0) ? (" " + ((modifier > 0) ? "+ " : "- ") + Math.abs(modifier)) : "");
                 } else {
                     return valueMath;
                 }
@@ -146,6 +218,8 @@ const Shortcoder = (function () {
     }
 
     return {
+        findShortcodes: findShortcodes,
+        suggestRollData: suggestRollData,
         replaceShortcodes: replaceShortcodes,
         replaceShortcodesAndAddDamageType: replaceShortcodesAndAddDamageType,
         replaceShortcodesAndAddDamageTypeDamageObject: replaceShortcodesAndAddDamageTypeDamageObject

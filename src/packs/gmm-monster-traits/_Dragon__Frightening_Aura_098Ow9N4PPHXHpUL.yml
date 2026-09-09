@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>Enemies within 30 ft. of you have disadvantage on saving throws against
-      being frightened.</p>
+      being frightened.</p><p><em>CAT and Aura Effects automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +64,28 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: w9N4PPHXHpUL098O
+    name: Frightening Aura
+    img: icons/magic/unholy/barrier-fire-pink.webp
+    type: auraeffects.aura
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.cat.CV.frightened
+          type: custom
+          value: '1'
+      applyToSelf: false
+      combatOnly: true
+      distanceFormula: '30'
+      disposition: -1
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!098Ow9N4PPHXHpUL.w9N4PPHXHpUL098O'
 folder: 2LPDPz4IMyoc7wHb
 flags:
   core:
@@ -79,7 +100,8 @@ flags:
           image: icons/magic/unholy/barrier-fire-pink.webp
           text: >-
             <p>Enemies within 30 ft. of you have disadvantage on saving throws
-            against being frightened.</p>
+            against being frightened.</p><p><em>CAT and Aura Effects
+            automation</em></p>
         activation:
           type: ''
           cost: null
@@ -100,7 +122,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

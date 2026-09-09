@@ -5,7 +5,9 @@ system:
   description:
     value: >-
       <p>You have advantage on saving throws against effects that charm,
-      frighten, or dominate.</p>
+      frighten, or dominate.#</p><p><em># CAT
+      automation</em></p><p><em>Domination is covered by the charmed
+      condition.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +66,27 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 4T3nEMJeu63MhGqM
+    name: Proud
+    img: icons/magic/control/mouth-smile-deception-purple.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.cat.CR.charmed
+          type: custom
+          value: '1'
+        - key: flags.cat.CR.frightened
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!hGqM4T3nEMJeu63M.4T3nEMJeu63MhGqM'
 folder: 2LPDPz4IMyoc7wHb
 flags:
   core:
@@ -79,7 +101,9 @@ flags:
           image: icons/magic/control/mouth-smile-deception-purple.webp
           text: >-
             <p>You have advantage on saving throws against effects that charm,
-            frighten, or dominate.</p>
+            frighten, or dominate.#</p><p><em># CAT
+            automation</em></p><p><em>Domination is covered by the charmed
+            condition.</em></p>
         activation:
           type: ''
           cost: null
@@ -100,7 +124,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

@@ -5,7 +5,8 @@ system:
   description:
     value: >-
       <p>You have advantage on Wisdom (Perception) checks that rely on
-      hearing.</p>
+      hearing.+</p><p><em>+ Midi automation, widened to every Perception
+      check</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +65,24 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: Av9KMME9HMlRC4TC
+    name: Keen Hearing
+    img: icons/creatures/abilities/wolf-howl-moon-purple.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.advantage.skill.prc
+          type: custom
+          value: '1'
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!C4TCAv9KMME9HMlR.Av9KMME9HMlRC4TC'
 folder: ULF0u3oEC8EufxRm
 flags:
   core:
@@ -79,7 +97,8 @@ flags:
           image: icons/creatures/abilities/wolf-howl-moon-purple.webp
           text: >-
             <p>You have advantage on Wisdom (Perception) checks that rely on
-            hearing.</p>
+            hearing.+</p><p><em>+ Midi automation, widened to every Perception
+            check</em></p>
         activation:
           type: ''
           cost: null
@@ -100,7 +119,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:

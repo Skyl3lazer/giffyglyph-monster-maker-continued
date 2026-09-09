@@ -5,14 +5,15 @@ system:
   description:
     value: >-
       <p>At the start of your turn, each creature within 30 ft. of you must
-      succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving throw or
-      fall unconscious. This effect ends after 1 minute or if the creature takes
-      damage. If the saving throw succeeds by 5 or more, the creature is immune
-      to your perfume until it finishes a long rest.</p>
+      succeed on a DC [featureDc] Constitution saving throw or fall unconscious.
+      This effect ends after 1 minute or if the creature takes damage. If the
+      saving throw succeeds by 5 or more, the creature is immune to your perfume
+      until it finishes a long rest.*</p><p><em>* Core automation (roll it when
+      the trigger fires)</em></p>
     chat: ''
   source: {}
   activation:
-    type: ''
+    type: special
     cost: null
     condition: ''
   duration:
@@ -21,15 +22,15 @@ system:
   cover: null
   crewed: false
   target:
-    value: null
+    value: 30
     width: null
-    units: ''
-    type: ''
+    units: ft
+    type: radius
     prompt: true
   range:
     value: null
     long: null
-    units: ''
+    units: self
   uses:
     value: null
     max: ''
@@ -42,7 +43,7 @@ system:
     amount: null
     scale: false
   ability: null
-  actionType: ''
+  actionType: save
   attack:
     bonus: ''
     flat: false
@@ -55,7 +56,7 @@ system:
     versatile: ''
   formula: ''
   save:
-    ability: ''
+    ability: con
     dc: null
     scaling: spell
   summons: null
@@ -82,13 +83,14 @@ flags:
           image: icons/magic/nature/mushroom-glow-red.webp
           text: >-
             <p>At the start of your turn, each creature within 30 ft. of you
-            must succeed on a DC [dcPrimaryBonus + maxMod] Constitution saving
-            throw or fall unconscious. This effect ends after 1 minute or if the
-            creature takes damage. If the saving throw succeeds by 5 or more,
-            the creature is immune to your perfume until it finishes a long
-            rest.</p>
+            must succeed on a DC [featureDc] Constitution saving throw or fall
+            unconscious. This effect ends after 1 minute or if the creature
+            takes damage. If the saving throw succeeds by 5 or more, the
+            creature is immune to your perfume until it finishes a long
+            rest.*</p><p><em>* Core automation (roll it when the trigger
+            fires)</em></p>
         activation:
-          type: ''
+          type: special
           cost: null
           condition: ''
         requirements:
@@ -102,29 +104,34 @@ flags:
           target: ''
           amount: null
         attack:
-          type: ''
-          related_stat: str
+          type: save
+          related_stat: max
           bonus: ''
-          defense: ''
+          defense: con
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:
-          units: ''
-          value: ''
+          type: timed
+          units: minute
+          value: '1'
+          save:
+            ability: ''
+          reapplies: ''
+          cancel: ''
         range:
-          units: ''
+          units: self
           value: null
           long: null
         recharge:
           value: null
           is_charged: false
         target:
-          type: ''
-          units: ''
-          value: null
-          width: null
+          type: radius
+          units: ft
+          value: 30
+          width: 0
         uses:
           value: null
           max: ''

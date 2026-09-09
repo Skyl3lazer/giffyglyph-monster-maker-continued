@@ -5,7 +5,7 @@ system:
   description:
     value: >-
       <p>At the beginning of your turn, deal this damage again to the
-      target.</p>
+      target.</p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   activation:
@@ -82,7 +82,7 @@ flags:
           image: icons/skills/melee/sword-engraved-glow-purple.webp
           text: >-
             <p>At the beginning of your turn, deal this damage again to the
-            target.</p>
+            target.</p><p><em>Midi automation</em></p>
         activation:
           type: action
           cost: null
@@ -103,7 +103,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
           hit:
@@ -112,8 +112,13 @@ flags:
                 formula: '[round(damage*1.25), damageDie]'
                 type: ''
         duration:
+          type: timed
           units: round
           value: '5'
+          save:
+            ability: ''
+          reapplies: source
+          cancel: ''
         range:
           units: ''
           value: null

@@ -4,8 +4,10 @@ img: icons/commodities/treasure/totem-wooden-glowing-yellow.webp
 system:
   description:
     value: >-
-      <p>When you make an attack roll, treat it as a natural 11. You may decide
-      this after seeing the initial result.</p>
+      <p>When you make an attack roll, treat it as a natural 11.+ You may decide
+      this after seeing the initial result.</p><p><em>+ Midi
+      automation</em></p><p><em>Shown when the attack misses on a die
+      below 11.</em></p>
     chat: ''
   source: {}
   activation:
@@ -64,7 +66,33 @@ system:
   recharge:
     value: null
     charged: false
-effects: []
+effects:
+  - _id: 3BROtA42SPRgegTv
+    name: Reliable Attacker
+    img: icons/commodities/treasure/totem-wooden-glowing-yellow.webp
+    type: base
+    disabled: false
+    transfer: true
+    description: ''
+    system:
+      changes:
+        - key: flags.midi-qol.optional.ReliableAttacker.attack.fail.all
+          type: custom
+          value: function.gmmc.rolls.reliableAttacker
+        - key: flags.midi-qol.optional.ReliableAttacker.activation
+          type: custom
+          value: workflow.diceRoll < 11
+        - key: flags.midi-qol.optional.ReliableAttacker.count
+          type: custom
+          value: ItemUses.exactNameMatch.(U) Reliable Attacker
+        - key: flags.midi-qol.optional.ReliableAttacker.label
+          type: custom
+          value: Reliable Attacker
+    flags:
+      dae:
+        stackable: noneName
+    sort: 0
+    _key: '!items.effects!egTv3BROtA42SPRg.3BROtA42SPRgegTv'
 folder: Tnf0D7n9MHPnMz8r
 flags:
   core:
@@ -78,8 +106,10 @@ flags:
           name: (U) Reliable Attacker
           image: icons/commodities/treasure/totem-wooden-glowing-yellow.webp
           text: >-
-            <p>When you make an attack roll, treat it as a natural 11. You may
-            decide this after seeing the initial result.</p>
+            <p>When you make an attack roll, treat it as a natural 11.+ You may
+            decide this after seeing the initial result.</p><p><em>+ Midi
+            automation</em></p><p><em>Shown when the attack misses on a
+            die below 11.</em></p>
         activation:
           type: ''
           cost: null
@@ -100,7 +130,7 @@ flags:
           bonus: ''
           defense: ''
           miss:
-            damage: ''
+            percentage: null
           versatile:
             damage: ''
         duration:
