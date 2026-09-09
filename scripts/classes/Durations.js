@@ -333,6 +333,13 @@ const Durations = (function () {
 		return carriers;
 	}
 
+	/* Ordered rather than equal, so a rewound tracker advancing again cannot tick a round twice. A round
+	 * already spent stays spent, because a tick the GM has to apply by hand beats silent double damage. */
+	function _tickedAlready(flag, combat) {
+		const [id, round] = String(flag?.lastTick ?? "").split(":");
+		return (id === combat.id) && (Number(round) >= Number(combat.round));
+	}
+
 	/* The one recurring type GMMC runs itself. midi and DAE both key a repeat to whoever holds the
 	 * effect. This one is keyed to whoever inflicted it. */
 	async function _onCombatTurnChange(combat) {
@@ -344,8 +351,7 @@ const Durations = (function () {
 		for (const effect of _sourceReapplyCarriers(combat, source)) {
 			try {
 				const flag = effect.flags[GMM_MODULE_TITLE][GMM_DURATION_FLAG];
-				// A rewound round would otherwise tick twice.
-				if (flag.lastTick === tick) continue;
+				if (_tickedAlready(flag, combat)) continue;
 				await effect.setFlag(GMM_MODULE_TITLE, GMM_DURATION_FLAG, { ...flag, lastTick: tick });
 				await _applyDamage(effect.parent, flag.formula, flag.damageType, effect.name);
 			} catch (error) {
