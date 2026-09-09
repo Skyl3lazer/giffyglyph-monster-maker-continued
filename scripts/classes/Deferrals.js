@@ -215,8 +215,7 @@ const Deferrals = (function () {
 						remaining: deferral.timer,
 						cancel: deferral.cancel ?? "",
 						templateUuids,
-						// The planting turn is not one of its ticks.
-						lastTick: `${combat.id}:${combat.round}`
+						lastTick: (combat.combatant?.id === combatant.id) ? `${combat.id}:${combat.round}` : null
 					}
 				}
 			}
@@ -257,7 +256,13 @@ const Deferrals = (function () {
 		return _clockEffects(actor).find(e => _readClock(e)?.itemId === item.id) ?? null;
 	}
 
-	/* `lastTick` guards against `combatTurnChange` firing more than once for one turn. */
+	/* Ordered rather than equal, so a rewound tracker advancing again cannot tick a round twice. */
+	function _tickedAlready(clock, combat) {
+		const [id, round] = String(clock?.lastTick ?? "").split(":");
+		return (id === combat.id) && (Number(round) >= Number(combat.round));
+	}
+
+	/* `lastTick` guards a turn against ticking twice, and a replayed round against ticking at all. */
 	async function _onCombatTurnChange(combat, _prior, _current) {
 		if (!game.users.activeGM?.isSelf || !_isEnabled()) return;
 		const actor = combat?.combatant?.actor;
@@ -271,7 +276,7 @@ const Deferrals = (function () {
 				if (!(current > 0)) continue;
 
 				const tick = `${combat.id}:${combat.round}`;
-				if (clock.lastTick === tick) continue;
+				if (_tickedAlready(clock, combat)) continue;
 
 				const remaining = current - 1;
 				const update = { flags: { [GMM_MODULE_TITLE]: { [GMM_CLOCK_FLAG]: { ...clock, remaining, lastTick: tick } } } };

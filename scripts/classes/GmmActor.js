@@ -90,7 +90,7 @@ const GmmActor = (function () {
 		// A Role's grant is a floor Foundry cannot see unless it is on the field before Changes apply.
 		actor._gmmBaseSkillValue = baseAttributes.skills;
 		GMM_5E_SKILLS.forEach((x) => {
-			// A partial stored `skills` object leaves keys absent, and nothing repairs one.
+			// dnd5e backfills every skill key however partial the stored object is, so this guard has no live case.
 			if (actorData.skills[x.foundry]) actorData.skills[x.foundry].value = baseAttributes.skills[x.foundry];
 		});
 		_applyRoleSpeedBonus(actorData, monsterBlueprint);
