@@ -81,24 +81,23 @@ const Shortcoder = (function () {
         }
     ];
 
-    /* What to write instead when a shortcode turns up in an effect change value. */
+    /* What to write instead when a shortcode turns up in an effect change value. `maxMod` and
+     * `dcPrimaryBonus` are absent because each is one term of the save DC with no path of its own. */
     const ROLL_DATA_EQUIVALENTS = Object.assign({
         level: "@gmm.level",
         attackBonus: "@gmm.attackBonus",
         saveDc: "@gmm.saveDc",
-        dcPrimaryBonus: "@gmm.saveDc",
-        maxMod: "@gmm.saveDc",
         damage: "@gmm.damage",
         naturalMax: "@gmm.naturalMax",
         proficiency: "@attributes.prof",
         cr: "@details.cr",
         xp: "@details.xp.value",
-        hpMax: "@attributes.hp.max",
+        hpMax: "@attributes.hp.effectiveMax",
         ac: "@attributes.ac.value",
         name: "@name"
     }, ...["str", "dex", "con", "int", "wis", "cha"].map((x) => ({
         [`${x}Mod`]: `@abilities.${x}.mod`,
-        [`${x}Save`]: `@abilities.${x}.save`
+        [`${x}Save`]: `@abilities.${x}.save.value`
     })));
 
     /* `[isDamaged]` and `2d6[fire]` both ship in GMMC content without being shortcodes. */
