@@ -7,6 +7,10 @@
 [![BlueSky](https://img.shields.io/badge/%40Skyl3lazer_on_BlueSky-grey?logo=bluesky&logoColor=%230285FF&labelColor=grey)](https://bsky.app/profile/skyl3lazer.bsky.social)
 [![Discord](https://img.shields.io/badge/contact-me-blue?logo=discord&logoColor=white)](https://discord.com/channels/@skyl3lazer)
 
+## v2.0.1.5
+
+- Marked dnd 6.0 as incompatible
+
 ## v2.0.1.4
 
 ### Automation Update Highlights
