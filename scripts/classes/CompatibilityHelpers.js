@@ -52,8 +52,12 @@ const CompatibilityHelpers = (function () {
 		return Roll.replaceFormulaData(...args);
 		
 	}
+	function dnd5eAtLeast(version) {
+		const current = globalThis.dnd5e?.version ?? game.system?.version ?? "";
+		return String(current).localeCompare(String(version), undefined, { numeric: true, sensitivity: 'base' }) >= 0;
+	}
 	function weight(w, display) {
-		if (isNaN(parseFloat(w)) && dnd5e.version.localeCompare(3.2, undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
+		if (isNaN(parseFloat(w)) && dnd5eAtLeast(3.2)) {
 			let d = display ? display == "imperial" ? "lb" : "kg" : w.units;
 			return dnd5e.utils.convertWeight(w.value, w.units, d);
 		}
@@ -61,7 +65,7 @@ const CompatibilityHelpers = (function () {
 		
 	}
 	function getEncumbranceMultiplier(system) {
-		if (dnd5e.version.localeCompare(3, undefined, { numeric: true, sensitivity: 'base' }) >= 0) {
+		if (dnd5eAtLeast(3)) {
 			if (system === "imperial") {
 				return CONFIG.DND5E.encumbrance.threshold.maximum.imperial;
 			} else if (system === "metric") {
@@ -104,6 +108,7 @@ const CompatibilityHelpers = (function () {
 		setProperty: setProperty,
 		getProperty: getProperty,
 		clamped: clamped,
+		dnd5eAtLeast: dnd5eAtLeast,
 		mergeObject: mergeObject,
 		replaceFormulaData: replaceFormulaData,
 		weight: weight,

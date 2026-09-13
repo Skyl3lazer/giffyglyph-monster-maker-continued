@@ -1,5 +1,6 @@
 import Shortcoder from "./Shortcoder.js";
 import AutomationHelpers from "./AutomationHelpers.js";
+import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
 
 /* Every recurring type but one belongs to midi or DAE. An absent module degrades a type to a plain
@@ -99,7 +100,8 @@ const Durations = (function () {
 		const rules = _rules(duration.type);
 		const needs = [];
 		if (rules.hasSave || duration.reapplies === "target") needs.push("midi-qol");
-		if (rules.expiry) needs.push("dae");
+		// dnd5e 6 resolves the pseudo-expiries itself. Before that only DAE knows what they mean.
+		if (rules.expiry && !CompatibilityHelpers.dnd5eAtLeast("6.0")) needs.push("dae");
 		return {
 			duration,
 			rows: {
