@@ -90,9 +90,9 @@ Hooks.once("init", function() {
 
 	Hooks.on("updateSetting", (setting, data, options, userId) => {
 		if ( setting.key === "core.sheetClasses" ) {
-			game.actors.forEach(x => x.prepareData());
-			game.items.forEach(x => x.prepareData());
-			game.scenes.forEach(x => x.tokens.forEach(y => y.actor.prepareData()));
+			game.actors.forEach(x => x.reset());
+			game.items.forEach(x => x.reset());
+			game.scenes.forEach(x => x.tokens.forEach(y => y.actor?.reset()));
 		}
 	});
 
