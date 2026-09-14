@@ -68,7 +68,7 @@ const GmmActor = (function () {
 		const baseAttributes = MonsterForge.createBaseAttributes(monsterBlueprint);
 		// Seeded here so a Change written as a formula over @gmm.* has numbers to resolve against.
 		actor._gmmRollData = MonsterForge.createBaseRollData(monsterBlueprint);
-		actorData.attributes.ac.calc = "natural";
+		CompatibilityHelpers.setArmorClassCalculation(actorData.attributes.ac, "natural");
 		actorData.attributes.ac.flat = baseAttributes.armor_class.value;
 		actorData.attributes.ac.base = baseAttributes.armor_class.value;
 		actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, baseAttributes);
@@ -137,7 +137,7 @@ const GmmActor = (function () {
 	 * speed tooltip exists to avoid. */
 	function _stashAppliedMovement(actor) {
 		const movement = actor.system?.attributes?.movement ?? {};
-		actor._gmmAppliedMovement = Object.fromEntries(GMM_5E_SPEEDS.map((x) => [x, movement[x]]));
+		actor._gmmAppliedMovement = Object.fromEntries(GMM_5E_SPEEDS.map((x) => [x, CompatibilityHelpers.movementSpeed(movement, x)]));
 	}
 
 	function _foldActorBonuses(actor, rollData) {
@@ -190,7 +190,7 @@ const GmmActor = (function () {
 		// prepareInitiative derived these from the pre-scaling ability modifier, before init.mod replaced it.
 		const alert = actor.flags?.dnd5e?.initiativeAlert && (dnd5e.settings?.rulesVersion === "legacy") ? 5 : 0;
 		init.total = init.mod + initBonus + initCheckBonus + (actorData.attributes.quality?.value ?? 0) + alert
-			+ (Number.isNumeric(init.prof.term) ? init.prof.flat : 0);
+			+ (Number.isNumeric(init.prof.term) ? init.prof.flat : 0) + (actor.conditionRollReduction ?? 0);
 		init.score = (CONFIG.DND5E.skillPassive?.base ?? 10) + init.total
 			+ ((init.roll?.mode ?? 0) * (CONFIG.DND5E.skillPassive?.modifier ?? 5));
 	}
@@ -441,7 +441,7 @@ const GmmActor = (function () {
 			CompatibilityHelpers.setPreparedAttack(ability, proficiency, actor);
 			// The save bonus already carries the forge's excess, so recomputing cannot lose it.
 			ability.save.value = ability.mod + CompatibilityHelpers.preparedSaveBonus(ability)
-				+ (Number.isNumeric(saveProf.term) ? saveProf.flat : 0);
+				+ (Number.isNumeric(saveProf.term) ? saveProf.flat : 0) + (actor.conditionRollReduction ?? 0);
 		});
 	}
 

@@ -4,6 +4,7 @@ import { GMM_5E_DAMAGE_TYPES } from "../consts/Gmm5eDamageTypes.js";
 import { GMM_5E_LANGUAGES } from "../consts/Gmm5eLanguages.js";
 import { GMM_5E_SIZES } from "../consts/Gmm5eSizes.js";
 import { GMM_5E_SKILLS } from "../consts/Gmm5eSkills.js";
+import { GMM_5E_SPEEDS } from "../consts/Gmm5eSpeeds.js";
 import { GMM_5E_UNITS } from "../consts/Gmm5eUnits.js";
 import { GMM_MONSTER_BLUEPRINT } from "../consts/GmmMonsterBlueprint.js";
 import { GMM_MONSTER_RANKS, GMM_MONSTER_RANK_AUTHORED_KEYS } from "../consts/GmmMonsterRanks.js";
@@ -45,12 +46,7 @@ const MonsterBlueprint = (function () {
 		{ from: "senses.other", to: "system.attributes.senses.special" },
 		{ from: "senses.tremorsense", to: "system.attributes.senses.ranges.tremorsense" },
 		{ from: "senses.truesight", to: "system.attributes.senses.ranges.truesight" },
-		{ from: "speeds.burrow", to: "system.attributes.movement.burrow" },
 		{ from: "speeds.can_hover", to: "system.attributes.movement.hover" },
-		{ from: "speeds.climb", to: "system.attributes.movement.climb" },
-		{ from: "speeds.fly", to: "system.attributes.movement.fly" },
-		{ from: "speeds.swim", to: "system.attributes.movement.swim" },			
-		{ from: "speeds.walk", to: "system.attributes.movement.walk" },
 		{ from: "spellbook.slots.1.current", to: "system.spells.spell1.value" },
 		{ from: "spellbook.slots.1.maximum", to: "system.spells.spell1.override" },
 		{ from: "spellbook.slots.2.current", to: "system.spells.spell2.value" },
@@ -232,6 +228,10 @@ const MonsterBlueprint = (function () {
 			blueprintData.legendary_actions.items = [];
 			blueprintData.reactions.items = [];
 			blueprintData.senses.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.senses.units)?.name;
+			GMM_5E_SPEEDS.forEach((mode) => {
+				const speed = CompatibilityHelpers.movementSpeed(stored.system.attributes.movement, mode);
+				if (speed !== undefined) blueprintData.speeds[mode] = speed;
+			});
 			blueprintData.speeds.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.movement.units)?.name;
 			blueprintData.spellbook.spellcasting.ability = (stored.system.attributes.spellcasting) ? stored.system.attributes.spellcasting : "int";
 			// First-time conversion: vanilla NPCs with spell items usually have spell.level=0. Mirror combat level so casters scale.
@@ -390,6 +390,11 @@ const MonsterBlueprint = (function () {
 				CompatibilityHelpers.setProperty(actorData, "system.details.alignment", custom);
 			}
 		}
+
+		GMM_5E_SPEEDS.forEach((mode) => {
+			if (!CompatibilityHelpers.hasProperty(blueprint.data, `speeds.${mode}`)) return;
+			CompatibilityHelpers.setProperty(actorData, CompatibilityHelpers.movementSpeedPath(mode), blueprint.data.speeds[mode]);
+		});
 
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "speeds.units")) {
 			const unit = GMM_5E_UNITS.find((x) => x.name == blueprint.data.speeds.units);

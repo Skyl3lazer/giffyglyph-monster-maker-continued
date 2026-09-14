@@ -120,11 +120,29 @@ const CompatibilityHelpers = (function () {
 		else ability.saveProf = proficiency;
 	}
 
+	/* dnd5e 6.0 moved the movement modes into a `speeds` mapping. Its source migration deletes the legacy key. */
+	function movementSpeed(movement, mode) {
+		return movement?.speeds?.[mode] ?? movement?.[mode];
+	}
+	function movementSpeedPath(mode) {
+		return dnd5eAtLeast(6) ? `system.attributes.movement.speeds.${mode}` : `system.attributes.movement.${mode}`;
+	}
+	// An effect authored against either spelling lands, because the deprecation shim still carries the old one.
+	function movementSpeedKeys(mode) {
+		return [`system.attributes.movement.${mode}`, `system.attributes.movement.speeds.${mode}`];
+	}
+
 	/* dnd5e 6.0 made `attack` a roll-configuration object. Its total carries two terms the old number did not. */
 	function setPreparedAttack(ability, proficiency, actor) {
 		if (typeof ability.attack !== "object") ability.attack = ability.mod + proficiency;
 		else ability.attack.value = ability.mod + proficiency + (ability.attack.bonus ?? 0)
 			+ (actor?.conditionRollReduction ?? 0);
+	}
+
+	/* dnd5e 6.0 takes the maximum over every formula in `ac.calcs`, where migration leaves the armored and unarmored defaults. */
+	function setArmorClassCalculation(acData, calc) {
+		acData.calc = calc;
+		if (acData.calcs instanceof Set) acData.calcs = new Set([calc]);
 	}
 
 	/* ApplicationV2 hands no FormData to callers outside its own submit path. */
@@ -171,7 +189,11 @@ const CompatibilityHelpers = (function () {
 		setPreparedSaveBonus: setPreparedSaveBonus,
 		preparedSaveProf: preparedSaveProf,
 		setPreparedSaveProf: setPreparedSaveProf,
+		movementSpeed: movementSpeed,
+		movementSpeedPath: movementSpeedPath,
+		movementSpeedKeys: movementSpeedKeys,
 		setPreparedAttack: setPreparedAttack,
+		setArmorClassCalculation: setArmorClassCalculation,
 		readInputs: readInputs,
 		rollMessageOptions: rollMessageOptions
 	};
