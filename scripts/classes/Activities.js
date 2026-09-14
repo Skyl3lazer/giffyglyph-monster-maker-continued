@@ -1267,12 +1267,28 @@ const Activities = (function () {
             : null;
         if (actor && actionType) {
             /* Pushed as a formula, not a simplified number: this field permits dice (Bless is `1d4`). */
-            const actorBonus = actor.system?.bonuses?.[actionType]?.attack;
-            if (actorBonus && !/^0+$/.test(String(actorBonus).trim())) parts.push(String(actorBonus));
+            const actorBonus = _getActorAttackBonus(activity, actor, actionType, relatedStat, attackMode);
+            if (actorBonus && !/^0+$/.test(actorBonus.trim())) parts.push(actorBonus);
         }
-        if (typeof actor?.addRollExhaustion === "function") actor.addRollExhaustion(parts, data);
+        if (typeof actor?.addConditionRollReduction === "function") actor.addConditionRollReduction(parts, data);
+        else if (typeof actor?.addRollExhaustion === "function") actor.addRollExhaustion(parts, data);
 
         return { parts, data };
+    }
+
+    /* 6.0 spreads the actor's attack bonuses across `rolls.*` and folds AppliedRules in with them. */
+    function _getActorAttackBonus(activity, actor, actionType, relatedStat, attackMode) {
+        const field = dnd5e.dataModels?.shared?.D20RollModificationField;
+        if (typeof field?.combineFields !== "function") return String(actor.system?.bonuses?.[actionType]?.attack ?? "");
+
+        const rollData = activity.getRollData({ roll: { ability: relatedStat || undefined, attackMode: attackMode } });
+        const ability = rollData.roll?.ability;
+        const keyPaths = ["rolls.attack", `rolls.attack.${actionType}`];
+        if (ability) keyPaths.unshift(`abilities.${ability}.attack.roll`);
+        const { bonus } = field.combineFields(actor.system, keyPaths, {
+            rules: { category: "attack", actor: actor, item: activity.item, rollData: rollData }
+        });
+        return String(bonus ?? "");
     }
 
     function injectAttackBonusParts(rollConfig, activity, monsterData) {

@@ -145,7 +145,7 @@ const GmmActor = (function () {
 		const monsterBlueprint = actor.flags.gmm.blueprint;
 		const monsterArtifact = actor.flags.gmm.monster;
 		const monsterData = monsterArtifact.data;
-		const globalSkillBonus = dnd5e.utils.simplifyBonus(actorData.bonuses?.abilities?.skill, rollData);
+		const globalSkillBonus = dnd5e.utils.simplifyBonus(CompatibilityHelpers.globalAbilityBonus(actorData, "skill"), rollData);
 		GMM_5E_SKILLS.forEach((x) => {
 			const skill = actorData.skills[x.foundry];
 			const monsterSkill = monsterData.skills.find((y) => y.code == x.name);
@@ -162,19 +162,19 @@ const GmmActor = (function () {
 				skill.passive = monsterData.passive_perception.value;
 			}
 		});
-		const globalSaveBonus = dnd5e.utils.simplifyBonus(actorData.bonuses?.abilities?.save, rollData);
+		const globalSaveBonus = dnd5e.utils.simplifyBonus(CompatibilityHelpers.globalAbilityBonus(actorData, "save"), rollData);
 		GMM_5E_ABILITIES.forEach((x) => {
 			const ability = actorData.abilities[x];
-			const abilitySaveBonus = dnd5e.utils.simplifyBonus(ability.bonuses.save, rollData);
+			const abilitySaveBonus = dnd5e.utils.simplifyBonus(CompatibilityHelpers.abilitySaveBonus(ability), rollData);
 			monsterData.saving_throws[x].add(abilitySaveBonus + globalSaveBonus, "bonus");
 
-			// The roll never sees the artifact, so the forge's excess over mod + saveProf goes through bonuses.save.
+			// The roll never sees the artifact, so the forge's excess over mod + saveProf goes through the save bonus.
 			const proficiency = monsterBlueprint.data.trained_saves[x].trained ? monsterData.proficiency_bonus.value : 0;
 			const derived = monsterData.ability_modifiers[x].value + proficiency + abilitySaveBonus + globalSaveBonus;
 			const delta = monsterData.saving_throws[x].value - derived;
 			if (delta) {
-				ability.bonuses.save = _appendBonus(ability.bonuses.save, delta);
-				// prepareAbilities consumed bonuses.save before this wrote to it, so both totals follow by hand.
+				CompatibilityHelpers.setAbilitySaveBonus(ability, _appendBonus(CompatibilityHelpers.abilitySaveBonus(ability), delta));
+				// prepareAbilities consumed the save bonus before this wrote to it, so both totals follow by hand.
 				ability.saveBonus += delta;
 				ability.save.value += delta;
 			}
@@ -217,8 +217,9 @@ const GmmActor = (function () {
 	/* A block that reads "to Attacks/Spells" can only show what every action type gets, so an
 	 * action-type-specific bonus (`bonuses.weapon.attack`, which DAE writes to mwak/rwak alone) is excluded. */
 	function _getGlobalAttackBonus(actorData, rollData) {
-		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => dnd5e.utils.simplifyBonus(actorData.bonuses?.[x]?.attack, rollData));
-		return Math.min(...bonuses);
+		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => dnd5e.utils.simplifyBonus(CompatibilityHelpers.globalAttackBonus(actorData, x), rollData));
+		// dnd5e 6.0 added an untyped sibling that every action type gets on top of its own.
+		return Math.min(...bonuses) + dnd5e.utils.simplifyBonus(actorData.rolls?.attack?.bonus, rollData);
 	}
 
 	/* dnd5e pushes this onto the first damage part of an activity's roll, so the same least-common rule

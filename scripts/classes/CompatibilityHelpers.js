@@ -80,6 +80,21 @@ const CompatibilityHelpers = (function () {
 		}
 	}
 
+	/* dnd5e 6.0 moved every bonus formula from `system.bonuses.*` onto `system.rolls.*`. */
+	function globalAbilityBonus(actorData, kind) {
+		return actorData?.rolls?.ability?.[kind]?.bonus ?? actorData?.bonuses?.abilities?.[kind];
+	}
+	function globalAttackBonus(actorData, actionType) {
+		return actorData?.rolls?.attack?.[actionType]?.bonus ?? actorData?.bonuses?.[actionType]?.attack;
+	}
+	function abilitySaveBonus(ability) {
+		return ability?.save?.roll?.bonus ?? ability?.bonuses?.save;
+	}
+	function setAbilitySaveBonus(ability, formula) {
+		if (ability?.save?.roll && ("bonus" in ability.save.roll)) ability.save.roll.bonus = formula;
+		else ability.bonuses.save = formula;
+	}
+
 	/* ApplicationV2 hands no FormData to callers outside its own submit path. */
 	function readInputs(container) {
 		const fd = new FormData();
@@ -113,6 +128,10 @@ const CompatibilityHelpers = (function () {
 		replaceFormulaData: replaceFormulaData,
 		weight: weight,
 		getEncumbranceMultiplier: getEncumbranceMultiplier,
+		globalAbilityBonus: globalAbilityBonus,
+		globalAttackBonus: globalAttackBonus,
+		abilitySaveBonus: abilitySaveBonus,
+		setAbilitySaveBonus: setAbilitySaveBonus,
 		readInputs: readInputs,
 		rollMessageOptions: rollMessageOptions
 	};
