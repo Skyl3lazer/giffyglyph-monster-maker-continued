@@ -95,6 +95,32 @@ const CompatibilityHelpers = (function () {
 		else ability.bonuses.save = formula;
 	}
 
+	/* dnd5e 6.0 moved the prepared ability totals onto `check` and `save`, leaving getter-only shims behind. */
+	function preparedCheckBonus(ability) {
+		return ability?.check?.bonus ?? ability?.checkBonus;
+	}
+	function preparedSaveBonus(ability) {
+		return ability?.save?.bonus ?? ability?.saveBonus;
+	}
+	function setPreparedSaveBonus(ability, value) {
+		if ("bonus" in ability.save) ability.save.bonus = value;
+		else ability.saveBonus = value;
+	}
+	function preparedSaveProf(ability) {
+		return ability?.save?.prof ?? ability?.saveProf;
+	}
+	function setPreparedSaveProf(ability, proficiency) {
+		if ("prof" in ability.save) ability.save.prof = proficiency;
+		else ability.saveProf = proficiency;
+	}
+
+	/* dnd5e 6.0 made `attack` a roll-configuration object. Its total carries two terms the old number did not. */
+	function setPreparedAttack(ability, proficiency, actor) {
+		if (typeof ability.attack !== "object") ability.attack = ability.mod + proficiency;
+		else ability.attack.value = ability.mod + proficiency + (ability.attack.bonus ?? 0)
+			+ (actor?.conditionRollReduction ?? 0);
+	}
+
 	/* ApplicationV2 hands no FormData to callers outside its own submit path. */
 	function readInputs(container) {
 		const fd = new FormData();
@@ -132,6 +158,12 @@ const CompatibilityHelpers = (function () {
 		globalAttackBonus: globalAttackBonus,
 		abilitySaveBonus: abilitySaveBonus,
 		setAbilitySaveBonus: setAbilitySaveBonus,
+		preparedCheckBonus: preparedCheckBonus,
+		preparedSaveBonus: preparedSaveBonus,
+		setPreparedSaveBonus: setPreparedSaveBonus,
+		preparedSaveProf: preparedSaveProf,
+		setPreparedSaveProf: setPreparedSaveProf,
+		setPreparedAttack: setPreparedAttack,
 		readInputs: readInputs,
 		rollMessageOptions: rollMessageOptions
 	};

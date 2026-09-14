@@ -175,7 +175,7 @@ const GmmActor = (function () {
 			if (delta) {
 				CompatibilityHelpers.setAbilitySaveBonus(ability, _appendBonus(CompatibilityHelpers.abilitySaveBonus(ability), delta));
 				// prepareAbilities consumed the save bonus before this wrote to it, so both totals follow by hand.
-				ability.saveBonus += delta;
+				CompatibilityHelpers.setPreparedSaveBonus(ability, CompatibilityHelpers.preparedSaveBonus(ability) + delta);
 				ability.save.value += delta;
 			}
 		});
@@ -183,7 +183,7 @@ const GmmActor = (function () {
 		// init.mod was copied out before this, so folding the bonuses in here cannot double-count the roll.
 		const init = actorData.attributes.init;
 		const initBonus = dnd5e.utils.simplifyBonus(init.bonus, rollData);
-		const initCheckBonus = actorData.abilities[monsterData.initiative.ability]?.checkBonus ?? 0;
+		const initCheckBonus = CompatibilityHelpers.preparedCheckBonus(actorData.abilities[monsterData.initiative.ability]) ?? 0;
 		monsterData.initiative.add(initBonus, game.i18n.format('gmm.common.derived_source.relative_modifier'));
 		monsterData.initiative.add(initCheckBonus, game.i18n.format('gmm.common.derived_source.check_bonus'));
 
@@ -296,7 +296,7 @@ const GmmActor = (function () {
 
 	/* dnd5e resolves these from the bonus formulas in its own derived pass, so they arrive final. */
 	function _collectCheckBonuses(actorData) {
-		return Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, actorData.abilities[x].checkBonus ?? 0]));
+		return Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, CompatibilityHelpers.preparedCheckBonus(actorData.abilities[x]) ?? 0]));
 	}
 
 	/* _parseSkills stamps the default ability, and dnd5e resolves the one the check actually uses. */
@@ -387,7 +387,7 @@ const GmmActor = (function () {
 		const saveProficiencies = {};
 		GMM_5E_ABILITIES.forEach((x) => {
 			abilityModifiers[x] = Number(actorData.abilities[x]?.mod) || 0;
-			saveProficiencies[x] = Number(actorData.abilities[x]?.saveProf?.multiplier) || 0;
+			saveProficiencies[x] = Number(CompatibilityHelpers.preparedSaveProf(actorData.abilities[x])?.multiplier) || 0;
 		});
 		// effectValue is the multiplier a Change left behind, before prepareSkill collapsed it.
 		const moved = proficiency !== actor._gmmBaseProf
@@ -436,11 +436,12 @@ const GmmActor = (function () {
 
 		GMM_5E_ABILITIES.forEach((x) => {
 			const ability = actorData.abilities[x];
-			ability.saveProf = new Proficiency(proficiency, saveProficiencies[x], ability.saveProf.rounding !== "up");
-			ability.attack = ability.mod + proficiency;
-			// saveBonus already carries the forge's excess, so recomputing cannot lose it.
-			ability.save.value = ability.mod + ability.saveBonus
-				+ (Number.isNumeric(ability.saveProf.term) ? ability.saveProf.flat : 0);
+			const saveProf = new Proficiency(proficiency, saveProficiencies[x], CompatibilityHelpers.preparedSaveProf(ability).rounding !== "up");
+			CompatibilityHelpers.setPreparedSaveProf(ability, saveProf);
+			CompatibilityHelpers.setPreparedAttack(ability, proficiency, actor);
+			// The save bonus already carries the forge's excess, so recomputing cannot lose it.
+			ability.save.value = ability.mod + CompatibilityHelpers.preparedSaveBonus(ability)
+				+ (Number.isNumeric(saveProf.term) ? saveProf.flat : 0);
 		});
 	}
 
