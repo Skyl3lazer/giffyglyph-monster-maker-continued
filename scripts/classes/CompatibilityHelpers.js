@@ -87,12 +87,18 @@ const CompatibilityHelpers = (function () {
 	function globalAttackBonus(actorData, actionType) {
 		return actorData?.rolls?.attack?.[actionType]?.bonus ?? actorData?.bonuses?.[actionType]?.attack;
 	}
+	function globalDamageBonus(actorData, actionType) {
+		return actorData?.rolls?.damage?.[actionType]?.bonus ?? actorData?.bonuses?.[actionType]?.damage;
+	}
 	function abilitySaveBonus(ability) {
 		return ability?.save?.roll?.bonus ?? ability?.bonuses?.save;
 	}
 	function setAbilitySaveBonus(ability, formula) {
 		if (ability?.save?.roll && ("bonus" in ability.save.roll)) ability.save.roll.bonus = formula;
 		else ability.bonuses.save = formula;
+	}
+	function skillCheckBonus(skill) {
+		return skill?.roll?.bonus ?? skill?.bonuses?.check;
 	}
 
 	/* dnd5e 6.0 moved the prepared ability totals onto `check` and `save`, leaving getter-only shims behind. */
@@ -156,8 +162,10 @@ const CompatibilityHelpers = (function () {
 		getEncumbranceMultiplier: getEncumbranceMultiplier,
 		globalAbilityBonus: globalAbilityBonus,
 		globalAttackBonus: globalAttackBonus,
+		globalDamageBonus: globalDamageBonus,
 		abilitySaveBonus: abilitySaveBonus,
 		setAbilitySaveBonus: setAbilitySaveBonus,
+		skillCheckBonus: skillCheckBonus,
 		preparedCheckBonus: preparedCheckBonus,
 		preparedSaveBonus: preparedSaveBonus,
 		setPreparedSaveBonus: setPreparedSaveBonus,

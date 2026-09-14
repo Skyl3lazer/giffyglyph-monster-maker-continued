@@ -151,7 +151,7 @@ const GmmActor = (function () {
 			const monsterSkill = monsterData.skills.find((y) => y.code == x.name);
 			if (monsterSkill) {
 				// The ability and global check bonuses reach every check, so they live on check_modifiers instead.
-				monsterSkill.add(dnd5e.utils.simplifyBonus(skill.bonuses.check, rollData), game.i18n.format('gmm.common.derived_source.check_bonus'));
+				monsterSkill.add(dnd5e.utils.simplifyBonus(CompatibilityHelpers.skillCheckBonus(skill), rollData), game.i18n.format('gmm.common.derived_source.check_bonus'));
 				monsterSkill.add(globalSkillBonus, game.i18n.format('gmm.common.derived_source.skill_bonus'));
 			}
 			if (x.name === "perception") {
@@ -226,7 +226,7 @@ const GmmActor = (function () {
 	 * applies. References resolve here because nothing downstream that prints or rolls the formula has roll data. */
 	function _getGlobalDamageBonus(actorData, rollData) {
 		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => {
-			const raw = String(actorData.bonuses?.[x]?.damage ?? "").trim();
+			const raw = String(CompatibilityHelpers.globalDamageBonus(actorData, x) ?? "").trim();
 			const formula = Roll.replaceFormulaData(raw, rollData ?? {}, { missing: "0" });
 			return { formula: formula, average: _averageOf(formula, rollData) };
 		});
