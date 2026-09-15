@@ -35,6 +35,9 @@ effects:
       has disadvantage.
     disabled: false
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -92,6 +95,9 @@ effects:
       creature have advantage.
     disabled: false
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null

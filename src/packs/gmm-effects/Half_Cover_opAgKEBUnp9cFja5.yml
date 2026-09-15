@@ -20,4 +20,8 @@ flags:
   gmm:
     rarity: common
     terrain: half_cover
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!opAgKEBUnp9cFja5'

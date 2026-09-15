@@ -86,6 +86,10 @@ effects:
         condition: bleeding
         saveMacro: function.gmmc.conditions.bleeding
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!KN0ABfvjknThO8m2.BfvjknThO8m2KN0A'
 folder: EjqZPJ9sccgXUfgK
 flags:

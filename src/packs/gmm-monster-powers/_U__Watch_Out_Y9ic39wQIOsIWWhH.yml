@@ -85,6 +85,10 @@ effects:
         specialDuration:
           - isAttacked
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!Y9ic39wQIOsIWWhH.39wQIOsIWWhHY9ic'
 folder: J8E4I6WUVdsFmJFl
 flags:

@@ -192,8 +192,9 @@ const Deferrals = (function () {
 			name: game.i18n.format("gmm.deferral.clock.name", { name: item.name, rounds: deferral.timer }),
 			img: item.img,
 			origin: item.uuid,
-			/* No duration, matching the doom clock. One that carries a duration can expire on its own,
+			/* No duration value, matching the doom clock. One that carries a value can expire on its own,
 			   which under `expiryAction: delete` removes it in the turn its last tick resolves. */
+			duration: Durations.indefinite(),
 			start: {
 				time: game.time.worldTime,
 				combat: combat.id,

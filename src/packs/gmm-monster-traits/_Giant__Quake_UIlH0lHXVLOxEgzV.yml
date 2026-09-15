@@ -82,6 +82,10 @@ effects:
     statuses:
       - prone
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!UIlH0lHXVLOxEgzV.0lHXVLOxEgzVUIlH'
 folder: xPY1v6QbenBje2wG
 flags:

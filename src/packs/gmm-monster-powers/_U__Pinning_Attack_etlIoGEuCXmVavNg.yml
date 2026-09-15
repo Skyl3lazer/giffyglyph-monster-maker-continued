@@ -80,6 +80,10 @@ effects:
     statuses:
       - restrained
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!etlIoGEuCXmVavNg.oGEuCXmVavNgetlI'
 folder: boXIHc9udZ2dmYt0
 flags:

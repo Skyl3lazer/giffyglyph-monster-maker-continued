@@ -21,4 +21,8 @@ flags:
   gmm:
     rarity: common
     boon: lucky
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!nQbCPyUTDuDziWmW'

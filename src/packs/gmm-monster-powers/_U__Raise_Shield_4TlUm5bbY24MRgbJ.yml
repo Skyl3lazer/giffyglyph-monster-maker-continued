@@ -82,6 +82,10 @@ effects:
       dae:
         stackable: noneName
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!4TlUm5bbY24MRgbJ.m5bbY24MRgbJ4TlU'
   - _id: Y24MRgbJ4TlUm5bb
     name: Raise Shield (Save)
@@ -105,6 +109,10 @@ effects:
       dae:
         stackable: noneName
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!4TlUm5bbY24MRgbJ.Y24MRgbJ4TlUm5bb'
 folder: S3EEbaut6Bd4J1U8
 flags:

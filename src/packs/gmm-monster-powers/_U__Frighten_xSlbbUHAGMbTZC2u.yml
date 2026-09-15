@@ -80,6 +80,10 @@ effects:
     statuses:
       - frightened
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!xSlbbUHAGMbTZC2u.bUHAGMbTZC2uxSlb'
 folder: JdLpxPrJ9Fvv9fSl
 flags:

@@ -18,4 +18,8 @@ flags:
     stackable: noneName
   gmm:
     rarity: rare
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!U4ZxoWQ9geYticOw'

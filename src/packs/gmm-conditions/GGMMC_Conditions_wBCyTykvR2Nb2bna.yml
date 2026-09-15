@@ -472,6 +472,9 @@ effects:
       a) the space you left or b) the nearest unoccupied space.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -525,6 +528,9 @@ effects:
       level of exhaustion by 1.</p><p></p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -578,6 +584,9 @@ effects:
       hands.</p></li><li><p>You drop anything you are carrying.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -628,6 +637,9 @@ effects:
     description: <ul><li><p> If you are reduced to 0 hit points, you die.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -681,6 +693,9 @@ effects:
       disadvantage on concentration checks.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -737,6 +752,9 @@ effects:
       means.</p><p></p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -790,6 +808,9 @@ effects:
       water, increase this penalty by 1.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -854,6 +875,9 @@ effects:
       throw, roll a d4 and subtract that number.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -907,6 +931,9 @@ effects:
       sleep, increase this penalty by 1.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -961,6 +988,9 @@ effects:
     description: <ul><li><p>Whenever you deal damage, reduce it by half.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -1013,6 +1043,9 @@ effects:
       ability check that requires you to make a vocal sound.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -1069,6 +1102,9 @@ effects:
       reactions.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -1122,6 +1158,9 @@ effects:
       food, increase this penalty by 1.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -1178,6 +1217,9 @@ effects:
       check to interact socially.</p></li></ul><p></p>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -1239,6 +1281,9 @@ effects:
       disadvantage.</p></li></ul><p></p>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -1294,6 +1339,9 @@ effects:
       can't activate, use, wield, or benefit from your equipment.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -1346,6 +1394,9 @@ effects:
       have immunity, it is reduced to resistance.</p></li></ul><p></p>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -1398,6 +1449,9 @@ effects:
       1.</p></li></ul>
     disabled: true
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null

@@ -632,9 +632,11 @@ const Activities = (function () {
                 : "",
             // The gate applies it to whoever it landed on, so it must not also ride the scaler.
             transfer: false,
+            duration: Durations.indefinite(),
             // CONDITIONAL draws no icon for a clock, which carries no duration.
             showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON?.ALWAYS,
             flags: {
+                // Claiming Temporary enrolls the clock in core's expiry registry, which then expires it.
                 dnd5e: { isTemporary: false },
                 [GMM_MODULE_TITLE]: {
                     deferral: {
@@ -1531,10 +1533,11 @@ const Activities = (function () {
         return Object.keys(fresh.duration).some(k => (stored.duration?.[k] ?? null) !== fresh.duration[k]);
     }
 
-    /* A clock forged before the flag was retired still carries it. */
-    function _doomClockTemporary(item) {
+    /* A clock forged before the units were pinned takes dnd5e 6's expiry stamp. The rebuild also clears
+       the Temporary flag older clocks carry. */
+    function _doomClockExpires(item) {
         const stored = item?._source?.effects?.find?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID);
-        return !!stored?.flags?.dnd5e?.isTemporary;
+        return stored?.duration?.units !== Durations.indefinite().units;
     }
 
     /* True when the item's GMM activities do not match the shape its blueprint asks for. */
@@ -1557,7 +1560,7 @@ const Activities = (function () {
         if (isDoomingDeferral(blueprint)) {
             if (primary?.damage?.parts?.length) return true;
             if (!primary?.effects?.some?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID)) return true;
-            return _doomClockTemporary(item);
+            return _doomClockExpires(item);
         }
         return wantsDeferred && (primary?.duration?.units !== GMM_PLANT_DURATION_UNITS);
     }

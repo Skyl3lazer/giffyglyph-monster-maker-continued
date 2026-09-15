@@ -22,4 +22,8 @@ flags:
     rarity: common
     terrain: unstable
     condition: unstable
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!R9kVBRTNa7T9weUq'

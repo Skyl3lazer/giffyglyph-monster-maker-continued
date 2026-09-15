@@ -80,6 +80,10 @@ effects:
     statuses:
       - paralyzed
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!vcaqpoLeD34QKlie.poLeD34QKlievcaq'
 folder: RvLPH8AFqBXXZ1tK
 flags:

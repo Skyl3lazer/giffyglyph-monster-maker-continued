@@ -78,6 +78,10 @@ effects:
       gmm:
         exhaustion: 1
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!nsMpq71bSOoVaJI9.q71bSOoVaJI9nsMp'
 folder: 4SmCnaZJSBwCUCqK
 flags:

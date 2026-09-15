@@ -17,4 +17,8 @@ flags:
   gmm:
     rarity: rare
     condition: cursed
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!g7LyXcLjXceFvCBX'

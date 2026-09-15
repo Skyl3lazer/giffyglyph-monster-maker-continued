@@ -83,6 +83,10 @@ effects:
       dae:
         stackable: noneName
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!UDsTE578g39pMP8U.E578g39pMP8UUDsT'
 folder: YmYak9E5lZfQxjFV
 flags:

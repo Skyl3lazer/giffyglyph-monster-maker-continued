@@ -21,4 +21,8 @@ flags:
   gmm:
     rarity: rare
     boon: deflector
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!eotv6B7vn7B7ONkf'

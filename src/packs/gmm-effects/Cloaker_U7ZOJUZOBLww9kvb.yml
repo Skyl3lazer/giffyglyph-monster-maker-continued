@@ -25,4 +25,8 @@ flags:
       - 1Spell
   gmm:
     rarity: rare
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!U7ZOJUZOBLww9kvb'

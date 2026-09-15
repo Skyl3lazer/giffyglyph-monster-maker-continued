@@ -92,6 +92,10 @@ effects:
       dae:
         stackable: noneName
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!egTv3BROtA42SPRg.3BROtA42SPRgegTv'
 folder: Tnf0D7n9MHPnMz8r
 flags:

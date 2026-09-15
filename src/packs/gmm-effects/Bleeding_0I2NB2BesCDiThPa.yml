@@ -22,4 +22,8 @@ flags:
   gmm:
     rarity: uncommon
     condition: bleeding
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!0I2NB2BesCDiThPa'

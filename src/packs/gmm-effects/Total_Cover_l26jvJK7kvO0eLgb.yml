@@ -23,4 +23,8 @@ flags:
   gmm:
     rarity: rare
     terrain: total_cover
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!l26jvJK7kvO0eLgb'

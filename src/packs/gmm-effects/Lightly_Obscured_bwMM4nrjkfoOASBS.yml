@@ -25,4 +25,8 @@ flags:
   gmm:
     rarity: common
     terrain: lightly_obscured
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!bwMM4nrjkfoOASBS'

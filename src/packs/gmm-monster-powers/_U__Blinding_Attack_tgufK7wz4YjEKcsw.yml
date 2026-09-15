@@ -80,6 +80,10 @@ effects:
     statuses:
       - blinded
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!tgufK7wz4YjEKcsw.K7wz4YjEKcswtguf'
 folder: JdLpxPrJ9Fvv9fSl
 flags:

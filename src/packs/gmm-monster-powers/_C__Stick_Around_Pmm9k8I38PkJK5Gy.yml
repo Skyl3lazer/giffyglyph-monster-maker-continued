@@ -78,6 +78,10 @@ effects:
     statuses:
       - grappled
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!Pmm9k8I38PkJK5Gy.k8I38PkJK5GyPmm9'
 folder: 5eUEcvRR7XG9ty5T
 flags:

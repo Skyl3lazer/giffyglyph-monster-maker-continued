@@ -14,6 +14,9 @@ effects:
       grappled creature from the reach of the grappler or grappling effect.
     disabled: false
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null

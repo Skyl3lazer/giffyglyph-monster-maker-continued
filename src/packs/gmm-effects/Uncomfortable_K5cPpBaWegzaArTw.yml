@@ -21,4 +21,8 @@ flags:
   gmm:
     rarity: common
     terrain: uncomfortable
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!K5cPpBaWegzaArTw'

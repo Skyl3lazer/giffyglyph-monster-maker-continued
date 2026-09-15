@@ -85,6 +85,10 @@ effects:
     statuses:
       - marked
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!oRv8Qdq0nDn1PbPX.Qdq0nDn1PbPXoRv8'
 folder: oCn6YWsz0qjuGvFL
 flags:

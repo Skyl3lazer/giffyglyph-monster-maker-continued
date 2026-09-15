@@ -85,6 +85,10 @@ effects:
     statuses:
       - coverThreeQuarters
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!5hZu9TKlKKkR9DvP.9TKlKKkR9DvP5hZu'
 folder: zrWoCiSJhQY5KH6q
 flags:

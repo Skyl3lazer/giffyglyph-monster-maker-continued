@@ -136,8 +136,13 @@ const Durations = (function () {
 		}
 	}
 
+	/* dnd5e 6 stamps an expiry on a valueless duration in any other units, ending the effect a turn on. */
+	function indefinite() {
+		return { value: null, units: "turns", expiry: null };
+	}
+
 	function _effectDuration(duration, rules) {
-		const out = { expiry: rules.expiry ?? null, value: null, units: "seconds" };
+		const out = { ...indefinite(), expiry: rules.expiry ?? null };
 		if (rules.rounds) {
 			out.value = rules.rounds;
 			out.units = "rounds";
@@ -477,6 +482,7 @@ const Durations = (function () {
 		read,
 		fromUnits,
 		isPeriodUnits,
+		indefinite,
 		describe,
 		isDurationEffect,
 		buildActivityDuration,

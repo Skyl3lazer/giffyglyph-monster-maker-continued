@@ -21,4 +21,8 @@ flags:
   gmm:
     rarity: rare
     boon: thorns
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!9NxXcFQ1cZmV2YKi'

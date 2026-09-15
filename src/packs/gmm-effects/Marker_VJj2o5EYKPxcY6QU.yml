@@ -22,4 +22,8 @@ flags:
       - 1Attack
   gmm:
     rarity: common
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!VJj2o5EYKPxcY6QU'

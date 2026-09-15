@@ -82,6 +82,10 @@ effects:
       dae:
         stackable: noneName
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!m8qNoPZgzsvgvqB1.oPZgzsvgvqB1m8qN'
   - _id: zsvgvqB1m8qNoPZg
     name: Aggression (Advantage)
@@ -99,6 +103,10 @@ effects:
       dae:
         stackable: noneName
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!m8qNoPZgzsvgvqB1.zsvgvqB1m8qNoPZg'
 folder: EjqZPJ9sccgXUfgK
 flags:
