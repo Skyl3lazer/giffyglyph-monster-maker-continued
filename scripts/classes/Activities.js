@@ -477,7 +477,6 @@ const Activities = (function () {
             sort: 0,
             activation: _buildActivation(blueprintData),
             consumption: _buildConsumption(blueprintData),
-            description: { chatFlavor: "" },
             duration: _buildDuration(blueprintData),
             range: _buildRange(blueprintData),
             target: _buildTarget(blueprintData),
@@ -585,7 +584,6 @@ const Activities = (function () {
             // The primary already charged all of these.
             activation: { type: "", value: null, condition: "", override: false },
             consumption: { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false },
-            description: { chatFlavor: "" },
             duration: _buildDuration(blueprintData, { concentration: false }),
             range: _buildRange(blueprintData),
             // The primary already placed the template. A second would be planted here.
@@ -613,7 +611,6 @@ const Activities = (function () {
             // Placing the area already charged all of these.
             activation: { type: "", value: null, condition: "", override: false },
             consumption: { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false },
-            description: { chatFlavor: "" },
             // Concentrating here would end the concentration the placed area depends on, deleting it.
             duration: _buildDuration(blueprintData, { concentration: false }),
             range: _buildRange(blueprintData),
@@ -1029,7 +1026,7 @@ const Activities = (function () {
     /* Fields not listed here belong to dnd5e or another module. ForcedReplacement would reset them.
      * `effects` is owned by `_setEffectMembership` */
     const GMM_OWNED_ACTIVITY_FIELDS = new Set([
-        "_id", "type", "name", "sort", "activation", "consumption", "description",
+        "_id", "type", "name", "sort", "activation", "consumption",
         "duration", "range", "target", "uses", "attack", "damage", "healing", "save", "effects"
     ]);
 
@@ -1218,7 +1215,7 @@ const Activities = (function () {
                 const dcRoll = new Roll(String(formula || "0"));
                 if (dcRoll.isDeterministic) {
                     const total = dcRoll.evaluateSync().total;
-                    if (Number.isFinite(total)) activity.save.dc.value = total;
+                    if (Number.isFinite(total)) activity.save.dc.value = total + saveDcBonus(activity);
                 }
             } catch (e) { /* swallow: keep whatever value the framework already computed */ }
         }
@@ -1246,6 +1243,15 @@ const Activities = (function () {
                 activity.healing.custom.formula = Shortcoder.replaceShortcodes(rawFormula, monsterData, true);
             }
         }
+    }
+
+    /* Rewriting dc.value discards the effect-set bonus dnd5e had folded in. */
+    function saveDcBonus(activity) {
+        const bonus = activity?.save?.dc?.bonus;
+        if (!bonus) return 0;
+        const simplify = dnd5e?.utils?.simplifyBonus;
+        if (typeof simplify !== "function") return 0;
+        return simplify(bonus, activity.getRollData?.({ deterministic: true }) ?? {}) || 0;
     }
 
     /* Shared by the roll and the sheet, so a new term cannot reach one and miss the other. */
@@ -1402,6 +1408,8 @@ const Activities = (function () {
                     roll.parts[i] = Shortcoder.replaceShortcodes(p, monsterData, true);
                     continue;
                 }
+                // dnd5e appends the item damage bonus after the formula slot, and a "0" there is a real bonus.
+                if (i !== 0) continue;
                 const bpFormula = blueprintDamage[ri]?.formula;
                 if (bpFormula && bpFormula.includes("[") && /^0+$/.test(p)) {
                     roll.parts[i] = Shortcoder.replaceShortcodes(bpFormula, monsterData, true);
@@ -1920,6 +1928,7 @@ const Activities = (function () {
         readItemUsesIntoBlueprintData,
         chargesWithoutPool,
         resolveActivityFormulas,
+        saveDcBonus,
         buildAttackToHitTerms,
         injectAttackBonusParts,
         injectAmmunition,
