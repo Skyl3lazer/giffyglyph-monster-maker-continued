@@ -85,7 +85,7 @@ Hooks.once("init", function() {
 
 	// The persistent cleanup is migrateWorld's job. This only keeps a stored shortcode from throwing at load.
 	if (!Activities.patchActivityField()) {
-		console.warn("GMM | dnd5e ActivityField not found at init; activity-source sanitization patch was not installed.");
+		console.warn("GMM | dnd5e BaseActivityData not found at init. The activity-source sanitization patch was not installed.");
 	}
 
 	Hooks.on("updateSetting", (setting, data, options, userId) => {
@@ -285,6 +285,11 @@ Hooks.once('ready', async () => {
 
 	if (!game.modules.get('lib-wrapper')?.active && game.user.isGM) {
 		ui.notifications.error("Module Giffyglyph's Monster Maker Continued requires the 'libWrapper' module. Please install and activate it.");
+	}
+
+	if (!Activities.verifyActivitySanitizer()) {
+		console.error("GMM | Activity-source sanitization did not fire. dnd5e has moved the activity clean seam.");
+		if (game.user.isGM) ui.notifications.error(game.i18n.localize("gmm.activity.sanitizer_orphaned"));
 	}
 
 	if (game.user.isGM) {

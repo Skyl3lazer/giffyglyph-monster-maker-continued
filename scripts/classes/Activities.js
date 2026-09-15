@@ -294,38 +294,49 @@ const Activities = (function () {
 
     /* Pre-validation, because FormulaField rejects a shortcoded string before anything else can see it. */
     function patchActivityField() {
-        const ActivityField = globalThis.dnd5e?.dataModels?.fields?.ActivityField;
-        if (!ActivityField) return false;
-        if (ActivityField.prototype.__gmmPatched) return true;
+        const BaseActivityData = globalThis.dnd5e?.dataModels?.activity?.BaseActivityData;
+        if (!BaseActivityData) return false;
 
-        const origCleanType = ActivityField.prototype._cleanType;
-        ActivityField.prototype._cleanType = function(value, options, _state) {
-            sanitizeActivitySource(value);
-            return origCleanType.call(this, value, options, _state);
-        };
+        if (!BaseActivityData.__gmmPatched) {
+            const origCleanData = BaseActivityData.cleanData;
+            BaseActivityData.cleanData = function(data, options, _state) {
+                // An initialized model is already past validation.
+                if (!(data instanceof foundry.abstract.DataModel)) sanitizeActivitySource(data);
+                return origCleanData.call(this, data, options, _state);
+            };
 
-        const origInitialize = ActivityField.prototype.initialize;
-        ActivityField.prototype.initialize = function(value, model, options = {}) {
-            sanitizeActivitySource(value);
-            return origInitialize.call(this, value, model, options);
-        };
-
-        Object.defineProperty(ActivityField.prototype, "__gmmPatched", {
-            value: true, writable: false, configurable: false, enumerable: false
-        });
+            Object.defineProperty(BaseActivityData, "__gmmPatched", {
+                value: true, writable: false, configurable: false, enumerable: false
+            });
+        }
 
         // Without a base fallback a stale non-attack activity throws during chat render.
-        const BaseActivityData = globalThis.dnd5e?.dataModels?.activity?.BaseActivityData;
-        if (BaseActivityData && !("getActionLabel" in BaseActivityData.prototype)) {
+        if (!("getActionLabel" in BaseActivityData.prototype)) {
             BaseActivityData.prototype.getActionLabel = function(_attackMode) { return ""; };
         }
 
         return true;
     }
 
+    /* Installing the patch is no proof the seam is still the one dnd5e reaches validation through. */
+    function verifyActivitySanitizer() {
+        try {
+            const field = CONFIG?.Item?.dataModels?.feat?.schema?.getField?.("activities");
+            if (!field) return false;
+            const cleaned = field.clean({
+                [GMM_ACTIVITY_ID]: { _id: GMM_ACTIVITY_ID, type: "attack", attack: { bonus: "[attackBonus]" } }
+            });
+            return cleaned?.[GMM_ACTIVITY_ID]?.attack?.bonus === "0";
+        } catch (e) {
+            console.warn("GMM | Activity sanitization probe threw", e);
+            return false;
+        }
+    }
+
     /* Flat paths, not a nested object, so the caller can merge this into any other update. */
     function buildSourceFormulaCleanup(item) {
-        const activities = item?._source?.system?.activities;
+        // Creation data has no `_source`.
+        const activities = item?._source?.system?.activities ?? item?.system?.activities;
         if (!activities || typeof activities !== "object") return null;
         const update = {};
         const replace = _sanitizeFormulaForActivity;
@@ -1648,8 +1659,10 @@ const Activities = (function () {
             || !!source[GMM_ZONE_ACTIVITY_ID]?.duration?.concentration
             || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint))
             || _poolTargetMismatch(blueprint, source[GMM_ACTIVITY_ID]);
-        if (!rebuild && !duration && foundry.utils.isEmpty(purge)) return null;
+        const cleanup = rebuild ? null : buildSourceFormulaCleanup(item ?? data);
+        if (!rebuild && !duration && !cleanup && foundry.utils.isEmpty(purge)) return null;
         const update = { ...purge };
+        if (cleanup) Object.assign(update, cleanup);
         if (duration) update["flags.gmm.blueprint.data.duration"] = duration;
         if (rebuild) Object.assign(update, buildActivityUpdate(item, blueprint));
         return update;
@@ -1922,6 +1935,7 @@ const Activities = (function () {
         buildSourceFormulaCleanup,
         sanitizeActivitySource,
         patchActivityField,
+        verifyActivitySanitizer,
         migrateActor,
         migrateWorld,
         isEffectAppliedByGmmActivity,
