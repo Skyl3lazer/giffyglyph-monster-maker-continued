@@ -1481,24 +1481,14 @@ const Activities = (function () {
         return (typeof raw === "object") ? raw : {};
     }
 
-    /* `effects` is kept though GMMC owns it: membership is the GM's choice, not the blueprint's.
-       Every other owned field is dropped so a rebuild cannot resurrect one the blueprint has changed. */
-    function _stashableActivityFields(source) {
-        const stash = {};
-        for (const [key, value] of Object.entries(source)) {
-            if (GMM_OWNED_ACTIVITY_FIELDS.has(key) && (key !== "effects")) continue;
-            stash[key] = value;
-        }
-        return stash;
-    }
-
     /* The GMM activities have no `savedActivities` equivalent, so a revert destroys the only source
-       the rebuild's preserve step can read. */
+       the rebuild's preserve step can read. Stored whole, because that step already decides what a
+       rebuild may keep. */
     function _snapshotGmmActivities(item) {
         const snapshot = {};
         for (const activityId of GMM_ACTIVITY_IDS) {
             const source = AutomationHelpers.activitySource(item, activityId);
-            if (source) snapshot[activityId] = _stashableActivityFields(source);
+            if (source) snapshot[activityId] = source;
         }
         return snapshot;
     }
