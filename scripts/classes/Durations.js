@@ -288,10 +288,10 @@ const Durations = (function () {
 			: value;
 
 		const update = {};
+		// v14 has no top-level `changes`, so old-shape data written back under its own key is dropped.
 		const changes = data.system?.changes ?? data.changes;
 		if (Array.isArray(changes)) {
-			const key = Array.isArray(data.system?.changes) ? "system.changes" : "changes";
-			update[key] = changes.map(c => ({ ...c, value: resolve(c.value) }));
+			update["system.changes"] = changes.map(c => ({ ...c, value: resolve(c.value) }));
 		}
 
 		const formula = data.flags?.[GMM_MODULE_TITLE]?.[GMM_DURATION_FLAG]?.formula;
@@ -426,7 +426,13 @@ const Durations = (function () {
 		if (!isDurationEffect(effect) && !deferral) return;
 		const source = _sourceActorOf(effect);
 		const itemId = AutomationHelpers.resolveSourceItem(effect.origin)?.id ?? null;
-		await AutomationHelpers.concentrationFor(source, itemId)?.addDependent(effect);
+		const concentration = AutomationHelpers.concentrationFor(source, itemId);
+		if (!concentration) return;
+		try {
+			await effect.setFlag("dnd5e", "dependentOn", concentration.uuid);
+		} catch (error) {
+			console.warn("GMM | Linking a clock to its concentration failed", error);
+		}
 	}
 
 	function _isPayload(document) {
@@ -441,7 +447,11 @@ const Durations = (function () {
 		if (!concentration || Number.isFinite(concentration.duration?.value)) return;
 		// An area is a dependent too, and it never leaves while the concentration holds.
 		if (concentration.getDependents().some(d => d.id !== ignore && _isPayload(d))) return;
-		await concentration.delete();
+		try {
+			await concentration.delete();
+		} catch (error) {
+			console.warn("GMM | Concentration was already released on another path", error);
+		}
 	}
 
 	async function _onDeleteActiveEffect(effect) {
