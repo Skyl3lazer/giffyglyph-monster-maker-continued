@@ -6,22 +6,25 @@
 		{
 			"name": "Skyl3lazer",
 			"discord": "@skyl3lazer",
-			"twitter": "@skyl3lazer",
-			"reddit": "u/skyl3lazer"
+			"flags": {
+				"twitter": "@skyl3lazer",
+				"reddit": "u/skyl3lazer"
+			}
 		},
 		{
 			"name": "Giffyglyph",
 			"email": "giffyglyph@gmail.com",
 			"url": "https://www.giffyglyph.com",
 			"discord": "Giffyglyph#7632",
-			"twitter": "@giffyglyph",
-			"patreon": "giffyglyph",
-			"reddit": "u/giffyglyph"
+			"flags": {
+				"twitter": "@giffyglyph",
+				"patreon": "giffyglyph",
+				"reddit": "u/giffyglyph"
+			}
 		}
 
 	],
 	"version": "2.1.0.0",
-	"manifestPlusVersion": "2.1.0.0",
 
 	"compatibility": {
 		"minimum": "13.347",
@@ -30,7 +33,6 @@
 	"esmodules": [ "gmm.js" ],
 	"scripts": [ "scripts/vendors/math.min.js" ],
 	"styles": [ "gmm.css" ],
-	"systems": [ "dnd5e" ],
 	"packs": [
 		{
 			"name": "gmm-monster-powers",
