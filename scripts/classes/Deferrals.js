@@ -231,7 +231,8 @@ const Deferrals = (function () {
 
 	/* A template can land before its clock or after it. midi auto-places inside `use()`. A GM draws one later. */
 	function _onCreateRegionTemplate(region, _options, userId) {
-		const origin = region.getFlag("dnd5e", "origin");
+		// dnd5e 6.0 repurposes `origin` to the casting token and moves the activity onto its own flag.
+		const origin = region.getFlag("dnd5e", "activity") ?? region.getFlag("dnd5e", "origin");
 		if (typeof origin !== "string" || !origin.endsWith(`.Activity.${Activities.GMM_ACTIVITY_ID}`)) return;
 
 		/* Two uses of one action share an origin, so an activation's own template must never reach the append
