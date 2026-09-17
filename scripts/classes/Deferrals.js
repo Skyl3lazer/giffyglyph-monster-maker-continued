@@ -23,7 +23,8 @@ const Deferrals = (function () {
 	function init() {
 		Hooks.on("dnd5e.preActivityConsumption", _onPreActivityConsumption);
 		Hooks.on("dnd5e.postActivityConsumption", _onPostActivityConsumption);
-		Hooks.on("dnd5e.preCreateActivityTemplate", _onPreCreateActivityTemplate);
+		Hooks.on("dnd5e.preCreateActivityTemplate", _onCreateTemplateData);
+		Hooks.on("dnd5e.createMeasuredTemplate", _onCreateTemplateData);
 		Hooks.on("dnd5e.postUseActivity", _onPostUseActivity);
 		Hooks.on("createActiveEffect", _onCreateActiveEffect);
 		Hooks.on("deleteActiveEffect", _onDeleteActiveEffect);
@@ -100,9 +101,12 @@ const Deferrals = (function () {
 	}
 
 	/* The marker rides the document, so every client reaches the same verdict on a placement without a socket. */
-	function _onPreCreateActivityTemplate(activity, templateData) {
+	function _onCreateTemplateData(activity, templateData) {
 		if (!_activationsInFlight.has(activity?.uuid)) return;
-		foundry.utils.setProperty(templateData, `flags.${GMM_MODULE_TITLE}.${GMM_ACTIVATION_FLAG}`, activity.uuid);
+		// 5.3 hands over one template's data. 6.0 hands over the array of regions about to be created.
+		for (const data of [templateData].flat()) {
+			foundry.utils.setProperty(data, `flags.${GMM_MODULE_TITLE}.${GMM_ACTIVATION_FLAG}`, activity.uuid);
+		}
 	}
 
 	function _drainTemplates(origin) {
