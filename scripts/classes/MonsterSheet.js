@@ -265,7 +265,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             $el.find('[data-action="update-item"]').change((e) => this._updateItem(e));
 
             [ModalAbilityCheck, ModalBasicAttackAc, ModalBasicAttackSave, ModalBasicDamage, ModalSavingThrow].forEach((x) => {
-                x.activateListeners($el, this.actor, this.id);
+                x.activateListeners($el, this.actor);
             });
         } catch (e) {
             console.warn("GMM | MonsterSheet: listener attachment failed", e);

@@ -4,8 +4,8 @@ import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 
 const ModalAbilityCheck = (function() {
 
-	function activateListeners(html, actor, id) {
-		const ctx = { actor, id };
+	function activateListeners(html, actor) {
+		const ctx = { actor };
 		html.find('#modal_ability_check .modal__footer button').click(_submitForm.bind(ctx));
 		html.find('.monster__modifier .value button, .monster__skill').click(_setAbilityAndSkill.bind(ctx));
 	}
@@ -68,8 +68,7 @@ const ModalAbilityCheck = (function() {
 			asyncRoll.then(completedRoll => {
 				completedRoll.toMessage({
 					speaker: ChatMessage.getSpeaker({actor: this.actor}),
-					flavor: messageParts.join(" "),
-					flags: { dnd5e: { roll: { type: "other", itemId: this.id } } }
+					flavor: messageParts.join(" ")
 				}, CompatibilityHelpers.rollMessageOptions(form.get("mode")));
 			});
 			modal.querySelector("[data-action='close-modal']").click();
