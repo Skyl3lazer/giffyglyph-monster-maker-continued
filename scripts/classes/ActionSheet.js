@@ -7,7 +7,6 @@ import { GMM_ACTION_TIME_PERIODS } from "../consts/GmmActionTimePeriods.js";
 import { GMM_ACTION_USE_PERIODS } from "../consts/GmmActionUsePeriods.js";
 import { GMM_ACTION_RANGE_TYPES } from "../consts/GmmActionRangeTypes.js";
 import { GMM_ACTION_RARITIES } from "../consts/GmmActionRarities.js";
-import { GMM_ACTION_TARGET_TYPES } from "../consts/GmmActionTargetTypes.js";
 import { GMM_ACTION_ATTACK_TYPES } from "../consts/GmmActionAttackTypes.js";
 import { GMM_DEFERRAL_TYPES } from "../consts/GmmDeferralTypes.js";
 import { GMM_ACTION_DURATION_TYPES } from "../consts/GmmActionDurationTypes.js";
@@ -122,7 +121,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
                 use_periods: GMM_ACTION_USE_PERIODS,
                 range_types: GMM_ACTION_RANGE_TYPES,
                 rarities: GMM_ACTION_RARITIES,
-                target_types: GMM_ACTION_TARGET_TYPES,
+                target_types: Activities.targetTypeOptions(),
                 consumption_targets: this._getActionConsumptionTargets(this.item),
                 ranks: Object.keys(GMM_MONSTER_RANKS).filter((x) => x != "custom"),
                 roles: Object.keys(GMM_MONSTER_ROLES).filter((x) => x != "custom"),

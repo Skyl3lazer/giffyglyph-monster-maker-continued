@@ -650,7 +650,7 @@
                                         {{#select gmm.blueprint.target.type}}
                                         <option value=""></option>
                                         {{#each gmm.enums.target_types}}
-                                        <option value="{{.}}">{{localize (concat 'gmm.common.target_type.' .)}}</option>
+                                        <option value="{{this.value}}">{{this.label}}</option>
                                         {{/each}}
                                         {{/select}}
                                     </select>
