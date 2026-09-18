@@ -176,17 +176,29 @@ const ParagonDefenses = (function () {
 		if (result?.updateData) delete result.updateData[GMM_LEGENDARY_RESISTANCES_KEY];
 	}
 
+	/* dnd5e 6 moved save cards onto typed message data */
+	function _isSaveCard(message) {
+		return (message?.type === "save") || (message?.getFlag("dnd5e", "roll")?.type === "save");
+	}
+
+	function _isResisted(message) {
+		return !!(message?.system?.resisted ?? message?.getFlag("dnd5e", "roll")?.forceSuccess);
+	}
+
+	function _getResistUpdate(message) {
+		return (message?.type === "save") ? { "system.resisted": true } : { "flags.dnd5e.roll.forceSuccess": true };
+	}
+
 	function _onRenderChatMessage(message, html) {
 		if (!_isEnabled()) return;
 
 		const actor = _getCardActor(message);
 		if (!actor?.isGmmMonster?.()) return;
 
-		const roll = message.getFlag("dnd5e", "roll");
-		if (roll?.type !== "save") return;
+		if (!_isSaveCard(message)) return;
 		// Everyone who can see the card sees the status line, so this runs ahead of the ownership gate.
 		if (message.getFlag(GMM_MODULE_TITLE, GMM_MESSAGE_FLAG)) return _relabelResistedStatus(html);
-		if (roll?.forceSuccess || !actor.isOwner) return;
+		if (_isResisted(message) || !actor.isOwner) return;
 		if (message.rolls.some((x) => x.isSuccess)) return;
 
 		const spendable = _getSpendable(actor);
@@ -210,9 +222,9 @@ const ParagonDefenses = (function () {
 
 		content.querySelector("button")?.addEventListener("click", async () => {
 			if (await spendParagonDefense({ actor: actor }) !== "success") return;
-			// forceSuccess is what marks the total as a success. The marker is what renames the line below.
+			// The resisted mark is what makes the total read as a success.
 			await message.update({
-				"flags.dnd5e.roll.forceSuccess": true,
+				..._getResistUpdate(message),
 				[`flags.${GMM_MODULE_TITLE}.${GMM_MESSAGE_FLAG}`]: true
 			});
 		});
@@ -231,7 +243,7 @@ const ParagonDefenses = (function () {
 		return (actor.getActiveTokens(false, true).length > 1) ? null : actor;
 	}
 
-	/* dnd5e writes its own resisted line from forceSuccess, naming the resource GMMC did not spend. */
+	/* dnd5e writes its own resisted line, naming the resource GMMC did not spend. */
 	function _relabelResistedStatus(html) {
 		const resisted = game.i18n.localize("DND5E.LegendaryResistance.Resisted");
 		for (const supplement of html.querySelectorAll("p.supplement")) {
