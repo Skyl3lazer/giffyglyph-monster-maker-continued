@@ -1,4 +1,5 @@
 import AutomationHelpers from "./AutomationHelpers.js";
+import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Durations from "./Durations.js";
 import Shortcoder from "./Shortcoder.js";
 import { buildSaveDcFormula, buildDurationSaveDcFormula } from "./SaveDc.js";
@@ -7,6 +8,7 @@ import { GMM_ZONE_TERRAIN } from "../consts/GmmZoneTerrain.js";
 import { GMM_ZONE_TRIGGERS } from "../consts/GmmZoneTriggers.js";
 import { GMM_ZONE_PAYLOADS } from "../consts/GmmZonePayloads.js";
 import { GMM_ZONE_AUDIENCES } from "../consts/GmmZoneAudiences.js";
+import { GMM_ACTION_INDIVIDUAL_TARGET_TYPES } from "../consts/GmmActionTargetTypes.js";
 
 /* The blueprint is the authored source of truth. Every activity here is a generated mirror of it. */
 const Activities = (function () {
@@ -117,6 +119,22 @@ const Activities = (function () {
     function isAreaTarget(blueprintData) {
         const type = blueprintData?.target?.type;
         return !!(type && CONFIG?.DND5E?.areaTargetTypes?.[templateTypeFor(type)]);
+    }
+
+    function targetTypeLabel(targetType) {
+        const key = `gmm.common.target_type.${targetType}`;
+        if (game.i18n.has(key)) return game.i18n.localize(key);
+        const shape = CONFIG?.DND5E?.areaTargetTypes?.[templateTypeFor(targetType)];
+        return shape ? game.i18n.localize(shape.label) : targetType;
+    }
+
+    /* Derived, so the sheet offers every shape the running dnd5e can place. */
+    function targetTypeOptions() {
+        const areas = Object.keys(CONFIG?.DND5E?.areaTargetTypes ?? {})
+            .map(t => GMM_TARGET_TYPES_BY_TEMPLATE[t] ?? t);
+        return [...new Set([...GMM_ACTION_INDIVIDUAL_TARGET_TYPES, ...areas])]
+            .map(value => ({ value, label: targetTypeLabel(value) }))
+            .sort((a, b) => a.label.localeCompare(b.label));
     }
 
     /* Ungated on the target type, because the sheet still has to draw what is already authored. */
@@ -727,7 +745,7 @@ const Activities = (function () {
                 size: "",
                 width: "",
                 height: "",
-                units: t.units || "ft"
+                units: t.units || CompatibilityHelpers.defaultLengthUnits()
             },
             affects: {
                 count: "",
@@ -1925,6 +1943,7 @@ const Activities = (function () {
         damagePartFromBlueprint,
         damagePartToBlueprint,
         isAreaTarget,
+        targetTypeOptions,
         readZone,
         readZoneLists,
         zoneRules,

@@ -1,19 +1,19 @@
 /* Dependency-free, because GmmItem and Shortcoder would otherwise form a module cycle through it. */
 
+function isLengthUnits(units) {
+	return !!units && !!(CONFIG.DND5E?.movementUnits ?? {})[units];
+}
+
 export function formatTargetLabel(target, range) {
 	if (!target) return "";
 	switch (target.type ?? "") {
 		case "":
 		case "none":
 			// Typeless target has no count/units of its own, so read them off the action's range.
-			switch (range?.units) {
-				case "self":
-					return game.i18n.format(`gmm.action.labels.target.self`);
-				case "touch":
-				case "ft":
-				case "mi":
-					return game.i18n.format(`gmm.action.labels.target.any.${target.value > 1 ? "multiple" : "single"}`,
-						{ quantity: Math.max(1, target.value) });
+			if (range?.units === "self") return game.i18n.format(`gmm.action.labels.target.self`);
+			if (range?.units === "touch" || isLengthUnits(range?.units)) {
+				return game.i18n.format(`gmm.action.labels.target.any.${target.value > 1 ? "multiple" : "single"}`,
+					{ quantity: Math.max(1, target.value) });
 			}
 			return "";
 		case "self":
@@ -23,7 +23,7 @@ export function formatTargetLabel(target, range) {
 		case "creature":
 		case "object": {
 			// A distance in the size field turns an affiliation into a self-centered area ("all creatures within 10 feet").
-			if (["ft", "mi"].includes(target.units) && target.width) {
+			if (isLengthUnits(target.units) && target.width) {
 				const affected = (target.value >= 1)
 					? game.i18n.format(`gmm.action.labels.target.${target.type}.${target.value > 1 ? "multiple" : "single"}`,
 						{ quantity: target.value })
@@ -37,17 +37,20 @@ export function formatTargetLabel(target, range) {
 		}
 		case "line":
 		case "wall":
-			if (["ft", "mi"].includes(target.units)) {
+			if (isLengthUnits(target.units)) {
 				const area = game.i18n.format(`gmm.action.labels.target.size.${target.units}.double`,
 					{ x: Math.max(1, target.value), y: Math.max(1, target.width) });
 				return game.i18n.format(`gmm.action.labels.target.${target.type}`, { area });
 			}
 			return "";
 		default:
-			if (target.units && ["ft", "mi"].includes(target.units)) {
+			if (isLengthUnits(target.units)) {
 				const size = game.i18n.format(`gmm.action.labels.target.size.${target.units}.single`,
 					{ x: Math.max(1, target.value) });
-				return game.i18n.format(`gmm.action.labels.target.${target.type}`, { size });
+				const key = `gmm.action.labels.target.${target.type}`;
+				/* Shapes come from the running dnd5e, which can carry one GMMC has no phrasing for. */
+				if (!game.i18n.has(key)) return `${size} ${target.type}`;
+				return game.i18n.format(key, { size });
 			}
 			return "";
 	}
@@ -55,21 +58,13 @@ export function formatTargetLabel(target, range) {
 
 export function formatRangeLabel(range, attackType) {
 	if (!range?.units) return "";
-	switch (range.units) {
-		case "any":
-		case "self":
-		case "touch":
-			return game.i18n.format(`gmm.action.labels.range.${range.units}`);
-		case "ft":
-		case "mi": {
-			if (!range.value) return "";
-			const composed = `${range.value}${range.long ? `/${range.long}` : ""}`;
-			if (["mwak", "msak"].includes(attackType)) {
-				return game.i18n.format(`gmm.action.labels.range.reach.${range.units}`, { range: composed });
-			}
-			return game.i18n.format(`gmm.action.labels.range.${range.units}`, { range: composed });
-		}
-		default:
-			return "";
+	if (["any", "self", "touch"].includes(range.units)) {
+		return game.i18n.format(`gmm.action.labels.range.${range.units}`);
 	}
+	if (!isLengthUnits(range.units) || !range.value) return "";
+	const composed = `${range.value}${range.long ? `/${range.long}` : ""}`;
+	if (["mwak", "msak"].includes(attackType)) {
+		return game.i18n.format(`gmm.action.labels.range.reach.${range.units}`, { range: composed });
+	}
+	return game.i18n.format(`gmm.action.labels.range.${range.units}`, { range: composed });
 }

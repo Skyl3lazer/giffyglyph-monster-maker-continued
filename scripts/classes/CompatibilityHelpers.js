@@ -158,6 +158,10 @@ const CompatibilityHelpers = (function () {
 		});
 		return fd;
 	}
+	function defaultLengthUnits() {
+		return dnd5e.utils.defaultUnits?.("length") ?? "ft";
+	}
+
 	/* GMM's modal mode-select emits v13's `rollMode` values, which v14's `messageMode` does not accept. */
 	function rollMessageOptions(mode) {
 		const generation = game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
@@ -195,7 +199,8 @@ const CompatibilityHelpers = (function () {
 		setPreparedAttack: setPreparedAttack,
 		setArmorClassCalculation: setArmorClassCalculation,
 		readInputs: readInputs,
-		rollMessageOptions: rollMessageOptions
+		rollMessageOptions: rollMessageOptions,
+		defaultLengthUnits: defaultLengthUnits
 	};
 })();
 export default CompatibilityHelpers;
