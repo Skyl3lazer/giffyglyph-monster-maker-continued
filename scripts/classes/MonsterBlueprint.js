@@ -227,12 +227,12 @@ const MonsterBlueprint = (function () {
 			blueprintData.lair_actions.items = [];
 			blueprintData.legendary_actions.items = [];
 			blueprintData.reactions.items = [];
-			blueprintData.senses.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.senses.units)?.name;
+			blueprintData.senses.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.senses.units)?.name ?? stored.system.attributes.senses.units;
 			GMM_5E_SPEEDS.forEach((mode) => {
 				const speed = CompatibilityHelpers.movementSpeed(stored.system.attributes.movement, mode);
 				if (speed !== undefined) blueprintData.speeds[mode] = speed;
 			});
-			blueprintData.speeds.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.movement.units)?.name;
+			blueprintData.speeds.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.movement.units)?.name ?? stored.system.attributes.movement.units;
 			blueprintData.spellbook.spellcasting.ability = (stored.system.attributes.spellcasting) ? stored.system.attributes.spellcasting : "int";
 			// First-time conversion: vanilla NPCs with spell items usually have spell.level=0. Mirror combat level so casters scale.
 			if (!stored.flags?.gmm
@@ -398,12 +398,12 @@ const MonsterBlueprint = (function () {
 
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "speeds.units")) {
 			const unit = GMM_5E_UNITS.find((x) => x.name == blueprint.data.speeds.units);
-			CompatibilityHelpers.setProperty(actorData, "system.attributes.movement.units", unit ? unit.foundry : null);
+			CompatibilityHelpers.setProperty(actorData, "system.attributes.movement.units", unit ? unit.foundry : (blueprint.data.speeds.units ?? null));
 		}
 
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "senses.units")) {
 			const unit = GMM_5E_UNITS.find((x) => x.name == blueprint.data.senses.units);
-			CompatibilityHelpers.setProperty(actorData, "system.attributes.senses.units", unit ? unit.foundry : null);
+			CompatibilityHelpers.setProperty(actorData, "system.attributes.senses.units", unit ? unit.foundry : (blueprint.data.senses.units ?? null));
 		}
 
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "description.size")) {
