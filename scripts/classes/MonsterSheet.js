@@ -463,11 +463,15 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     static async #actionDisplayItem(event, target) {
         const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
-        const msg = await item.displayCard({ createMessage: false });
-        const DIV = document.createElement("DIV");
-        DIV.innerHTML = msg.content;
-        DIV.querySelector("div.card-buttons")?.remove();
-        return ChatMessage.create({ content: DIV.innerHTML });
+        const data = await item.displayCard({ createMessage: false });
+        if (!data) return;
+        if (typeof data.content === "string") {
+            const DIV = document.createElement("DIV");
+            DIV.innerHTML = data.content;
+            DIV.querySelector("div.card-buttons")?.remove();
+            data.content = DIV.innerHTML;
+        }
+        return ChatMessage.create(data);
     }
 
     /** @this {MonsterSheet} */
