@@ -4,6 +4,7 @@ export const GMM_ACTION_TARGET_TYPES = [
 	"creature",
 	"cube",
 	"cylinder",
+	"emanation",
 	"enemy",
 	"line",
 	"object",

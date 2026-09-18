@@ -105,9 +105,18 @@ const Activities = (function () {
         return [];
     }
 
+    /* dnd5e 6 gives its own `radius` the emanation shape, which attaches to a token.
+       GMMC's `radius` is a patch of ground. */
+    const GMM_TEMPLATE_TYPES = { radius: "circle", emanation: "radius" };
+    const GMM_TARGET_TYPES_BY_TEMPLATE = { circle: "radius", radius: "emanation" };
+
+    function templateTypeFor(targetType) {
+        return GMM_TEMPLATE_TYPES[targetType] ?? targetType;
+    }
+
     function isAreaTarget(blueprintData) {
         const type = blueprintData?.target?.type;
-        return !!(type && CONFIG?.DND5E?.areaTargetTypes?.[type]);
+        return !!(type && CONFIG?.DND5E?.areaTargetTypes?.[templateTypeFor(type)]);
     }
 
     /* Ungated on the target type, because the sheet still has to draw what is already authored. */
@@ -729,9 +738,9 @@ const Activities = (function () {
             prompt: true,
             override: false
         };
-        if (t.type && CONFIG?.DND5E?.areaTargetTypes?.[t.type]) {
+        if (isAreaTarget(blueprintData)) {
             if (template) {
-                data.template.type = t.type;
+                data.template.type = templateTypeFor(t.type);
                 if (t.value != null) data.template.size = String(t.value);
                 if (t.width != null) data.template.width = String(t.width);
             }
@@ -843,8 +852,13 @@ const Activities = (function () {
         return entries.map(damagePartFromBlueprint);
     }
 
-    /* Three scopes because a deferral splits them across two activities. Exactly one supplies each.
-       `authoredType` is the _source duration type, absent on the pre-type shape. */
+    /* An action authored before `radius` moved off dnd5e's still carries the old template. */
+    function targetTypeForTemplate(templateType, authored) {
+        if (templateTypeFor(authored) === templateType) return authored;
+        if (authored === "radius" && templateType === "radius") return authored;
+        return GMM_TARGET_TYPES_BY_TEMPLATE[templateType] ?? templateType;
+    }
+
     function readActivityIntoBlueprintData(activity, blueprintData, { shared = true, gate = true, damage = true, authoredType = null } = {}) {
         if (!activity) return;
         const obj = (typeof activity.toObject === "function") ? activity.toObject() : activity;
@@ -883,7 +897,7 @@ const Activities = (function () {
             const tpl = obj.target.template ?? {};
             const aff = obj.target.affects ?? {};
             if (tpl.type) {
-                blueprintData.target.type = tpl.type;
+                blueprintData.target.type = targetTypeForTemplate(tpl.type, blueprintData.target.type);
                 blueprintData.target.value = tpl.size ? Number(tpl.size) : null;
                 blueprintData.target.width = tpl.width ? Number(tpl.width) : null;
                 blueprintData.target.units = tpl.units ?? null;
@@ -1513,6 +1527,12 @@ const Activities = (function () {
         return update;
     }
 
+    function _templateTypeStale(blueprint, primary) {
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+        const wanted = isAreaTarget(blueprintData) ? templateTypeFor(blueprintData.target.type) : "";
+        return (primary?.target?.template?.type ?? "") !== wanted;
+    }
+
     /* An unmigrated item has the pool on the activity, where nothing spends it.
        Idempotent: the rebuild writes the target this looks for. */
     function _poolTargetMismatch(blueprint, primary) {
@@ -1559,6 +1579,7 @@ const Activities = (function () {
         const primary = activities.get(GMM_ACTIVITY_ID);
         if (primary?.type !== _wantedPrimaryType(blueprint)) return true;
         if (_poolTargetMismatch(blueprint, primary)) return true;
+        if (_templateTypeStale(blueprint, primary)) return true;
         if (_durationEffectStale(item, blueprint)) return true;
         if (_onSaveStale(activities, blueprint)) return true;
         if (activities.get(GMM_ZONE_ACTIVITY_ID)?.duration?.concentration) return true;
@@ -1656,7 +1677,8 @@ const Activities = (function () {
             || (hasZoneActivity(blueprint) !== !!source[GMM_ZONE_ACTIVITY_ID])
             || !!source[GMM_ZONE_ACTIVITY_ID]?.duration?.concentration
             || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint))
-            || _poolTargetMismatch(blueprint, source[GMM_ACTIVITY_ID]);
+            || _poolTargetMismatch(blueprint, source[GMM_ACTIVITY_ID])
+            || _templateTypeStale(blueprint, source[GMM_ACTIVITY_ID]);
         const cleanup = rebuild ? null : buildSourceFormulaCleanup(item ?? data);
         if (!rebuild && !duration && !cleanup && foundry.utils.isEmpty(purge)) return null;
         const update = { ...purge };
