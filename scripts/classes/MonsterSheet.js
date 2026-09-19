@@ -223,6 +223,10 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     _renderAttunement() {}
     _renderSpellbook() {}
 
+    canExpand() {
+        return false;
+    }
+
     /* Suppress the dnd5e "mode slider" (`.mode-slider`): GMM's Forge UI is always editable and exposes its own controls. */
     _renderModeToggle() {
         const toggle = this.element?.querySelector(".window-header .mode-slider");
