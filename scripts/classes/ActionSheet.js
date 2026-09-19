@@ -494,14 +494,19 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
 
         // A temporary effect wants the chat card's Apply Effect button. A passive one wants to transfer.
         const defaultOnUse = effectType === "temporary";
+        // An enchantment is magical by schema default. Only a plain effect takes the item's `mgc` property.
+        const system = (!isEnchantment && CompatibilityHelpers.dnd5eAtLeast(6))
+            ? { magical: !!this.document.system?.properties?.has?.("mgc") }
+            : undefined;
         const created = await this.document.createEmbeddedDocuments("ActiveEffect", [{
+            type: isEnchantment ? "enchantment" : "base",
             name: game.i18n.localize("gmm.common.effect.new"),
             img: this.document.img,
             origin: isEnchantment ? undefined : this.document.uuid,
-            "duration.rounds": effectType === "temporary" ? 1 : undefined,
+            duration: effectType === "temporary" ? CompatibilityHelpers.effectRoundsDuration(1) : undefined,
             disabled: ["inactive", "enchantmentInactive"].includes(effectType),
             transfer: !isEnchantment && !defaultOnUse,
-            "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
+            system
         }]);
 
         if (!isEnchantment && defaultOnUse && this.item.system?.activities?.has?.(Activities.GMM_ACTIVITY_ID)) {

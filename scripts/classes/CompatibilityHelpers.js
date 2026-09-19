@@ -162,10 +162,18 @@ const CompatibilityHelpers = (function () {
 		return dnd5e.utils.defaultUnits?.("length") ?? "ft";
 	}
 
+	function foundryGeneration() {
+		return game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
+	}
+
+	/* v14 replaced the ActiveEffect `{rounds, turns, seconds}` duration with a value/units pair. */
+	function effectRoundsDuration(rounds) {
+		return foundryGeneration() >= 14 ? { value: rounds, units: "rounds" } : { rounds: rounds };
+	}
+
 	/* GMM's modal mode-select emits v13's `rollMode` values, which v14's `messageMode` does not accept. */
 	function rollMessageOptions(mode) {
-		const generation = game.release?.generation ?? (Number.parseInt(game.version, 10) || 0);
-		if (generation < 14) return { rollMode: mode };
+		if (foundryGeneration() < 14) return { rollMode: mode };
 		// A literal "roll"/unknown is left unset so toMessage falls back to the world default. Passing
 		// "roll" as a messageMode would fail applyMode's CONFIG.ChatMessage.modes lookup.
 		const messageMode = { publicroll: "public", gmroll: "gm", blindroll: "blind", selfroll: "self" }[mode];
@@ -200,6 +208,7 @@ const CompatibilityHelpers = (function () {
 		setArmorClassCalculation: setArmorClassCalculation,
 		readInputs: readInputs,
 		rollMessageOptions: rollMessageOptions,
+		effectRoundsDuration: effectRoundsDuration,
 		defaultLengthUnits: defaultLengthUnits
 	};
 })();

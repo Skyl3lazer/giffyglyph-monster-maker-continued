@@ -492,12 +492,12 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const li = target.closest(".effect-section");
         const isEnchantment = li.dataset.effectType.startsWith("enchantment");
         return this.document.createEmbeddedDocuments("ActiveEffect", [{
+            type: isEnchantment ? "enchantment" : "base",
             name: game.i18n.localize("gmm.common.effect.new"),
             img: "icons/svg/aura.svg",
             origin: isEnchantment ? undefined : this.document.uuid,
-            "duration.rounds": li.dataset.effectType === "temporary" ? 1 : undefined,
-            disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),
-            "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
+            duration: li.dataset.effectType === "temporary" ? CompatibilityHelpers.effectRoundsDuration(1) : undefined,
+            disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType)
         }]);
     }
 
