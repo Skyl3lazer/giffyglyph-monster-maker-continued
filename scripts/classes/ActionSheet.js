@@ -491,7 +491,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         // A temporary effect wants the chat card's Apply Effect button. A passive one wants to transfer.
         const defaultOnUse = effectType === "temporary";
         const created = await this.document.createEmbeddedDocuments("ActiveEffect", [{
-            name: game.i18n.localize("DND5E.EffectNew"),
+            name: game.i18n.localize("gmm.common.effect.new"),
             img: this.document.img,
             origin: isEnchantment ? undefined : this.document.uuid,
             "duration.rounds": effectType === "temporary" ? 1 : undefined,
