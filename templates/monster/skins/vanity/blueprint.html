@@ -830,6 +830,22 @@
                                 </div>
                                 {{/unless}}
                                 {{/each}}
+                                {{#if hasConditions}}
+                                <div class="form-fieldset">
+                                    <div class="form-fieldset__header">
+                                        <span>
+                                            {{localize 'gmm.monster.blueprint.effects.conditions'}}
+                                        </span>
+                                    </div>
+                                    <div class="form-fieldset__body">
+                                        <div class="items item-list">
+                                            {{#each conditions as |condition|}}
+                                            {{> (getTemplate "monster/skins/vanity/partials/blueprint_condition.html") condition=condition}}
+                                            {{/each}}
+                                        </div>
+                                    </div>
+                                </div>
+                                {{/if}}
                             </{{elements.effects}}>
                         </div>
                     </div>
