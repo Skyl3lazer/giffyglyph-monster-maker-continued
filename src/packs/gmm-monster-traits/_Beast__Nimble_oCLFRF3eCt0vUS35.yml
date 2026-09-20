@@ -82,6 +82,7 @@ effects:
     system:
       changes:
         - key: system.attributes.movement.ignoredDifficultTerrain
+          _id: Llpq84gJv9c5fiyb
           type: add
           value: ''
     flags:

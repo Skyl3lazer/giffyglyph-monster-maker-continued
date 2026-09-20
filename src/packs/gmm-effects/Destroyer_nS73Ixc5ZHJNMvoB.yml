@@ -16,15 +16,19 @@ sort: 0
 system:
   changes:
     - key: system.bonuses.mwak.damage
+      _id: Hxx9UD3JlqoW7lxL
       type: add
       value: '@gmm.level[fire]'
     - key: system.bonuses.rwak.damage
+      _id: pBIYG4q1yTBUN9nJ
       type: add
       value: '@gmm.level[fire]'
     - key: system.bonuses.msak.damage
+      _id: iZeNpKdUqm123kj5
       type: add
       value: '@gmm.level[fire]'
     - key: system.bonuses.rsak.damage
+      _id: 4gm7zOAJXglCI6YK
       type: add
       value: '@gmm.level[fire]'
 flags:

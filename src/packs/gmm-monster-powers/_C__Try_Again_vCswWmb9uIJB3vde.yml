@@ -80,12 +80,15 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.optional.TryAgain.attack.fail.all
+          _id: 2nEq1R3eqvRpEjRV
           type: custom
           value: reroll
         - key: flags.midi-qol.optional.TryAgain.count
+          _id: 1cqIARMrzKx2hoQD
           type: custom
           value: reaction
         - key: flags.midi-qol.optional.TryAgain.label
+          _id: iYjfl8wMc8W7N4CM
           type: custom
           value: Try Again
     flags:

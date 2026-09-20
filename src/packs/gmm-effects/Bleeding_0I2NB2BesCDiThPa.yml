@@ -9,11 +9,14 @@ description: >-
   automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.bleeding
 folder: gmmConditions000
 sort: 0
 system:
   changes:
     - key: flags.midi-qol.OverTime
+      _id: t9C0TDxG0rdaye8O
       type: custom
       value: turn=end,label=Bleeding,macro=function.gmmc.conditions.bleeding
 flags:

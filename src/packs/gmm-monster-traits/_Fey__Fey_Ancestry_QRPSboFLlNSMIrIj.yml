@@ -81,6 +81,7 @@ effects:
     system:
       changes:
         - key: flags.cat.CR.charmed
+          _id: FTgzU9S8dQkSFCSJ
           type: custom
           value: '1'
     flags:

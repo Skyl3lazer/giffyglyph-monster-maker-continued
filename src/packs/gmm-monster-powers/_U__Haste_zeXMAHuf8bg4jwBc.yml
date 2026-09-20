@@ -91,6 +91,7 @@ effects:
     system:
       changes:
         - key: system.attributes.movement.walk
+          _id: 2FDXB1eRGC3OLa6y
           type: add
           value: '10'
     flags:

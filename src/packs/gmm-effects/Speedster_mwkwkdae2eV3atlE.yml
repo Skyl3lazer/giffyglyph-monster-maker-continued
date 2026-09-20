@@ -13,6 +13,7 @@ sort: 0
 system:
   changes:
     - key: system.attributes.movement.walk
+      _id: uLrYiIRx9wTPYVA7
       type: add
       value: '+10'
 flags:

@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.magicResistance.all
+          _id: JrFCqirOEhBBpHhy
           type: custom
           value: '1'
     flags:

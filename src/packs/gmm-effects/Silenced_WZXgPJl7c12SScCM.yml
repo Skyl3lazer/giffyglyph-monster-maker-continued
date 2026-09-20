@@ -8,6 +8,8 @@ description: >-
   you to make a vocal sound.</p></li></ul><p><em>No automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.silenced
 folder: gmmConditions000
 sort: 0
 system:

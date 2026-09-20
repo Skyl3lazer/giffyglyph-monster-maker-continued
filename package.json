@@ -11,6 +11,7 @@
     "unpack": "node tools/packs.mjs unpack",
     "pack": "node tools/packs.mjs pack",
     "forge-packs": "node tools/forge-pack-activities.mjs",
+    "stamp-ids": "node tools/stamp-change-ids.mjs",
     "postinstall": "node tools/packs.mjs pack && npm run symlinks",
     "prepare": "git config core.hooksPath .githooks",
     "symlinks": "node tools/create-symlinks.mjs",

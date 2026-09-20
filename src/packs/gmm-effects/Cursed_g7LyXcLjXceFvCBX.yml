@@ -7,6 +7,8 @@ description: >-
   points, you die.</p></li></ul><p><em>Core automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.cursed
 folder: gmmConditions000
 sort: 0
 system:

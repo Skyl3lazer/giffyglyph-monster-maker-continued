@@ -81,6 +81,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.grants.noCritical.all
+          _id: fH42zH57ZgmFclpX
           type: custom
           value: '1'
     flags:

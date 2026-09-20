@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.grants.noCritical.all
+          _id: iTQSzhBnZikQfvuG
           type: custom
           value: >-
             target.system.attributes.hp.value > target.system.attributes.hp.max

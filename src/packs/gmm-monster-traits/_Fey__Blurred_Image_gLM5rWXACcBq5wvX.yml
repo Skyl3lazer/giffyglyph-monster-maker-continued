@@ -83,6 +83,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.grants.disadvantage.attack.all
+          _id: 7TsJdXAD1oAFDWgQ
           type: custom
           value: '1'
     flags:

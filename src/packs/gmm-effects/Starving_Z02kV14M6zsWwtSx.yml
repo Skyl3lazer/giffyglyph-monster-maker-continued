@@ -9,6 +9,8 @@ description: >-
   automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.starving
 folder: gmmConditions000
 sort: 0
 system:

@@ -81,6 +81,7 @@ effects:
     system:
       changes:
         - key: flags.automated-conditions-5e.damage.bonus
+          _id: kEU3YKXdy8a6EeSC
           type: ac5e
           value: bonus=@gmm.level; hasAdvantage
     flags:

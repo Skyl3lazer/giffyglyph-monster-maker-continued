@@ -92,9 +92,11 @@ effects:
     system:
       changes:
         - key: flags.automated-conditions-5e.attack.criticalThreshold
+          _id: 9TCaQAh49I40wCMH
           type: ac5e
           value: threshold=-1
         - key: flags.dnd5e.halflingLucky
+          _id: 0L13DmM8KpYFbReC
           type: override
           value: '1'
     flags:

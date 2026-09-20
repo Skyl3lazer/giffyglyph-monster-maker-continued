@@ -82,6 +82,7 @@ effects:
     system:
       changes:
         - key: flags.dnd5e.halflingLucky
+          _id: CcBrACs3uBWYBVnu
           type: override
           value: '1'
     flags:

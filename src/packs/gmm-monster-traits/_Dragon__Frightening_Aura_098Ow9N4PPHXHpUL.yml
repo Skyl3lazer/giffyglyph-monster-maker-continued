@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.cat.CV.frightened
+          _id: WBouhhsuJOZtYnqT
           type: custom
           value: '1'
       applyToSelf: false

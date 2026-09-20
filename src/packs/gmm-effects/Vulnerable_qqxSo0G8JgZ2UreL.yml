@@ -11,11 +11,14 @@ description: >-
   Resistance (Add) for that type.</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.vulnerable
 folder: gmmConditions000
 sort: 0
 system:
   changes:
     - key: system.traits.dv.value
+      _id: UzawAuMrzPR3RrX1
       type: add
       value: ''
 flags:

@@ -17,9 +17,11 @@ sort: 0
 system:
   changes:
     - key: system.attributes.ac.bonus
+      _id: mQNJxQVLjOyh0rz4
       type: add
       value: '+2'
     - key: flags.midi-qol.advantage.save.all
+      _id: MKadjhnTQHP4TIqw
       type: custom
       value: '1'
 flags:

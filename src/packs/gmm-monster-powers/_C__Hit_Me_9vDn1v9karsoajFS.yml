@@ -97,6 +97,7 @@ effects:
     system:
       changes:
         - key: flags.automated-conditions-5e.attack.disadvantage
+          _id: koSqumqyACJ8w6T1
           type: ac5e
           value: >-
             effectOriginActor.uuid !== effectActor.uuid && opponentActorUuid !==

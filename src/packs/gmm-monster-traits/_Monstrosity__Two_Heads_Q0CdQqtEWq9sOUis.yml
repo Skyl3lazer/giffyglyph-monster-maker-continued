@@ -81,24 +81,31 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.advantage.skill.prc
+          _id: qFNFl9nlmEPJl5tc
           type: custom
           value: '1'
         - key: flags.cat.CR.blinded
+          _id: awEhSK1HDuaNRESs
           type: custom
           value: '1'
         - key: flags.cat.CR.charmed
+          _id: vmmhxtTlym8jVJi0
           type: custom
           value: '1'
         - key: flags.cat.CR.deafened
+          _id: 9RNgwIkPY2nZ6gdd
           type: custom
           value: '1'
         - key: flags.cat.CR.frightened
+          _id: ZHfmUK15qKXvSLcv
           type: custom
           value: '1'
         - key: flags.cat.CR.stunned
+          _id: LvKkG29LwWfjPzBc
           type: custom
           value: '1'
         - key: flags.cat.CR.unconscious
+          _id: p8li4DWXrFN4C4bq
           type: custom
           value: '1'
     flags:

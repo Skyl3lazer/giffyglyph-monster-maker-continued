@@ -92,9 +92,11 @@ effects:
     system:
       changes:
         - key: system.traits.di.value
+          _id: lWD8K7cCcoXTSmlC
           type: add
           value: ''
         - key: system.traits.ci.value
+          _id: cx49ZuuEDRwq3Dvh
           type: add
           value: ''
     flags:

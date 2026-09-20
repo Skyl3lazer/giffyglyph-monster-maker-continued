@@ -80,9 +80,11 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.advantage.skill.per
+          _id: E9ybrg8i0pPPJCVl
           type: custom
           value: '1'
         - key: flags.midi-qol.advantage.skill.ins
+          _id: j63xuIs8IGXgQqST
           type: custom
           value: '1'
     flags:

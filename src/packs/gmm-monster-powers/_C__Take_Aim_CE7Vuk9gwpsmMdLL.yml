@@ -82,6 +82,7 @@ effects:
     system:
       changes:
         - key: flags.automated-conditions-5e.attack.advantage
+          _id: pBvcr9iX7tKjmpd7
           type: ac5e
           value: 1; once
     flags:

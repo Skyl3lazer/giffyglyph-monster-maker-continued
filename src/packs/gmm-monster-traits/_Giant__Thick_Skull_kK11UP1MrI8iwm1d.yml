@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.cat.CR.stunned
+          _id: RpllwC6xQsH2C4VR
           type: custom
           value: '1'
     flags:

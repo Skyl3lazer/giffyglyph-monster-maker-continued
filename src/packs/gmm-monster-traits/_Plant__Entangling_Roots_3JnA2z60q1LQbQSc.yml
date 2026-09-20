@@ -82,6 +82,7 @@ effects:
     system:
       changes:
         - key: system.abilities.dex.save.roll.mode
+          _id: zJeMJw8XJxB5avy8
           type: add
           value: '-1'
       applyToSelf: false

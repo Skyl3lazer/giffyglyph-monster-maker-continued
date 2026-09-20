@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.rollModifiers.damage.all.all
+          _id: HoxCrwPnDrzOWZFK
           type: override
           value: r<3
     flags:

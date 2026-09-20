@@ -91,9 +91,11 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.optional.NotLikeThat.attack.fail.all
+          _id: dVNIaZ6d6Ao4S0eN
           type: custom
           value: reroll-kh
         - key: flags.midi-qol.optional.NotLikeThat.label
+          _id: 3zNwocDL1qX7DxLV
           type: custom
           value: Not Like That
     flags:

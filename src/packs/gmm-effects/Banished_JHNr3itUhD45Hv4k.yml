@@ -9,6 +9,8 @@ description: >-
   space.</p></li></ul><p><em>No automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.banished
 folder: gmmConditions000
 sort: 0
 system:

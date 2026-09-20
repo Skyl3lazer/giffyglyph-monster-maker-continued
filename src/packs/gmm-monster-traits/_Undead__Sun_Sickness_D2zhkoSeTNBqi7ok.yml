@@ -84,6 +84,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.disadvantage.all
+          _id: zztBBXpWwBAoXUOo
           type: custom
           value: ''
     flags:

@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.advantage.save.str
+          _id: iTquwNjRMr8hYiLD
           type: custom
           value: '1'
     flags:

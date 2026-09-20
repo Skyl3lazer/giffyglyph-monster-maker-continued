@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: system.attributes.concentration.roll.mode
+          _id: dX7vIiXosOIM6nL1
           type: add
           value: '-1'
       applyToSelf: false

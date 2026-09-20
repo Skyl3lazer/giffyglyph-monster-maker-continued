@@ -85,6 +85,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.OverTime
+          _id: EURUc9G7zwPM1204
           type: custom
           value: >-
             turn=start,label=Regenerate,rollType=damage,damageRoll=floor(@attributes.hp.max*0.1),damageType=healing

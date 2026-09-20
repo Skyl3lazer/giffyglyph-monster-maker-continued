@@ -9,6 +9,8 @@ description: >-
   anything you are carrying.</p></li></ul><p><em>No automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.bound
 folder: gmmConditions000
 sort: 0
 system:

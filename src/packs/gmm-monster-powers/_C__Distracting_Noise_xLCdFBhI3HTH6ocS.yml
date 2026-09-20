@@ -82,6 +82,7 @@ effects:
     system:
       changes:
         - key: system.attributes.concentration.roll.mode
+          _id: mZsadMQoBFBPyfWu
           type: add
           value: '-1'
     flags:

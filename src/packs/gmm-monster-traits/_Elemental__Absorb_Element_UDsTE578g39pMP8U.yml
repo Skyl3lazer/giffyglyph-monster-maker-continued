@@ -82,6 +82,7 @@ effects:
     system:
       changes:
         - key: system.traits.da.fire
+          _id: hAhECKE5BtnOhZTl
           type: override
           value: '-1'
     flags:

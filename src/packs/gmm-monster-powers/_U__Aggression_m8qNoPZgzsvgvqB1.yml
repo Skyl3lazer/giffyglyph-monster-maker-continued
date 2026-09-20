@@ -92,6 +92,7 @@ effects:
     system:
       changes:
         - key: flags.automated-conditions-5e.attack.criticalThreshold
+          _id: 0VS7QWyGmdhcBoTA
           type: ac5e
           value: threshold=-1
     flags:
@@ -113,6 +114,7 @@ effects:
     system:
       changes:
         - key: flags.automated-conditions-5e.attack.advantage
+          _id: FGQu65Vd8HMawR0q
           type: ac5e
           value: 1; once
     flags:

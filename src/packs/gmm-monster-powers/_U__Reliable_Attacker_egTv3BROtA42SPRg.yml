@@ -91,15 +91,19 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.optional.ReliableAttacker.attack.fail.all
+          _id: Ti5nvP4OzqwAB1tn
           type: custom
           value: function.gmmc.rolls.reliableAttacker
         - key: flags.midi-qol.optional.ReliableAttacker.activation
+          _id: lKof2UsVe4shws0Z
           type: custom
           value: workflow.diceRoll < 11
         - key: flags.midi-qol.optional.ReliableAttacker.count
+          _id: CW41mt1skkAy802Y
           type: custom
           value: ItemUses.exactNameMatch.(U) Reliable Attacker
         - key: flags.midi-qol.optional.ReliableAttacker.label
+          _id: 8TGB0ZYfgFf0gabi
           type: custom
           value: Reliable Attacker
     flags:

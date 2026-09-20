@@ -12,6 +12,8 @@ description: >-
   automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.transformed
 folder: gmmConditions000
 sort: 0
 system:

@@ -10,7 +10,7 @@ system:
       of that damage and are not knocked prone.</p>
 
       <p><em>Adding a deferral allows this feature to deal more damage and apply
-      an effect. (See GMM pdf p.45)</em></p>
+      an effect. (See GMM pdf p.45)</em></p><p><em>Midi automation</em></p>
     chat: ''
   source: {}
   cover: null
@@ -165,26 +165,32 @@ system:
 effects:
   - changes:
       - key: flags.midi-qol.grants.advantage.attack.mwak
+        _id: bXJW3MVeilqW8a8u
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.advantage.attack.msak
+        _id: 4Z4JWQCfULFT79Tq
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.disadvantage.attack.rwak
+        _id: HbAXbnmRyUQsbLbv
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.disadvantage.attack.rsak
+        _id: X9EDs9rfX20HdQnf
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.disadvantage.attack.all
+        _id: fLLwQVEGcO2vfNU7
         mode: 0
         value: '1'
         priority: null
       - key: system.attributes.movement.all
+        _id: 3CJDYM9K1LIWV9Yu
         mode: 0
         value: '*0.5'
         priority: 25
@@ -218,7 +224,6 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Prone'
       - prone
     _id: KOIkUHzkD0vrYhnQ
     _stats:
@@ -256,7 +261,8 @@ flags:
             are not knocked prone.</p>
 
             <p><em>Adding a deferral allows this feature to deal more damage and
-            apply an effect. (See GMM pdf p.45)</em></p>
+            apply an effect. (See GMM pdf p.45)</em></p><p><em>Midi
+            automation</em></p>
         activation:
           type: action
           cost: null

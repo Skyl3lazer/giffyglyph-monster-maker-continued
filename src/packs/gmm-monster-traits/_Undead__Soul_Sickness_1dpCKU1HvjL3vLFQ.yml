@@ -92,6 +92,7 @@ effects:
     system:
       changes:
         - key: system.traits.dv.value
+          _id: OiJSRNAlABt6aPhv
           type: add
           value: necrotic
     flags:

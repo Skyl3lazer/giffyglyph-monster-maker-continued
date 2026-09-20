@@ -89,6 +89,7 @@ effects:
     system:
       changes:
         - key: system.attributes.senses.ranges.tremorsense
+          _id: exQy7cL11j2U66hE
           type: upgrade
           value: '30'
     flags:

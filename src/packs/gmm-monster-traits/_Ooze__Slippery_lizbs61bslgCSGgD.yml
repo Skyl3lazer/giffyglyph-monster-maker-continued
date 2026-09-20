@@ -82,12 +82,15 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.advantage.save.str
+          _id: OpZszUDjFpyIfpid
           type: custom
           value: ''
         - key: flags.midi-qol.advantage.check.str
+          _id: 9GmYHPTPZbdHCJpd
           type: custom
           value: ''
         - key: flags.midi-qol.advantage.check.dex
+          _id: BLTGyITab1b6eUC8
           type: custom
           value: ''
     flags:

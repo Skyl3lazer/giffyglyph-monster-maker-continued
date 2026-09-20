@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.advantage.save.all
+          _id: 69AKdQqWXrqIjQYq
           type: custom
           value: >-
             (activity?.item?.type === "spell" ||

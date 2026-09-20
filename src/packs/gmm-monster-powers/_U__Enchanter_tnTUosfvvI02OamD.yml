@@ -92,6 +92,7 @@ effects:
     system:
       changes:
         - key: flags.automated-conditions-5e.damage.typeOverride
+          _id: SIwJ8U7iDXZHO4ca
           type: ac5e
           value: override=
     flags:

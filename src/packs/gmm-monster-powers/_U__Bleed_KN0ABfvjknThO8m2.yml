@@ -6,8 +6,8 @@ system:
     value: >-
       <p>The target loses one unspent hit die.+ At the start of each of the
       creature's turns, the target makes a saving throw (DC [durationSaveDc]).
-      On a failed save, the target loses another hit die.+</p><p><em>+ Midi
-      automation</em></p>
+      On a failed save, the target loses another hit die.+</p><p><em>+ Midi and
+      DAE automation</em></p>
     chat: ''
   source: {}
   cover: null
@@ -92,6 +92,7 @@ effects:
     system:
       changes:
         - key: macro.execute
+          _id: azlCU6OK6tmTGDFn
           type: custom
           value: function.gmmc.conditions.bleeding
     flags:
@@ -122,7 +123,7 @@ flags:
             <p>The target loses one unspent hit die.+ At the start of each of
             the creature's turns, the target makes a saving throw (DC
             [durationSaveDc]). On a failed save, the target loses another hit
-            die.+</p><p><em>+ Midi automation</em></p>
+            die.+</p><p><em>+ Midi and DAE automation</em></p>
         activation:
           type: action
           cost: null

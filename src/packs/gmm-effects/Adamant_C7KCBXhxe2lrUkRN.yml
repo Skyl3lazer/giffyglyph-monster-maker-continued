@@ -13,9 +13,11 @@ sort: 0
 system:
   changes:
     - key: flags.midi-qol.grants.noCritical.all
+      _id: mEcCmZsZc1wu99fG
       type: custom
       value: '1'
     - key: flags.automated-conditions-5e.grants.attack.noCritical
+      _id: tZCRvfSawAydoVdh
       type: ac5e
       value: '1'
 flags:

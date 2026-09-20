@@ -81,6 +81,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.advantage.skill.dec
+          _id: OneoK9THp8xP8Ogd
           type: custom
           value: '1'
     flags:

@@ -8,26 +8,34 @@ description: >-
   number.</p></li></ul><p><em>Core automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.disoriented
 folder: gmmConditions000
 sort: 0
 system:
   changes:
     - key: system.bonuses.mwak.attack
+      _id: PBHV9C8IF3WQmpus
       type: add
       value: -1d4
     - key: system.bonuses.rwak.attack
+      _id: DoaXrxfiJJWiZqcU
       type: add
       value: -1d4
     - key: system.bonuses.msak.attack
+      _id: VTBHwpFMNx75IVAJ
       type: add
       value: -1d4
     - key: system.bonuses.rsak.attack
+      _id: z4fhgAfGPsYev9S7
       type: add
       value: -1d4
     - key: system.bonuses.abilities.check
+      _id: louQ9ThXgAsRAavq
       type: add
       value: -1d4
     - key: system.bonuses.abilities.save
+      _id: 5yGBFObtzMkfdZr8
       type: add
       value: -1d4
 flags:

@@ -9,11 +9,14 @@ description: >-
   checks.*</p></li></ul><p><em>* Core automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.dazed
 folder: gmmConditions000
 sort: 0
 system:
   changes:
     - key: system.attributes.concentration.roll.mode
+      _id: Is0Ba2JqP5NS1IAr
       type: add
       value: '-1'
 flags:

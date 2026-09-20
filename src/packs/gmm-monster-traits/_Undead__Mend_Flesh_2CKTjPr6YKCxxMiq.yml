@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: system.traits.da.necrotic
+          _id: M8qSfgZhcM5iCQjZ
           type: override
           value: '-1'
     flags:

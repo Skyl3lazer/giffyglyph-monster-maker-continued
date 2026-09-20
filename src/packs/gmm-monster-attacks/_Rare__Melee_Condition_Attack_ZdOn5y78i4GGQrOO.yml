@@ -4,26 +4,32 @@ img: icons/magic/perception/eye-tendrils-web-purple.webp
 effects:
   - changes:
       - key: flags.midi-qol.grants.advantage.attack.mwak
+        _id: f6SOPi6bvR41MH85
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.advantage.attack.msak
+        _id: fZRRQpj4wFXc69xJ
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.disadvantage.attack.rwak
+        _id: FAVN6bD6W4E2VHBw
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.disadvantage.attack.rsak
+        _id: E8ZydIljjgdQVDUf
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.disadvantage.attack.all
+        _id: gj1b7aGviiPirRtb
         mode: 0
         value: '1'
         priority: null
       - key: system.attributes.movement.all
+        _id: NAqN0GThZ0ffdqTb
         mode: 0
         value: '*0.5'
         priority: 25
@@ -57,7 +63,6 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Prone'
       - prone
     _id: CAomRcaSRA0lL5Gh
     _stats:
@@ -77,14 +82,17 @@ effects:
     _key: '!items.effects!ZdOn5y78i4GGQrOO.CAomRcaSRA0lL5Gh'
   - changes:
       - key: flags.midi-qol.fail.ability.save.dex
+        _id: nyOjTb1isTXVzfsZ
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.fail.ability.save.str
+        _id: 6JzN3kBbqSLPxQWO
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.advantage.attack.all
+        _id: XMTQDNDHGS8ro97D
         mode: 0
         value: '1'
         priority: null
@@ -117,7 +125,6 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Stunned'
       - stunned
       - incapacitated
     _id: WAwutDbmvD1c7pyV
@@ -151,7 +158,7 @@ flags:
           image: icons/magic/perception/eye-tendrils-web-purple.webp
           text: >-
             <p>The target is knocked prone and <em>Stunned</em> until the end of
-            its next turn.</p>
+            its next turn.</p><p><em>Midi automation</em></p>
         activation:
           type: action
           cost: 0
@@ -234,7 +241,7 @@ system:
   description:
     value: >-
       <p>The target is knocked prone and <em>Stunned</em> until the end of its
-      next turn.</p>
+      next turn.</p><p><em>Midi automation</em></p>
     chat: ''
     unidentified: ''
   source: ''

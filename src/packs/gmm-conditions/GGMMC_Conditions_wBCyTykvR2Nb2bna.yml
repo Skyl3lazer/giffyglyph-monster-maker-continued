@@ -504,7 +504,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Banished'
+      - gmm.banished
     _id: JHNr3itUhD45Hv4k
     _stats:
       coreVersion: '13.351'
@@ -560,7 +560,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Bleeding'
+      - gmm.bleeding
     _id: 0I2NB2BesCDiThPa
     _stats:
       coreVersion: '13.351'
@@ -616,7 +616,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Bound'
+      - gmm.bound
     _id: iiavSJleYRsELJlt
     _stats:
       coreVersion: '13.351'
@@ -669,7 +669,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Cursed'
+      - gmm.cursed
     _id: g7LyXcLjXceFvCBX
     _stats:
       coreVersion: '13.351'
@@ -725,7 +725,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Dazed'
+      - gmm.dazed
     _id: fxh0FikX71rUYlzv
     _stats:
       coreVersion: '13.351'
@@ -744,12 +744,13 @@ effects:
     _key: '!actors.effects!wBCyTykvR2Nb2bna.fxh0FikX71rUYlzv'
   - changes:
       - key: system.traits.dm.midi.heal
+        _id: GKr51IdlBC9Ht0o1
         mode: 1
         value: '0'
         priority: 20
     description: >-
       <ul><li><p>You can't regain hit points through any
-      means.</p><p></p></li></ul>
+      means.</p><p></p></li></ul><p><em>Midi automation</em></p>
     disabled: true
     duration:
       value: null
@@ -784,7 +785,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Decaying'
+      - gmm.decaying
     _id: ZVQDeDs58sBQzyVK
     _stats:
       coreVersion: '13.351'
@@ -840,7 +841,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Dehydrated'
+      - gmm.dehydrated
     _id: Cex1KAt2nasQKb9K
     _stats:
       coreVersion: '13.351'
@@ -859,16 +860,19 @@ effects:
     _key: '!actors.effects!wBCyTykvR2Nb2bna.Cex1KAt2nasQKb9K'
   - changes:
       - key: system.bonuses.All-Attacks
+        _id: ta2BQQEcG5Ra7xJJ
         mode: 2
-        value: -1d4
+        value: '-1d4'
         priority: 20
       - key: system.bonuses.abilities.check
+        _id: aQ39iBF636SisvHj
         mode: 2
-        value: -1d4
+        value: '-1d4'
         priority: 20
       - key: system.bonuses.abilities.save
+        _id: 68iRIBnQJIQnEO03
         mode: 2
-        value: -1d4
+        value: '-1d4'
         priority: 20
     description: >-
       <ul><li><p>Whenever you make an attack roll, ability check, or a saving
@@ -907,7 +911,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Disoriented'
+      - gmm.disoriented
     _id: mIFF9s60nRXu2uiI
     _stats:
       coreVersion: '13.351'
@@ -963,7 +967,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Fatigued'
+      - gmm.fatigued
     _id: EyVZlum6qDcAlrBM
     _stats:
       coreVersion: '13.351'
@@ -980,11 +984,7 @@ effects:
     system: {}
     sort: 0
     _key: '!actors.effects!wBCyTykvR2Nb2bna.EyVZlum6qDcAlrBM'
-  - changes:
-      - key: ''
-        mode: 2
-        value: ''
-        priority: 20
+  - changes: []
     description: <ul><li><p>Whenever you deal damage, reduce it by half.</p></li></ul>
     disabled: true
     duration:
@@ -1020,7 +1020,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Feeble'
+      - gmm.feeble
     _id: KOZyjWWkwTm21Q1d
     _stats:
       coreVersion: '13.351'
@@ -1075,7 +1075,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Silenced'
+      - gmm.silenced
     _id: WZXgPJl7c12SScCM
     _stats:
       coreVersion: '13.351'
@@ -1094,6 +1094,7 @@ effects:
     _key: '!actors.effects!wBCyTykvR2Nb2bna.WZXgPJl7c12SScCM'
   - changes:
       - key: system.attributes.movement.walk
+        _id: oL0jrubxq22duTwY
         mode: 5
         value: '10'
         priority: 20
@@ -1134,7 +1135,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Slowed'
+      - gmm.slowed
     _id: rGKzFfVxiNHt5hOS
     _stats:
       coreVersion: '13.351'
@@ -1190,7 +1191,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Starving'
+      - gmm.starving
     _id: Z02kV14M6zsWwtSx
     _stats:
       coreVersion: '13.351'
@@ -1209,12 +1210,14 @@ effects:
     _key: '!actors.effects!wBCyTykvR2Nb2bna.Z02kV14M6zsWwtSx'
   - changes:
       - key: flags.midi-qol.disadvantage.concentration
+        _id: EiUprgLIWUEDV6L0
         mode: 0
         value: '1'
         priority: 20
     description: >-
       <ul><li><p>You have disadvantage on concentration checks and any ability
-      check to interact socially.</p></li></ul><p></p>
+      check to interact socially.</p></li></ul><p></p><p><em>Midi
+      automation</em></p>
     disabled: true
     duration:
       value: null
@@ -1249,7 +1252,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Stinking'
+      - gmm.stinking
     _id: DEvGvmpnBXmDXzB8
     _stats:
       coreVersion: '13.351'
@@ -1268,17 +1271,19 @@ effects:
     _key: '!actors.effects!wBCyTykvR2Nb2bna.DEvGvmpnBXmDXzB8'
   - changes:
       - key: flags.midi-qol.grants.advantage.attack.all
+        _id: bQDkgQ3UuC3GFx1O
         mode: 0
         value: '1'
         priority: 20
       - key: flags.midi-qol.disadvantage.attack.all
+        _id: oBAhwrefo3bUERb9
         mode: 0
         value: '1'
         priority: 20
     description: >-
       <ul><li><p>You move as if in difficult terrain.</p></li><li><p>Attack
       rolls against you have advantage, and your attack rolls have
-      disadvantage.</p></li></ul><p></p>
+      disadvantage.</p></li></ul><p></p><p><em>Midi automation</em></p>
     disabled: true
     duration:
       value: null
@@ -1313,7 +1318,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Swarmed'
+      - gmm.swarmed
     _id: quNNDdLgddY73Sgx
     _stats:
       coreVersion: '13.351'
@@ -1371,7 +1376,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Transformed'
+      - gmm.transformed
     _id: dkhvgUDUeK79xF8J
     _stats:
       coreVersion: '13.351'
@@ -1426,7 +1431,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Vulnerable'
+      - gmm.vulnerable
     _id: qqxSo0G8JgZ2UreL
     _stats:
       coreVersion: '13.351'
@@ -1481,7 +1486,7 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Exposed'
+      - gmm.exposed
     _id: tK8lciUDv0zrAxsa
     _stats:
       coreVersion: '13.351'

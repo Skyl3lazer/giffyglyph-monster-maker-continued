@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: system.attributes.death.roll.mode
+          _id: 5KkJSN5C0LCcv9sg
           type: add
           value: '-1'
       applyToSelf: false

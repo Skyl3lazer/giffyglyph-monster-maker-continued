@@ -81,6 +81,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.advantage.save.all
+          _id: lHdA9B05qg2JmqAd
           type: custom
           value: '1'
       applyToSelf: false

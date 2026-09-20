@@ -107,6 +107,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.grants.advantage.attack.all
+          _id: FtBYAmBX6uDo7AJX
           type: custom
           value: '1'
     flags:

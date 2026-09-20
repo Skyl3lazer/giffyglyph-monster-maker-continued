@@ -81,6 +81,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.advantage.attack.mwak
+          _id: k1yAFnp8qFknacwu
           type: custom
           value: >-
             target.system.attributes.hp.value <= target.system.attributes.hp.max

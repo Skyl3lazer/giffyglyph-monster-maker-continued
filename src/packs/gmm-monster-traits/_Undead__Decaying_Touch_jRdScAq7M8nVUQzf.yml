@@ -81,9 +81,11 @@ effects:
     system:
       changes:
         - key: system.bonuses.mwak.damage
+          _id: QNFy10GQ5Fo8Aqm6
           type: add
           value: '@gmm.level[necrotic]'
         - key: system.bonuses.rwak.damage
+          _id: Jr5JgSWyuA60pAAL
           type: add
           value: '@gmm.level[necrotic]'
     flags:

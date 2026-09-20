@@ -13,6 +13,7 @@ sort: 0
 system:
   changes:
     - key: flags.midi-qol.OverTime
+      _id: DxMOJcHsXy9KEnEP
       type: custom
       value: turn=end,label=Unstable,macro=function.gmmc.conditions.unstable
 flags:

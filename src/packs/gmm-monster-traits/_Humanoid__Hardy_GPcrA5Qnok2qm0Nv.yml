@@ -80,12 +80,15 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.magicResistance.str
+          _id: kh0oHqFiWTMYb8L8
           type: custom
           value: '1'
         - key: flags.midi-qol.magicResistance.dex
+          _id: Aobp5M8MORSwqC4m
           type: custom
           value: '1'
         - key: flags.midi-qol.magicResistance.con
+          _id: 7C95h8dAYZ0eOYZN
           type: custom
           value: '1'
     flags:

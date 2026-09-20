@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.cat.CR.poisoned
+          _id: cOwfdrGBitwcFXkZ
           type: custom
           value: '1'
     flags:

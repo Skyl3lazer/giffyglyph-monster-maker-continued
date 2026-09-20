@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.cat.CV.charmed
+          _id: OQS6htKySjr8yv9O
           type: custom
           value: '1'
       applyToSelf: false

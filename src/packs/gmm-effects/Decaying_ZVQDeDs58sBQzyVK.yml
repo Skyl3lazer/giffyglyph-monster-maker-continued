@@ -7,11 +7,14 @@ description: >-
   through any means.</p></li></ul><p><em>Core automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.decaying
 folder: gmmConditions000
 sort: 0
 system:
   changes:
     - key: system.traits.di.value
+      _id: xyP9DXKWC2Ary6ML
       type: add
       value: healing
 flags:

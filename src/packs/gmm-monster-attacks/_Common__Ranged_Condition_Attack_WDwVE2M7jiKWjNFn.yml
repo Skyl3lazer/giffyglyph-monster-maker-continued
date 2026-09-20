@@ -4,10 +4,12 @@ img: icons/weapons/polearms/spear-ice-crystal-blue.webp
 effects:
   - changes:
       - key: flags.midi-qol.disadvantage.attack.all
+        _id: essn0nuV5rt1ILvM
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.disadvantage.ability.check.all
+        _id: syYkDdKSl8vEPStU
         mode: 0
         value: '1'
         priority: null
@@ -36,7 +38,6 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Poisoned'
       - poisoned
     _id: 9wtYVK34hDv65pHc
     _stats:
@@ -69,7 +70,7 @@ flags:
           image: icons/weapons/polearms/spear-ice-crystal-blue.webp
           text: >-
             <p>The target is <em>Poisoned&nbsp;</em>until the end of its next
-            turn.</p>
+            turn.</p><p><em>Midi automation</em></p>
         activation:
           type: action
           cost: 0
@@ -150,7 +151,7 @@ flags:
 _id: WDwVE2M7jiKWjNFn
 system:
   description:
-    value: "<p>The target is <em>Poisoned\_</em>until the end of its next turn.</p>"
+    value: "<p>The target is <em>Poisoned\_</em>until the end of its next turn.</p><p><em>Midi automation</em></p>"
     chat: ''
     unidentified: ''
   source: ''

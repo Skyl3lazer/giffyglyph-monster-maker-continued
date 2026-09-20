@@ -92,6 +92,7 @@ effects:
     system:
       changes:
         - key: system.attributes.ac.bonus
+          _id: iSQfqYQPxoundOm3
           type: add
           value: '2'
     flags:
@@ -113,12 +114,15 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.optional.RaiseShield.save.all
+          _id: B9HCGDTzTOIWCXSp
           type: custom
           value: reroll-kh
         - key: flags.midi-qol.optional.RaiseShield.count
+          _id: hXyucBggHgY47vsZ
           type: custom
           value: '1'
         - key: flags.midi-qol.optional.RaiseShield.label
+          _id: N1y4p70hbJs2BCIM
           type: custom
           value: Raise Shield
     flags:

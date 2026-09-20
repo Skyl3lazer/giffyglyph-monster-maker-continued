@@ -78,6 +78,7 @@ effects:
     system:
       changes:
         - key: system.traits.ci.value
+          _id: 3yY0gpgOkfp8Ngsr
           type: add
           value: diseased
     flags:

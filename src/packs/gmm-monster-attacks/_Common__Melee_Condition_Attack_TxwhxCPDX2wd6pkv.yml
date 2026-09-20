@@ -4,6 +4,7 @@ img: icons/magic/perception/eye-tendrils-web-purple.webp
 effects:
   - changes:
       - key: system.attributes.movement.all
+        _id: Fba9Pfk25Pm7yyks
         mode: 0
         value: '0'
         priority: 25
@@ -36,7 +37,6 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Grappled'
       - grappled
     _id: crzjYsHNN88w4s4a
     _stats:

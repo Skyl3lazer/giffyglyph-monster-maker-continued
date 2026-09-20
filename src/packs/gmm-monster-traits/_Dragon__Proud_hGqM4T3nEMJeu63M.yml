@@ -82,9 +82,11 @@ effects:
     system:
       changes:
         - key: flags.cat.CR.charmed
+          _id: 3dXjWCqfERw9p0yU
           type: custom
           value: '1'
         - key: flags.cat.CR.frightened
+          _id: wWUJZJ2ZDeMGUBu3
           type: custom
           value: '1'
     flags:

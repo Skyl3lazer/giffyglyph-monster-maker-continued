@@ -15,6 +15,7 @@ sort: 0
 system:
   changes:
     - key: system.attributes.senses.ranges.darkvision
+      _id: b94ODTpkpLyY13UD
       type: add
       value: '0'
 flags:

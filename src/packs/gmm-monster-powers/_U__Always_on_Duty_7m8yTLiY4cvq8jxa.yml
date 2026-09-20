@@ -92,6 +92,7 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.grants.noAdvantage.attack.all
+          _id: aUrAYEmPL6J6GSsl
           type: custom
           value: '1'
     flags:

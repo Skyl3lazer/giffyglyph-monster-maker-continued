@@ -9,20 +9,26 @@ description: >-
   automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.swarmed
 folder: gmmConditions000
 sort: 0
 system:
   changes:
     - key: flags.automated-conditions-5e.grants.attack.advantage
+      _id: bGwPdTB1jcsUFZ3G
       type: ac5e
       value: '1'
     - key: flags.automated-conditions-5e.attack.disadvantage
+      _id: 2HuJkO8WPkpRQ5v2
       type: ac5e
       value: '1'
     - key: flags.midi-qol.grants.advantage.attack.all
+      _id: mIh485ioytfsD82t
       type: custom
       value: '1'
     - key: flags.midi-qol.disadvantage.attack.all
+      _id: ak6KAStCTmRAAZ6k
       type: custom
       value: '1'
 flags:

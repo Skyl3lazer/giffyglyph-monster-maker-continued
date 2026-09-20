@@ -92,6 +92,7 @@ effects:
     system:
       changes:
         - key: system.attributes.ac.bonus
+          _id: OeVAcZOCWyHFBCQ6
           type: add
           value: '5'
     flags:

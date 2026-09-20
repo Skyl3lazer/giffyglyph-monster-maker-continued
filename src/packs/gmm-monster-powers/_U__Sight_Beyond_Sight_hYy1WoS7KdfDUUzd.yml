@@ -90,6 +90,7 @@ effects:
     system:
       changes:
         - key: system.attributes.senses.ranges.blindsight
+          _id: hHcXbTaIesiE50OU
           type: upgrade
           value: '60'
     flags:

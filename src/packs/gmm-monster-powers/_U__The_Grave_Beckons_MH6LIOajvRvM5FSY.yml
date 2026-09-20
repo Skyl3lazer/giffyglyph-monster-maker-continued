@@ -4,7 +4,7 @@ img: icons/magic/death/gallows-hanged-humanoid.webp
 system:
   description:
     value: >-
-      <p>The target loses one unspent hit die.+</p><p><em>+ Midi
+      <p>The target loses one unspent hit die.+</p><p><em>+ DAE
       automation</em></p>
     chat: ''
   source: {}
@@ -104,6 +104,7 @@ effects:
     system:
       changes:
         - key: macro.execute
+          _id: QIR5Sn2mJD9jmTZd
           type: custom
           value: function.gmmc.conditions.bleeding
     flags:
@@ -128,7 +129,7 @@ flags:
           name: (U) The Grave Beckons
           image: icons/magic/death/gallows-hanged-humanoid.webp
           text: >-
-            <p>The target loses one unspent hit die.+</p><p><em>+ Midi
+            <p>The target loses one unspent hit die.+</p><p><em>+ DAE
             automation</em></p>
         activation:
           type: action

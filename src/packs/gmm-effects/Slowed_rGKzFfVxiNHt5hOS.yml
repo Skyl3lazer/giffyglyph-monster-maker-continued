@@ -8,11 +8,14 @@ description: >-
   automation</em></p><p><em>Walk speed only.</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.slowed
 folder: gmmConditions000
 sort: 0
 system:
   changes:
     - key: system.attributes.movement.walk
+      _id: mZc9AXPpjtq8TeXQ
       type: downgrade
       value: '10'
 flags:

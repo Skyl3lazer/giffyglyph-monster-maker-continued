@@ -80,6 +80,7 @@ effects:
     system:
       changes:
         - key: flags.cat.CR.prone
+          _id: WnoVhq8rBilz66kQ
           type: custom
           value: '1'
     flags:

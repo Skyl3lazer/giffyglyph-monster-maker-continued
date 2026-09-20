@@ -80,9 +80,11 @@ effects:
     system:
       changes:
         - key: token.light.bright
+          _id: Ujw2ATj15e8RNqKQ
           type: override
           value: '15'
         - key: token.light.dim
+          _id: 43cJnWnu8Y2BCfwb
           type: override
           value: '30'
     flags:
