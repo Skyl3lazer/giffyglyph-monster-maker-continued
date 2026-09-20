@@ -351,9 +351,10 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     _onSortItem(event, item) {
         if (this.actor.isToken) return;
         const source = item;
+        // Two abilities may share a sort. The helper reindexes ties in the order it is handed them.
         const siblings = this.actor.items.contents.filter((i) => {
             return (i.getSortingCategory() === source.getSortingCategory()) && (i.id !== source.id);
-        });
+        }).sort(MonsterBlueprint.compareItemsForDisplay);
         const dropTarget = event.target.closest(".item");
         const targetId = dropTarget ? dropTarget.dataset?.itemId : null;
         const target = siblings.find(s => s.id === targetId);

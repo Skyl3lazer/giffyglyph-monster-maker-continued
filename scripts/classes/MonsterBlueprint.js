@@ -338,40 +338,84 @@ const MonsterBlueprint = (function () {
 			return blueprint;
 		}
 	}
-	function getSortValue(a, b) {
-		let aRarity = 0;
-		let bRarity = 0;
-		switch (a.rarity) {
+	// Spells are left out: the spellbook already reads `sort` straight through.
+	const SORTED_CATEGORIES = new Set(["action", "bonus", "reaction", "lair", "legendary", "trait", "loot"]);
+
+	function rarityRank(rarity) {
+		switch (rarity) {
 			case "common":
-				aRarity = 0;
-				break;
+				return 0;
 			case "uncommon":
-				aRarity = 1;
-				break;
+				return 1;
 			case "rare":
-				aRarity = 2;
-				break;
+				return 2;
 			default:
-				aRarity = 3;
-				break;
+				return 3;
 		}
-		switch (b.rarity) {
-			case "common":
-				bRarity = 0;
-				break;
-			case "uncommon":
-				bRarity = 1;
-				break;
-			case "rare":
-				bRarity = 2;
-				break;
-			default:
-				bRarity = 3;
-				break;
-		}
-		let sortValue = bRarity - aRarity || a.name.localeCompare(b.name);
-		return sortValue;
 	}
+
+	function compareByDefault(a, b) {
+		return rarityRank(b.rarity) - rarityRank(a.rarity) || a.name.localeCompare(b.name);
+	}
+
+	function getSortValue(a, b) {
+		return ((a.sort || 0) - (b.sort || 0)) || compareByDefault(a, b);
+	}
+
+	function _orderKey(item) {
+		return {
+			name: item.name ? item.name : "",
+			rarity: item.flags?.gmm?.blueprint?.data?.rarity ? item.flags.gmm.blueprint.data.rarity : ""
+		};
+	}
+
+	function compareItemsForDisplay(a, b) {
+		return ((a.sort || 0) - (b.sort || 0)) || compareByDefault(_orderKey(a), _orderKey(b));
+	}
+
+	function _sortedSiblings(actor, category, excludeId) {
+		return (actor?.items?.contents ?? [])
+			.filter(i => (i.id !== excludeId) && (i.getSortingCategory?.() === category))
+			.sort(compareItemsForDisplay);
+	}
+
+	/* The sort a new or renamed ability takes so it lands in default order without disturbing a GM's own. */
+	function getDefaultSort(actor, category, orderKey, excludeId = null) {
+		const density = CONST.SORT_INTEGER_DENSITY;
+		const siblings = _sortedSiblings(actor, category, excludeId);
+		if (!siblings.length) return density;
+
+		const idx = siblings.findIndex(s => compareByDefault(orderKey, _orderKey(s)) < 0);
+		if (idx === 0) return (siblings[0].sort || 0) - density;
+		if (idx === -1) return (siblings[siblings.length - 1].sort || 0) + density;
+
+		const min = siblings[idx - 1].sort || 0;
+		const max = siblings[idx].sort || 0;
+		// A tie is settled by the default comparator anyway
+		return (max - min > 1) ? Math.round((min + max) / 2) : max;
+	}
+
+	/* An ability dropped from a compendium arrives carrying that pack's sort, which orders nothing here. */
+	function normalizeItemSorts(actor) {
+		const buckets = new Map();
+		for (const item of (actor?.items?.contents ?? [])) {
+			const category = item.getSortingCategory?.();
+			if (!SORTED_CATEGORIES.has(category)) continue;
+			if (!buckets.has(category)) buckets.set(category, []);
+			buckets.get(category).push(item);
+		}
+
+		const updates = [];
+		for (const items of buckets.values()) {
+			items.sort((a, b) => compareByDefault(_orderKey(a), _orderKey(b)));
+			items.forEach((item, i) => {
+				const sort = (i + 1) * CONST.SORT_INTEGER_DENSITY;
+				if (item.sort !== sort) updates.push({ _id: item.id, sort: sort });
+			});
+		}
+		return updates;
+	}
+
 	function getActorDataFromBlueprint(blueprint, currentActor = null) {
 		const actorData = {};
 
@@ -523,7 +567,8 @@ const MonsterBlueprint = (function () {
 				rank: item.flags.gmm?.blueprint?.data?.requirements?.rank,
 				role: item.flags.gmm?.blueprint?.data?.requirements?.role
 			},
-			rarity: item.flags.gmm?.blueprint?.data?.rarity ? item.flags.gmm?.blueprint?.data?.rarity : ""
+			rarity: item.flags.gmm?.blueprint?.data?.rarity ? item.flags.gmm?.blueprint?.data?.rarity : "",
+			sort: item.sort ? item.sort : 0
 		};
 		return details;
 	}
@@ -531,7 +576,11 @@ const MonsterBlueprint = (function () {
 	return {
 		createFromActor: createFromActor,
 		createBaseFromActor: createBaseFromActor,
-		getActorDataFromBlueprint: getActorDataFromBlueprint
+		getActorDataFromBlueprint: getActorDataFromBlueprint,
+		getDefaultSort: getDefaultSort,
+		compareItemsForDisplay: compareItemsForDisplay,
+		normalizeItemSorts: normalizeItemSorts,
+		isSortedCategory: (category) => SORTED_CATEGORIES.has(category)
 	};
 })();
 

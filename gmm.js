@@ -5,6 +5,7 @@ import ActionSheet from './scripts/classes/ActionSheet.js';
 import Templates from './scripts/classes/Templates.js';
 import Activities from './scripts/classes/Activities.js';
 import ActionBlueprint from './scripts/classes/ActionBlueprint.js';
+import MonsterBlueprint from './scripts/classes/MonsterBlueprint.js';
 import ParagonPower from './scripts/classes/ParagonPower.js';
 import ParagonDefenses from './scripts/classes/ParagonDefenses.js';
 import Auras from './scripts/classes/Auras.js';
@@ -133,6 +134,15 @@ Hooks.once("init", function() {
 		}
 	});
 
+	Hooks.on("preCreateItem", (item, _data, _options, _userId) => {
+		try {
+			const sort = _defaultSortFor(item);
+			if (sort !== null) item.updateSource({ sort: sort });
+		} catch (e) {
+			console.warn("GMM | default item sort failed", e);
+		}
+	});
+
 	// Items embedded during actor creation never reach preCreateItem.
 	Hooks.on("preCreateActor", (actor, _data, _options, _userId) => {
 		try {
@@ -194,6 +204,29 @@ Hooks.once("init", function() {
 
 	/* No builder can delete an embedded document, so a forged effect the blueprint no longer asks for is
 	   disposed of here. Gated on the acting client, so two owners do not race the same deletion. */
+	Hooks.on("preUpdateItem", (item, change, options, _userId) => {
+		try {
+			const rarity = change.flags?.gmm?.blueprint?.data?.rarity;
+			const renamed = ("name" in change) && (change.name !== item.name);
+			const rerarified = (rarity !== undefined) && (rarity !== item.flags?.gmm?.blueprint?.data?.rarity);
+			if (renamed || rerarified) options.gmmReorder = true;
+		} catch (e) {
+			console.warn("GMM | default item re-sort check failed", e);
+		}
+	});
+
+	Hooks.on("updateItem", (item, change, options, userId) => {
+		if ((game.user.id !== userId) || !options.gmmReorder || ("sort" in change)) return;
+		try {
+			const sort = _defaultSortFor(item);
+			if ((sort !== null) && (sort !== item.sort)) {
+				item.update({ sort: sort }).catch(e => console.warn("GMM | default item re-sort failed", e));
+			}
+		} catch (e) {
+			console.warn("GMM | default item re-sort failed", e);
+		}
+	});
+
 	Hooks.on("updateItem", (item, _change, _options, userId) => {
 		if (game.user.id !== userId) return;
 		try {
@@ -298,8 +331,49 @@ Hooks.once('ready', async () => {
 		} catch (e) {
 			console.error("GMM | Activity migration encountered an error", e);
 		}
+		try {
+			await _normalizeItemSorts();
+		} catch (e) {
+			console.error("GMM | Item sort normalization encountered an error", e);
+		}
 	}
 });
+
+/* Writes the order the sheet was already printing, so a world gains sort values without moving a row. */
+async function _normalizeItemSorts() {
+	if (game.settings.get(GMM_MODULE_TITLE, "itemSortsNormalized")) return;
+
+	let total = 0;
+	for (const actor of (game.actors ?? [])) {
+		if (!actor.isOwner) continue;
+		if (actor.getSheetId?.() !== `${GMM_MODULE_TITLE}.MonsterSheet`) continue;
+		try {
+			const updates = MonsterBlueprint.normalizeItemSorts(actor);
+			if (!updates.length) continue;
+			await actor.updateEmbeddedDocuments("Item", updates);
+			total += updates.length;
+		} catch (e) {
+			console.warn(`GMM | Item sort normalization failed for actor ${actor.name} (${actor.id})`, e);
+		}
+	}
+
+	await game.settings.set(GMM_MODULE_TITLE, "itemSortsNormalized", true);
+	if (total > 0) console.log(`GMM | Normalized the list order of ${total} scaling-monster item(s).`);
+}
+
+function _defaultSortFor(item) {
+	const actor = item?.parent;
+	if (!actor || (actor.documentName !== "Actor")) return null;
+	if (actor.type !== "npc") return null;
+	if (actor.getSheetId?.() !== `${GMM_MODULE_TITLE}.MonsterSheet`) return null;
+
+	const category = item.getSortingCategory?.();
+	if (!MonsterBlueprint.isSortedCategory(category)) return null;
+
+	const rarity = item.flags?.gmm?.blueprint?.data?.rarity;
+	const orderKey = { name: item.name ? item.name : "", rarity: rarity ? rarity : "" };
+	return MonsterBlueprint.getDefaultSort(actor, category, orderKey, item.id);
+}
 
 /* True when a preUpdateItem change binds the sheet to the GMMC ActionSheet from a different sheet. */
 function _isSheetSwitchToGmm(item, change) {
@@ -584,6 +658,14 @@ async function _hookItemDirectory(html) {
 }
 
 function _registerSettings() {
+
+	// One-shot. Re-running it would throw away every order a GM has since dragged.
+	game.settings.register(GMM_MODULE_TITLE, "itemSortsNormalized", {
+		scope: "world",
+		config: false,
+		default: false,
+		type: Boolean
+	});
 
 	game.settings.register(GMM_MODULE_TITLE, "trackParagonActions", {
 		name: "gmm.settings.track_paragon_actions.name",
