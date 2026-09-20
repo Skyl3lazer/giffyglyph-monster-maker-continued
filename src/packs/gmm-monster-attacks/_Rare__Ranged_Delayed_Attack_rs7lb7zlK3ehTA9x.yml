@@ -13,64 +13,155 @@ system:
       an effect. (See GMM pdf p.45)</em></p>
     chat: ''
   source: {}
-  activation:
-    type: action
-    cost: null
-    condition: ''
-  duration:
-    value: ''
-    units: ''
   cover: null
   crewed: false
-  target:
-    value: 10
-    width: null
-    units: ft
-    type: sphere
-    prompt: true
-  range:
-    value: 120
-    long: null
-    units: ft
   uses:
-    value: 1
-    max: 1
-    per: lr
-    recovery: ''
-    prompt: true
-  consume:
-    type: ''
-    target: ''
-    amount: null
-    scale: false
-  ability: ''
-  actionType: rwak
-  attack:
-    bonus: ''
-    flat: false
-  chatFlavor: ''
-  critical:
-    threshold: null
-    damage: ''
-  damage:
-    parts:
-      - - '[round(damage*1.25), damageDie]'
-        - radiant
-    versatile: ''
-  formula: '[round(damage*0.75), damageDie] radiant'
-  save:
-    ability: ''
-    dc: null
-    scaling: spell
-  summons: null
+    spent: 0
+    max: '1'
+    recovery:
+      - period: lr
+        type: recoverAll
+        formula: ''
   type:
-    value: ''
+    value: monster
     subtype: ''
   properties: []
   requirements: ''
-  recharge:
-    value: null
-    charged: false
+  activities:
+    gmmprimary000000:
+      _id: gmmprimary000000
+      type: utility
+      name: (Rare) Ranged Delayed Attack
+      sort: 0
+      activation:
+        type: action
+        value: null
+        condition: ''
+        override: false
+      consumption:
+        targets:
+          - type: itemUses
+            target: ''
+            value: '1'
+            scaling:
+              mode: ''
+              formula: ''
+        scaling:
+          allowed: false
+          max: ''
+        spellSlot: false
+      duration:
+        concentration: false
+        special: ''
+        override: false
+        value: null
+        units: spec
+      range:
+        value: 120
+        units: ft
+        special: ''
+        override: false
+      target:
+        template:
+          count: ''
+          contiguous: false
+          stationary: false
+          type: sphere
+          size: '10'
+          width: ''
+          height: ''
+          units: ft
+        affects:
+          count: ''
+          type: ''
+          choice: false
+          special: ''
+        prompt: true
+        override: false
+      uses:
+        spent: 0
+        max: ''
+        recovery: []
+      effects: []
+    gmmdeferred00000:
+      _id: gmmdeferred00000
+      type: attack
+      name: (Rare) Ranged Delayed Attack
+      sort: 1
+      activation:
+        type: ''
+        value: null
+        condition: ''
+        override: false
+      consumption:
+        targets: []
+        scaling:
+          allowed: false
+          max: ''
+        spellSlot: false
+      duration:
+        concentration: false
+        special: ''
+        override: false
+        value: null
+        units: inst
+      range:
+        value: 120
+        units: ft
+        special: ''
+        override: false
+      target:
+        template:
+          count: ''
+          contiguous: false
+          stationary: false
+          type: ''
+          size: ''
+          width: ''
+          height: ''
+          units: ft
+        affects:
+          count: ''
+          type: ''
+          choice: false
+          special: ''
+        prompt: true
+        override: false
+      uses:
+        spent: 0
+        max: ''
+        recovery: []
+      attack:
+        ability: max
+        bonus: ''
+        critical:
+          threshold: null
+        flat: true
+        type:
+          value: ranged
+          classification: weapon
+      damage:
+        critical:
+          bonus: ''
+        includeBase: false
+        parts:
+          - number: null
+            denomination: null
+            bonus: ''
+            types:
+              - radiant
+            custom:
+              enabled: true
+              formula: '0'
+            scaling:
+              mode: ''
+              number: 1
+              formula: ''
+      midiProperties:
+        automationOnly: true
+        otherActivityCompatible: false
+      effects:
+        - _id: KOIkUHzkD0vrYhnQ
 effects:
   - changes:
       - key: flags.midi-qol.grants.advantage.attack.mwak
@@ -197,6 +288,11 @@ flags:
         duration:
           units: ''
           value: ''
+          type: instant
+          reapplies: ''
+          save:
+            ability: ''
+          cancel: ''
         range:
           units: ft
           value: 120
@@ -253,7 +349,7 @@ flags:
     ignoreTotalCover: false
 _stats:
   systemId: dnd5e
-  systemVersion: 3.1.2
+  systemVersion: 5.3.2
   coreVersion: '13.351'
   createdTime: 1712154346132
   modifiedTime: 1716244141903

@@ -8,62 +8,91 @@ system:
       automation</em></p>
     chat: ''
   source: {}
-  activation:
-    type: action
-    cost: null
-    condition: ''
-  duration:
-    value: ''
-    units: ''
   cover: null
   crewed: false
-  target:
-    value: 10
-    width: null
-    units: ft
-    type: sphere
-    prompt: true
-  range:
-    value: 30
-    long: null
-    units: ft
   uses:
-    value: 3
-    max: 3
-    per: lr
-    recovery: ''
-    prompt: true
-  consume:
-    type: ''
-    target: ''
-    amount: null
-    scale: false
-  ability: null
-  actionType: rwak
-  attack:
-    bonus: ''
-    flat: false
-  chatFlavor: ''
-  critical:
-    threshold: null
-    damage: ''
-  damage:
-    parts: []
-    versatile: ''
-  formula: ''
-  save:
-    ability: ''
-    dc: null
-    scaling: spell
-  summons: null
+    spent: 0
+    max: '3'
+    recovery:
+      - period: lr
+        type: recoverAll
+        formula: ''
   type:
-    value: ''
+    value: monster
     subtype: ''
   properties: []
   requirements: ''
-  recharge:
-    value: null
-    charged: false
+  activities:
+    gmmprimary000000:
+      _id: gmmprimary000000
+      type: attack
+      name: (U) Flash Bomb
+      sort: 0
+      activation:
+        type: action
+        value: null
+        condition: ''
+        override: false
+      consumption:
+        targets:
+          - type: itemUses
+            target: ''
+            value: '1'
+            scaling:
+              mode: ''
+              formula: ''
+        scaling:
+          allowed: false
+          max: ''
+        spellSlot: false
+      duration:
+        concentration: false
+        special: ''
+        override: false
+        value: 1
+        units: round
+      range:
+        value: 30
+        units: ft
+        special: ''
+        override: false
+      target:
+        template:
+          count: ''
+          contiguous: false
+          stationary: false
+          type: sphere
+          size: '10'
+          width: ''
+          height: ''
+          units: ft
+        affects:
+          count: ''
+          type: ''
+          choice: false
+          special: ''
+        prompt: true
+        override: false
+      uses:
+        spent: 0
+        max: ''
+        recovery: []
+      attack:
+        ability: max
+        bonus: ''
+        critical:
+          threshold: null
+        flat: true
+        type:
+          value: ranged
+          classification: weapon
+      damage:
+        critical:
+          bonus: ''
+        includeBase: false
+        parts: []
+      effects:
+        - _id: AILiz939oYZUqrXy
 effects:
   - _id: AILiz939oYZUqrXy
     name: Blinded
@@ -161,7 +190,7 @@ flags:
         rarity: uncommon
 _stats:
   systemId: dnd5e
-  systemVersion: 3.1.2
+  systemVersion: 5.3.2
   coreVersion: '14.364'
   createdTime: 1712154346132
   modifiedTime: 1716048907110

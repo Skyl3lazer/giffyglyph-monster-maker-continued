@@ -10,6 +10,7 @@
     "test": "echo \"hi\"",
     "unpack": "node tools/packs.mjs unpack",
     "pack": "node tools/packs.mjs pack",
+    "forge-packs": "node tools/forge-pack-activities.mjs",
     "postinstall": "node tools/packs.mjs pack && npm run symlinks",
     "prepare": "git config core.hooksPath .githooks",
     "symlinks": "node tools/create-symlinks.mjs",

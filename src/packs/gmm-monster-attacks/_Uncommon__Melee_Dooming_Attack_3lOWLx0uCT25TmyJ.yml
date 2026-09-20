@@ -15,65 +15,179 @@ system:
       damage. (See GMM pdf p.45)</em></p>
     chat: ''
   source: {}
-  activation:
-    type: action
-    cost: null
-    condition: A prone foe is nearby
-  duration:
-    value: ''
-    units: ''
   cover: null
   crewed: false
-  target:
-    value: null
-    width: null
-    units: ''
-    type: ''
-    prompt: true
-  range:
-    value: null
-    long: null
-    units: ''
   uses:
-    value: 3
-    max: 3
-    per: lr
-    recovery: ''
-    prompt: true
-  consume:
-    type: ''
-    target: ''
-    amount: null
-    scale: false
-  ability: null
-  actionType: mwak
-  attack:
-    bonus: ''
-    flat: false
-  chatFlavor: ''
-  critical:
-    threshold: null
-    damage: ''
-  damage:
-    parts:
-      - - '[round(damage*2), damageDie]'
-        - bludgeoning
-    versatile: ''
-  formula: ''
-  save:
-    ability: ''
-    dc: null
-    scaling: spell
-  summons: null
+    spent: 0
+    max: '3'
+    recovery:
+      - period: lr
+        type: recoverAll
+        formula: ''
   type:
-    value: ''
+    value: monster
     subtype: ''
   properties: []
   requirements: ''
-  recharge:
-    value: null
-    charged: false
-effects: []
+  activities:
+    gmmprimary000000:
+      _id: gmmprimary000000
+      type: attack
+      name: (Uncommon) Melee Dooming Attack
+      sort: 0
+      activation:
+        type: action
+        value: null
+        condition: A prone foe is nearby
+        override: false
+      consumption:
+        targets:
+          - type: itemUses
+            target: ''
+            value: '1'
+            scaling:
+              mode: ''
+              formula: ''
+        scaling:
+          allowed: false
+          max: ''
+        spellSlot: false
+      duration:
+        concentration: false
+        special: ''
+        override: false
+        value: null
+        units: spec
+      range:
+        value: null
+        units: ''
+        special: ''
+        override: false
+      target:
+        template:
+          count: ''
+          contiguous: false
+          stationary: false
+          type: ''
+          size: ''
+          width: ''
+          height: ''
+          units: ft
+        affects:
+          count: ''
+          type: ''
+          choice: false
+          special: ''
+        prompt: true
+        override: false
+      uses:
+        spent: 0
+        max: ''
+        recovery: []
+      attack:
+        ability: max
+        bonus: ''
+        critical:
+          threshold: null
+        flat: true
+        type:
+          value: melee
+          classification: weapon
+      damage:
+        critical:
+          bonus: ''
+        includeBase: false
+        parts: []
+      effects:
+        - _id: gmmdoomclock0000
+    gmmdeferred00000:
+      _id: gmmdeferred00000
+      type: damage
+      name: (Uncommon) Melee Dooming Attack
+      sort: 1
+      activation:
+        type: ''
+        value: null
+        condition: ''
+        override: false
+      consumption:
+        targets: []
+        scaling:
+          allowed: false
+          max: ''
+        spellSlot: false
+      duration:
+        concentration: false
+        special: ''
+        override: false
+        value: null
+        units: inst
+      range:
+        value: null
+        units: ''
+        special: ''
+        override: false
+      target:
+        template:
+          count: ''
+          contiguous: false
+          stationary: false
+          type: ''
+          size: ''
+          width: ''
+          height: ''
+          units: ft
+        affects:
+          count: ''
+          type: ''
+          choice: false
+          special: ''
+        prompt: true
+        override: false
+      uses:
+        spent: 0
+        max: ''
+        recovery: []
+      damage:
+        parts:
+          - number: null
+            denomination: null
+            bonus: ''
+            types:
+              - bludgeoning
+            custom:
+              enabled: true
+              formula: '0'
+            scaling:
+              mode: ''
+              number: 1
+              formula: ''
+      midiProperties:
+        automationOnly: true
+        otherActivityCompatible: false
+      effects: []
+effects:
+  - _id: gmmdoomclock0000
+    name: (Uncommon) Melee Dooming Attack (doomed 1)
+    img: icons/weapons/maces/mace-cube-spiked-steel.webp
+    description: '<p>Dispelled by: The target moves away</p>'
+    transfer: false
+    duration:
+      value: null
+      units: turns
+      expiry: null
+    showIcon: 2
+    flags:
+      dnd5e:
+        isTemporary: false
+      giffyglyph-monster-maker-continued:
+        deferral:
+          kind: dooming
+          name: (Uncommon) Melee Dooming Attack
+          timer: 1
+          remaining: 1
+          cancel: The target moves away
+    _key: '!items.effects!3lOWLx0uCT25TmyJ.gmmdoomclock0000'
 folder: PCq12hdhmUnNMCak
 flags:
   core:
@@ -128,6 +242,11 @@ flags:
         duration:
           units: ''
           value: ''
+          type: instant
+          reapplies: ''
+          save:
+            ability: ''
+          cancel: ''
         range:
           units: ''
           value: null
@@ -162,7 +281,7 @@ flags:
             checked: false
 _stats:
   systemId: dnd5e
-  systemVersion: 3.1.2
+  systemVersion: 5.3.2
   coreVersion: '14.364'
   createdTime: 1712154346132
   modifiedTime: 1716241631195
