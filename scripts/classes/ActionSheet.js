@@ -70,7 +70,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         "dnd5e2",
         "item",
         "vertical-tabs",
-        "standard-form"
+        "standard-form",
+        "hidden-title"
     ]);
 
     /** @inheritDoc */
@@ -281,7 +282,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         this.element?.querySelector(".window-content > .create-child")?.remove();
     }
 
-    /* dnd5e still calls this activator, and the templates' `<prose-mirror>` elements self-initialize. */
+    /* Insurance. */
     _activateEditor(_div) {}
 
     /* The Forge UI has no read-only variant to swap into. */

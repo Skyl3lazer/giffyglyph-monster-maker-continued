@@ -71,7 +71,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         "actor",
         "npc",
         "vertical-tabs",
-        "standard-form"
+        "standard-form",
+        "hidden-title"
     ]);
 
     /** @inheritDoc */
@@ -250,6 +251,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
 
         this.element?.querySelector(".header-elements .cr-xp")?.remove();
+        this.element?.querySelector(".header-elements .source-book")?.remove();
 
         // Bridge the GMM Gui controller and modal helpers (which still use jQuery) to the V2 root element.
         const $el = $(this.element);
@@ -357,7 +359,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const target = siblings.find(s => s.id === targetId);
         if (target && (target.getSortingCategory() !== source.getSortingCategory())) return;
 
-        const sortUpdates = foundry.utils.SortingHelpers.performIntegerSort(source, { target: target, siblings });
+        const sortUpdates = foundry.utils.performIntegerSort(source, { target: target, siblings });
         const updateData = sortUpdates.map(u => {
             const update = u.update;
             update._id = u.target.id;
