@@ -183,6 +183,10 @@ const CompatibilityHelpers = (function () {
 	function damageMessageData() {
 		return CONFIG.ChatMessage.dataModels?.damage ? { type: "damage" } : {};
 	}
+	/* 5.3 registers no chat message subtypes, so the typed generic card is 6.0-only. */
+	function genericMessageData() {
+		return CONFIG.ChatMessage.dataModels?.generic ? { type: "generic" } : {};
+	}
 	return {
 		safeWrap: safeWrap,
 		hasProperty: hasProperty,
@@ -213,6 +217,7 @@ const CompatibilityHelpers = (function () {
 		readInputs: readInputs,
 		rollMessageOptions: rollMessageOptions,
 		damageMessageData: damageMessageData,
+		genericMessageData: genericMessageData,
 		effectRoundsDuration: effectRoundsDuration,
 		defaultLengthUnits: defaultLengthUnits
 	};
