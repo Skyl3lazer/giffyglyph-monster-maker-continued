@@ -158,6 +158,7 @@ const GmmActor = (function () {
 				// dnd5e counts every check bonus toward a passive score. The forge had proficiency and the modifier.
 				monsterData.passive_perception.add(skill.bonus ?? 0, game.i18n.format('gmm.common.derived_source.check_bonus'));
 				monsterData.passive_perception.add(dnd5e.utils.simplifyBonus(skill.bonuses.passive, rollData), game.i18n.format('gmm.common.derived_source.passive_bonus'));
+				monsterData.passive_perception.add(actor.conditionRollReduction ?? 0, game.i18n.format('gmm.common.derived_source.condition_penalty'));
 				// Taken off the node so the blueprint's own Modifier, its override and the floor reach the schema.
 				skill.passive = monsterData.passive_perception.value;
 			}
