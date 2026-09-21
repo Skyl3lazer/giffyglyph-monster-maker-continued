@@ -11,6 +11,14 @@
 
 ### DND5e 6.0 compatibility
 
+- dnd5e 6.0.1 is compatible
+- A few new features are utilized, and some of it benefits 5.3 as well since it was modernizing old stuff that 5.3 already supported but didn't require.
+	- Roll types are supported, so damage cards get apply buttons correctly
+	- Sheet hygeine is better, so GMMC is more compatible with mods that change sheets, cards, etc.
+	- Better metric support.
+	- Better context menus on various elements.
+- Compendiums now pack 5.3 version activities instead of converting them on load. It saves a bit of load time but is also more reliable.
+
 ## v2.0.1.5
 
 - Marked dnd 6.0 as incompatible
