@@ -179,6 +179,10 @@ const CompatibilityHelpers = (function () {
 		const messageMode = { publicroll: "public", gmroll: "gm", blindroll: "blind", selfroll: "self" }[mode];
 		return messageMode ? { messageMode } : {};
 	}
+	/* 5.3 registers no chat message subtypes, so the typed damage card is 6.0-only. */
+	function damageMessageData() {
+		return CONFIG.ChatMessage.dataModels?.damage ? { type: "damage" } : {};
+	}
 	return {
 		safeWrap: safeWrap,
 		hasProperty: hasProperty,
@@ -208,6 +212,7 @@ const CompatibilityHelpers = (function () {
 		setArmorClassCalculation: setArmorClassCalculation,
 		readInputs: readInputs,
 		rollMessageOptions: rollMessageOptions,
+		damageMessageData: damageMessageData,
 		effectRoundsDuration: effectRoundsDuration,
 		defaultLengthUnits: defaultLengthUnits
 	};
