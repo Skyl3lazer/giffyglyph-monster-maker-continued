@@ -112,13 +112,15 @@ const Activities = (function () {
     const GMM_TEMPLATE_TYPES = { radius: "circle", emanation: "radius" };
     const GMM_TARGET_TYPES_BY_TEMPLATE = { circle: "radius", radius: "emanation" };
 
-    function templateTypeFor(targetType) {
+    function templateTypeFor(targetType, rangeUnits) {
+        // dnd5e 5 has no template that attaches to a token, so a self-centered effect is a radius.
+        if (targetType === "radius" && rangeUnits === "self" && !CompatibilityHelpers.dnd5eAtLeast(6)) return "radius";
         return GMM_TEMPLATE_TYPES[targetType] ?? targetType;
     }
 
     function isAreaTarget(blueprintData) {
         const type = blueprintData?.target?.type;
-        return !!(type && CONFIG?.DND5E?.areaTargetTypes?.[templateTypeFor(type)]);
+        return !!(type && CONFIG?.DND5E?.areaTargetTypes?.[templateTypeFor(type, blueprintData?.range?.units)]);
     }
 
     function targetTypeLabel(targetType) {
@@ -758,7 +760,7 @@ const Activities = (function () {
         };
         if (isAreaTarget(blueprintData)) {
             if (template) {
-                data.template.type = templateTypeFor(t.type);
+                data.template.type = templateTypeFor(t.type, blueprintData.range?.units);
                 if (t.value != null) data.template.size = String(t.value);
                 if (t.width != null) data.template.width = String(t.width);
             }
@@ -1547,7 +1549,7 @@ const Activities = (function () {
 
     function _templateTypeStale(blueprint, primary) {
         const blueprintData = blueprint?.data ?? blueprint ?? {};
-        const wanted = isAreaTarget(blueprintData) ? templateTypeFor(blueprintData.target.type) : "";
+        const wanted = isAreaTarget(blueprintData) ? templateTypeFor(blueprintData.target.type, blueprintData.range?.units) : "";
         return (primary?.target?.template?.type ?? "") !== wanted;
     }
 
