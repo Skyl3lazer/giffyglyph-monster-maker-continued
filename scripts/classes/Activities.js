@@ -1672,14 +1672,13 @@ const Activities = (function () {
         return update;
     }
 
-    /* The preCreate form, which sees creation data rather than a prepared document. */
+    /* The preCreate form, which sees the pending document and its creation data. */
     function buildPreCreateUpdate(data, item) {
         const sheetClass = data?.flags?.core?.sheetClass;
         if (typeof sheetClass !== "string" || !sheetClass.endsWith(".ActionSheet")) return null;
         let blueprint = data?.flags?.gmm?.blueprint;
         if (!blueprint) return null;
         const purge = buildForeignActivityPurge(item ?? data);
-        const source = item?._source?.system?.activities ?? data?.system?.activities ?? {};
 
         const duration = _buildDurationBlueprintMigration(
             item?._source?.flags?.gmm?.blueprint?.data?.duration ?? blueprint.data?.duration
@@ -1689,14 +1688,8 @@ const Activities = (function () {
             blueprint.data.duration = duration;
         }
 
-        const wantsDeferred = isAutomatedDeferral(blueprint);
-        const rebuild = !source[GMM_ACTIVITY_ID]
-            || (wantsDeferred !== !!source[GMM_DEFERRED_ACTIVITY_ID])
-            || (hasZoneActivity(blueprint) !== !!source[GMM_ZONE_ACTIVITY_ID])
-            || !!source[GMM_ZONE_ACTIVITY_ID]?.duration?.concentration
-            || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint))
-            || _poolTargetMismatch(blueprint, source[GMM_ACTIVITY_ID])
-            || _templateTypeStale(blueprint, source[GMM_ACTIVITY_ID]);
+        // The pending document is already prepared, so the ready-time check applies.
+        const rebuild = needsActivityRebuild(item, blueprint);
         const cleanup = rebuild ? null : buildSourceFormulaCleanup(item ?? data);
         if (!rebuild && !duration && !cleanup && foundry.utils.isEmpty(purge)) return null;
         const update = { ...purge };
