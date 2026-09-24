@@ -63,7 +63,7 @@ flags:
           value: null
           is_charged: false
         target:
-          type: radius
+          type: emanation
           units: ft
           value: 30
           width: null
@@ -129,7 +129,7 @@ system:
           count: ''
           contiguous: false
           stationary: false
-          type: circle
+          type: radius
           size: '30'
           width: ''
           height: ''
