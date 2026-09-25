@@ -763,6 +763,8 @@ const Activities = (function () {
                 data.template.type = templateTypeFor(t.type, blueprintData.range?.units);
                 if (t.value != null) data.template.size = String(t.value);
                 if (t.width != null) data.template.width = String(t.width);
+            // Midi skips target confirmation outright when the affects type is empty.
+            data.affects.type = "creature";
             }
         } else if (t.type) {
             if (t.value != null) data.affects.count = String(t.value);
@@ -1547,10 +1549,10 @@ const Activities = (function () {
         return update;
     }
 
-    function _templateTypeStale(blueprint, primary) {
-        const blueprintData = blueprint?.data ?? blueprint ?? {};
-        const wanted = isAreaTarget(blueprintData) ? templateTypeFor(blueprintData.target.type, blueprintData.range?.units) : "";
-        return (primary?.target?.template?.type ?? "") !== wanted;
+    function _targetStale(blueprint, primary) {
+        const wanted = _buildTarget(blueprint?.data ?? blueprint ?? {});
+        if ((primary?.target?.template?.type ?? "") !== wanted.template.type) return true;
+        return (primary?.target?.affects?.type ?? "") !== wanted.affects.type;
     }
 
     /* An unmigrated item has the pool on the activity, where nothing spends it.
@@ -1599,7 +1601,7 @@ const Activities = (function () {
         const primary = activities.get(GMM_ACTIVITY_ID);
         if (primary?.type !== _wantedPrimaryType(blueprint)) return true;
         if (_poolTargetMismatch(blueprint, primary)) return true;
-        if (_templateTypeStale(blueprint, primary)) return true;
+        if (_targetStale(blueprint, primary)) return true;
         if (_durationEffectStale(item, blueprint)) return true;
         if (_onSaveStale(activities, blueprint)) return true;
         if (activities.get(GMM_ZONE_ACTIVITY_ID)?.duration?.concentration) return true;

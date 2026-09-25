@@ -73,7 +73,7 @@ system:
           units: ft
         affects:
           count: ''
-          type: ''
+          type: creature
           choice: false
           special: ''
         prompt: true
