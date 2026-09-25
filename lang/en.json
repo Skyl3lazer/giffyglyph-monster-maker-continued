@@ -222,6 +222,7 @@
   "gmm.action.blueprint.requirements.rank": "Rank",
   "gmm.action.blueprint.requirements.role": "Role",
   "gmm.action.blueprint.requirements.title": "Requirements",
+  "gmm.action.blueprint.target.affects_self": "Affects Self",
   "gmm.action.blueprint.target.quantity": "Quantity/Size",
   "gmm.action.blueprint.target.title": "Target",
   "gmm.action.blueprint.target.type": "Type",

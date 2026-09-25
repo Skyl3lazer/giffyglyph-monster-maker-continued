@@ -681,6 +681,16 @@
                                     <input name="gmm.blueprint.target.width" value="{{gmm.blueprint.target.width}}" type="number" />
                                 </div>
                             </div>
+                            {{#if gmm.target.area}}
+                            <div class="form-group">
+                                <div class="form-group__header">
+                                    <span class="form-group__title">{{localize 'gmm.action.blueprint.target.affects_self'}}</span>
+                                </div>
+                                <div class="form-group__body">
+                                    <input type="checkbox" name="gmm.blueprint.target.affects_self" {{checked gmm.blueprint.target.affects_self}} />
+                                </div>
+                            </div>
+                            {{/if}}
                             {{#if gmm.zone.available}}
                             <div class="form-fieldset">
                                 <div class="form-fieldset__header">

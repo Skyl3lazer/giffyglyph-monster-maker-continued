@@ -72,7 +72,7 @@ system:
           count: ''
           type: creature
           choice: false
-          special: ''
+          special: '-self'
         prompt: true
         override: false
       uses:
@@ -121,7 +121,7 @@ system:
           count: ''
           type: ''
           choice: false
-          special: ''
+          special: '-self'
         prompt: true
         override: false
       uses:

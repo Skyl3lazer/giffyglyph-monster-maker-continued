@@ -766,6 +766,8 @@ const Activities = (function () {
             // Midi skips target confirmation outright when the affects type is empty.
             data.affects.type = "creature";
             }
+            // Midi drops the source token from an auto-targeted area on "-self".
+            if (!t.affects_self) data.affects.special = "-self";
         } else if (t.type) {
             if (t.value != null) data.affects.count = String(t.value);
             data.affects.type = t.type;
@@ -1552,7 +1554,8 @@ const Activities = (function () {
     function _targetStale(blueprint, primary) {
         const wanted = _buildTarget(blueprint?.data ?? blueprint ?? {});
         if ((primary?.target?.template?.type ?? "") !== wanted.template.type) return true;
-        return (primary?.target?.affects?.type ?? "") !== wanted.affects.type;
+        if ((primary?.target?.affects?.type ?? "") !== wanted.affects.type) return true;
+        return (primary?.target?.affects?.special ?? "") !== wanted.affects.special;
     }
 
     /* An unmigrated item has the pool on the activity, where nothing spends it.

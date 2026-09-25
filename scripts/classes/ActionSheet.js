@@ -140,6 +140,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             }
         };
 
+        context.gmm.target = { area: Activities.isAreaTarget(context.gmm.blueprint ?? {}) };
         context.gmm.zone = this._getZoneContext(context.gmm.blueprint);
 
         const duration = Durations.describe(context.gmm.blueprint);
