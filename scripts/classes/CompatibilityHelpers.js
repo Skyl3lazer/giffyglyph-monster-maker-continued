@@ -167,8 +167,11 @@ const CompatibilityHelpers = (function () {
 	}
 
 	/* v14 replaced the ActiveEffect `{rounds, turns, seconds}` duration with a value/units pair. */
+	function effectDurationHasUnits() {
+		return foundryGeneration() >= 14;
+	}
 	function effectRoundsDuration(rounds) {
-		return foundryGeneration() >= 14 ? { value: rounds, units: "rounds" } : { rounds: rounds };
+		return effectDurationHasUnits() ? { value: rounds, units: "rounds" } : { rounds: rounds };
 	}
 
 	/* GMM's modal mode-select emits v13's `rollMode` values, which v14's `messageMode` does not accept. */
@@ -218,6 +221,7 @@ const CompatibilityHelpers = (function () {
 		rollMessageOptions: rollMessageOptions,
 		damageMessageData: damageMessageData,
 		genericMessageData: genericMessageData,
+		effectDurationHasUnits: effectDurationHasUnits,
 		effectRoundsDuration: effectRoundsDuration,
 		defaultLengthUnits: defaultLengthUnits
 	};

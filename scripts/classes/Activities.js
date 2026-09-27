@@ -1596,11 +1596,13 @@ const Activities = (function () {
         return Object.keys(fresh.duration).some(k => (stored.duration?.[k] ?? null) !== fresh.duration[k]);
     }
 
-    /* A clock forged before the units were pinned takes dnd5e 6's expiry stamp. The rebuild also clears
-       the Temporary flag older clocks carry. */
+    /* A clock forged before the units were pinned takes dnd5e 6's expiry stamp. One older than that
+       still carries the Temporary flag, which is the only staleness v13 can store. */
     function _doomClockExpires(item) {
         const stored = item?._source?.effects?.find?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID);
-        return stored?.duration?.units !== Durations.indefinite().units;
+        if (stored?.flags?.dnd5e?.isTemporary) return true;
+        return CompatibilityHelpers.effectDurationHasUnits()
+            && stored?.duration?.units !== Durations.indefinite().units;
     }
 
     /* True when the item's GMM activities do not match the shape its blueprint asks for. */
