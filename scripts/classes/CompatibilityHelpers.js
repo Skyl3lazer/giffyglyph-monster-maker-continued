@@ -90,15 +90,16 @@ const CompatibilityHelpers = (function () {
 	function globalDamageBonus(actorData, actionType) {
 		return actorData?.rolls?.damage?.[actionType]?.bonus ?? actorData?.bonuses?.[actionType]?.damage;
 	}
+	// Falling back on a blank 6.0 bonus would read the old path's deprecation.
 	function abilitySaveBonus(ability) {
-		return ability?.save?.roll?.bonus ?? ability?.bonuses?.save;
+		return dnd5eAtLeast(6) ? ability?.save?.roll?.bonus : ability?.bonuses?.save;
 	}
 	function setAbilitySaveBonus(ability, formula) {
 		if (ability?.save?.roll && ("bonus" in ability.save.roll)) ability.save.roll.bonus = formula;
 		else ability.bonuses.save = formula;
 	}
 	function skillCheckBonus(skill) {
-		return skill?.roll?.bonus ?? skill?.bonuses?.check;
+		return dnd5eAtLeast(6) ? skill?.roll?.bonus : skill?.bonuses?.check;
 	}
 
 	/* dnd5e 6.0 moved the prepared ability totals onto `check` and `save`, leaving getter-only shims behind. */
