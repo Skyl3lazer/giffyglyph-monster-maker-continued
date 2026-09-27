@@ -118,16 +118,16 @@
 			<div class="modal__dialog">
 				<div class="modal__icon"><i class="fas fa-calculator"></i></div>
 				<div class="modal__header">
-					<div class="modal__title">Automated Shortcodes</div>
+					<div class="modal__title">{{localize 'gmm.modal.info.shortcodes.title'}}</div>
 					<button type="button" class="modal__close" data-action="close-modal"><i class="fas fa-times"></i></button>
 				</div>
 				<div class="modal__body">
-					<p class="intro">You can use <strong>shortcodes</strong> to automatically insert data from a parent monster. Note: this only occurs when the item is attached to a <i>Giffyglyph</i> monster. Shortcodes are otherwise left as-is.</p>
+					<p class="intro">{{{localize 'gmm.modal.info.shortcodes.p.1'}}}</p>
 					<div class="gmm-accordion">
 						<div class="accordion-section">
-							<div class="accordion-section__header">Randomised Dice Rolls</div>
+							<div class="accordion-section__header">{{localize 'gmm.modal.info.shortcodes.random.title'}}</div>
 							<div class="accordion-section__body">
-								<p>Insert randomised dice rolls with a special shortcode. You can use any dice size, as shown below:</p>
+								<p>{{localize 'gmm.modal.info.shortcodes.random.p.1'}}</p>
 								<blockquote>
 									<p>[12, d4] = 4d4 + 2</p>
 									<p>[25, d12] = 3d12 + 6</p>
@@ -136,40 +136,39 @@
 							</div>
 						</div>
 						<div class="accordion-section">
-							<div class="accordion-section__header">Shortcodes</div>
+							<div class="accordion-section__header">{{localize 'gmm.modal.info.shortcodes.list.title'}}</div>
 							<div class="accordion-section__body">
-								<p>Use <strong>shortcodes</strong> to pull data out of a <i>Giffyglyph</i> monster and insert it into your text.</p>
+								<p>{{{localize 'gmm.modal.info.shortcodes.list.p.1'}}}</p>
 								<blockquote>
 									<p>[name] [level] [attackBonus] [damage] [damageDie] [target] [range] [ac] [hpMax] [naturalMax] [saveDc] [featureDc] [durationSaveDc] [dcPrimaryBonus] [maxMod] [strMod] [strSave] [dexMod] [dexSave] [conMod] [conSave] [intMod] [intSave] [wisMod] [wisSave] [chaMod] [chaSave] [xp] [proficiency] [cr]</p>
 								</blockquote>
-								<p>There are three save DCs: <strong>[saveDc]</strong> is the monster's stat-block DC. <strong>[featureDc]</strong> is the DC this feature's own save actually rolls against. <strong>[durationSaveDc]</strong> is the DC of the recurring save that ends an ongoing effect, including any Save DC Modifier.</p>
+								<p>{{{localize 'gmm.modal.info.shortcodes.list.p.2' saveDc='[saveDc]' featureDc='[featureDc]' durationSaveDc='[durationSaveDc]'}}}</p>
 							</div>
 						</div>
 						<div class="accordion-section">
-							<div class="accordion-section__header">Shortcode Modifiers</div>
+							<div class="accordion-section__header">{{localize 'gmm.modal.info.shortcodes.modifiers.title'}}</div>
 							<div class="accordion-section__body">
-								<p>Use mathematical modifiers with your shortcodes to transform the final number and apply specific rounding. For example:</p>
+								<p>{{localize 'gmm.modal.info.shortcodes.modifiers.p.1'}}</p>
 								<blockquote>
-									<p>[level * 2] = Monster Level x 2</p>
-									<p>[damage + 4] = Attack Damage + 4</p>
-									<p>[damage + 4] = Attack Damage + 4</p>
-									<p>[(hp / 3) + 10] = (Hit Points / 3) + 10</p>
-									<p>[round(damage / 4)] = Attack Damage / 4, rounded</p>
-									<p>[ceil(damage / 4)] = Attack Damage / 4, rounded up</p>
-									<p>[floor(damage / 4)] = Attack Damage / 4, rounded down</p>
-									<p>[dcPrimaryBonus + maxMod] = The monster's save DC modified by their highest Mod</p>
+									<p>[level * 2] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.1'}}</p>
+									<p>[damage + 4] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.2'}}</p>
+									<p>[(hpMax / 3) + 10] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.3'}}</p>
+									<p>[round(damage / 4)] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.4'}}</p>
+									<p>[ceil(damage / 4)] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.5'}}</p>
+									<p>[floor(damage / 4)] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.6'}}</p>
+									<p>[dcPrimaryBonus + maxMod] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.7'}}</p>
 								</blockquote>
 							</div>
 						</div>
 						<div class="accordion-section">
-							<div class="accordion-section__header">Shortcodes and Dice</div>
+							<div class="accordion-section__header">{{localize 'gmm.modal.info.shortcodes.dice.title'}}</div>
 							<div class="accordion-section__body">
-								<p>Add a dice value to a shortcodes to transform it into a dice roll. For example:</p>
+								<p>{{localize 'gmm.modal.info.shortcodes.dice.p.1'}}</p>
 								<blockquote>
-									<p>[damage, d8] = Attack Damage (shown in d8)</p>
-									<p>[12 + strMod, d20] = 12 + Strength Mod (shown in d20)</p>
-									<p>[10 * level, d6] = 10 * Level (shown in d6)</p>
-									<p>[damage, damageDie] = Attack Damage (shown in the default die for the monster)</p>
+									<p>[damage, d8] = {{localize 'gmm.modal.info.shortcodes.dice.example.1'}}</p>
+									<p>[12 + strMod, d20] = {{localize 'gmm.modal.info.shortcodes.dice.example.2'}}</p>
+									<p>[10 * level, d6] = {{localize 'gmm.modal.info.shortcodes.dice.example.3'}}</p>
+									<p>[damage, damageDie] = {{localize 'gmm.modal.info.shortcodes.dice.example.4'}}</p>
 								</blockquote>
 							</div>
 						</div>
@@ -181,12 +180,12 @@
 			<div class="modal__dialog">
 				<div class="modal__icon"><i class="fas fa-chart-line"></i></div>
 				<div class="modal__header">
-					<div class="modal__title">Scaling Attacks</div>
+					<div class="modal__title">{{localize 'gmm.modal.info.scaling.title'}}</div>
 					<button type="button" class="modal__close" data-action="close-modal"><i class="fas fa-times"></i></button>
 				</div>
 				<div class="modal__body">
-					<p class="intro">When paired with a <i>Giffyglyph</i> monster, a scaling attack will automatically take into account the monster's <strong>proficiency bonus</strong> and the attack's <strong>relevant ability mod</strong>.</p>
-					<p>Use these to easily create features and attacks that work at every monster level.</p>
+					<p class="intro">{{{localize 'gmm.modal.info.scaling.p.1'}}}</p>
+					<p>{{localize 'gmm.modal.info.scaling.p.2'}}</p>
 				</div>
 			</div>
 		</div>
@@ -194,13 +193,13 @@
 			<div class="modal__dialog">
 				<div class="modal__icon"><i class="fas fa-timer"></i></div>
 				<div class="modal__header">
-					<div class="modal__title">Deferrals</div>
+					<div class="modal__title">{{localize 'gmm.modal.info.deferral.title'}}</div>
 					<button type="button" class="modal__close" data-action="close-modal"><i class="fas fa-times"></i></button>
 				</div>
 				<div class="modal__body">
-					<p class="intro">When using an <i>uncommon</i> or <i>rare</i> feature, you can use a <i>deferral</i> to change when it chooses targets, makes attacks, or applies effects. A fireball becomes a ticking bomb, a punch becomes a dooming fist of death, a healing power becomes a regeneration, etc.</p>
-					<p>There are two types of deferral: <strong>delayed</strong>, which waits for a time before choosing targets and making attacks, and <strong>dooming</strong>, which attacks immediately but leaves the effects for later, once the target's doom clock runs out.</p>
-					<p><i>Cancelled By</i> records what stops the deferred part happening, such as a delayed attack whose situation no longer applies, or a doom the target manages to dispel.</p>
+					<p class="intro">{{{localize 'gmm.modal.info.deferral.p.1'}}}</p>
+					<p>{{{localize 'gmm.modal.info.deferral.p.2'}}}</p>
+					<p>{{{localize 'gmm.modal.info.deferral.p.3' cancel=(localize 'gmm.action.blueprint.deferral.cancel')}}}</p>
 				</div>
 			</div>
 		</div>
@@ -208,15 +207,15 @@
 			<div class="modal__dialog">
 				<div class="modal__icon"><i class="fas fa-draw-polygon"></i></div>
 				<div class="modal__header">
-					<div class="modal__title">Zones</div>
+					<div class="modal__title">{{localize 'gmm.modal.info.zone.title'}}</div>
 					<button type="button" class="modal__close" data-action="close-modal"><i class="fas fa-times"></i></button>
 				</div>
 				<div class="modal__body">
-					<p class="intro">A <i>zone</i> is an area that stays behind after the action is used and does something to the space it covers. Only an action that places an area can be one, so these controls appear once you pick a shape as the target.</p>
-					<p><strong>Terrain Modifiers</strong> are what the space <i>is</i> for as long as the zone lasts: difficult ground, darkness, cover, and the rest of the book's Change Terrain list. <i>Custom</i> is free text that prints and automates nothing.</p>
-					<p><strong>Zone Rules</strong> fire part of the action at whoever is in the area. Select the events when things happen, and choose what <i>Fires</i>: the action's damage, its attack roll, or the effects it applies. Placing the area no longer rolls that part itself; the zone does it instead, to whoever triggers it.</p>
-					<p><i>Applies to</i> narrows who the zone reaches. <i>Enemies</i> means anyone whose side differs from the monster's. <i>Once per Turn</i> stops a creature that steps out and back in from being hit twice.</p>
-					<p>How much of this actually happens depends on the modules the world runs. Difficult ground and darkness need nothing beyond Foundry. Damage and attacks want <i>Midi QOL</i>, or <i>Enhanced Region Behavior</i>. A few of the book's modifiers have no mechanism anywhere in Foundry.</p>
+					<p class="intro">{{{localize 'gmm.modal.info.zone.p.1'}}}</p>
+					<p>{{{localize 'gmm.modal.info.zone.p.2'}}}</p>
+					<p>{{{localize 'gmm.modal.info.zone.p.3'}}}</p>
+					<p>{{{localize 'gmm.modal.info.zone.p.4'}}}</p>
+					<p>{{{localize 'gmm.modal.info.zone.p.5'}}}</p>
 				</div>
 			</div>
 		</div>
