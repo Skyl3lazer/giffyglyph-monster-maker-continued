@@ -20,4 +20,8 @@ flags:
   gmm:
     rarity: uncommon
     terrain: three_quarters_cover
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!w6zy09KCi5gprlJG'

@@ -815,8 +815,8 @@
                                         <span>
                                             {{localize section.label}}
                                         </span>
-                                        <button type="button" data-action="create-effect" data-tooltip="{{section.localizationPrefix}}Create"
-                                                aria-label="{{ localize (concat section.localizationPrefix 'Create') }}">
+                                        <button type="button" data-action="create-effect" data-tooltip="{{#if section.isEnchantment}}gmm.common.effect.create_enchantment{{else}}gmm.common.effect.create{{/if}}"
+                                                aria-label="{{#if section.isEnchantment}}{{localize 'gmm.common.effect.create_enchantment'}}{{else}}{{localize 'gmm.common.effect.create'}}{{/if}}">
                                             {{localize 'gmm.monster.blueprint.effects.add'}}
                                         </button>
                                     </div>
@@ -830,6 +830,22 @@
                                 </div>
                                 {{/unless}}
                                 {{/each}}
+                                {{#if hasConditions}}
+                                <div class="form-fieldset">
+                                    <div class="form-fieldset__header">
+                                        <span>
+                                            {{localize 'gmm.monster.blueprint.effects.conditions'}}
+                                        </span>
+                                    </div>
+                                    <div class="form-fieldset__body">
+                                        <div class="items item-list">
+                                            {{#each conditions as |condition|}}
+                                            {{> (getTemplate "monster/skins/vanity/partials/blueprint_condition.html") condition=condition}}
+                                            {{/each}}
+                                        </div>
+                                    </div>
+                                </div>
+                                {{/if}}
                             </{{elements.effects}}>
                         </div>
                     </div>

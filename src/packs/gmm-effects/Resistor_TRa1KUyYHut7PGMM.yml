@@ -14,6 +14,7 @@ sort: 0
 system:
   changes:
     - key: system.traits.dr.value
+      _id: Fn4XecEXFjsOEy0B
       type: add
       value: ''
 flags:
@@ -21,4 +22,8 @@ flags:
     stackable: noneName
   gmm:
     rarity: common
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!TRa1KUyYHut7PGMM'

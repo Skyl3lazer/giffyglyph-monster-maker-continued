@@ -12,6 +12,8 @@ description: >-
   automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.transformed
 folder: gmmConditions000
 sort: 0
 system:
@@ -21,4 +23,8 @@ flags:
     stackable: noneName
   gmm:
     rarity: rare
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!dkhvgUDUeK79xF8J'

@@ -11,6 +11,7 @@ const AutomationHelpers = (function () {
 	}
 
 	/* Anything outside `ownedFields` was written by another module and a forced replacement would reset it.
+	 * Under an owned key a leaf `newData` omits is dnd5e's, not GMMC's.
 	 * `fallback` stands in when the activity was deleted before the rebuild that reads it. */
 	function preserveForeignActivityFields(item, activityId, newData, ownedFields, fallback = null) {
 		const existing = activitySource(item, activityId) ?? fallback;
@@ -18,8 +19,11 @@ const AutomationHelpers = (function () {
 
 		const merged = { ...newData };
 		for (const [key, value] of Object.entries(existing)) {
-			if (ownedFields.has(key) || key in merged) continue;
-			merged[key] = value;
+			if (!ownedFields.has(key)) {
+				if (!(key in merged)) merged[key] = value;
+			} else if ((value?.constructor === Object) && (merged[key]?.constructor === Object)) {
+				merged[key] = { ...value, ...merged[key] };
+			}
 		}
 		return merged;
 	}

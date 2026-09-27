@@ -192,6 +192,27 @@
 				}
 			}
 
+			.condition {
+				opacity: 0.5;
+
+				&.condition--active {
+					opacity: 1;
+				}
+
+				.condition__icon {
+					--icon-fill: white;
+					--icon-size: 20px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+
+				.condition__level {
+					font-weight: bold;
+					line-height: 1.5;
+				}
+			}
+
 			.item__icon {
 				margin: -0.25rem 6px -0.25rem -0.5rem;
 				width: 26px;

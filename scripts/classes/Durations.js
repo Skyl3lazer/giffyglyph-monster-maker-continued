@@ -1,5 +1,6 @@
 import Shortcoder from "./Shortcoder.js";
 import AutomationHelpers from "./AutomationHelpers.js";
+import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
 
 /* Every recurring type but one belongs to midi or DAE. An absent module degrades a type to a plain
@@ -99,7 +100,8 @@ const Durations = (function () {
 		const rules = _rules(duration.type);
 		const needs = [];
 		if (rules.hasSave || duration.reapplies === "target") needs.push("midi-qol");
-		if (rules.expiry) needs.push("dae");
+		// dnd5e 6 resolves the pseudo-expiries itself. Before that only DAE knows what they mean.
+		if (rules.expiry && !CompatibilityHelpers.dnd5eAtLeast("6.0")) needs.push("dae");
 		return {
 			duration,
 			rows: {
@@ -134,8 +136,13 @@ const Durations = (function () {
 		}
 	}
 
+	/* dnd5e 6 stamps an expiry on a valueless duration in any other units, ending the effect a turn on. */
+	function indefinite() {
+		return { value: null, units: "turns", expiry: null };
+	}
+
 	function _effectDuration(duration, rules) {
-		const out = { expiry: rules.expiry ?? null, value: null, units: "seconds" };
+		const out = { ...indefinite(), expiry: rules.expiry ?? null };
 		if (rules.rounds) {
 			out.value = rules.rounds;
 			out.units = "rounds";
@@ -281,10 +288,10 @@ const Durations = (function () {
 			: value;
 
 		const update = {};
+		// v14 has no top-level `changes`, so old-shape data written back under its own key is dropped.
 		const changes = data.system?.changes ?? data.changes;
 		if (Array.isArray(changes)) {
-			const key = Array.isArray(data.system?.changes) ? "system.changes" : "changes";
-			update[key] = changes.map(c => ({ ...c, value: resolve(c.value) }));
+			update["system.changes"] = changes.map(c => ({ ...c, value: resolve(c.value) }));
 		}
 
 		const formula = data.flags?.[GMM_MODULE_TITLE]?.[GMM_DURATION_FLAG]?.formula;
@@ -419,7 +426,13 @@ const Durations = (function () {
 		if (!isDurationEffect(effect) && !deferral) return;
 		const source = _sourceActorOf(effect);
 		const itemId = AutomationHelpers.resolveSourceItem(effect.origin)?.id ?? null;
-		await AutomationHelpers.concentrationFor(source, itemId)?.addDependent(effect);
+		const concentration = AutomationHelpers.concentrationFor(source, itemId);
+		if (!concentration) return;
+		try {
+			await effect.setFlag("dnd5e", "dependentOn", concentration.uuid);
+		} catch (error) {
+			console.warn("GMM | Linking a clock to its concentration failed", error);
+		}
 	}
 
 	function _isPayload(document) {
@@ -434,7 +447,11 @@ const Durations = (function () {
 		if (!concentration || Number.isFinite(concentration.duration?.value)) return;
 		// An area is a dependent too, and it never leaves while the concentration holds.
 		if (concentration.getDependents().some(d => d.id !== ignore && _isPayload(d))) return;
-		await concentration.delete();
+		try {
+			await concentration.delete();
+		} catch (error) {
+			console.warn("GMM | Concentration was already released on another path", error);
+		}
 	}
 
 	async function _onDeleteActiveEffect(effect) {
@@ -475,6 +492,7 @@ const Durations = (function () {
 		read,
 		fromUnits,
 		isPeriodUnits,
+		indefinite,
 		describe,
 		isDurationEffect,
 		buildActivityDuration,

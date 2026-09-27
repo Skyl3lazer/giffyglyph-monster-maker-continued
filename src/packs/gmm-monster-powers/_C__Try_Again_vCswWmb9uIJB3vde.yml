@@ -8,62 +8,67 @@ system:
       automation</em></p>
     chat: ''
   source: {}
-  activation:
-    type: reaction
-    cost: null
-    condition: You miss an attack roll by 3 or less.
-  duration:
-    value: ''
-    units: ''
   cover: null
   crewed: false
-  target:
-    value: null
-    width: null
-    units: ''
-    type: ''
-    prompt: true
-  range:
-    value: null
-    long: null
-    units: ''
   uses:
-    value: null
+    spent: 0
     max: ''
-    per: null
-    recovery: ''
-    prompt: true
-  consume:
-    type: ''
-    target: ''
-    amount: null
-    scale: false
-  ability: null
-  actionType: ''
-  attack:
-    bonus: ''
-    flat: false
-  chatFlavor: ''
-  critical:
-    threshold: null
-    damage: ''
-  damage:
-    parts: []
-    versatile: ''
-  formula: ''
-  save:
-    ability: ''
-    dc: null
-    scaling: spell
-  summons: null
+    recovery: []
   type:
-    value: ''
+    value: monster
     subtype: ''
   properties: []
   requirements: ''
-  recharge:
-    value: null
-    charged: false
+  activities:
+    gmmprimary000000:
+      _id: gmmprimary000000
+      type: utility
+      name: (C) Try Again
+      sort: 0
+      activation:
+        type: reaction
+        value: null
+        condition: You miss an attack roll by 3 or less.
+        override: false
+      consumption:
+        targets: []
+        scaling:
+          allowed: false
+          max: ''
+        spellSlot: false
+      duration:
+        concentration: false
+        special: ''
+        override: false
+        value: null
+        units: inst
+      range:
+        value: null
+        units: ''
+        special: ''
+        override: false
+      target:
+        template:
+          count: ''
+          contiguous: false
+          stationary: false
+          type: ''
+          size: ''
+          width: ''
+          height: ''
+          units: ft
+        affects:
+          count: ''
+          type: ''
+          choice: false
+          special: ''
+        prompt: true
+        override: false
+      uses:
+        spent: 0
+        max: ''
+        recovery: []
+      effects: []
 effects:
   - _id: Wmb9uIJB3vdevCsw
     name: Try Again
@@ -75,18 +80,25 @@ effects:
     system:
       changes:
         - key: flags.midi-qol.optional.TryAgain.attack.fail.all
+          _id: 2nEq1R3eqvRpEjRV
           type: custom
           value: reroll
         - key: flags.midi-qol.optional.TryAgain.count
+          _id: 1cqIARMrzKx2hoQD
           type: custom
           value: reaction
         - key: flags.midi-qol.optional.TryAgain.label
+          _id: iYjfl8wMc8W7N4CM
           type: custom
           value: Try Again
     flags:
       dae:
         stackable: noneName
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!vCswWmb9uIJB3vde.Wmb9uIJB3vdevCsw'
 folder: Tnf0D7n9MHPnMz8r
 flags:
@@ -129,6 +141,11 @@ flags:
         duration:
           units: ''
           value: ''
+          type: instant
+          reapplies: ''
+          save:
+            ability: ''
+          cancel: ''
         range:
           units: ''
           value: null
@@ -159,7 +176,7 @@ flags:
         rarity: common
 _stats:
   systemId: dnd5e
-  systemVersion: 3.1.2
+  systemVersion: 5.3.2
   coreVersion: '14.364'
   createdTime: 1712154346132
   modifiedTime: 1716049011952

@@ -1,5 +1,6 @@
 import Activities from './Activities.js';
 import AutomationHelpers from './AutomationHelpers.js';
+import CompatibilityHelpers from './CompatibilityHelpers.js';
 import Durations from './Durations.js';
 import Zones from './Zones.js';
 import { GMM_MODULE_TITLE } from '../consts/GmmModuleTitle.js';
@@ -14,6 +15,7 @@ const Areas = (function () {
 		Hooks.on("createRegion", _onCreateRegion);
 		Hooks.on("updateRegion", _track);
 		Hooks.on("deleteRegion", _onDeleteRegion);
+		Hooks.on("preCreateActiveEffect", _keepLifetime);
 		Hooks.on("updateActiveEffect", _onUpdateActiveEffect);
 		Hooks.once("ready", _trackExisting);
 	}
@@ -53,12 +55,29 @@ const Areas = (function () {
 		await clock.delete();
 	}
 
+	/* dnd5e 6 stamps `turnStart` on a blank in-combat effect */
+	function _keepLifetime(effect, data) {
+		if (!_isAreaClock(effect)) return;
+		const expiry = data?.duration?.expiry ?? null;
+		if (effect.duration.expiry === expiry) return;
+		effect.updateSource({ "duration.expiry": expiry });
+	}
+
 	/* A world left on the default expiry action marks the clock rather than deleting it, and only a
 	   delete reaches the area. */
 	function _onUpdateActiveEffect(effect) {
 		if (!game.users.activeGM?.isSelf || !_isAreaClock(effect)) return;
 		if (effect.active || effect.disabled) return;
+		if (_systemDeletesExpired(effect)) return;
 		effect.delete().catch(e => console.warn("GMM | Deleting an expired area clock failed", e));
+	}
+
+	/* dnd5e 6 deletes an expired effect itself when its actor is out of combat, and a second delete
+	   raises a server error. */
+	function _systemDeletesExpired(effect) {
+		if (!CompatibilityHelpers.dnd5eAtLeast(6)) return false;
+		const combat = effect.start?.combat ?? game.combat;
+		return !combat?.getCombatantsByActor?.(effect.parent)?.length;
 	}
 
 	function _onCreateRegion(region) {

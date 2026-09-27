@@ -13,6 +13,7 @@ sort: 0
 system:
   changes:
     - key: flags.midi-qol.onUseMacroName
+      _id: 6bQJOMTNgMiLIcK2
       type: custom
       value: function.gmmc.boons.deflector,preTargetDamageApplication
 flags:
@@ -21,4 +22,8 @@ flags:
   gmm:
     rarity: rare
     boon: deflector
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!eotv6B7vn7B7ONkf'

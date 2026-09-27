@@ -557,8 +557,8 @@
                                 <div class="form-fieldset">
                                     <div class="form-fieldset__header effect-section" data-effect-type="{{section.type}}">
                                         <span class="effect-section">{{localize section.label}}</span>
-                                        <button type="button" data-action="create-effect" data-tooltip="{{section.localizationPrefix}}Create"
-                                                aria-label="{{ localize (concat section.localizationPrefix 'Create') }}">
+                                        <button type="button" data-action="create-effect" data-tooltip="{{#if section.isEnchantment}}gmm.common.effect.create_enchantment{{else}}gmm.common.effect.create{{/if}}"
+                                                aria-label="{{#if section.isEnchantment}}{{localize 'gmm.common.effect.create_enchantment'}}{{else}}{{localize 'gmm.common.effect.create'}}{{/if}}">
                                             {{localize 'gmm.action.blueprint.effects.add'}}
                                         </button>
                                     </div>
@@ -650,7 +650,7 @@
                                         {{#select gmm.blueprint.target.type}}
                                         <option value=""></option>
                                         {{#each gmm.enums.target_types}}
-                                        <option value="{{.}}">{{localize (concat 'gmm.common.target_type.' .)}}</option>
+                                        <option value="{{this.value}}">{{this.label}}</option>
                                         {{/each}}
                                         {{/select}}
                                     </select>
@@ -681,6 +681,16 @@
                                     <input name="gmm.blueprint.target.width" value="{{gmm.blueprint.target.width}}" type="number" />
                                 </div>
                             </div>
+                            {{#if gmm.target.area}}
+                            <div class="form-group">
+                                <div class="form-group__header">
+                                    <span class="form-group__title">{{localize 'gmm.action.blueprint.target.affects_self'}}</span>
+                                </div>
+                                <div class="form-group__body">
+                                    <input type="checkbox" name="gmm.blueprint.target.affects_self" {{checked gmm.blueprint.target.affects_self}} />
+                                </div>
+                            </div>
+                            {{/if}}
                             {{#if gmm.zone.available}}
                             <div class="form-fieldset">
                                 <div class="form-fieldset__header">

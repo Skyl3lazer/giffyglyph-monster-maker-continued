@@ -8,62 +8,67 @@ system:
       ft.</p><p><em>Core automation</em></p>
     chat: ''
   source: {}
-  activation:
-    type: ''
-    cost: null
-    condition: ''
-  duration:
-    value: ''
-    units: ''
   cover: null
   crewed: false
-  target:
-    value: null
-    width: null
-    units: ''
-    type: ''
-    prompt: true
-  range:
-    value: null
-    long: null
-    units: ''
   uses:
-    value: null
+    spent: 0
     max: ''
-    per: null
-    recovery: ''
-    prompt: true
-  consume:
-    type: ''
-    target: ''
-    amount: null
-    scale: false
-  ability: null
-  actionType: ''
-  attack:
-    bonus: ''
-    flat: false
-  chatFlavor: ''
-  critical:
-    threshold: null
-    damage: ''
-  damage:
-    parts: []
-    versatile: ''
-  formula: ''
-  save:
-    ability: ''
-    dc: null
-    scaling: spell
-  summons: null
+    recovery: []
   type:
-    value: ''
+    value: monster
     subtype: ''
   properties: []
   requirements: ''
-  recharge:
-    value: null
-    charged: false
+  activities:
+    gmmprimary000000:
+      _id: gmmprimary000000
+      type: utility
+      name: (Beast) Bioluminescence
+      sort: 0
+      activation:
+        type: ''
+        value: null
+        condition: ''
+        override: false
+      consumption:
+        targets: []
+        scaling:
+          allowed: false
+          max: ''
+        spellSlot: false
+      duration:
+        concentration: false
+        special: ''
+        override: false
+        value: null
+        units: inst
+      range:
+        value: null
+        units: ''
+        special: ''
+        override: false
+      target:
+        template:
+          count: ''
+          contiguous: false
+          stationary: false
+          type: ''
+          size: ''
+          width: ''
+          height: ''
+          units: ft
+        affects:
+          count: ''
+          type: ''
+          choice: false
+          special: ''
+        prompt: true
+        override: false
+      uses:
+        spent: 0
+        max: ''
+        recovery: []
+      effects: []
 effects:
   - _id: 6hfaJfhskZUTSXaJ
     name: Bioluminescence
@@ -75,15 +80,21 @@ effects:
     system:
       changes:
         - key: token.light.bright
+          _id: Ujw2ATj15e8RNqKQ
           type: override
           value: '15'
         - key: token.light.dim
+          _id: 43cJnWnu8Y2BCfwb
           type: override
           value: '30'
     flags:
       dae:
         stackable: noneName
     sort: 0
+    duration:
+      value: null
+      units: turns
+      expiry: null
     _key: '!items.effects!SXaJ6hfaJfhskZUT.6hfaJfhskZUTSXaJ'
 folder: ULF0u3oEC8EufxRm
 flags:
@@ -126,6 +137,11 @@ flags:
         duration:
           units: ''
           value: ''
+          type: instant
+          reapplies: ''
+          save:
+            ability: ''
+          cancel: ''
         range:
           units: ''
           value: null
@@ -155,7 +171,7 @@ flags:
             checked: false
 _stats:
   systemId: dnd5e
-  systemVersion: 3.1.1
+  systemVersion: 5.3.2
   coreVersion: '14.364'
   createdTime: 1712154346132
   modifiedTime: 1712254230525
