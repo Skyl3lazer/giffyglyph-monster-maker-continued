@@ -1084,7 +1084,7 @@ const Activities = (function () {
         const zone = zoneData ? _mergeForeignFields(item, GMM_ZONE_ACTIVITY_ID, zoneData) : null;
         if (zone) _forceAutomationOnly(zone);
 
-        _setEffectMembership(item, blueprint, { primary, deferred, zone, duration: !!duration });
+        const authored = _setEffectMembership(item, blueprint, { primary, deferred, zone, duration: !!duration });
 
         _wrapActivity(update, GMM_ACTIVITY_ID, primary);
         if (deferred) _wrapActivity(update, GMM_DEFERRED_ACTIVITY_ID, deferred);
@@ -1097,6 +1097,9 @@ const Activities = (function () {
         const clock = buildDoomClockEffectData(blueprint);
         if (clock) effects.push(clock);
         if (duration) effects.push(duration);
+        for (const { _id } of authored) {
+            if (_storedEffect(item, _id)?.transfer !== false) effects.push({ _id, transfer: false });
+        }
         if (effects.length) update.effects = effects;
 
         return update;
@@ -1131,6 +1134,7 @@ const Activities = (function () {
             }
             data.effects = entries;
         }
+        return authored;
     }
 
     /* Read from the item, not from the objects being built, so an entry on an activity this save is
@@ -1146,10 +1150,8 @@ const Activities = (function () {
             for (const entry of (Array.isArray(existing?.effects) ? existing.effects : [])) {
                 const id = entry?._id;
                 if (!id || seen.has(id) || GMM_FORGED_EFFECT_IDS.has(id)) continue;
-                const effect = item?.effects?.get?.(id)
-                    ?? item?._source?.effects?.find?.(e => e?._id === id);
                 // Always mode is the GM's choice and carrying the entry anyway would undo it.
-                if (effect?.transfer !== false) continue;
+                if (_storedEffect(item, id)?.transfer !== false) continue;
                 seen.add(id);
                 entries.push(entry);
             }
@@ -1162,8 +1164,15 @@ const Activities = (function () {
     function _seedEffectEntries(item) {
         const source = Array.isArray(item?._source?.effects) ? item._source.effects : [];
         return source
-            .filter(e => e?._id && e.transfer === false && !GMM_FORGED_EFFECT_IDS.has(e._id))
+            // Prepared first: dnd5e 6 counts an effect a vanilla activity lists as applied, whatever it stores.
+            .filter(e => e?._id && (item.effects?.get?.(e._id)?.transfer ?? e.transfer) === false
+                && !GMM_FORGED_EFFECT_IDS.has(e._id))
             .map(e => ({ _id: e._id }));
+    }
+
+    //dnd6 has a potential bug in transfer effects so we compensate for it.
+    function _storedEffect(item, id) {
+        return item?.effects?.get?.(id)?._source ?? item?._source?.effects?.find?.(e => e?._id === id);
     }
 
     function _isGmmcActionSheet(item) {
@@ -1911,7 +1920,7 @@ const Activities = (function () {
             promises.push(item.updateActivity(effectHostActivityId(item), { effects: nextEffects }));
         }
         const desiredTransfer = !!alwaysMode;
-        if (effect.transfer !== desiredTransfer) {
+        if (effect._source.transfer !== desiredTransfer) {
             promises.push(effect.update({ transfer: desiredTransfer }));
         }
         if (!promises.length) return false;
