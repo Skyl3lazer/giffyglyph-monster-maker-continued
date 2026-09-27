@@ -6,9 +6,9 @@ system:
     value: >-
       <p>Whenever you hit a creature within 30' that has 50% hp or more, that
       creature is <em>Marked for Death</em>.* While marked, if the creature is
-      reduced to 0 hit points it suffers instant death.+</p><p><em>* Core
-      automation</em></p><p><em>+ Core automation</em></p><p><em>Use it when you
-      hit a target above half hit points.</em></p>
+      reduced to 0 hit points it suffers instant death.*</p><p><em>* Core
+      automation</em></p><p><em>Use it when you hit a target above half hit
+      points.</em></p>
     chat: ''
   source: {}
   cover: null
@@ -121,9 +121,8 @@ flags:
             <p>Whenever you hit a creature within 30' that has 50% hp or more,
             that creature is <em>Marked for Death</em>.* While marked, if the
             creature is reduced to 0 hit points it suffers instant
-            death.+</p><p><em>* Core automation</em></p><p><em>+ Core
-            automation</em></p><p><em>Use it when you hit a target above half
-            hit points.</em></p>
+            death.*</p><p><em>* Core automation</em></p><p><em>Use it when you
+            hit a target above half hit points.</em></p>
         activation:
           type: ''
           cost: null
