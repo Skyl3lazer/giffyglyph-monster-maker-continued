@@ -283,6 +283,8 @@ const MonsterBlueprint = (function () {
 						let item = actor.items.get(x.id)
 						switch (item.getSortingCategory()) {
 							case "spell":
+								// Mirrors dnd5e's own spellbook filter for a cast activity's cached copy.
+								if (item.getFlag("dnd5e", "cachedFor") && !item.system.linkedActivity?.displayInSpellbook) break;
 								let spell_level = x.system.level || 0;
 								blueprintData.spellbook.spells[`${spell_level < 10 ? spell_level : "other"}`].push(_getItemDetails(item));
 								break;
