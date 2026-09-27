@@ -152,7 +152,7 @@ const GmmItem = (function () {
                 const dcRoll = new Roll(String(resolved || "0"));
                 if (dcRoll.isDeterministic) {
                     const total = dcRoll.evaluateSync().total;
-                    if (Number.isFinite(total) && total > 0) finalDc = total;
+                    if (Number.isFinite(total) && total > 0) finalDc = total + Activities.saveDcBonus(activity);
                 }
             } catch (e) { /* swallow */ }
         }

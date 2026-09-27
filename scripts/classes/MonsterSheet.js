@@ -71,7 +71,8 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         "actor",
         "npc",
         "vertical-tabs",
-        "standard-form"
+        "standard-form",
+        "hidden-title"
     ]);
 
     /** @inheritDoc */
@@ -223,6 +224,10 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     _renderAttunement() {}
     _renderSpellbook() {}
 
+    canExpand() {
+        return false;
+    }
+
     /* Suppress the dnd5e "mode slider" (`.mode-slider`): GMM's Forge UI is always editable and exposes its own controls. */
     _renderModeToggle() {
         const toggle = this.element?.querySelector(".window-header .mode-slider");
@@ -246,6 +251,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         }
 
         this.element?.querySelector(".header-elements .cr-xp")?.remove();
+        this.element?.querySelector(".header-elements .source-book")?.remove();
 
         // Bridge the GMM Gui controller and modal helpers (which still use jQuery) to the V2 root element.
         const $el = $(this.element);
@@ -265,7 +271,7 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
             $el.find('[data-action="update-item"]').change((e) => this._updateItem(e));
 
             [ModalAbilityCheck, ModalBasicAttackAc, ModalBasicAttackSave, ModalBasicDamage, ModalSavingThrow].forEach((x) => {
-                x.activateListeners($el, this.actor, this.id);
+                x.activateListeners($el, this.actor);
             });
         } catch (e) {
             console.warn("GMM | MonsterSheet: listener attachment failed", e);
@@ -345,15 +351,16 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     _onSortItem(event, item) {
         if (this.actor.isToken) return;
         const source = item;
+        // Two abilities may share a sort. The helper reindexes ties in the order it is handed them.
         const siblings = this.actor.items.contents.filter((i) => {
             return (i.getSortingCategory() === source.getSortingCategory()) && (i.id !== source.id);
-        });
+        }).sort(MonsterBlueprint.compareItemsForDisplay);
         const dropTarget = event.target.closest(".item");
         const targetId = dropTarget ? dropTarget.dataset?.itemId : null;
         const target = siblings.find(s => s.id === targetId);
         if (target && (target.getSortingCategory() !== source.getSortingCategory())) return;
 
-        const sortUpdates = foundry.utils.SortingHelpers.performIntegerSort(source, { target: target, siblings });
+        const sortUpdates = foundry.utils.performIntegerSort(source, { target: target, siblings });
         const updateData = sortUpdates.map(u => {
             const update = u.update;
             update._id = u.target.id;
@@ -463,11 +470,15 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
     static async #actionDisplayItem(event, target) {
         const li = target.closest(".item");
         const item = this.actor.items.get(li.dataset.itemId);
-        const msg = await item.displayCard({ createMessage: false });
-        const DIV = document.createElement("DIV");
-        DIV.innerHTML = msg.content;
-        DIV.querySelector("div.card-buttons")?.remove();
-        return ChatMessage.create({ content: DIV.innerHTML });
+        const data = await item.displayCard({ createMessage: false });
+        if (!data) return;
+        if (typeof data.content === "string") {
+            const DIV = document.createElement("DIV");
+            DIV.innerHTML = data.content;
+            DIV.querySelector("div.card-buttons")?.remove();
+            data.content = DIV.innerHTML;
+        }
+        return ChatMessage.create(data);
     }
 
     /** @this {MonsterSheet} */
@@ -484,12 +495,12 @@ export default class MonsterSheet extends dnd5e.applications.actor.NPCActorSheet
         const li = target.closest(".effect-section");
         const isEnchantment = li.dataset.effectType.startsWith("enchantment");
         return this.document.createEmbeddedDocuments("ActiveEffect", [{
-            name: game.i18n.localize("DND5E.EffectNew"),
+            type: isEnchantment ? "enchantment" : "base",
+            name: game.i18n.localize("gmm.common.effect.new"),
             img: "icons/svg/aura.svg",
             origin: isEnchantment ? undefined : this.document.uuid,
-            "duration.rounds": li.dataset.effectType === "temporary" ? 1 : undefined,
-            disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType),
-            "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
+            duration: li.dataset.effectType === "temporary" ? CompatibilityHelpers.effectRoundsDuration(1) : undefined,
+            disabled: ["inactive", "enchantmentInactive"].includes(li.dataset.effectType)
         }]);
     }
 

@@ -13,6 +13,7 @@ sort: 0
 system:
   changes:
     - key: flags.midi-qol.advantage.attack.all
+      _id: cTMYxYSqy4nEKJhS
       type: custom
       value: '1'
 flags:
@@ -22,4 +23,8 @@ flags:
       - 1Attack
   gmm:
     rarity: common
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!VJj2o5EYKPxcY6QU'

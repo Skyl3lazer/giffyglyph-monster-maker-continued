@@ -13,6 +13,7 @@ sort: 0
 system:
   changes:
     - key: flags.automated-conditions-5e.attack.criticalThreshold
+      _id: 24xQ3evhAymOL9Ug
       type: ac5e
       value: threshold=-1
 flags:
@@ -20,4 +21,8 @@ flags:
     stackable: noneName
   gmm:
     rarity: common
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!z9YApTQH9Q7a5Q1u'

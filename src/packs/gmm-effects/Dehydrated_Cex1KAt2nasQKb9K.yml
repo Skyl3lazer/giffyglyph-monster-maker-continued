@@ -9,6 +9,8 @@ description: >-
   automation</em></p>
 disabled: false
 transfer: false
+statuses:
+  - gmm.dehydrated
 folder: gmmConditions000
 sort: 0
 system:
@@ -18,4 +20,8 @@ flags:
     stackable: noneName
   gmm:
     rarity: uncommon
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!Cex1KAt2nasQKb9K'

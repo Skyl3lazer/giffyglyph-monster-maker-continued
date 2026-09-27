@@ -4,26 +4,32 @@ img: icons/magic/perception/eye-tendrils-web-purple.webp
 effects:
   - changes:
       - key: flags.midi-qol.grants.advantage.attack.mwak
+        _id: f6SOPi6bvR41MH85
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.advantage.attack.msak
+        _id: fZRRQpj4wFXc69xJ
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.disadvantage.attack.rwak
+        _id: FAVN6bD6W4E2VHBw
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.disadvantage.attack.rsak
+        _id: E8ZydIljjgdQVDUf
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.disadvantage.attack.all
+        _id: gj1b7aGviiPirRtb
         mode: 0
         value: '1'
         priority: null
       - key: system.attributes.movement.all
+        _id: NAqN0GThZ0ffdqTb
         mode: 0
         value: '*0.5'
         priority: 25
@@ -35,6 +41,9 @@ effects:
       has disadvantage.
     disabled: false
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -54,7 +63,6 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Prone'
       - prone
     _id: CAomRcaSRA0lL5Gh
     _stats:
@@ -74,14 +82,17 @@ effects:
     _key: '!items.effects!ZdOn5y78i4GGQrOO.CAomRcaSRA0lL5Gh'
   - changes:
       - key: flags.midi-qol.fail.ability.save.dex
+        _id: nyOjTb1isTXVzfsZ
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.fail.ability.save.str
+        _id: 6JzN3kBbqSLPxQWO
         mode: 0
         value: '1'
         priority: null
       - key: flags.midi-qol.grants.advantage.attack.all
+        _id: XMTQDNDHGS8ro97D
         mode: 0
         value: '1'
         priority: null
@@ -92,6 +103,9 @@ effects:
       creature have advantage.
     disabled: false
     duration:
+      value: null
+      units: turns
+      expiry: null
       rounds: null
       seconds: null
       turns: null
@@ -111,7 +125,6 @@ effects:
     tint: '#ffffff'
     transfer: false
     statuses:
-      - 'Convenient Effect: Stunned'
       - stunned
       - incapacitated
     _id: WAwutDbmvD1c7pyV
@@ -145,7 +158,7 @@ flags:
           image: icons/magic/perception/eye-tendrils-web-purple.webp
           text: >-
             <p>The target is knocked prone and <em>Stunned</em> until the end of
-            its next turn.</p>
+            its next turn.</p><p><em>Midi automation</em></p>
         activation:
           type: action
           cost: 0
@@ -228,62 +241,100 @@ system:
   description:
     value: >-
       <p>The target is knocked prone and <em>Stunned</em> until the end of its
-      next turn.</p>
+      next turn.</p><p><em>Midi automation</em></p>
     chat: ''
     unidentified: ''
   source: ''
-  activation:
-    type: action
-    cost: 0
-    condition: ''
-  duration:
-    value: ''
-    units: ''
   cover: null
-  target:
-    value: 1
-    width: ''
-    units: ''
-    type: creature
-  range:
-    value: 5
-    long: null
-    units: ft
   uses:
-    value: 1
-    max: 1
-    per: lr
-    recovery: ''
-  consume:
-    type: ''
-    target: ''
-    amount: null
-  ability: ''
-  actionType: mwak
-  attackBonus: 0
-  chatFlavor: ''
-  critical: null
-  damage:
-    parts: []
-    versatile: ''
-  formula: ''
-  save:
-    ability: ''
-    dc: null
-    scaling: spell
+    spent: 0
+    max: '1'
+    recovery:
+      - period: lr
+        type: recoverAll
+        formula: ''
   type:
-    value: ''
+    value: monster
     subtype: ''
   requirements: ''
-  recharge:
-    value: null
-    charged: false
+  activities:
+    gmmprimary000000:
+      _id: gmmprimary000000
+      type: attack
+      name: (Rare) Melee Condition Attack
+      sort: 0
+      activation:
+        type: action
+        value: 0
+        condition: ''
+        override: false
+      consumption:
+        targets:
+          - type: itemUses
+            target: ''
+            value: '1'
+            scaling:
+              mode: ''
+              formula: ''
+        scaling:
+          allowed: false
+          max: ''
+        spellSlot: false
+      duration:
+        concentration: false
+        special: ''
+        override: false
+        value: 1
+        units: round
+      range:
+        value: 5
+        units: ft
+        special: ''
+        override: false
+      target:
+        template:
+          count: ''
+          contiguous: false
+          stationary: false
+          type: ''
+          size: ''
+          width: ''
+          height: ''
+          units: ft
+        affects:
+          count: '1'
+          type: creature
+          choice: false
+          special: ''
+        prompt: true
+        override: false
+      uses:
+        spent: 0
+        max: ''
+        recovery: []
+      attack:
+        ability: max
+        bonus: ''
+        critical:
+          threshold: null
+        flat: true
+        type:
+          value: melee
+          classification: weapon
+      damage:
+        critical:
+          bonus: ''
+        includeBase: false
+        parts: []
+      effects:
+        - _id: CAomRcaSRA0lL5Gh
+        - _id: WAwutDbmvD1c7pyV
 ownership:
   default: 0
   9KqczVLBJ56sdiTI: 3
 _stats:
   systemId: dnd5e
-  systemVersion: 3.1.2
+  systemVersion: 5.3.2
   coreVersion: '13.351'
   createdTime: 1686232662664
   modifiedTime: 1716215848593

@@ -7,7 +7,6 @@ import { GMM_ACTION_TIME_PERIODS } from "../consts/GmmActionTimePeriods.js";
 import { GMM_ACTION_USE_PERIODS } from "../consts/GmmActionUsePeriods.js";
 import { GMM_ACTION_RANGE_TYPES } from "../consts/GmmActionRangeTypes.js";
 import { GMM_ACTION_RARITIES } from "../consts/GmmActionRarities.js";
-import { GMM_ACTION_TARGET_TYPES } from "../consts/GmmActionTargetTypes.js";
 import { GMM_ACTION_ATTACK_TYPES } from "../consts/GmmActionAttackTypes.js";
 import { GMM_DEFERRAL_TYPES } from "../consts/GmmDeferralTypes.js";
 import { GMM_ACTION_DURATION_TYPES } from "../consts/GmmActionDurationTypes.js";
@@ -71,7 +70,8 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         "dnd5e2",
         "item",
         "vertical-tabs",
-        "standard-form"
+        "standard-form",
+        "hidden-title"
     ]);
 
     /** @inheritDoc */
@@ -122,7 +122,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
                 use_periods: GMM_ACTION_USE_PERIODS,
                 range_types: GMM_ACTION_RANGE_TYPES,
                 rarities: GMM_ACTION_RARITIES,
-                target_types: GMM_ACTION_TARGET_TYPES,
+                target_types: Activities.targetTypeOptions(),
                 consumption_targets: this._getActionConsumptionTargets(this.item),
                 ranks: Object.keys(GMM_MONSTER_RANKS).filter((x) => x != "custom"),
                 roles: Object.keys(GMM_MONSTER_ROLES).filter((x) => x != "custom"),
@@ -140,6 +140,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             }
         };
 
+        context.gmm.target = { area: Activities.isAreaTarget(context.gmm.blueprint ?? {}) };
         context.gmm.zone = this._getZoneContext(context.gmm.blueprint);
 
         const duration = Durations.describe(context.gmm.blueprint);
@@ -266,6 +267,10 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         return targets;
     }
 
+    canExpand() {
+        return false;
+    }
+
     /* Suppress the dnd5e "mode slider" (`.mode-slider`): GMM's Forge UI is always editable and exposes its own controls. */
     _renderModeToggle() {
         const toggle = this.element?.querySelector(".window-header .mode-slider");
@@ -278,7 +283,7 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         this.element?.querySelector(".window-content > .create-child")?.remove();
     }
 
-    /* dnd5e still calls this activator, and the templates' `<prose-mirror>` elements self-initialize. */
+    /* Insurance. */
     _activateEditor(_div) {}
 
     /* The Forge UI has no read-only variant to swap into. */
@@ -491,14 +496,19 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
 
         // A temporary effect wants the chat card's Apply Effect button. A passive one wants to transfer.
         const defaultOnUse = effectType === "temporary";
+        // An enchantment is magical by schema default. Only a plain effect takes the item's `mgc` property.
+        const system = (!isEnchantment && CompatibilityHelpers.dnd5eAtLeast(6))
+            ? { magical: !!this.document.system?.properties?.has?.("mgc") }
+            : undefined;
         const created = await this.document.createEmbeddedDocuments("ActiveEffect", [{
-            name: game.i18n.localize("DND5E.EffectNew"),
+            type: isEnchantment ? "enchantment" : "base",
+            name: game.i18n.localize("gmm.common.effect.new"),
             img: this.document.img,
             origin: isEnchantment ? undefined : this.document.uuid,
-            "duration.rounds": effectType === "temporary" ? 1 : undefined,
+            duration: effectType === "temporary" ? CompatibilityHelpers.effectRoundsDuration(1) : undefined,
             disabled: ["inactive", "enchantmentInactive"].includes(effectType),
             transfer: !isEnchantment && !defaultOnUse,
-            "flags.dnd5e.type": isEnchantment ? "enchantment" : undefined
+            system
         }]);
 
         if (!isEnchantment && defaultOnUse && this.item.system?.activities?.has?.(Activities.GMM_ACTIVITY_ID)) {

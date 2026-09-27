@@ -1,4 +1,5 @@
 import AutomationHelpers from "./AutomationHelpers.js";
+import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Durations from "./Durations.js";
 import Shortcoder from "./Shortcoder.js";
 import { buildSaveDcFormula, buildDurationSaveDcFormula } from "./SaveDc.js";
@@ -7,6 +8,7 @@ import { GMM_ZONE_TERRAIN } from "../consts/GmmZoneTerrain.js";
 import { GMM_ZONE_TRIGGERS } from "../consts/GmmZoneTriggers.js";
 import { GMM_ZONE_PAYLOADS } from "../consts/GmmZonePayloads.js";
 import { GMM_ZONE_AUDIENCES } from "../consts/GmmZoneAudiences.js";
+import { GMM_ACTION_INDIVIDUAL_TARGET_TYPES } from "../consts/GmmActionTargetTypes.js";
 
 /* The blueprint is the authored source of truth. Every activity here is a generated mirror of it. */
 const Activities = (function () {
@@ -105,9 +107,36 @@ const Activities = (function () {
         return [];
     }
 
+    /* dnd5e 6 gives its own `radius` the emanation shape, which attaches to a token.
+       GMMC's `radius` is a patch of ground. */
+    const GMM_TEMPLATE_TYPES = { radius: "circle", emanation: "radius" };
+    const GMM_TARGET_TYPES_BY_TEMPLATE = { circle: "radius", radius: "emanation" };
+
+    function templateTypeFor(targetType, rangeUnits) {
+        // dnd5e 5 has no template that attaches to a token, so a self-centered effect is a radius.
+        if (targetType === "radius" && rangeUnits === "self" && !CompatibilityHelpers.dnd5eAtLeast(6)) return "radius";
+        return GMM_TEMPLATE_TYPES[targetType] ?? targetType;
+    }
+
     function isAreaTarget(blueprintData) {
         const type = blueprintData?.target?.type;
-        return !!(type && CONFIG?.DND5E?.areaTargetTypes?.[type]);
+        return !!(type && CONFIG?.DND5E?.areaTargetTypes?.[templateTypeFor(type, blueprintData?.range?.units)]);
+    }
+
+    function targetTypeLabel(targetType) {
+        const key = `gmm.common.target_type.${targetType}`;
+        if (game.i18n.has(key)) return game.i18n.localize(key);
+        const shape = CONFIG?.DND5E?.areaTargetTypes?.[templateTypeFor(targetType)];
+        return shape ? game.i18n.localize(shape.label) : targetType;
+    }
+
+    /* Derived, so the sheet offers every shape the running dnd5e can place. */
+    function targetTypeOptions() {
+        const areas = Object.keys(CONFIG?.DND5E?.areaTargetTypes ?? {})
+            .map(t => GMM_TARGET_TYPES_BY_TEMPLATE[t] ?? t);
+        return [...new Set([...GMM_ACTION_INDIVIDUAL_TARGET_TYPES, ...areas])]
+            .map(value => ({ value, label: targetTypeLabel(value) }))
+            .sort((a, b) => a.label.localeCompare(b.label));
     }
 
     /* Ungated on the target type, because the sheet still has to draw what is already authored. */
@@ -294,38 +323,49 @@ const Activities = (function () {
 
     /* Pre-validation, because FormulaField rejects a shortcoded string before anything else can see it. */
     function patchActivityField() {
-        const ActivityField = globalThis.dnd5e?.dataModels?.fields?.ActivityField;
-        if (!ActivityField) return false;
-        if (ActivityField.prototype.__gmmPatched) return true;
+        const BaseActivityData = globalThis.dnd5e?.dataModels?.activity?.BaseActivityData;
+        if (!BaseActivityData) return false;
 
-        const origCleanType = ActivityField.prototype._cleanType;
-        ActivityField.prototype._cleanType = function(value, options, _state) {
-            sanitizeActivitySource(value);
-            return origCleanType.call(this, value, options, _state);
-        };
+        if (!BaseActivityData.__gmmPatched) {
+            const origCleanData = BaseActivityData.cleanData;
+            BaseActivityData.cleanData = function(data, options, _state) {
+                // An initialized model is already past validation.
+                if (!(data instanceof foundry.abstract.DataModel)) sanitizeActivitySource(data);
+                return origCleanData.call(this, data, options, _state);
+            };
 
-        const origInitialize = ActivityField.prototype.initialize;
-        ActivityField.prototype.initialize = function(value, model, options = {}) {
-            sanitizeActivitySource(value);
-            return origInitialize.call(this, value, model, options);
-        };
-
-        Object.defineProperty(ActivityField.prototype, "__gmmPatched", {
-            value: true, writable: false, configurable: false, enumerable: false
-        });
+            Object.defineProperty(BaseActivityData, "__gmmPatched", {
+                value: true, writable: false, configurable: false, enumerable: false
+            });
+        }
 
         // Without a base fallback a stale non-attack activity throws during chat render.
-        const BaseActivityData = globalThis.dnd5e?.dataModels?.activity?.BaseActivityData;
-        if (BaseActivityData && !("getActionLabel" in BaseActivityData.prototype)) {
+        if (!("getActionLabel" in BaseActivityData.prototype)) {
             BaseActivityData.prototype.getActionLabel = function(_attackMode) { return ""; };
         }
 
         return true;
     }
 
+    /* Installing the patch is no proof the seam is still the one dnd5e reaches validation through. */
+    function verifyActivitySanitizer() {
+        try {
+            const field = CONFIG?.Item?.dataModels?.feat?.schema?.getField?.("activities");
+            if (!field) return false;
+            const cleaned = field.clean({
+                [GMM_ACTIVITY_ID]: { _id: GMM_ACTIVITY_ID, type: "attack", attack: { bonus: "[attackBonus]" } }
+            });
+            return cleaned?.[GMM_ACTIVITY_ID]?.attack?.bonus === "0";
+        } catch (e) {
+            console.warn("GMM | Activity sanitization probe threw", e);
+            return false;
+        }
+    }
+
     /* Flat paths, not a nested object, so the caller can merge this into any other update. */
     function buildSourceFormulaCleanup(item) {
-        const activities = item?._source?.system?.activities;
+        // Creation data has no `_source`.
+        const activities = item?._source?.system?.activities ?? item?.system?.activities;
         if (!activities || typeof activities !== "object") return null;
         const update = {};
         const replace = _sanitizeFormulaForActivity;
@@ -466,7 +506,6 @@ const Activities = (function () {
             sort: 0,
             activation: _buildActivation(blueprintData),
             consumption: _buildConsumption(blueprintData),
-            description: { chatFlavor: "" },
             duration: _buildDuration(blueprintData),
             range: _buildRange(blueprintData),
             target: _buildTarget(blueprintData),
@@ -574,7 +613,6 @@ const Activities = (function () {
             // The primary already charged all of these.
             activation: { type: "", value: null, condition: "", override: false },
             consumption: { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false },
-            description: { chatFlavor: "" },
             duration: _buildDuration(blueprintData, { concentration: false }),
             range: _buildRange(blueprintData),
             // The primary already placed the template. A second would be planted here.
@@ -602,7 +640,6 @@ const Activities = (function () {
             // Placing the area already charged all of these.
             activation: { type: "", value: null, condition: "", override: false },
             consumption: { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false },
-            description: { chatFlavor: "" },
             // Concentrating here would end the concentration the placed area depends on, deleting it.
             duration: _buildDuration(blueprintData, { concentration: false }),
             range: _buildRange(blueprintData),
@@ -632,9 +669,11 @@ const Activities = (function () {
                 : "",
             // The gate applies it to whoever it landed on, so it must not also ride the scaler.
             transfer: false,
+            duration: Durations.indefinite(),
             // CONDITIONAL draws no icon for a clock, which carries no duration.
             showIcon: CONST.ACTIVE_EFFECT_SHOW_ICON?.ALWAYS,
             flags: {
+                // Claiming Temporary enrolls the clock in core's expiry registry, which then expires it.
                 dnd5e: { isTemporary: false },
                 [GMM_MODULE_TITLE]: {
                     deferral: {
@@ -708,7 +747,7 @@ const Activities = (function () {
                 size: "",
                 width: "",
                 height: "",
-                units: t.units || "ft"
+                units: t.units || CompatibilityHelpers.defaultLengthUnits()
             },
             affects: {
                 count: "",
@@ -719,12 +758,16 @@ const Activities = (function () {
             prompt: true,
             override: false
         };
-        if (t.type && CONFIG?.DND5E?.areaTargetTypes?.[t.type]) {
+        if (isAreaTarget(blueprintData)) {
             if (template) {
-                data.template.type = t.type;
+                data.template.type = templateTypeFor(t.type, blueprintData.range?.units);
                 if (t.value != null) data.template.size = String(t.value);
                 if (t.width != null) data.template.width = String(t.width);
+            // Midi skips target confirmation outright when the affects type is empty.
+            data.affects.type = "creature";
             }
+            // Midi drops the source token from an auto-targeted area on "-self".
+            if (!t.affects_self) data.affects.special = "-self";
         } else if (t.type) {
             if (t.value != null) data.affects.count = String(t.value);
             data.affects.type = t.type;
@@ -833,8 +876,13 @@ const Activities = (function () {
         return entries.map(damagePartFromBlueprint);
     }
 
-    /* Three scopes because a deferral splits them across two activities. Exactly one supplies each.
-       `authoredType` is the _source duration type, absent on the pre-type shape. */
+    /* An action authored before `radius` moved off dnd5e's still carries the old template. */
+    function targetTypeForTemplate(templateType, authored) {
+        if (templateTypeFor(authored) === templateType) return authored;
+        if (authored === "radius" && templateType === "radius") return authored;
+        return GMM_TARGET_TYPES_BY_TEMPLATE[templateType] ?? templateType;
+    }
+
     function readActivityIntoBlueprintData(activity, blueprintData, { shared = true, gate = true, damage = true, authoredType = null } = {}) {
         if (!activity) return;
         const obj = (typeof activity.toObject === "function") ? activity.toObject() : activity;
@@ -873,7 +921,7 @@ const Activities = (function () {
             const tpl = obj.target.template ?? {};
             const aff = obj.target.affects ?? {};
             if (tpl.type) {
-                blueprintData.target.type = tpl.type;
+                blueprintData.target.type = targetTypeForTemplate(tpl.type, blueprintData.target.type);
                 blueprintData.target.value = tpl.size ? Number(tpl.size) : null;
                 blueprintData.target.width = tpl.width ? Number(tpl.width) : null;
                 blueprintData.target.units = tpl.units ?? null;
@@ -1016,7 +1064,7 @@ const Activities = (function () {
     /* Fields not listed here belong to dnd5e or another module. ForcedReplacement would reset them.
      * `effects` is owned by `_setEffectMembership` */
     const GMM_OWNED_ACTIVITY_FIELDS = new Set([
-        "_id", "type", "name", "sort", "activation", "consumption", "description",
+        "_id", "type", "name", "sort", "activation", "consumption",
         "duration", "range", "target", "uses", "attack", "damage", "healing", "save", "effects"
     ]);
 
@@ -1036,7 +1084,7 @@ const Activities = (function () {
         const zone = zoneData ? _mergeForeignFields(item, GMM_ZONE_ACTIVITY_ID, zoneData) : null;
         if (zone) _forceAutomationOnly(zone);
 
-        _setEffectMembership(item, blueprint, { primary, deferred, zone, duration: !!duration });
+        const authored = _setEffectMembership(item, blueprint, { primary, deferred, zone, duration: !!duration });
 
         _wrapActivity(update, GMM_ACTIVITY_ID, primary);
         if (deferred) _wrapActivity(update, GMM_DEFERRED_ACTIVITY_ID, deferred);
@@ -1049,6 +1097,9 @@ const Activities = (function () {
         const clock = buildDoomClockEffectData(blueprint);
         if (clock) effects.push(clock);
         if (duration) effects.push(duration);
+        for (const { _id } of authored) {
+            if (_storedEffect(item, _id)?.transfer !== false) effects.push({ _id, transfer: false });
+        }
         if (effects.length) update.effects = effects;
 
         return update;
@@ -1083,6 +1134,7 @@ const Activities = (function () {
             }
             data.effects = entries;
         }
+        return authored;
     }
 
     /* Read from the item, not from the objects being built, so an entry on an activity this save is
@@ -1098,10 +1150,8 @@ const Activities = (function () {
             for (const entry of (Array.isArray(existing?.effects) ? existing.effects : [])) {
                 const id = entry?._id;
                 if (!id || seen.has(id) || GMM_FORGED_EFFECT_IDS.has(id)) continue;
-                const effect = item?.effects?.get?.(id)
-                    ?? item?._source?.effects?.find?.(e => e?._id === id);
                 // Always mode is the GM's choice and carrying the entry anyway would undo it.
-                if (effect?.transfer !== false) continue;
+                if (_storedEffect(item, id)?.transfer !== false) continue;
                 seen.add(id);
                 entries.push(entry);
             }
@@ -1114,8 +1164,15 @@ const Activities = (function () {
     function _seedEffectEntries(item) {
         const source = Array.isArray(item?._source?.effects) ? item._source.effects : [];
         return source
-            .filter(e => e?._id && e.transfer === false && !GMM_FORGED_EFFECT_IDS.has(e._id))
+            // Prepared first: dnd5e 6 counts an effect a vanilla activity lists as applied, whatever it stores.
+            .filter(e => e?._id && (item.effects?.get?.(e._id)?.transfer ?? e.transfer) === false
+                && !GMM_FORGED_EFFECT_IDS.has(e._id))
             .map(e => ({ _id: e._id }));
+    }
+
+    //dnd6 has a potential bug in transfer effects so we compensate for it.
+    function _storedEffect(item, id) {
+        return item?.effects?.get?.(id)?._source ?? item?._source?.effects?.find?.(e => e?._id === id);
     }
 
     function _isGmmcActionSheet(item) {
@@ -1205,7 +1262,7 @@ const Activities = (function () {
                 const dcRoll = new Roll(String(formula || "0"));
                 if (dcRoll.isDeterministic) {
                     const total = dcRoll.evaluateSync().total;
-                    if (Number.isFinite(total)) activity.save.dc.value = total;
+                    if (Number.isFinite(total)) activity.save.dc.value = total + saveDcBonus(activity);
                 }
             } catch (e) { /* swallow: keep whatever value the framework already computed */ }
         }
@@ -1233,6 +1290,15 @@ const Activities = (function () {
                 activity.healing.custom.formula = Shortcoder.replaceShortcodes(rawFormula, monsterData, true);
             }
         }
+    }
+
+    /* Rewriting dc.value discards the effect-set bonus dnd5e had folded in. */
+    function saveDcBonus(activity) {
+        const bonus = activity?.save?.dc?.bonus;
+        if (!bonus) return 0;
+        const simplify = dnd5e?.utils?.simplifyBonus;
+        if (typeof simplify !== "function") return 0;
+        return simplify(bonus, activity.getRollData?.({ deterministic: true }) ?? {}) || 0;
     }
 
     /* Shared by the roll and the sheet, so a new term cannot reach one and miss the other. */
@@ -1267,12 +1333,28 @@ const Activities = (function () {
             : null;
         if (actor && actionType) {
             /* Pushed as a formula, not a simplified number: this field permits dice (Bless is `1d4`). */
-            const actorBonus = actor.system?.bonuses?.[actionType]?.attack;
-            if (actorBonus && !/^0+$/.test(String(actorBonus).trim())) parts.push(String(actorBonus));
+            const actorBonus = _getActorAttackBonus(activity, actor, actionType, relatedStat, attackMode);
+            if (actorBonus && !/^0+$/.test(actorBonus.trim())) parts.push(actorBonus);
         }
-        if (typeof actor?.addRollExhaustion === "function") actor.addRollExhaustion(parts, data);
+        if (typeof actor?.addConditionRollReduction === "function") actor.addConditionRollReduction(parts, data);
+        else if (typeof actor?.addRollExhaustion === "function") actor.addRollExhaustion(parts, data);
 
         return { parts, data };
+    }
+
+    /* 6.0 spreads the actor's attack bonuses across `rolls.*` and folds AppliedRules in with them. */
+    function _getActorAttackBonus(activity, actor, actionType, relatedStat, attackMode) {
+        const field = dnd5e.dataModels?.shared?.D20RollModificationField;
+        if (typeof field?.combineFields !== "function") return String(actor.system?.bonuses?.[actionType]?.attack ?? "");
+
+        const rollData = activity.getRollData({ roll: { ability: relatedStat || undefined, attackMode: attackMode } });
+        const ability = rollData.roll?.ability;
+        const keyPaths = ["rolls.attack", `rolls.attack.${actionType}`];
+        if (ability) keyPaths.unshift(`abilities.${ability}.attack.roll`);
+        const { bonus } = field.combineFields(actor.system, keyPaths, {
+            rules: { category: "attack", actor: actor, item: activity.item, rollData: rollData }
+        });
+        return String(bonus ?? "");
     }
 
     function injectAttackBonusParts(rollConfig, activity, monsterData) {
@@ -1373,6 +1455,8 @@ const Activities = (function () {
                     roll.parts[i] = Shortcoder.replaceShortcodes(p, monsterData, true);
                     continue;
                 }
+                // dnd5e appends the item damage bonus after the formula slot, and a "0" there is a real bonus.
+                if (i !== 0) continue;
                 const bpFormula = blueprintDamage[ri]?.formula;
                 if (bpFormula && bpFormula.includes("[") && /^0+$/.test(p)) {
                     roll.parts[i] = Shortcoder.replaceShortcodes(bpFormula, monsterData, true);
@@ -1444,24 +1528,14 @@ const Activities = (function () {
         return (typeof raw === "object") ? raw : {};
     }
 
-    /* `effects` is kept though GMMC owns it: membership is the GM's choice, not the blueprint's.
-       Every other owned field is dropped so a rebuild cannot resurrect one the blueprint has changed. */
-    function _stashableActivityFields(source) {
-        const stash = {};
-        for (const [key, value] of Object.entries(source)) {
-            if (GMM_OWNED_ACTIVITY_FIELDS.has(key) && (key !== "effects")) continue;
-            stash[key] = value;
-        }
-        return stash;
-    }
-
     /* The GMM activities have no `savedActivities` equivalent, so a revert destroys the only source
-       the rebuild's preserve step can read. */
+       the rebuild's preserve step can read. Stored whole, because that step already decides what a
+       rebuild may keep. */
     function _snapshotGmmActivities(item) {
         const snapshot = {};
         for (const activityId of GMM_ACTIVITY_IDS) {
             const source = AutomationHelpers.activitySource(item, activityId);
-            if (source) snapshot[activityId] = _stashableActivityFields(source);
+            if (source) snapshot[activityId] = source;
         }
         return snapshot;
     }
@@ -1484,6 +1558,13 @@ const Activities = (function () {
             update[`system.activities.${id}`] = ForcedReplacement ? new ForcedReplacement(data) : data;
         }
         return update;
+    }
+
+    function _targetStale(blueprint, primary) {
+        const wanted = _buildTarget(blueprint?.data ?? blueprint ?? {});
+        if ((primary?.target?.template?.type ?? "") !== wanted.template.type) return true;
+        if ((primary?.target?.affects?.type ?? "") !== wanted.affects.type) return true;
+        return (primary?.target?.affects?.special ?? "") !== wanted.affects.special;
     }
 
     /* An unmigrated item has the pool on the activity, where nothing spends it.
@@ -1515,10 +1596,13 @@ const Activities = (function () {
         return Object.keys(fresh.duration).some(k => (stored.duration?.[k] ?? null) !== fresh.duration[k]);
     }
 
-    /* A clock forged before the flag was retired still carries it. */
-    function _doomClockTemporary(item) {
+    /* A clock forged before the units were pinned takes dnd5e 6's expiry stamp. One older than that
+       still carries the Temporary flag, which is the only staleness v13 can store. */
+    function _doomClockExpires(item) {
         const stored = item?._source?.effects?.find?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID);
-        return !!stored?.flags?.dnd5e?.isTemporary;
+        if (stored?.flags?.dnd5e?.isTemporary) return true;
+        return CompatibilityHelpers.effectDurationHasUnits()
+            && stored?.duration?.units !== Durations.indefinite().units;
     }
 
     /* True when the item's GMM activities do not match the shape its blueprint asks for. */
@@ -1531,6 +1615,7 @@ const Activities = (function () {
         const primary = activities.get(GMM_ACTIVITY_ID);
         if (primary?.type !== _wantedPrimaryType(blueprint)) return true;
         if (_poolTargetMismatch(blueprint, primary)) return true;
+        if (_targetStale(blueprint, primary)) return true;
         if (_durationEffectStale(item, blueprint)) return true;
         if (_onSaveStale(activities, blueprint)) return true;
         if (activities.get(GMM_ZONE_ACTIVITY_ID)?.duration?.concentration) return true;
@@ -1541,7 +1626,7 @@ const Activities = (function () {
         if (isDoomingDeferral(blueprint)) {
             if (primary?.damage?.parts?.length) return true;
             if (!primary?.effects?.some?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID)) return true;
-            return _doomClockTemporary(item);
+            return _doomClockExpires(item);
         }
         return wantsDeferred && (primary?.duration?.units !== GMM_PLANT_DURATION_UNITS);
     }
@@ -1605,14 +1690,13 @@ const Activities = (function () {
         return update;
     }
 
-    /* The preCreate form, which sees creation data rather than a prepared document. */
+    /* The preCreate form, which sees the pending document and its creation data. */
     function buildPreCreateUpdate(data, item) {
         const sheetClass = data?.flags?.core?.sheetClass;
         if (typeof sheetClass !== "string" || !sheetClass.endsWith(".ActionSheet")) return null;
         let blueprint = data?.flags?.gmm?.blueprint;
         if (!blueprint) return null;
         const purge = buildForeignActivityPurge(item ?? data);
-        const source = item?._source?.system?.activities ?? data?.system?.activities ?? {};
 
         const duration = _buildDurationBlueprintMigration(
             item?._source?.flags?.gmm?.blueprint?.data?.duration ?? blueprint.data?.duration
@@ -1622,15 +1706,12 @@ const Activities = (function () {
             blueprint.data.duration = duration;
         }
 
-        const wantsDeferred = isAutomatedDeferral(blueprint);
-        const rebuild = !source[GMM_ACTIVITY_ID]
-            || (wantsDeferred !== !!source[GMM_DEFERRED_ACTIVITY_ID])
-            || (hasZoneActivity(blueprint) !== !!source[GMM_ZONE_ACTIVITY_ID])
-            || !!source[GMM_ZONE_ACTIVITY_ID]?.duration?.concentration
-            || (source[GMM_ACTIVITY_ID].type !== _wantedPrimaryType(blueprint))
-            || _poolTargetMismatch(blueprint, source[GMM_ACTIVITY_ID]);
-        if (!rebuild && !duration && foundry.utils.isEmpty(purge)) return null;
+        // The pending document is already prepared, so the ready-time check applies.
+        const rebuild = needsActivityRebuild(item, blueprint);
+        const cleanup = rebuild ? null : buildSourceFormulaCleanup(item ?? data);
+        if (!rebuild && !duration && !cleanup && foundry.utils.isEmpty(purge)) return null;
         const update = { ...purge };
+        if (cleanup) Object.assign(update, cleanup);
         if (duration) update["flags.gmm.blueprint.data.duration"] = duration;
         if (rebuild) Object.assign(update, buildActivityUpdate(item, blueprint));
         return update;
@@ -1841,7 +1922,7 @@ const Activities = (function () {
             promises.push(item.updateActivity(effectHostActivityId(item), { effects: nextEffects }));
         }
         const desiredTransfer = !!alwaysMode;
-        if (effect.transfer !== desiredTransfer) {
+        if (effect._source.transfer !== desiredTransfer) {
             promises.push(effect.update({ transfer: desiredTransfer }));
         }
         if (!promises.length) return false;
@@ -1873,6 +1954,7 @@ const Activities = (function () {
         damagePartFromBlueprint,
         damagePartToBlueprint,
         isAreaTarget,
+        targetTypeOptions,
         readZone,
         readZoneLists,
         zoneRules,
@@ -1888,6 +1970,7 @@ const Activities = (function () {
         readItemUsesIntoBlueprintData,
         chargesWithoutPool,
         resolveActivityFormulas,
+        saveDcBonus,
         buildAttackToHitTerms,
         injectAttackBonusParts,
         injectAmmunition,
@@ -1903,6 +1986,7 @@ const Activities = (function () {
         buildSourceFormulaCleanup,
         sanitizeActivitySource,
         patchActivityField,
+        verifyActivitySanitizer,
         migrateActor,
         migrateWorld,
         isEffectAppliedByGmmActivity,

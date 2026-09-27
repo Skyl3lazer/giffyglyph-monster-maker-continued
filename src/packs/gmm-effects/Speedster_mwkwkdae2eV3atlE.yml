@@ -13,6 +13,7 @@ sort: 0
 system:
   changes:
     - key: system.attributes.movement.walk
+      _id: uLrYiIRx9wTPYVA7
       type: add
       value: '+10'
 flags:
@@ -20,4 +21,8 @@ flags:
     stackable: noneName
   gmm:
     rarity: uncommon
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!mwkwkdae2eV3atlE'

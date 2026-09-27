@@ -17,6 +17,7 @@ sort: 0
 system:
   changes:
     - key: system.skills.prc.roll.mode
+      _id: xyRyp70umIGdIkJu
       type: add
       value: '-1'
 flags:
@@ -25,4 +26,8 @@ flags:
   gmm:
     rarity: common
     terrain: lightly_obscured
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!bwMM4nrjkfoOASBS'
