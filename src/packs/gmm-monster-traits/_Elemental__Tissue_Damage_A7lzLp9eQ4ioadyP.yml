@@ -6,9 +6,10 @@ system:
     value: >-
       <p>When you reduce a creature to 0 hit points, it must succeed on a DC
       [featureDc]&nbsp;Constitution saving throw or be vulnerable to variant
-      damage until it finishes a long rest.*</p><p><em>* Core automation (roll
-      it when the trigger fires)</em></p><p><em>Set the Damage Vulnerability
-      change on the effect to the element's damage type.</em></p>
+      damage* until it finishes a long rest.+</p><p><em>* Core automation (roll
+      it when the trigger fires)</em></p><p><em>+ Midi automation</em></p><p><em>Set
+      the Damage Vulnerability change on the effect to the element's damage
+      type.</em></p>
     chat: ''
   source: {}
   cover: null
@@ -105,7 +106,7 @@ effects:
     duration:
       value: null
       units: turns
-      expiry: null
+      expiry: longRest
     _key: '!items.effects!A7lzLp9eQ4ioadyP.Lp9eQ4ioadyPA7lz'
 folder: YmYak9E5lZfQxjFV
 flags:
@@ -122,10 +123,10 @@ flags:
           text: >-
             <p>When you reduce a creature to 0 hit points, it must succeed on a
             DC [featureDc]&nbsp;Constitution saving throw or be vulnerable to
-            variant damage until it finishes a long rest.*</p><p><em>* Core
-            automation (roll it when the trigger fires)</em></p><p><em>Set the
-            Damage Vulnerability change on the effect to the element's damage
-            type.</em></p>
+            variant damage* until it finishes a long rest.+</p><p><em>* Core
+            automation (roll it when the trigger fires)</em></p><p><em>+ Midi
+            automation</em></p><p><em>Set the Damage Vulnerability change on the
+            effect to the element's damage type.</em></p>
         activation:
           type: special
           cost: null
