@@ -183,7 +183,7 @@ const GmmActor = (function () {
 
 		// init.mod was copied out before this, so folding the bonuses in here cannot double-count the roll.
 		const init = actorData.attributes.init;
-		const initBonus = dnd5e.utils.simplifyBonus(init.bonus, rollData);
+		const initBonus = dnd5e.utils.simplifyBonus(CompatibilityHelpers.initiativeBonus(init), rollData);
 		const initCheckBonus = CompatibilityHelpers.preparedCheckBonus(actorData.abilities[monsterData.initiative.ability]) ?? 0;
 		monsterData.initiative.add(initBonus, game.i18n.format('gmm.common.derived_source.relative_modifier'));
 		monsterData.initiative.add(initCheckBonus, game.i18n.format('gmm.common.derived_source.check_bonus'));

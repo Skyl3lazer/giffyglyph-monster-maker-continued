@@ -101,6 +101,9 @@ const CompatibilityHelpers = (function () {
 	function skillCheckBonus(skill) {
 		return dnd5eAtLeast(6) ? skill?.roll?.bonus : skill?.bonuses?.check;
 	}
+	function initiativeBonus(init) {
+		return dnd5eAtLeast(6) ? init?.roll?.bonus : init?.bonus;
+	}
 
 	/* dnd5e 6.0 moved the prepared ability totals onto `check` and `save`, leaving getter-only shims behind. */
 	function preparedCheckBonus(ability) {
@@ -208,6 +211,7 @@ const CompatibilityHelpers = (function () {
 		abilitySaveBonus: abilitySaveBonus,
 		setAbilitySaveBonus: setAbilitySaveBonus,
 		skillCheckBonus: skillCheckBonus,
+		initiativeBonus: initiativeBonus,
 		preparedCheckBonus: preparedCheckBonus,
 		preparedSaveBonus: preparedSaveBonus,
 		setPreparedSaveBonus: setPreparedSaveBonus,
