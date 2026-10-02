@@ -18,6 +18,7 @@
 	- Better metric support.
 	- Better context menus on various elements.
 - Compendiums now pack 5.3 version activities instead of converting them on load. It saves a bit of load time but is also more reliable.
+- Note there is now a separate foundry v13 manifest - this split was required because of the new pack.
 
 ## v2.0.1.5
 
