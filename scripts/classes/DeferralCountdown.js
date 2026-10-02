@@ -151,6 +151,7 @@ const DeferralCountdown = (function () {
 	}
 
 	function _remainingOf(clock) {
+		if ((clock?.kind === "dooming") && !clock.sourceUuid) return null;
 		const remaining = Number(clock?.remaining ?? clock?.timer);
 		return (Number.isFinite(remaining) && (remaining >= 0)) ? remaining : null;
 	}

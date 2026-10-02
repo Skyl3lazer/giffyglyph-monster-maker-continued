@@ -158,10 +158,13 @@ const Deferrals = (function () {
 
 		try {
 			const item = AutomationHelpers.resolveSourceItem(effect.origin);
-			if (item) await effect.setFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG, { ...clock, sourceUuid: item.uuid });
 
 			// A countdown in the bearer's turns is meaningless without turns, so resolve rather than leave it sitting.
-			if (_isEnabled() && _isSupported() && _combatantFor(effect.parent)) return;
+			if (_isEnabled() && _isSupported() && _combatantFor(effect.parent)) {
+				// Don't stamp clock if there's no deferral
+				if (item) await effect.setFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG, { ...clock, sourceUuid: item.uuid });
+				return;
+			}
 			if (!await _cancel(effect, { silent: true, release: false })) return;
 			if (item) await _useDeferredActivity(item, { targets: _bearerTokens(effect) });
 		} catch (error) {
