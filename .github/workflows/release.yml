@@ -5,7 +5,7 @@ name: Release
 # The tagged commit must be on main; the workflow fails immediately otherwise.
 # It then stamps module.json (version from the tag, versioned download URL,
 # releases/latest manifest URL), splits off a Foundry v13 build (module-v13.json/.zip),
-# uploads all four as release assets, and publishes the v14 build to the Foundry package release API.
+# uploads all four as release assets, and publishes both builds to the Foundry package release API.
 
 on:
   push:

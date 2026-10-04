@@ -14,6 +14,8 @@ function prune(folders = []) {
 }
 
 const v13 = structuredClone(main);
+// The package API rejects a reused version. A dotted suffix, unlike "-v13", still sorts a .10 patch above .9.
+v13.version = `${main.version}.v13`;
 v13.packs = v13.packs.filter((p) => !dropped.has(p.name));
 prune(v13.packFolders);
 v13.compatibility = { ...main.compatibility, verified: "13", maximum: "13" };
