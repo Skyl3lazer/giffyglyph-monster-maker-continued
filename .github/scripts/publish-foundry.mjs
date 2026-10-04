@@ -1,6 +1,5 @@
 // Publishes the current release to the Foundry VTT package release API, once per Foundry generation build.
-// Reads the already-stamped module.json and module-v13.json, or only the manifests named as arguments,
-// and requires these environment variables:
+// Reads the already-stamped module.json and module-v13.json and requires these environment variables:
 //   FOUNDRY_PACKAGE_RELEASE_TOKEN, GITHUB_REPOSITORY, GITHUB_REF_NAME
 import fs from "node:fs";
 
@@ -13,7 +12,7 @@ if (!token) {
 	process.exit(1);
 }
 
-const MANIFEST_FILES = process.argv.length > 2 ? process.argv.slice(2) : ["module.json", "module-v13.json"];
+const MANIFEST_FILES = ["module.json", "module-v13.json"];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Foundry fetches the manifest server-side to validate, so wait for the freshly
