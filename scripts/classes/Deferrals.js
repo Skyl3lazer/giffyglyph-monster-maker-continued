@@ -23,7 +23,8 @@ const Deferrals = (function () {
 	function init() {
 		Hooks.on("dnd5e.preActivityConsumption", _onPreActivityConsumption);
 		Hooks.on("dnd5e.postActivityConsumption", _onPostActivityConsumption);
-		Hooks.on("dnd5e.preCreateActivityTemplate", _onPreCreateActivityTemplate);
+		Hooks.on("dnd5e.preCreateActivityTemplate", _onCreateTemplateData);
+		Hooks.on("dnd5e.createMeasuredTemplate", _onCreateTemplateData);
 		Hooks.on("dnd5e.postUseActivity", _onPostUseActivity);
 		Hooks.on("createActiveEffect", _onCreateActiveEffect);
 		Hooks.on("deleteActiveEffect", _onDeleteActiveEffect);
@@ -100,9 +101,12 @@ const Deferrals = (function () {
 	}
 
 	/* The marker rides the document, so every client reaches the same verdict on a placement without a socket. */
-	function _onPreCreateActivityTemplate(activity, templateData) {
+	function _onCreateTemplateData(activity, templateData) {
 		if (!_activationsInFlight.has(activity?.uuid)) return;
-		foundry.utils.setProperty(templateData, `flags.${GMM_MODULE_TITLE}.${GMM_ACTIVATION_FLAG}`, activity.uuid);
+		// 5.3 hands over one template's data. 6.0 hands over the array of regions about to be created.
+		for (const data of [templateData].flat()) {
+			foundry.utils.setProperty(data, `flags.${GMM_MODULE_TITLE}.${GMM_ACTIVATION_FLAG}`, activity.uuid);
+		}
 	}
 
 	function _drainTemplates(origin) {
@@ -154,10 +158,13 @@ const Deferrals = (function () {
 
 		try {
 			const item = AutomationHelpers.resolveSourceItem(effect.origin);
-			if (item) await effect.setFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG, { ...clock, sourceUuid: item.uuid });
 
 			// A countdown in the bearer's turns is meaningless without turns, so resolve rather than leave it sitting.
-			if (_isEnabled() && _isSupported() && _combatantFor(effect.parent)) return;
+			if (_isEnabled() && _isSupported() && _combatantFor(effect.parent)) {
+				// Don't stamp clock if there's no deferral
+				if (item) await effect.setFlag(GMM_MODULE_TITLE, GMM_CLOCK_FLAG, { ...clock, sourceUuid: item.uuid });
+				return;
+			}
 			if (!await _cancel(effect, { silent: true, release: false })) return;
 			if (item) await _useDeferredActivity(item, { targets: _bearerTokens(effect) });
 		} catch (error) {
@@ -192,8 +199,9 @@ const Deferrals = (function () {
 			name: game.i18n.format("gmm.deferral.clock.name", { name: item.name, rounds: deferral.timer }),
 			img: item.img,
 			origin: item.uuid,
-			/* No duration, matching the doom clock. One that carries a duration can expire on its own,
+			/* No duration value, matching the doom clock. One that carries a value can expire on its own,
 			   which under `expiryAction: delete` removes it in the turn its last tick resolves. */
+			duration: Durations.indefinite(),
 			start: {
 				time: game.time.worldTime,
 				combat: combat.id,
@@ -226,7 +234,8 @@ const Deferrals = (function () {
 
 	/* A template can land before its clock or after it. midi auto-places inside `use()`. A GM draws one later. */
 	function _onCreateRegionTemplate(region, _options, userId) {
-		const origin = region.getFlag("dnd5e", "origin");
+		// dnd5e 6.0 repurposes `origin` to the casting token and moves the activity onto its own flag.
+		const origin = region.getFlag("dnd5e", "activity") ?? region.getFlag("dnd5e", "origin");
 		if (typeof origin !== "string" || !origin.endsWith(`.Activity.${Activities.GMM_ACTIVITY_ID}`)) return;
 
 		/* Two uses of one action share an origin, so an activation's own template must never reach the append

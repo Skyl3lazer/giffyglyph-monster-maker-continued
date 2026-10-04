@@ -68,7 +68,7 @@ const GmmActor = (function () {
 		const baseAttributes = MonsterForge.createBaseAttributes(monsterBlueprint);
 		// Seeded here so a Change written as a formula over @gmm.* has numbers to resolve against.
 		actor._gmmRollData = MonsterForge.createBaseRollData(monsterBlueprint);
-		actorData.attributes.ac.calc = "natural";
+		CompatibilityHelpers.setArmorClassCalculation(actorData.attributes.ac, "natural");
 		actorData.attributes.ac.flat = baseAttributes.armor_class.value;
 		actorData.attributes.ac.base = baseAttributes.armor_class.value;
 		actorData.attributes.hp.max = _resolveMaximumHitPoints(monsterBlueprint, baseAttributes);
@@ -137,7 +137,7 @@ const GmmActor = (function () {
 	 * speed tooltip exists to avoid. */
 	function _stashAppliedMovement(actor) {
 		const movement = actor.system?.attributes?.movement ?? {};
-		actor._gmmAppliedMovement = Object.fromEntries(GMM_5E_SPEEDS.map((x) => [x, movement[x]]));
+		actor._gmmAppliedMovement = Object.fromEntries(GMM_5E_SPEEDS.map((x) => [x, CompatibilityHelpers.movementSpeed(movement, x)]));
 	}
 
 	function _foldActorBonuses(actor, rollData) {
@@ -145,52 +145,53 @@ const GmmActor = (function () {
 		const monsterBlueprint = actor.flags.gmm.blueprint;
 		const monsterArtifact = actor.flags.gmm.monster;
 		const monsterData = monsterArtifact.data;
-		const globalSkillBonus = dnd5e.utils.simplifyBonus(actorData.bonuses?.abilities?.skill, rollData);
+		const globalSkillBonus = dnd5e.utils.simplifyBonus(CompatibilityHelpers.globalAbilityBonus(actorData, "skill"), rollData);
 		GMM_5E_SKILLS.forEach((x) => {
 			const skill = actorData.skills[x.foundry];
 			const monsterSkill = monsterData.skills.find((y) => y.code == x.name);
 			if (monsterSkill) {
 				// The ability and global check bonuses reach every check, so they live on check_modifiers instead.
-				monsterSkill.add(dnd5e.utils.simplifyBonus(skill.bonuses.check, rollData), game.i18n.format('gmm.common.derived_source.check_bonus'));
+				monsterSkill.add(dnd5e.utils.simplifyBonus(CompatibilityHelpers.skillCheckBonus(skill), rollData), game.i18n.format('gmm.common.derived_source.check_bonus'));
 				monsterSkill.add(globalSkillBonus, game.i18n.format('gmm.common.derived_source.skill_bonus'));
 			}
 			if (x.name === "perception") {
 				// dnd5e counts every check bonus toward a passive score. The forge had proficiency and the modifier.
 				monsterData.passive_perception.add(skill.bonus ?? 0, game.i18n.format('gmm.common.derived_source.check_bonus'));
 				monsterData.passive_perception.add(dnd5e.utils.simplifyBonus(skill.bonuses.passive, rollData), game.i18n.format('gmm.common.derived_source.passive_bonus'));
+				monsterData.passive_perception.add(actor.conditionRollReduction ?? 0, game.i18n.format('gmm.common.derived_source.condition_penalty'));
 				// Taken off the node so the blueprint's own Modifier, its override and the floor reach the schema.
 				skill.passive = monsterData.passive_perception.value;
 			}
 		});
-		const globalSaveBonus = dnd5e.utils.simplifyBonus(actorData.bonuses?.abilities?.save, rollData);
+		const globalSaveBonus = dnd5e.utils.simplifyBonus(CompatibilityHelpers.globalAbilityBonus(actorData, "save"), rollData);
 		GMM_5E_ABILITIES.forEach((x) => {
 			const ability = actorData.abilities[x];
-			const abilitySaveBonus = dnd5e.utils.simplifyBonus(ability.bonuses.save, rollData);
+			const abilitySaveBonus = dnd5e.utils.simplifyBonus(CompatibilityHelpers.abilitySaveBonus(ability), rollData);
 			monsterData.saving_throws[x].add(abilitySaveBonus + globalSaveBonus, "bonus");
 
-			// The roll never sees the artifact, so the forge's excess over mod + saveProf goes through bonuses.save.
+			// The roll never sees the artifact, so the forge's excess over mod + saveProf goes through the save bonus.
 			const proficiency = monsterBlueprint.data.trained_saves[x].trained ? monsterData.proficiency_bonus.value : 0;
 			const derived = monsterData.ability_modifiers[x].value + proficiency + abilitySaveBonus + globalSaveBonus;
 			const delta = monsterData.saving_throws[x].value - derived;
 			if (delta) {
-				ability.bonuses.save = _appendBonus(ability.bonuses.save, delta);
-				// prepareAbilities consumed bonuses.save before this wrote to it, so both totals follow by hand.
-				ability.saveBonus += delta;
+				CompatibilityHelpers.setAbilitySaveBonus(ability, _appendBonus(CompatibilityHelpers.abilitySaveBonus(ability), delta));
+				// prepareAbilities consumed the save bonus before this wrote to it, so both totals follow by hand.
+				CompatibilityHelpers.setPreparedSaveBonus(ability, CompatibilityHelpers.preparedSaveBonus(ability) + delta);
 				ability.save.value += delta;
 			}
 		});
 
 		// init.mod was copied out before this, so folding the bonuses in here cannot double-count the roll.
 		const init = actorData.attributes.init;
-		const initBonus = dnd5e.utils.simplifyBonus(init.bonus, rollData);
-		const initCheckBonus = actorData.abilities[monsterData.initiative.ability]?.checkBonus ?? 0;
+		const initBonus = dnd5e.utils.simplifyBonus(CompatibilityHelpers.initiativeBonus(init), rollData);
+		const initCheckBonus = CompatibilityHelpers.preparedCheckBonus(actorData.abilities[monsterData.initiative.ability]) ?? 0;
 		monsterData.initiative.add(initBonus, game.i18n.format('gmm.common.derived_source.relative_modifier'));
 		monsterData.initiative.add(initCheckBonus, game.i18n.format('gmm.common.derived_source.check_bonus'));
 
 		// prepareInitiative derived these from the pre-scaling ability modifier, before init.mod replaced it.
 		const alert = actor.flags?.dnd5e?.initiativeAlert && (dnd5e.settings?.rulesVersion === "legacy") ? 5 : 0;
 		init.total = init.mod + initBonus + initCheckBonus + (actorData.attributes.quality?.value ?? 0) + alert
-			+ (Number.isNumeric(init.prof.term) ? init.prof.flat : 0);
+			+ (Number.isNumeric(init.prof.term) ? init.prof.flat : 0) + (actor.conditionRollReduction ?? 0);
 		init.score = (CONFIG.DND5E.skillPassive?.base ?? 10) + init.total
 			+ ((init.roll?.mode ?? 0) * (CONFIG.DND5E.skillPassive?.modifier ?? 5));
 	}
@@ -217,15 +218,16 @@ const GmmActor = (function () {
 	/* A block that reads "to Attacks/Spells" can only show what every action type gets, so an
 	 * action-type-specific bonus (`bonuses.weapon.attack`, which DAE writes to mwak/rwak alone) is excluded. */
 	function _getGlobalAttackBonus(actorData, rollData) {
-		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => dnd5e.utils.simplifyBonus(actorData.bonuses?.[x]?.attack, rollData));
-		return Math.min(...bonuses);
+		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => dnd5e.utils.simplifyBonus(CompatibilityHelpers.globalAttackBonus(actorData, x), rollData));
+		// dnd5e 6.0 added an untyped sibling that every action type gets on top of its own.
+		return Math.min(...bonuses) + dnd5e.utils.simplifyBonus(actorData.rolls?.attack?.bonus, rollData);
 	}
 
 	/* dnd5e pushes this onto the first damage part of an activity's roll, so the same least-common rule
 	 * applies. References resolve here because nothing downstream that prints or rolls the formula has roll data. */
 	function _getGlobalDamageBonus(actorData, rollData) {
 		const bonuses = GMM_5E_ATTACK_ACTION_TYPES.map((x) => {
-			const raw = String(actorData.bonuses?.[x]?.damage ?? "").trim();
+			const raw = String(CompatibilityHelpers.globalDamageBonus(actorData, x) ?? "").trim();
 			const formula = Roll.replaceFormulaData(raw, rollData ?? {}, { missing: "0" });
 			return { formula: formula, average: _averageOf(formula, rollData) };
 		});
@@ -295,7 +297,7 @@ const GmmActor = (function () {
 
 	/* dnd5e resolves these from the bonus formulas in its own derived pass, so they arrive final. */
 	function _collectCheckBonuses(actorData) {
-		return Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, actorData.abilities[x].checkBonus ?? 0]));
+		return Object.fromEntries(GMM_5E_ABILITIES.map((x) => [x, CompatibilityHelpers.preparedCheckBonus(actorData.abilities[x]) ?? 0]));
 	}
 
 	/* _parseSkills stamps the default ability, and dnd5e resolves the one the check actually uses. */
@@ -386,7 +388,7 @@ const GmmActor = (function () {
 		const saveProficiencies = {};
 		GMM_5E_ABILITIES.forEach((x) => {
 			abilityModifiers[x] = Number(actorData.abilities[x]?.mod) || 0;
-			saveProficiencies[x] = Number(actorData.abilities[x]?.saveProf?.multiplier) || 0;
+			saveProficiencies[x] = Number(CompatibilityHelpers.preparedSaveProf(actorData.abilities[x])?.multiplier) || 0;
 		});
 		// effectValue is the multiplier a Change left behind, before prepareSkill collapsed it.
 		const moved = proficiency !== actor._gmmBaseProf
@@ -435,11 +437,12 @@ const GmmActor = (function () {
 
 		GMM_5E_ABILITIES.forEach((x) => {
 			const ability = actorData.abilities[x];
-			ability.saveProf = new Proficiency(proficiency, saveProficiencies[x], ability.saveProf.rounding !== "up");
-			ability.attack = ability.mod + proficiency;
-			// saveBonus already carries the forge's excess, so recomputing cannot lose it.
-			ability.save.value = ability.mod + ability.saveBonus
-				+ (Number.isNumeric(ability.saveProf.term) ? ability.saveProf.flat : 0);
+			const saveProf = new Proficiency(proficiency, saveProficiencies[x], CompatibilityHelpers.preparedSaveProf(ability).rounding !== "up");
+			CompatibilityHelpers.setPreparedSaveProf(ability, saveProf);
+			CompatibilityHelpers.setPreparedAttack(ability, proficiency, actor);
+			// The save bonus already carries the forge's excess, so recomputing cannot lose it.
+			ability.save.value = ability.mod + CompatibilityHelpers.preparedSaveBonus(ability)
+				+ (Number.isNumeric(saveProf.term) ? saveProf.flat : 0) + (actor.conditionRollReduction ?? 0);
 		});
 	}
 

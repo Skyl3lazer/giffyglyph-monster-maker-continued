@@ -4,8 +4,8 @@ import CompatibilityHelpers from '../classes/CompatibilityHelpers.js';
 
 const ModalBasicAttackAc = (function() {
 
-	function activateListeners(html, actor, id) {
-		const ctx = { actor, id };
+	function activateListeners(html, actor) {
+		const ctx = { actor };
 		html.find('#modal_basic_attack_ac .modal__footer button').click(_submitForm.bind(ctx));
 	}
 
@@ -38,12 +38,12 @@ const ModalBasicAttackAc = (function() {
 		}
 
 		try {
-			const asyncRoll = new foundry.dice.Roll(RollFormula.getRollFormula(rollString)).roll();
+			const asyncRoll = new CONFIG.Dice.D20Roll(RollFormula.getRollFormula(rollString), {}, { configured: true }).roll();
 			asyncRoll.then(completedRoll => {
 				completedRoll.toMessage({
 					speaker: ChatMessage.getSpeaker({actor: this.actor}),
 					flavor: messageParts.join(" "),
-					flags: { dnd5e: { roll: { type: "other", itemId: this.id } } }
+					...CompatibilityHelpers.genericMessageData()
 				}, CompatibilityHelpers.rollMessageOptions(form.get("mode")));
 			});
 			modal.querySelector("[data-action='close-modal']").click();

@@ -4,6 +4,7 @@ import { GMM_5E_DAMAGE_TYPES } from "../consts/Gmm5eDamageTypes.js";
 import { GMM_5E_LANGUAGES } from "../consts/Gmm5eLanguages.js";
 import { GMM_5E_SIZES } from "../consts/Gmm5eSizes.js";
 import { GMM_5E_SKILLS } from "../consts/Gmm5eSkills.js";
+import { GMM_5E_SPEEDS } from "../consts/Gmm5eSpeeds.js";
 import { GMM_5E_UNITS } from "../consts/Gmm5eUnits.js";
 import { GMM_MONSTER_BLUEPRINT } from "../consts/GmmMonsterBlueprint.js";
 import { GMM_MONSTER_RANKS, GMM_MONSTER_RANK_AUTHORED_KEYS } from "../consts/GmmMonsterRanks.js";
@@ -45,12 +46,7 @@ const MonsterBlueprint = (function () {
 		{ from: "senses.other", to: "system.attributes.senses.special" },
 		{ from: "senses.tremorsense", to: "system.attributes.senses.ranges.tremorsense" },
 		{ from: "senses.truesight", to: "system.attributes.senses.ranges.truesight" },
-		{ from: "speeds.burrow", to: "system.attributes.movement.burrow" },
 		{ from: "speeds.can_hover", to: "system.attributes.movement.hover" },
-		{ from: "speeds.climb", to: "system.attributes.movement.climb" },
-		{ from: "speeds.fly", to: "system.attributes.movement.fly" },
-		{ from: "speeds.swim", to: "system.attributes.movement.swim" },			
-		{ from: "speeds.walk", to: "system.attributes.movement.walk" },
 		{ from: "spellbook.slots.1.current", to: "system.spells.spell1.value" },
 		{ from: "spellbook.slots.1.maximum", to: "system.spells.spell1.override" },
 		{ from: "spellbook.slots.2.current", to: "system.spells.spell2.value" },
@@ -231,8 +227,12 @@ const MonsterBlueprint = (function () {
 			blueprintData.lair_actions.items = [];
 			blueprintData.legendary_actions.items = [];
 			blueprintData.reactions.items = [];
-			blueprintData.senses.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.senses.units)?.name;
-			blueprintData.speeds.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.movement.units)?.name;
+			blueprintData.senses.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.senses.units)?.name ?? stored.system.attributes.senses.units;
+			GMM_5E_SPEEDS.forEach((mode) => {
+				const speed = CompatibilityHelpers.movementSpeed(stored.system.attributes.movement, mode);
+				if (speed !== undefined) blueprintData.speeds[mode] = speed;
+			});
+			blueprintData.speeds.units = GMM_5E_UNITS.find((x) => x.foundry == stored.system.attributes.movement.units)?.name ?? stored.system.attributes.movement.units;
 			blueprintData.spellbook.spellcasting.ability = (stored.system.attributes.spellcasting) ? stored.system.attributes.spellcasting : "int";
 			// First-time conversion: vanilla NPCs with spell items usually have spell.level=0. Mirror combat level so casters scale.
 			if (!stored.flags?.gmm
@@ -283,6 +283,8 @@ const MonsterBlueprint = (function () {
 						let item = actor.items.get(x.id)
 						switch (item.getSortingCategory()) {
 							case "spell":
+								// Mirrors dnd5e's own spellbook filter for a cast activity's cached copy.
+								if (item.getFlag("dnd5e", "cachedFor") && !item.system.linkedActivity?.displayInSpellbook) break;
 								let spell_level = x.system.level || 0;
 								blueprintData.spellbook.spells[`${spell_level < 10 ? spell_level : "other"}`].push(_getItemDetails(item));
 								break;
@@ -338,40 +340,84 @@ const MonsterBlueprint = (function () {
 			return blueprint;
 		}
 	}
-	function getSortValue(a, b) {
-		let aRarity = 0;
-		let bRarity = 0;
-		switch (a.rarity) {
+	// Spells are left out: the spellbook already reads `sort` straight through.
+	const SORTED_CATEGORIES = new Set(["action", "bonus", "reaction", "lair", "legendary", "trait", "loot"]);
+
+	function rarityRank(rarity) {
+		switch (rarity) {
 			case "common":
-				aRarity = 0;
-				break;
+				return 0;
 			case "uncommon":
-				aRarity = 1;
-				break;
+				return 1;
 			case "rare":
-				aRarity = 2;
-				break;
+				return 2;
 			default:
-				aRarity = 3;
-				break;
+				return 3;
 		}
-		switch (b.rarity) {
-			case "common":
-				bRarity = 0;
-				break;
-			case "uncommon":
-				bRarity = 1;
-				break;
-			case "rare":
-				bRarity = 2;
-				break;
-			default:
-				bRarity = 3;
-				break;
-		}
-		let sortValue = bRarity - aRarity || a.name.localeCompare(b.name);
-		return sortValue;
 	}
+
+	function compareByDefault(a, b) {
+		return rarityRank(b.rarity) - rarityRank(a.rarity) || a.name.localeCompare(b.name);
+	}
+
+	function getSortValue(a, b) {
+		return ((a.sort || 0) - (b.sort || 0)) || compareByDefault(a, b);
+	}
+
+	function _orderKey(item) {
+		return {
+			name: item.name ? item.name : "",
+			rarity: item.flags?.gmm?.blueprint?.data?.rarity ? item.flags.gmm.blueprint.data.rarity : ""
+		};
+	}
+
+	function compareItemsForDisplay(a, b) {
+		return ((a.sort || 0) - (b.sort || 0)) || compareByDefault(_orderKey(a), _orderKey(b));
+	}
+
+	function _sortedSiblings(actor, category, excludeId) {
+		return (actor?.items?.contents ?? [])
+			.filter(i => (i.id !== excludeId) && (i.getSortingCategory?.() === category))
+			.sort(compareItemsForDisplay);
+	}
+
+	/* The sort a new or renamed ability takes so it lands in default order without disturbing a GM's own. */
+	function getDefaultSort(actor, category, orderKey, excludeId = null) {
+		const density = CONST.SORT_INTEGER_DENSITY;
+		const siblings = _sortedSiblings(actor, category, excludeId);
+		if (!siblings.length) return density;
+
+		const idx = siblings.findIndex(s => compareByDefault(orderKey, _orderKey(s)) < 0);
+		if (idx === 0) return (siblings[0].sort || 0) - density;
+		if (idx === -1) return (siblings[siblings.length - 1].sort || 0) + density;
+
+		const min = siblings[idx - 1].sort || 0;
+		const max = siblings[idx].sort || 0;
+		// A tie is settled by the default comparator anyway
+		return (max - min > 1) ? Math.round((min + max) / 2) : max;
+	}
+
+	/* An ability dropped from a compendium arrives carrying that pack's sort, which orders nothing here. */
+	function normalizeItemSorts(actor) {
+		const buckets = new Map();
+		for (const item of (actor?.items?.contents ?? [])) {
+			const category = item.getSortingCategory?.();
+			if (!SORTED_CATEGORIES.has(category)) continue;
+			if (!buckets.has(category)) buckets.set(category, []);
+			buckets.get(category).push(item);
+		}
+
+		const updates = [];
+		for (const items of buckets.values()) {
+			items.sort((a, b) => compareByDefault(_orderKey(a), _orderKey(b)));
+			items.forEach((item, i) => {
+				const sort = (i + 1) * CONST.SORT_INTEGER_DENSITY;
+				if (item.sort !== sort) updates.push({ _id: item.id, sort: sort });
+			});
+		}
+		return updates;
+	}
+
 	function getActorDataFromBlueprint(blueprint, currentActor = null) {
 		const actorData = {};
 
@@ -391,14 +437,19 @@ const MonsterBlueprint = (function () {
 			}
 		}
 
+		GMM_5E_SPEEDS.forEach((mode) => {
+			if (!CompatibilityHelpers.hasProperty(blueprint.data, `speeds.${mode}`)) return;
+			CompatibilityHelpers.setProperty(actorData, CompatibilityHelpers.movementSpeedPath(mode), blueprint.data.speeds[mode]);
+		});
+
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "speeds.units")) {
 			const unit = GMM_5E_UNITS.find((x) => x.name == blueprint.data.speeds.units);
-			CompatibilityHelpers.setProperty(actorData, "system.attributes.movement.units", unit ? unit.foundry : null);
+			CompatibilityHelpers.setProperty(actorData, "system.attributes.movement.units", unit ? unit.foundry : (blueprint.data.speeds.units ?? null));
 		}
 
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "senses.units")) {
 			const unit = GMM_5E_UNITS.find((x) => x.name == blueprint.data.senses.units);
-			CompatibilityHelpers.setProperty(actorData, "system.attributes.senses.units", unit ? unit.foundry : null);
+			CompatibilityHelpers.setProperty(actorData, "system.attributes.senses.units", unit ? unit.foundry : (blueprint.data.senses.units ?? null));
 		}
 
 		if (CompatibilityHelpers.hasProperty(blueprint.data, "description.size")) {
@@ -518,7 +569,8 @@ const MonsterBlueprint = (function () {
 				rank: item.flags.gmm?.blueprint?.data?.requirements?.rank,
 				role: item.flags.gmm?.blueprint?.data?.requirements?.role
 			},
-			rarity: item.flags.gmm?.blueprint?.data?.rarity ? item.flags.gmm?.blueprint?.data?.rarity : ""
+			rarity: item.flags.gmm?.blueprint?.data?.rarity ? item.flags.gmm?.blueprint?.data?.rarity : "",
+			sort: item.sort ? item.sort : 0
 		};
 		return details;
 	}
@@ -526,7 +578,11 @@ const MonsterBlueprint = (function () {
 	return {
 		createFromActor: createFromActor,
 		createBaseFromActor: createBaseFromActor,
-		getActorDataFromBlueprint: getActorDataFromBlueprint
+		getActorDataFromBlueprint: getActorDataFromBlueprint,
+		getDefaultSort: getDefaultSort,
+		compareItemsForDisplay: compareItemsForDisplay,
+		normalizeItemSorts: normalizeItemSorts,
+		isSortedCategory: (category) => SORTED_CATEGORIES.has(category)
 	};
 })();
 

@@ -20,4 +20,8 @@ flags:
   gmm:
     rarity: rare
     terrain: vacuum
+duration:
+  value: null
+  units: turns
+  expiry: null
 _key: '!effects!OLKgNocosfFe7Zmq'

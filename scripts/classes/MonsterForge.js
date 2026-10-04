@@ -676,7 +676,7 @@ const MonsterForge = (function () {
         const rollData = actor.getRollData();
 
         GMM_5E_SPEEDS.forEach((mode) => {
-            const value = Number(settled[mode]) || 0;
+            const value = Number(CompatibilityHelpers.movementSpeed(settled, mode)) || 0;
             let speed = speeds.find((x) => x.code == mode);
             if (!speed) {
                 if (!value) return;
@@ -689,13 +689,13 @@ const MonsterForge = (function () {
                    this term the Role's amount would read as something the table did. */
                 speed.add(Number(role?.modifiers?.speed) || 0, game.i18n.format('gmm.common.derived_source.role'));
             }
-            const key = `system.attributes.movement.${mode}`;
             /* A mode is a formula until prepareMovement replaces it with a number. A number here means
                the stash was taken too late to credit anyone. */
             const effects = (typeof applied[mode] !== "string")
                 ? 0
-                : dnd5e.utils.simplifyBonus(applied[mode], rollData) - dnd5e.utils.simplifyBonus(stored[mode], rollData);
-            if (effects) speed.add(effects, _settledSource(actor, key));
+                : dnd5e.utils.simplifyBonus(applied[mode], rollData)
+                    - dnd5e.utils.simplifyBonus(CompatibilityHelpers.movementSpeed(stored, mode), rollData);
+            if (effects) speed.add(effects, _settledSource(actor, CompatibilityHelpers.movementSpeedKeys(mode)));
             const remainder = value - speed.value;
             if (remainder) speed.add(remainder, game.i18n.format('gmm.common.derived_source.in_play'));
             speed.moved = !!(speed.moved || effects || remainder);
