@@ -40,6 +40,23 @@
 				padding-right: 2.5rem;
 			}
 
+			.action__price {
+				display: inline-block;
+				margin-left: 0.5rem;
+				padding: 0 0.375rem;
+				border: 1px solid var(--color-primary-tint-3);
+				border-radius: 0.375rem;
+				font-size: smaller;
+				white-space: nowrap;
+				cursor: help;
+
+				&.action__price--overspent {
+					background: #b71c1c;
+					border-color: #b71c1c;
+					color: white;
+				}
+			}
+
 			.action__requirements {
 				font-weight: 600;
 				font-size: larger;

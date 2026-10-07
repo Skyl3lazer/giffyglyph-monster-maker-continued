@@ -335,6 +335,21 @@
   text-align: left;
   padding-right: 2.5rem;
 }
+.gmm-artifact.artifact--action.artifact--action--vanity .action__header .action__price {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--color-primary-tint-3);
+  border-radius: 0.375rem;
+  font-size: smaller;
+  white-space: nowrap;
+  cursor: help;
+}
+.gmm-artifact.artifact--action.artifact--action--vanity .action__header .action__price.action__price--overspent {
+  background: #b71c1c;
+  border-color: #b71c1c;
+  color: white;
+}
 .gmm-artifact.artifact--action.artifact--action--vanity .action__header .action__requirements {
   font-weight: 600;
   font-size: larger;
@@ -4638,4 +4653,41 @@
 }
 .gmm-countdown-preview figcaption {
   font-size: 12px;
+}
+
+#tooltip.gmm-price-tooltip {
+  text-align: left;
+  max-width: 24rem;
+}
+#tooltip.gmm-price-tooltip .gmm-price__summary {
+  margin: 0 0 0.25rem;
+  font-weight: bold;
+}
+#tooltip.gmm-price-tooltip table {
+  margin: 0;
+  border: none;
+  background: none;
+}
+#tooltip.gmm-price-tooltip tr {
+  background: none;
+}
+#tooltip.gmm-price-tooltip th,
+#tooltip.gmm-price-tooltip td {
+  padding: 0 0.25rem;
+  border: none;
+  text-align: left;
+  vertical-align: top;
+}
+#tooltip.gmm-price-tooltip th {
+  font-weight: bold;
+}
+#tooltip.gmm-price-tooltip td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+#tooltip.gmm-price-tooltip .gmm-price__group:not(:first-child) {
+  border-top: 1px solid currentColor;
+}
+#tooltip.gmm-price-tooltip .gmm-price__adjustment td:nth-child(2) {
+  padding-left: 1rem;
 }

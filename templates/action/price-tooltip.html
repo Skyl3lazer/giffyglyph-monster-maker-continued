@@ -1,0 +1,23 @@
+<div class="gmm-price">
+	{{#if overkill}}
+	<p class="gmm-price__summary">{{localize 'gmm.pricing.overkill_summary'}}</p>
+	{{else}}
+	<p class="gmm-price__summary">{{localize 'gmm.pricing.summary' spend=spend budget=budget}}</p>
+	<table>
+		{{#each lines.budget}}
+		<tr class="{{#if @first}}gmm-price__group{{/if}} {{#if adjustment}}gmm-price__adjustment{{/if}}">
+			<th>{{#if @first}}{{localize 'gmm.pricing.budget'}}{{/if}}</th>
+			<td>{{label}}</td>
+			<td>{{#if adjustment}}{{numberFormat value sign=true}}{{else}}{{value}}{{/if}}</td>
+		</tr>
+		{{/each}}
+		{{#each lines.spend}}
+		<tr class="{{#if @first}}gmm-price__group{{/if}} {{#if adjustment}}gmm-price__adjustment{{/if}}">
+			<th>{{#if @first}}{{localize 'gmm.pricing.spend'}}{{/if}}</th>
+			<td>{{label}}</td>
+			<td>{{#if adjustment}}{{numberFormat value sign=true}}{{else}}{{value}}{{/if}}</td>
+		</tr>
+		{{/each}}
+	</table>
+	{{/if}}
+</div>

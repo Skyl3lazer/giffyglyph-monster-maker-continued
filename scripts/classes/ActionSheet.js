@@ -27,6 +27,7 @@ import Templates from "./Templates.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Activities from "./Activities.js";
 import Durations from "./Durations.js";
+import Pricing from "./Pricing.js";
 
 /* The Forge UI replaces the stock item parts entirely, so much of this class undoes inherited chrome. */
 export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
@@ -155,6 +156,11 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
             } catch (e) {
                 console.warn("GMM | ActionSheet: getGmmLabels failed", e);
             }
+            try {
+                context.gmm.price = await this._prepareGmmPrice();
+            } catch (e) {
+                console.warn("GMM | ActionSheet: pricing failed", e);
+            }
         }
 
         // dnd5e populates this from `_preparePartContext("effects")`, which the single forge part never hits.
@@ -166,6 +172,17 @@ export default class ActionSheet extends dnd5e.applications.item.ItemSheet5e {
         }
 
         return context;
+    }
+
+    /* Rendered to a string, because the chip carries its tooltip markup as an attribute. */
+    async _prepareGmmPrice() {
+        const price = Pricing.price(this.item);
+        if (!price) return null;
+        const tooltip = await foundry.applications.handlebars.renderTemplate(
+            `modules/${GMM_MODULE_TITLE}/templates/action/price-tooltip.html`,
+            price
+        );
+        return { ...price, tooltip };
     }
 
     /* `parentId` is left unset: `<dnd5e-effects>` resolves it through a `.items` collection an item has not got. */

@@ -544,6 +544,11 @@ const Activities = (function () {
         return Math.min(100, Math.trunc(raw));
     }
 
+    function readDamageRows(blueprint) {
+        const data = blueprint?.data ?? blueprint ?? {};
+        return _normalizeBlueprintDamage(data.attack?.hit?.damage);
+    }
+
     /* `full` is not a mistake. midi is handed the whole amount because GMMC scales it per target,
        and `half` here would make every authored share a fraction of a fraction. */
     function onSaveFor(blueprint) {
@@ -1950,6 +1955,7 @@ const Activities = (function () {
         ATTACK_TYPES,
         activityTypeFor,
         missPercentage,
+        readDamageRows,
         onSaveFor,
         damagePartFromBlueprint,
         damagePartToBlueprint,

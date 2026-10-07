@@ -19,6 +19,7 @@ const Templates = (function() {
 			getRelativePath("monster/skins/vanity/artifact.html"),
 			getRelativePath("action/skins/vanity/blueprint.html"),
 			getRelativePath("action/skins/vanity/artifact.html"),
+			getRelativePath("action/price-tooltip.html"),
 			getRelativePath("chat/deferral-resolution.html"),
 			getRelativePath("settings/deferral-countdown.html")
 		]);

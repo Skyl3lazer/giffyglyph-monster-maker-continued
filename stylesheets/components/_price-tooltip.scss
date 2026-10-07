@@ -1,0 +1,44 @@
+#tooltip.gmm-price-tooltip {
+	text-align: left;
+	max-width: 24rem;
+
+	.gmm-price__summary {
+		margin: 0 0 0.25rem;
+		font-weight: bold;
+	}
+
+	table {
+		margin: 0;
+		border: none;
+		background: none;
+	}
+
+	tr {
+		background: none;
+	}
+
+	th,
+	td {
+		padding: 0 0.25rem;
+		border: none;
+		text-align: left;
+		vertical-align: top;
+	}
+
+	th {
+		font-weight: bold;
+	}
+
+	td:last-child {
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	.gmm-price__group:not(:first-child) {
+		border-top: 1px solid currentColor;
+	}
+
+	.gmm-price__adjustment td:nth-child(2) {
+		padding-left: 1rem;
+	}
+}
