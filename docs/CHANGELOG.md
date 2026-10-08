@@ -10,6 +10,9 @@
 ## 2.1.1
 
 ### Feature Price Estimation
+- Features will now attempt to give an estimated EP cost based on the rules from the pdf. 
+- This takes into account damage, status effects, timing restrictions, ongoing effects, etc.
+- It does not do any sort of text-parsing, so custom effects, forced movement, and a few other things aren't reflected in the estimate.
 
 ## 2.1.0.2
 
