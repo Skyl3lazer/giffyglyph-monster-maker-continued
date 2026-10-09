@@ -64,7 +64,7 @@ flags:
         target:
           type: creature
           units: ''
-          value: 1
+          value: 3
           width: 0
         uses:
           value: 3
@@ -101,7 +101,7 @@ system:
   activities:
     gmmprimary000000:
       _id: gmmprimary000000
-      type: attack
+      type: utility
       name: (Uncommon) Ranged Multiattack, 3
       sort: 0
       activation:
@@ -143,7 +143,56 @@ system:
           height: ''
           units: ft
         affects:
-          count: '1'
+          count: '3'
+          type: creature
+          choice: false
+          special: ''
+        prompt: true
+        override: false
+      uses:
+        spent: 0
+        max: ''
+        recovery: []
+      effects: []
+    gmmattacks000000:
+      _id: gmmattacks000000
+      type: attack
+      name: (Uncommon) Ranged Multiattack, 3
+      sort: 3
+      activation:
+        type: ''
+        value: null
+        condition: ''
+        override: false
+      consumption:
+        targets: []
+        scaling:
+          allowed: false
+          max: ''
+        spellSlot: false
+      duration:
+        concentration: false
+        special: ''
+        override: false
+        value: null
+        units: inst
+      range:
+        value: 60
+        units: ft
+        special: ''
+        override: false
+      target:
+        template:
+          count: ''
+          contiguous: false
+          stationary: false
+          type: ''
+          size: ''
+          width: ''
+          height: ''
+          units: ft
+        affects:
+          count: '3'
           type: creature
           choice: false
           special: ''
@@ -179,6 +228,9 @@ system:
               mode: ''
               number: 1
               formula: ''
+      midiProperties:
+        automationOnly: true
+        otherActivityCompatible: false
       effects: []
 ownership:
   default: 0

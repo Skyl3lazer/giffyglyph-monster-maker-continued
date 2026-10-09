@@ -1,5 +1,5 @@
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
-import { formatTargetLabel, formatRangeLabel } from "./Labels.js";
+import { aimedTargetCount, formatTargetLabel, formatRangeLabel } from "./Labels.js";
 import { buildSaveDcFormula, buildDurationSaveDcFormula } from "./SaveDc.js";
 const Shortcoder = (function () {
     /* A resolver returning `undefined` leaves the token intact, and `type: "string"` strips the brackets after substitution. */
@@ -67,6 +67,13 @@ const Shortcoder = (function () {
                 const blueprintData = itemContext?.flags?.gmm?.blueprint?.data;
                 return formatTargetLabel(blueprintData?.target, blueprintData?.range);
             }
+        },
+        {
+            code: "targets",
+            // The count the price is reckoned on. Dividing damage by it keeps the total on budget.
+            resolver: (_monsterData, itemContext) => itemContext
+                ? aimedTargetCount(itemContext.flags?.gmm?.blueprint?.data?.target)
+                : undefined
         },
         {
             code: "range",

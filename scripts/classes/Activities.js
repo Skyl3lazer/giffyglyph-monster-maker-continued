@@ -2,6 +2,7 @@ import AutomationHelpers from "./AutomationHelpers.js";
 import CompatibilityHelpers from "./CompatibilityHelpers.js";
 import Durations from "./Durations.js";
 import Shortcoder from "./Shortcoder.js";
+import { aimedTargetCount } from "./Labels.js";
 import { buildSaveDcFormula, buildDurationSaveDcFormula } from "./SaveDc.js";
 import { GMM_MODULE_TITLE } from "../consts/GmmModuleTitle.js";
 import { GMM_ZONE_TERRAIN } from "../consts/GmmZoneTerrain.js";
@@ -28,7 +29,12 @@ const Activities = (function () {
         ? dnd5e.utils.staticID("gmmzone")
         : "gmmzone000000000";
 
-    const GMM_ACTIVITY_IDS = new Set([GMM_ACTIVITY_ID, GMM_DEFERRED_ACTIVITY_ID, GMM_ZONE_ACTIVITY_ID]);
+    /* Carries a multiattack's attack, because one use of an attack activity rolls once. */
+    const GMM_ATTACKS_ACTIVITY_ID = (typeof dnd5e !== "undefined" && dnd5e?.utils?.staticID)
+        ? dnd5e.utils.staticID("gmmattacks")
+        : "gmmattacks000000";
+
+    const GMM_ACTIVITY_IDS = new Set([GMM_ACTIVITY_ID, GMM_DEFERRED_ACTIVITY_ID, GMM_ZONE_ACTIVITY_ID, GMM_ATTACKS_ACTIVITY_ID]);
 
     /* Fixed, so a re-save finds the forged clock again rather than adding a second one. */
     const GMM_DOOM_CLOCK_EFFECT_ID = (typeof dnd5e !== "undefined" && dnd5e?.utils?.staticID)
@@ -86,12 +92,26 @@ const Activities = (function () {
 
     /* Where the attack roll or save lives: delayed has none until it resolves, dooming rolls up front. */
     function gateActivityId(blueprint) {
-        return isDelayedDeferral(blueprint) ? GMM_DEFERRED_ACTIVITY_ID : GMM_ACTIVITY_ID;
+        if (isDelayedDeferral(blueprint)) return GMM_DEFERRED_ACTIVITY_ID;
+        return isMultiattack(blueprint) ? GMM_ATTACKS_ACTIVITY_ID : GMM_ACTIVITY_ID;
     }
 
     /* Not the same question as "is this ours": on a deferred action the payload is the second activity. */
     function payloadActivityId(blueprint) {
-        return isAutomatedDeferral(blueprint) ? GMM_DEFERRED_ACTIVITY_ID : GMM_ACTIVITY_ID;
+        if (isAutomatedDeferral(blueprint)) return GMM_DEFERRED_ACTIVITY_ID;
+        return isMultiattack(blueprint) ? GMM_ATTACKS_ACTIVITY_ID : GMM_ACTIVITY_ID;
+    }
+
+    /* Each target of an aimed attack is one attack roll. The same creature may take several. */
+    function attackCount(blueprint) {
+        const data = blueprint?.data ?? blueprint ?? {};
+        if (activityTypeFor(data.attack?.type) !== "attack" || isAutomatedDeferral(blueprint)) return 1;
+        if (["self", "space"].includes(data.target?.type)) return 1;
+        return aimedTargetCount(data.target);
+    }
+
+    function isMultiattack(blueprint) {
+        return attackCount(blueprint) > 1;
     }
 
     /* A form submit expands `zone.terrain.0.category` into a dotted object, not an array. */
@@ -494,8 +514,9 @@ const Activities = (function () {
         const blueprintAttack = blueprintData.attack ?? {};
         const delayed = isDelayedDeferral(blueprint);
         const dooming = isDoomingDeferral(blueprint);
+        const multiattack = isMultiattack(blueprint);
         // A Zone's payload belongs to whoever triggers it, so placing the area must not also roll it.
-        const type = (delayed || hasZoneActivity(blueprint)) ? "utility"
+        const type = (delayed || multiattack || hasZoneActivity(blueprint)) ? "utility"
             : dooming ? gateTypeFor(blueprintAttack.type)
                 : activityTypeFor(blueprintAttack.type);
 
@@ -516,6 +537,8 @@ const Activities = (function () {
             data.duration = _gateDuration(data.duration);
             return data;
         }
+
+        if (multiattack) return data;
 
         if (dooming) {
             data.duration = _gateDuration(data.duration);
@@ -653,6 +676,30 @@ const Activities = (function () {
         };
 
         _applyPayloadFields(data, blueprintData, type);
+        return data;
+    }
+
+    /* Used once per attack, against one target each time. */
+    function buildAttacksActivityData(blueprint) {
+        if (!isMultiattack(blueprint)) return null;
+        const blueprintData = blueprint?.data ?? blueprint ?? {};
+
+        const data = {
+            _id: GMM_ATTACKS_ACTIVITY_ID,
+            type: "attack",
+            name: blueprintData.description?.name || "",
+            sort: 3,
+            // Using the primary already charged all of these.
+            activation: { type: "", value: null, condition: "", override: false },
+            consumption: { targets: [], scaling: { allowed: false, max: "" }, spellSlot: false },
+            // The primary holds the concentration, which a later attack would otherwise restart.
+            duration: _buildDuration(blueprintData, { concentration: false }),
+            range: _buildRange(blueprintData),
+            target: _buildTarget(blueprintData),
+            uses: { ...GMM_EMPTY_ACTIVITY_USES }
+        };
+
+        _applyPayloadFields(data, blueprintData, "attack");
         return data;
     }
 
@@ -1089,13 +1136,19 @@ const Activities = (function () {
         const zone = zoneData ? _mergeForeignFields(item, GMM_ZONE_ACTIVITY_ID, zoneData) : null;
         if (zone) _forceAutomationOnly(zone);
 
-        const authored = _setEffectMembership(item, blueprint, { primary, deferred, zone, duration: !!duration });
+        const attacksData = buildAttacksActivityData(blueprint);
+        const attacks = attacksData ? _mergeForeignFields(item, GMM_ATTACKS_ACTIVITY_ID, attacksData) : null;
+        if (attacks) _forceAutomationOnly(attacks);
+
+        const authored = _setEffectMembership(item, blueprint, { primary, deferred, zone, attacks, duration: !!duration });
 
         _wrapActivity(update, GMM_ACTIVITY_ID, primary);
         if (deferred) _wrapActivity(update, GMM_DEFERRED_ACTIVITY_ID, deferred);
         else Object.assign(update, _buildActivityDeletion(item, GMM_DEFERRED_ACTIVITY_ID));
         if (zone) _wrapActivity(update, GMM_ZONE_ACTIVITY_ID, zone);
         else Object.assign(update, _buildActivityDeletion(item, GMM_ZONE_ACTIVITY_ID));
+        if (attacks) _wrapActivity(update, GMM_ATTACKS_ACTIVITY_ID, attacks);
+        else Object.assign(update, _buildActivityDeletion(item, GMM_ATTACKS_ACTIVITY_ID));
 
         // An embedded-collection array upserts by `_id`. This creates them once and updates them after.
         const effects = [];
@@ -1123,13 +1176,13 @@ const Activities = (function () {
 
     /* Placed, not carried: membership rides the host so nothing applies a turn before its payload, and
      * moving the host cannot strand an entry behind. The only writer of either `effects` array. */
-    function _setEffectMembership(item, blueprint, { primary, deferred, zone, duration }) {
+    function _setEffectMembership(item, blueprint, { primary, deferred, zone, attacks, duration }) {
         const hostId = payloadActivityId(blueprint);
         const gateId = isDoomingDeferral(blueprint) ? gateActivityId(blueprint) : null;
         const authored = _authoredEffectEntries(item);
 
         // The zone activity is listed so it is emptied: its Effects payload rides the region behavior.
-        for (const [activityId, data] of [[GMM_ACTIVITY_ID, primary], [GMM_DEFERRED_ACTIVITY_ID, deferred], [GMM_ZONE_ACTIVITY_ID, zone]]) {
+        for (const [activityId, data] of [[GMM_ACTIVITY_ID, primary], [GMM_DEFERRED_ACTIVITY_ID, deferred], [GMM_ZONE_ACTIVITY_ID, zone], [GMM_ATTACKS_ACTIVITY_ID, attacks]]) {
             if (!data) continue;
             const entries = [];
             if (activityId === gateId) entries.push({ _id: GMM_DOOM_CLOCK_EFFECT_ID });
@@ -1281,7 +1334,7 @@ const Activities = (function () {
                 if (!part.custom?.enabled) continue;
                 const rawFormula = blueprintDamage[i]?.formula;
                 if (typeof rawFormula === "string" && rawFormula.includes("[")) {
-                    part.custom.formula = Shortcoder.replaceShortcodes(rawFormula, monsterData, true);
+                    part.custom.formula = Shortcoder.replaceShortcodes(rawFormula, monsterData, true, item);
                 }
             }
         }
@@ -1292,7 +1345,7 @@ const Activities = (function () {
             );
             const rawFormula = blueprintDamage[0]?.formula;
             if (typeof rawFormula === "string" && rawFormula.includes("[")) {
-                activity.healing.custom.formula = Shortcoder.replaceShortcodes(rawFormula, monsterData, true);
+                activity.healing.custom.formula = Shortcoder.replaceShortcodes(rawFormula, monsterData, true, item);
             }
         }
     }
@@ -1457,14 +1510,14 @@ const Activities = (function () {
                 const p = roll.parts[i];
                 if (typeof p !== "string") continue;
                 if (p.includes("[")) {
-                    roll.parts[i] = Shortcoder.replaceShortcodes(p, monsterData, true);
+                    roll.parts[i] = Shortcoder.replaceShortcodes(p, monsterData, true, item);
                     continue;
                 }
                 // dnd5e appends the item damage bonus after the formula slot, and a "0" there is a real bonus.
                 if (i !== 0) continue;
                 const bpFormula = blueprintDamage[ri]?.formula;
                 if (bpFormula && bpFormula.includes("[") && /^0+$/.test(p)) {
-                    roll.parts[i] = Shortcoder.replaceShortcodes(bpFormula, monsterData, true);
+                    roll.parts[i] = Shortcoder.replaceShortcodes(bpFormula, monsterData, true, item);
                 }
             }
         }
@@ -1617,6 +1670,7 @@ const Activities = (function () {
         const wantsDeferred = isAutomatedDeferral(blueprint);
         if (wantsDeferred !== !!activities.has(GMM_DEFERRED_ACTIVITY_ID)) return true;
         if (hasZoneActivity(blueprint) !== !!activities.has(GMM_ZONE_ACTIVITY_ID)) return true;
+        if (isMultiattack(blueprint) !== !!activities.has(GMM_ATTACKS_ACTIVITY_ID)) return true;
         const primary = activities.get(GMM_ACTIVITY_ID);
         if (primary?.type !== _wantedPrimaryType(blueprint)) return true;
         if (_poolTargetMismatch(blueprint, primary)) return true;
@@ -1625,9 +1679,10 @@ const Activities = (function () {
         if (_onSaveStale(activities, blueprint)) return true;
         if (activities.get(GMM_ZONE_ACTIVITY_ID)?.duration?.concentration) return true;
         if (activities.get(GMM_DEFERRED_ACTIVITY_ID)?.duration?.concentration) return true;
-        // Both secondaries are forced, so either can have lost the flags to a world that had midi off.
+        // Every secondary is forced, so any of them can have lost the flags to a world that had midi off.
         if (_missingMidiFlags(activities.get(GMM_DEFERRED_ACTIVITY_ID))) return true;
         if (_missingMidiFlags(activities.get(GMM_ZONE_ACTIVITY_ID))) return true;
+        if (_missingMidiFlags(activities.get(GMM_ATTACKS_ACTIVITY_ID))) return true;
         if (isDoomingDeferral(blueprint)) {
             if (primary?.damage?.parts?.length) return true;
             if (!primary?.effects?.some?.(e => e?._id === GMM_DOOM_CLOCK_EFFECT_ID)) return true;
@@ -1655,7 +1710,7 @@ const Activities = (function () {
 
     function _wantedPrimaryType(blueprint) {
         const blueprintData = blueprint?.data ?? blueprint ?? {};
-        if (isDelayedDeferral(blueprint) || hasZoneActivity(blueprint)) return "utility";
+        if (isDelayedDeferral(blueprint) || isMultiattack(blueprint) || hasZoneActivity(blueprint)) return "utility";
         if (isDoomingDeferral(blueprint)) return gateTypeFor(blueprintData.attack?.type);
         return activityTypeFor(blueprintData.attack?.type);
     }
@@ -1939,6 +1994,7 @@ const Activities = (function () {
         GMM_ACTIVITY_ID,
         GMM_DEFERRED_ACTIVITY_ID,
         GMM_ZONE_ACTIVITY_ID,
+        GMM_ATTACKS_ACTIVITY_ID,
         GMM_DOOM_CLOCK_EFFECT_ID,
         GMM_FORGED_EFFECT_IDS,
         isGmmActivityId,
@@ -1951,6 +2007,8 @@ const Activities = (function () {
         gateActivityId,
         payloadActivityId,
         effectHostActivityId,
+        attackCount,
+        isMultiattack,
         needsActivityRebuild,
         ATTACK_TYPES,
         activityTypeFor,
@@ -1968,6 +2026,7 @@ const Activities = (function () {
         buildActivityData,
         buildDeferredActivityData,
         buildZoneActivityData,
+        buildAttacksActivityData,
         buildDoomClockEffectData,
         buildActivityUpdate,
         buildDurationEffectData,

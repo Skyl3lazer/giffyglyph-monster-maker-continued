@@ -307,17 +307,17 @@ const GmmItem = (function () {
                 : [];
 
         if (healingPart) {
-            const label = _formatDamagePart(healingPart, gmmMonster, rollData, blueprintDamage[0]?.formula);
+            const label = _formatDamagePart(healingPart, gmmMonster, rollData, blueprintDamage[0]?.formula, this);
             if (label) labels.damage_hit = label;
         } else if (damageParts.length) {
             labels.damage_hit = damageParts
-                .map((part, idx) => _formatDamagePart(part, gmmMonster, rollData, blueprintDamage[idx]?.formula))
+                .map((part, idx) => _formatDamagePart(part, gmmMonster, rollData, blueprintDamage[idx]?.formula, this))
                 .filter(_ => _)
                 .join(" plus ");
         } else if (blueprintDamage.length) {
             // No GMM activity to read: a compendium or unmigrated item falls back to the blueprint.
             labels.damage_hit = blueprintDamage
-                .map(d => _formatDamagePart({ formula: d.formula, types: d.type ? [d.type] : [] }, gmmMonster, rollData, d.formula))
+                .map(d => _formatDamagePart({ formula: d.formula, types: d.type ? [d.type] : [] }, gmmMonster, rollData, d.formula, this))
                 .filter(_ => _)
                 .join(" plus ");
         }
@@ -360,7 +360,10 @@ const GmmItem = (function () {
 
         // From the blueprint, whose target vocabulary is richer than dnd5e's.
         const target = blueprint?.target ?? {};
-        labels.target = formatTargetLabel(target, range);
+        const attackCount = Activities.attackCount(this.flags?.gmm?.blueprint);
+        labels.target = (attackCount > 1)
+            ? game.i18n.format("gmm.action.labels.target.attacks", { quantity: attackCount })
+            : formatTargetLabel(target, range);
 
         try {
             const desc = await this.getChatData({ secrets: this.actor?.isOwner });
@@ -462,8 +465,8 @@ const GmmItem = (function () {
     }
 
     /* A healing part reads "1d6 healing", a damage part "1d6 + 2 fire damage". */
-    function _formatDamagePart(part, monsterData, rollData, rawBlueprintFormula) {
-        const formula = _resolvePartFormula(part, monsterData, rollData, rawBlueprintFormula);
+    function _formatDamagePart(part, monsterData, rollData, rawBlueprintFormula, item) {
+        const formula = _resolvePartFormula(part, monsterData, rollData, rawBlueprintFormula, item);
         if (!formula) return "";
         const types = part.types instanceof Set ? Array.from(part.types)
             : Array.isArray(part.types) ? part.types : [];
@@ -496,7 +499,7 @@ const GmmItem = (function () {
     }
 
     /* Four sources in preference order, because any one of them can be the only populated one. */
-    function _resolvePartFormula(part, monsterData, rollData, rawBlueprintFormula) {
+    function _resolvePartFormula(part, monsterData, rollData, rawBlueprintFormula, item) {
         let formula = "";
         try {
             // The standalone action sheet previews before `resolveActivityFormulas` has run.
@@ -519,7 +522,7 @@ const GmmItem = (function () {
         if (!formula) return "";
 
         if (formula.includes("[") && monsterData) {
-            formula = Shortcoder.replaceShortcodes(formula, monsterData, true);
+            formula = Shortcoder.replaceShortcodes(formula, monsterData, true, item);
         }
         try {
             const replaced = CompatibilityHelpers.replaceFormulaData(formula, rollData);

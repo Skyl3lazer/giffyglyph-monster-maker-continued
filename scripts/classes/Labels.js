@@ -1,7 +1,15 @@
-/* Dependency-free, because GmmItem and Shortcoder would otherwise form a module cycle through it. */
+/* Constants only, because GmmItem and Shortcoder would otherwise form a module cycle through it. */
+import { GMM_ACTION_INDIVIDUAL_TARGET_TYPES } from "../consts/GmmActionTargetTypes.js";
 
 function isLengthUnits(units) {
 	return !!units && !!(CONFIG.DND5E?.movementUnits ?? {})[units];
+}
+
+/* An area's size is a distance, not a count. */
+export function aimedTargetCount(target) {
+	const type = target?.type ?? "";
+	if (type && type !== "none" && !GMM_ACTION_INDIVIDUAL_TARGET_TYPES.includes(type)) return 1;
+	return Math.max(1, Math.trunc(Number(target?.value) || 1));
 }
 
 export function formatTargetLabel(target, range) {

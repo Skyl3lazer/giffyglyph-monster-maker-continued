@@ -19,6 +19,7 @@ import DeferralCountdownSettings from './scripts/classes/DeferralCountdownSettin
 import Durations from './scripts/classes/Durations.js';
 import Areas from './scripts/classes/Areas.js';
 import MissDamage from './scripts/classes/MissDamage.js';
+import Multiattack from './scripts/classes/Multiattack.js';
 import Shortcoder from './scripts/classes/Shortcoder.js';
 import AutomationHelpers from './scripts/classes/AutomationHelpers.js';
 import { GMM_GUI_SKINS } from "./scripts/consts/GmmGuiSkins.js";
@@ -64,6 +65,7 @@ Hooks.once("init", function() {
 	Areas.init();
 	Auras.init();
 	MissDamage.init();
+	Multiattack.init();
 	Exhaustion.init();
 	Conditions.init();
 

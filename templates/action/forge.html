@@ -140,7 +140,7 @@
 							<div class="accordion-section__body">
 								<p>{{{localize 'gmm.modal.info.shortcodes.list.p.1'}}}</p>
 								<blockquote>
-									<p>[name] [level] [attackBonus] [damage] [damageDie] [target] [range] [ac] [hpMax] [naturalMax] [saveDc] [featureDc] [durationSaveDc] [dcPrimaryBonus] [maxMod] [strMod] [strSave] [dexMod] [dexSave] [conMod] [conSave] [intMod] [intSave] [wisMod] [wisSave] [chaMod] [chaSave] [xp] [proficiency] [cr]</p>
+									<p>[name] [level] [attackBonus] [damage] [damageDie] [target] [targets] [range] [ac] [hpMax] [naturalMax] [saveDc] [featureDc] [durationSaveDc] [dcPrimaryBonus] [maxMod] [strMod] [strSave] [dexMod] [dexSave] [conMod] [conSave] [intMod] [intSave] [wisMod] [wisSave] [chaMod] [chaSave] [xp] [proficiency] [cr]</p>
 								</blockquote>
 								<p>{{{localize 'gmm.modal.info.shortcodes.list.p.2' saveDc='[saveDc]' featureDc='[featureDc]' durationSaveDc='[durationSaveDc]'}}}</p>
 							</div>
@@ -157,6 +157,7 @@
 									<p>[ceil(damage / 4)] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.5'}}</p>
 									<p>[floor(damage / 4)] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.6'}}</p>
 									<p>[dcPrimaryBonus + maxMod] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.7'}}</p>
+									<p>[round(damage / targets)] = {{localize 'gmm.modal.info.shortcodes.modifiers.example.8'}}</p>
 								</blockquote>
 							</div>
 						</div>

@@ -9,6 +9,7 @@ import {
 import Activities from "./Activities.js";
 import Durations from "./Durations.js";
 import Shortcoder from "./Shortcoder.js";
+import { aimedTargetCount } from "./Labels.js";
 
 const Pricing = (function() {
 
@@ -26,7 +27,7 @@ const Pricing = (function() {
 		const data = blueprint?.data;
 		if (!data) return null;
 
-		const damage = _readDamage(data, item.getOwningGmmMonster?.() ?? null);
+		const damage = _readDamage(item, data, item.getOwningGmmMonster?.() ?? null);
 		if (Math.round(damage.share * 100) > GMM_DEAL_DAMAGE.overkillAbove) return { overkill: true };
 
 		const rules = Activities.zoneRules(blueprint);
@@ -63,13 +64,13 @@ const Pricing = (function() {
 		return lines;
 	}
 
-	function _readDamage(data, scaler) {
+	function _readDamage(item, data, scaler) {
 		const reading = { share: 0, fixed: false };
 		if (!DAMAGING.has(data.attack?.type)) return reading;
 		const dmg = Number(scaler?.damage_per_action?.value);
 		for (const row of Activities.readDamageRows(data)) {
 			if (!row.formula || row.type in GMM_HEALING_BOONS) continue;
-			const { share, fixed } = _readFormula(row.formula, scaler);
+			const { share, fixed } = _readFormula(row.formula, scaler, item);
 			reading.share += share;
 			// Only a Scaler's DMG turns Fixed Damage into a share.
 			if (fixed && dmg > 0) {
@@ -80,12 +81,12 @@ const Pricing = (function() {
 		return reading;
 	}
 
-	function _readFormula(formula, scaler) {
+	function _readFormula(formula, scaler, item) {
 		let share = 0;
 		let fixed = 0;
 		const remainder = formula.replace(/\[[^[\]]*\]/g, (token) => {
 			const expression = token.slice(1, -1).replace(/,\s*(d\d+|damageDie)\s*$/i, "");
-			const [zero, probe] = [0, PROBE].map(dmg => _evaluate(expression, scaler, dmg));
+			const [zero, probe] = [0, PROBE].map(dmg => _evaluate(expression, scaler, dmg, item));
 			// A bracket that names no shortcode and is not a number is a damage type tag.
 			if (zero === null || probe === null) return Shortcoder.findShortcodes(token).length ? "0" : "";
 			share += (probe - zero) / PROBE;
@@ -95,9 +96,9 @@ const Pricing = (function() {
 		return { share, fixed: fixed + (_average(remainder) ?? 0) };
 	}
 
-	function _evaluate(expression, scaler, dmg) {
+	function _evaluate(expression, scaler, dmg, item) {
 		const monster = { ...(scaler ?? {}), damage_per_action: { ...(scaler?.damage_per_action ?? {}), value: dmg } };
-		const value = Number(Shortcoder.replaceShortcodes(`[${expression}]`, monster));
+		const value = Number(Shortcoder.replaceShortcodes(`[${expression}]`, monster, false, item));
 		return Number.isFinite(value) ? value : null;
 	}
 
@@ -126,7 +127,7 @@ const Pricing = (function() {
 		const points = Math.round(percentage * targets) - (area ? areaBase : aimedBase) + (miss * step / missStep);
 		const qualifiers = [
 			area ? _localize("gmm.pricing.qualifier.area") : null,
-			targets > 1 ? _format("gmm.pricing.targets", { count: targets }) : null,
+			targets > 1 ? _targetsLabel(data, targets) : null,
 			miss ? _format("gmm.pricing.qualifier.miss", { percentage: miss }) : null,
 			damage.fixed ? _localize("gmm.pricing.qualifier.fixed") : null
 		].filter(x => x);
@@ -215,11 +216,16 @@ const Pricing = (function() {
 	function _reach(data) {
 		if (Activities.isAreaTarget(data)) return _localize("gmm.pricing.reach.area");
 		const count = _targetCount(data);
-		return (count > 1) ? _format("gmm.pricing.targets", { count }) : null;
+		return (count > 1) ? _targetsLabel(data, count) : null;
 	}
 
 	function _targetCount(data) {
-		return Math.max(1, Math.trunc(Number(data.target?.value) || 1));
+		return aimedTargetCount(data.target);
+	}
+
+	/* Only the label differs. A multiattack's attacks may land on one creature. */
+	function _targetsLabel(data, count) {
+		return _format(Activities.isMultiattack(data) ? "gmm.pricing.attacks" : "gmm.pricing.targets", { count });
 	}
 
 	function _statusLabel(status, effect) {
