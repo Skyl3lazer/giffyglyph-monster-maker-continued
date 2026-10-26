@@ -81,16 +81,16 @@ const CompatibilityHelpers = (function () {
 	}
 
 	/* dnd5e 6.0 moved every bonus formula from `system.bonuses.*` onto `system.rolls.*`. */
+	// Falling back on a blank 6.0 bonus would read the old path's deprecation.
 	function globalAbilityBonus(actorData, kind) {
-		return actorData?.rolls?.ability?.[kind]?.bonus ?? actorData?.bonuses?.abilities?.[kind];
+		return dnd5eAtLeast(6) ? actorData?.rolls?.ability?.[kind]?.bonus : actorData?.bonuses?.abilities?.[kind];
 	}
 	function globalAttackBonus(actorData, actionType) {
-		return actorData?.rolls?.attack?.[actionType]?.bonus ?? actorData?.bonuses?.[actionType]?.attack;
+		return dnd5eAtLeast(6) ? actorData?.rolls?.attack?.[actionType]?.bonus : actorData?.bonuses?.[actionType]?.attack;
 	}
 	function globalDamageBonus(actorData, actionType) {
-		return actorData?.rolls?.damage?.[actionType]?.bonus ?? actorData?.bonuses?.[actionType]?.damage;
+		return dnd5eAtLeast(6) ? actorData?.rolls?.damage?.[actionType]?.bonus : actorData?.bonuses?.[actionType]?.damage;
 	}
-	// Falling back on a blank 6.0 bonus would read the old path's deprecation.
 	function abilitySaveBonus(ability) {
 		return dnd5eAtLeast(6) ? ability?.save?.roll?.bonus : ability?.bonuses?.save;
 	}
